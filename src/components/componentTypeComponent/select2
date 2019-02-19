@@ -1,0 +1,61 @@
+<div className='col-lg-4 col-md-9 col-sm-12' data-select2-id='366'>
+    <select className='form-control m-select2 select2-hidden-accessible' id='m_select2_9' name='param' multiple='' data-select2-id='m_select2_9' tabIndex='-1' aria-hidden='true'>
+    <option data-select2-id='368' />
+    <optgroup label='Alaskan/Hawaiian Time Zone' data-select2-id='369'>
+        <option value='AK' data-select2-id='370'>Alaska</option>
+        <option value='HI' data-select2-id='371'>Hawaii</option>
+    </optgroup>
+
+    <optgroup label='Central Time Zone' data-select2-id='386'>
+        <option value='AL' data-select2-id='387'>Alabama</option>
+        <option value='AR' data-select2-id='388'>Arkansas</option>
+        <option value='IL' data-select2-id='389'>Illinois</option>
+        <option value='IA' data-select2-id='390'>Iowa</option>
+        <option value='KS' data-select2-id='391'>Kansas</option>
+        <option value='KY' data-select2-id='392'>Kentucky</option>
+        <option value='LA' data-select2-id='393'>Louisiana</option>
+        <option value='MN' data-select2-id='394'>Minnesota</option>
+        <option value='MS' data-select2-id='395'>Mississippi</option>
+        <option value='MO' data-select2-id='396'>Missouri</option>
+        <option value='OK' data-select2-id='397'>Oklahoma</option>
+        <option value='SD' data-select2-id='398'>South Dakota</option>
+        <option value='TX' data-select2-id='399'>Texas</option>
+        <option value='TN' data-select2-id='400'>Tennessee</option>
+        <option value='WI' data-select2-id='401'>Wisconsin</option>
+    </optgroup>
+    <optgroup label='Eastern Time Zone' data-select2-id='402'>
+        <option value='CT' data-select2-id='403'>Connecticut</option>
+        <option value='DE' data-select2-id='404'>Delaware</option>
+        <option value='FL' data-select2-id='405'>Florida</option>
+        <option value='GA' data-select2-id='406'>Georgia</option>
+        <option value='IN' data-select2-id='407'>Indiana</option>
+        <option value='ME' data-select2-id='408'>Maine</option>
+        <option value='MD' data-select2-id='409'>Maryland</option>
+        <option value='MA' data-select2-id='410'>Massachusetts</option>
+        <option value='MI' data-select2-id='411'>Michigan</option>
+        <option value='NH' data-select2-id='412'>New Hampshire</option>
+        <option value='NJ' data-select2-id='413'>New Jersey</option>
+        <option value='NY' data-select2-id='414'>New York</option>
+        <option value='NC' data-select2-id='415'>North Carolina</option>
+        <option value='OH' data-select2-id='416'>Ohio</option>
+        <option value='PA' data-select2-id='417'>Pennsylvania</option>
+        <option value='RI' data-select2-id='418'>Rhode Island</option>
+        <option value='SC' data-select2-id='419'>South Carolina</option>
+        <option value='VT' data-select2-id='420'>Vermont</option>
+        <option value='VA' data-select2-id='421'>Virginia</option>
+        <option value='WV' data-select2-id='422'>West Virginia</option>
+    </optgroup>
+    </select>
+    <span className={'select2 select2-container select2-container--default select2-container--below select2-container--focus ' + styles.search1style} dir='ltr' data-select2-id='46'>
+    <span className='selection'>
+        <span className='select2-selection select2-selection--multiple' role='combobox' aria-haspopup='true' aria-expanded='false' aria-controls='asd' tabIndex='-1'>
+        <ul className='select2-selection__rendered'>
+            <li className='select2-search select2-search--inline'>
+            <input className={'select2-search__field ' + styles.search2style} type='search' tabIndex='0' autoComplete='off' autoCorrect='off' autoCapitalize='none' spellCheck='false' aria-autocomplete='list' placeholder='Select an option' />
+            </li>
+        </ul>
+        </span>
+    </span>
+    <span className='dropdown-wrapper' aria-hidden='true' />
+    </span>
+</div> 

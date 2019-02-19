@@ -1,0 +1,97 @@
+.iconcenter{
+    font-size: 20px;
+    margin-top: 10px;
+    margin-right: 20px;
+    float: left;
+}
+.borderline{
+background:#ffffff;
+padding: 25px;
+}
+.borderline p{
+    margin-left: 50px;
+    margin-bottom: 25px;
+}
+.titletable{
+margin-top: 30px;
+margin-left: 25px; 
+}
+.topbuffer {
+    margin-top: 30px !important;
+  }
+h4{
+    text-align: center;
+}
+.searchdetail{
+    display: inline-flex;
+    margin-top: 10px;
+}
+.containersearch{
+ margin-left: 13px;
+ position: relative;
+ 
+  }
+  .round {
+    // width: 100%;
+    border-radius: 15px;
+    border: 1px #000 solid;
+    padding: 5px 5px 5px 50px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 5;
+}
+  .containersearch .icon{
+    position: absolute;
+    z-index: 6;
+    font-size: 20px;
+    /* text-align: center; */
+    margin-left: 15px;
+  } 
+ .pagination{
+     margin-left: 150px;
+ }
+  a.disabled {
+    /* Make the disabled links grayish*/
+    color: gray;
+    pointer-events: none;
+}
+// .scroll{
+//     overflow: hidden;
+//      position: relative;
+//       border: 0px;
+//        width: 100%;
+
+// }
+// .scrollbody{
+//     position: relative;
+//     overflow: auto;
+//     width: 100%;
+//     max-height: 50vh;
+// }
+
+.buttonbg { // back-grcolor:#22b9ff; 
+    background-color:#22b9ff; 
+    border-radius: 60px; 
+    color: #ffffff; 
+    text-align: center; 
+    padding: 0.5rem 1.3rem; 
+    border: 1px solid #22b9ff; 
+    cursor: pointer; 
+    // margin-left: 165px;
+    margin-left: 100px;
+} 
+.buttonbg:hover {
+    background-color: #33ccff
+}
+.modalwidth{
+width:1200px;
+}
+.indent{
+    margin-top: 50px;
+    margin-left: 2px; 
+}
+.confirmsg{
+    text-align: center;
+    padding: 40px;
+}

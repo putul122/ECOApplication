@@ -1,0 +1,127 @@
+   /* #paper {
+             border: 1px solid lightgray;
+             /* position: absolute; *
+             margin-left: auto;
+             margin-right: auto;
+             left: 0;
+             right: 0;
+             top: 100px;
+         } */
+         .controls {
+            top: 100px;
+            margin: auto;
+            text-align: center;
+            padding: 10px 0;
+            border-bottom: 1px solid lightgray;
+        }
+
+
+        .top1 {
+         padding: 20px;
+         position: relative;
+         bottom: 0;
+         left: 0;
+         right: 0;
+       }
+
+       .top2 {
+        padding: 20px;
+        position: absolute;
+        bottom: 0;
+        left: 100;
+        right: 0;
+      }
+
+
+.paper{
+   border:1px solid #000000;
+   /* width: 80%; */
+   margin:0 auto;
+   /* height:400px; */
+   position: relative;
+}
+.center {
+   position: absolute;
+   left: 38%;
+   top: 40%;
+   text-align: center;
+   border: 3px solid #000000;
+   border-radius: 6px;
+   font-size: 12px;
+   padding: 45px;
+}
+.topleft {
+   position: absolute;
+   top: 20%;
+   left: 30%;
+   padding: 20px;
+   font-size: 12px;
+   border: 3px solid #000000;
+   border-radius: 6px;
+}
+.topright {
+   position: absolute;
+   top: 20%;
+   right: 40%;
+   font-size: 12px;
+   border: 3px solid #000000;
+   border-radius: 6px;
+   padding: 20px;
+}
+.bottomleft {
+    position: absolute;
+   bottom: 20%;
+   left: 30%;
+   font-size: 12px;
+   border: 3px solid #000000;
+   border-radius: 6px;
+   padding: 20px;
+}
+.bottomright {
+   position: absolute;
+   bottom: 20%;
+   right: 40%;
+   font-size: 18px;
+   padding: 20px;
+   border: 3px solid #000000;
+   border-radius: 6px;
+}
+.topextremeleft1{
+   position: absolute;
+   top: 34%;
+   left: 20%;
+   padding: 15px;
+   font-size: 18px;
+   border: 3px solid #000000;
+   border-radius: 6px;
+
+}
+.topextremeleft2{
+   position: absolute;
+   top: 50%;
+   left: 20%;
+   padding: 15px;
+   font-size: 12px;
+   border: 3px solid #000000;
+   border-radius: 6px;
+
+}
+.topextremeright1{
+   position: absolute;
+   top: 34%;
+   right: 30%;
+   padding: 15px;
+   font-size: 12px;
+   border: 3px solid #000000;
+   border-radius: 6px;
+
+}
+.topextremeright2{
+   position: absolute;
+   top: 50%;
+   right: 30%;
+   padding: 15px;
+   font-size: 12px;
+   border: 3px solid #000000;
+   border-radius: 6px;
+}

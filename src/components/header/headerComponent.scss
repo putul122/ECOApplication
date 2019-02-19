@@ -1,0 +1,35 @@
+
+.headerComponent{
+    background-color:#3498DB !important;
+    
+     a{
+         color:#ffffff;
+         font-size: 35px;
+     } 
+     .iconright{
+         padding: 15px;
+         color:#ffffff;
+         font-size: 20px;
+
+     } 
+    .navbarbg{
+        margin: 0 auto;
+        background-color:#3498DB;
+      }
+    .navbar{
+        margin: 0 auto;
+      
+    }
+    .nav li{
+        display: inline-block;
+        margin:10px;
+    
+    }
+   
+    .navbar a{
+        float: left;
+        font-size: 25px;
+        margin: 5px;
+       font-weight: bold;
+    }
+}
