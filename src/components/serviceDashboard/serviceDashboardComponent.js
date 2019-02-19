@@ -109,7 +109,7 @@ export default function ServiceDashboard (props) {
                         <i className='flaticon-notes m--font-brand' />
                       </span>
                       <span className='m-widget17__subtitle'>
-                        <h3>Services</h3>
+                        <a href='/component_types/119' ><h3>Services</h3></a>
                         <h5 style={{'float': 'right', 'paddingRight': '25px', 'marginTop': '-35px'}}>{12}</h5>
                       </span>
                       {/* <span className='m-widget17__desc'>
@@ -151,8 +151,8 @@ export default function ServiceDashboard (props) {
                         <i className='flaticon-notes m--font-brand' />
                       </span>
                       <span className='m-widget17__subtitle'>
-                        <h3>Services Categories</h3>
-                        <h5 style={{'float': 'right', 'paddingRight': '25px', 'marginTop': '-35px'}}>{12}</h5>
+                        <h3>Application</h3>
+                        <h5 style={{'float': 'right', 'paddingRight': '25px', 'marginTop': '-35px'}}>{651}</h5>
                       </span>
                       {/* <span className='m-widget17__desc'>
                         <h1>{softwareCount}</h1>
@@ -193,8 +193,8 @@ export default function ServiceDashboard (props) {
                         <i className='flaticon-notes m--font-brand' />
                       </span>
                       <span className='m-widget17__subtitle'>
-                        <h3>Departments</h3>
-                        <h5 style={{'float': 'right', 'paddingRight': '25px', 'marginTop': '-35px'}}>{12}</h5>
+                        <h3>Agreement</h3>
+                        <h5 style={{'float': 'right', 'paddingRight': '25px', 'marginTop': '-35px'}}>{13}</h5>
                       </span>
                       {/* <span className='m-widget17__desc'>
                         <h1>{softwareCount}</h1>

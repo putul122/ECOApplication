@@ -97,10 +97,10 @@ export default function HeaderComponent (props) {
   return (
     <div>
       <header id='m_header' className='m-grid__item    m-header ' m-minimize-offset='200' m-minimize-mobile-offset='200' >
-        <div className='m-container m-container--fluid m-container--full-height' style={{'padding': '10px 10px -10px 10px'}}>
+        <div className='m-container m-container--fluid m-container--full-height' >
           <div className='m-stack m-stack--ver m-stack--desktop'>
             {/* <!-- BEGIN: Brand --> */}
-            <div className='m-stack__item m-brand '>
+            <div className='m-stack__item m-brand m-brand--skin-light'>
               <div className='m-stack m-stack--ver m-stack--general'>
                 <div className='m-stack__item m-stack__item--middle m-brand__logo'>
                   <a href='javascript:void(0);' className=''>
@@ -131,11 +131,17 @@ export default function HeaderComponent (props) {
             </div>
             {/* <!-- END: Brand --> */}
             <div className='m-stack__item m-stack__item--fluid m-header-head' id='m_header_nav'>
-            {/* <div className='m-header__title'>
-              <h3 className='m-header__title-text'>Select Module</h3>
-            </div> */}
+              {/* <div className='m-header__title'>
+                <h3 className='m-header__title-text'>Select Module</h3>
+              </div> */}
+              {/* <div className='m-stack__item m-stack__item--middle m-dropdown m-dropdown--arrow m-dropdown--large m-dropdown--mobile-full-width m-dropdown--align-left m-dropdown--skin-light m-header-search m-header-search--expandable m-header-search--skin-light'>
+                <span>test</span>
+              </div> */}
               {/* <!-- BEGIN: Topbar --> */}
               { props.isLoggedin && (<div id='m_header_topbar' className='m-topbar  m-stack m-stack--ver m-stack--general'>
+                {/* <div className='m-stack__item m-stack__item--middle m-dropdown m-dropdown--arrow m-dropdown--large m-dropdown--mobile-full-width m-dropdown--align-left m-dropdown--skin-light m-header-search m-header-search--expandable m-header-search--skin-light'>
+                  <span>test</span>
+                </div> */}
                 <div className='m-stack__item m-topbar__nav-wrapper'>
                   <ul className='m-topbar__nav m-nav m-nav--inline'>
                     <li className='m-nav__item m-topbar__notifications m-dropdown m-dropdown--large m-dropdown--arrow m-dropdown--align-center m-dropdown--mobile-full-width m-dropdown--open' id='search-container' >
@@ -145,13 +151,6 @@ export default function HeaderComponent (props) {
                           <span className={'m-nav__link-icon-wrapper '} style={notificationStyle}><i className='flaticon-music-2' /></span>
                         </span>
                       </a>
-                      <div >
-                        {/* <Modal isOpen={props.modalIsOpen}
-                          onRequestClose={closeModal}
-                          style={customStyles} >
-                          <ApplicationActivity />
-                        </Modal> */}
-                      </div>
                     </li>
                     <li className={'m-nav__item m-topbar__user-profile  m-dropdown  m-dropdown--medium m-dropdown--arrow  m-dropdown--align-right  m-dropdown--mobile-full-width m-dropdown--skin-light ' + loginSlideClass}>
                       <a href='' className='m-nav__link' onClick={openLoginSlide}>
