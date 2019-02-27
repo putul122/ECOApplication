@@ -148,7 +148,7 @@ export default function HeaderComponent (props) {
                   </li>
                   <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} m-menu-submenu-toggle='click' aria-haspopup='true'>
                     <a href='javascript:;' class='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
-                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>Performance Management</span>
+                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>SLA Management</span>
                     </a>
                   </li>
                 </ul>
