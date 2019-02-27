@@ -143,12 +143,12 @@ export default function HeaderComponent (props) {
                 <ul className='m-menu__nav  m-menu__nav--submenu-arrow '>
                   <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} m-menu-submenu-toggle='click' aria-haspopup='true'>
                     <a href='/service_dashboard' class='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
-                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>Service Management</span>
+                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>S-ECO</span>
                     </a>
                   </li>
                   <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} m-menu-submenu-toggle='click' aria-haspopup='true'>
                     <a href='javascript:;' class='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
-                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>SLA Management</span>
+                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>P-ECO</span>
                     </a>
                   </li>
                 </ul>

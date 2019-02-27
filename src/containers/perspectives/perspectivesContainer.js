@@ -124,6 +124,7 @@ export default compose(
               let obj = {}
               obj.name = data.name
               obj.componentId = data.constraint.component_type.id
+              obj.data = null
               connectionData.push(obj)
             }
           })
