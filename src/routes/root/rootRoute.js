@@ -147,6 +147,24 @@ export default class Root extends Component {
 		}
 		resolve(require('../sheetsPage/sheetsPageRoute').default)
 		break
+	case 'perspectives':
+		if (module.hot) {
+						module.hot.accept('../perspectivesPage/perspectivesPageRoute', () => {
+				require('../perspectivesPage/perspectivesPageRoute').default // eslint-disable-line
+								this.forceUpdate()
+						})
+		}
+		resolve(require('../perspectivesPage/perspectivesPageRoute').default)
+	break
+	case 'viewService':
+		if (module.hot) {
+						module.hot.accept('../viewServicePage/viewServicePageRoute', () => {
+				require('../viewServicePage/viewServicePageRoute').default // eslint-disable-line
+								this.forceUpdate()
+						})
+		}
+		resolve(require('../viewServicePage/viewServicePageRoute').default)
+	break
 	case 'users':
 		if (module.hot) {
 			module.hot.accept('../usersPage/usersPageRoute', () => {
@@ -177,7 +195,6 @@ export default class Root extends Component {
   <AppWrapper>
     <BrowserRouter>
       <Switch>
-        <Route exact path='/' component={(props) => this.loadView('landing', props)} />
         <Route path='/users' exact component={(props) => this.loadView('users', props)} />
         <Route exact path='/sheets' component={(props) => this.loadView('sheets', props)} />
         <Route exact path='/sample_joinjs' component={(props) => this.loadView('dummy', props)} />
@@ -193,7 +210,10 @@ export default class Root extends Component {
         <Route exact path='/components/:id' component={(props) => this.loadView('componentTypeComponent', props)} />
         <Route exact path='/forgot_password' component={(props) => this.loadView('forgotPassword', props)} />
         <Route exact path='/change_password' component={(props) => this.loadView('changePassword', props)} />
-      </Switch>
+				<Route exact path='/perspectives/:id/:viewKey' component={(props) => this.loadView('perspectives', props)} />
+				<Route exact path='/services/:id' component={(props) => this.loadView('viewService', props)} />
+				<Route exact path='/' component={(props) => this.loadView('landing', props)} />			
+			</Switch>
     </BrowserRouter>
   </AppWrapper>
 		)

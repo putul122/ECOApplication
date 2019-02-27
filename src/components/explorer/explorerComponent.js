@@ -67,6 +67,7 @@ export default function Explorer (props) {
       let startNode = {}
       startNode.name = newValue.name.trim()
       startNode.title = newValue.name.trim()
+      startNode.icon = newValue.component_type.icon
       let filterSettings = {...props.filterSettings, 'selectedOption': newValue, 'modelRelationshipData': [], filters: [], 'startNode': startNode}
       props.setFilterSettings(filterSettings)
       // eslint-disable-next-line

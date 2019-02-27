@@ -401,7 +401,10 @@ export default function Sheets (props) {
       let modelPrespectivesPayload = {'meta_model_perspective_id': perspectiveId}
       // eslint-disable-next-line
       mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
-      props.fetchMetaModelPrespective(perspectiveId)
+      let metaModelPrespectivePayload = {}
+      metaModelPrespectivePayload.id = perspectiveId
+      metaModelPrespectivePayload.viewKey = {}
+      props.fetchMetaModelPrespective(metaModelPrespectivePayload)
       props.fetchModelPrespectives(modelPrespectivesPayload)
       let modalSettings = {...props.modalSettings, 'selectedMetaModel': newValue, 'apiData': []}
       props.setModalSetting(modalSettings)

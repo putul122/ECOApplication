@@ -81,6 +81,9 @@ const api = {
         return 'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/' + perspectiveId
     },
     getMetaModelPerspectives: 'https://ecoconductor-dev-api-model.azurewebsites.net/meta_model_perspectives',
+    getAllModelPerspectives: function (payload) {
+        return 'https://model-eco-dev.ecoconductor.com/model_perspectives?' + payload
+    },
     forgotPassword: 'https://account-eco-dev.ecoconductor.com/user_passwords',
     getRoles: 'https://account-eco-dev.ecoconductor.com/roles',
     createRole: 'https://account-eco-dev.ecoconductor.com/roles',
@@ -92,7 +95,9 @@ const api = {
     },
     updateRole: function (roleId) {
         return 'https://account-eco-dev.ecoconductor.com/roles/' + roleId
-    }
+    },
+    iconURL: 'https://ecoconductor-dev-api-resources.azurewebsites.net/icons/',
+    getPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SM'
   }
 
 export default api

@@ -6,6 +6,11 @@ const notificationAlert = {
   background: '#ff006c',
   border: '1px solid #ff006c'
 }
+const mHeaderStyle = {
+  display: 'table',
+  height: '100%',
+  float: 'left'
+}
 let userToken = localStorage.getItem('userAccessToken')
 var connection = new signalR.HubConnectionBuilder()
           .withUrl('https://notification-eco-dev.ecoconductor.com/notification', {
@@ -131,12 +136,23 @@ export default function HeaderComponent (props) {
             </div>
             {/* <!-- END: Brand --> */}
             <div className='m-stack__item m-stack__item--fluid m-header-head' id='m_header_nav'>
-              {/* <div className='m-header__title'>
-                <h3 className='m-header__title-text'>Select Module</h3>
-              </div> */}
-              {/* <div className='m-stack__item m-stack__item--middle m-dropdown m-dropdown--arrow m-dropdown--large m-dropdown--mobile-full-width m-dropdown--align-left m-dropdown--skin-light m-header-search m-header-search--expandable m-header-search--skin-light'>
-                <span>test</span>
-              </div> */}
+              <div className='m-header__title' style={mHeaderStyle}>
+                <h3 className='m-header__title-text' style={{'padding': '0 10px 0 30px', 'marginTop': '25px'}}>Select Module</h3>
+              </div>
+              <div className='m-header-menu m-aside-header-menu-mobile m-aside-header-menu-mobile--offcanvas  m-header-menu--skin-light m-header-menu--submenu-skin-light m-aside-header-menu-mobile--skin-light m-aside-header-menu-mobile--submenu-skin-light '>
+                <ul className='m-menu__nav  m-menu__nav--submenu-arrow '>
+                  <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} m-menu-submenu-toggle='click' aria-haspopup='true'>
+                    <a href='/service_dashboard' class='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
+                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>Service Management</span>
+                    </a>
+                  </li>
+                  <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} m-menu-submenu-toggle='click' aria-haspopup='true'>
+                    <a href='javascript:;' class='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
+                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>Performance Management</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
               {/* <!-- BEGIN: Topbar --> */}
               { props.isLoggedin && (<div id='m_header_topbar' className='m-topbar  m-stack m-stack--ver m-stack--general'>
                 {/* <div className='m-stack__item m-stack__item--middle m-dropdown m-dropdown--arrow m-dropdown--large m-dropdown--mobile-full-width m-dropdown--align-left m-dropdown--skin-light m-header-search m-header-search--expandable m-header-search--skin-light'>

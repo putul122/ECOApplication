@@ -10,6 +10,7 @@ import watchDiscussions, {actionCreators as discussionActions} from './discussio
 import watchUserActions, {actionCreators as userActions} from './user/userSaga'
 import watchModelActivity, {actionCreators as modelActions} from './model/modelSaga'
 import watchComponentModalView, {actionCreators as componentModalViewActions} from './componentModalView/componentModalViewSaga'
+import watchServices, {actionCreators as serviceActions} from './service/serviceSaga'
 
 export const actions = {
   basicActions,
@@ -23,7 +24,8 @@ export const actions = {
   discussionActions,
   userActions,
   modelActions,
-  componentModalViewActions
+  componentModalViewActions,
+  serviceActions
 }
 export default function * rootSaga () {
   yield [
@@ -38,6 +40,7 @@ export default function * rootSaga () {
     watchDiscussions(),
     watchUserActions(),
     watchModelActivity(),
-    watchComponentModalView()
+    watchComponentModalView(),
+    watchServices()
   ]
 }

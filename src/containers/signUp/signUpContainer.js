@@ -42,7 +42,7 @@ export default compose(
         if (!nextProps.createUserResponse.error_code) {
           localStorage.setItem('userAccessToken', nextProps.createUserResponse.resources[0]['access_token'])
           localStorage.setItem('isLoggedin', true)
-          this.props.history.push('/service_dashboard')
+          this.props.history.push('/home')
         }
         if (nextProps.createUserResponse !== this.props.createUserResponse) {
           this.props.setCreateUserProcessStatus(false)

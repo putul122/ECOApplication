@@ -15,6 +15,10 @@ import usersReducer from './usersReducer/usersReducerReducer'
 import sheetsReducer from './sheetsReducer/sheetsReducerReducer'
 import changePasswordReducer from './changePasswordReducer/changePasswordReducerReducer'
 import componentModalViewReducer from './componentModalViewReducer/componentModalViewReducerReducer'
+import dataModelReducer from './dataModelReducer/dataModelReducerReducer'
+import viewServiceReducer from './viewServiceReducer/viewServiceReducerReducer'
+import serviceDashboardReducer from './serviceDashboardReducer/serviceDashboardReducerReducer'
+import perspectivesReducer from './perspectivesReducer/perspectivesReducerReducer'
 
 export default combineReducers({
     basicReducer,
@@ -32,5 +36,9 @@ export default combineReducers({
     usersReducer,
     sheetsReducer,
     changePasswordReducer,
-    componentModalViewReducer
+    componentModalViewReducer,
+    dataModelReducer,
+    viewServiceReducer,
+    serviceDashboardReducer,
+    perspectivesReducer
 })

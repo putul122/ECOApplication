@@ -30,7 +30,7 @@ export default compose(
       if (nextProps.isLoggedin) {
         console.log('redirect after successfull login')
         localStorage.setItem('isLoggedin', nextProps.isLoggedin)
-        this.props.history.push('/registering')
+        this.props.history.push('/service_dashboard')
       }
     }
   })

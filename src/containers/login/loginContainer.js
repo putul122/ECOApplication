@@ -65,7 +65,7 @@ export default compose(
           // eslint-disable-next-line
           toastr.success('you logged in successfully.')
           // window.location.href = window.location.origin + '/home'
-          this.props.history.push('/service_dashboard')
+          this.props.history.push('/home')
         } else {
         }
 

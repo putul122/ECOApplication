@@ -1,18 +1,19 @@
 import { connect } from 'react-redux'
 import { compose, lifecycle } from 'recompose'
 import DataModel from '../../components/dataModel/dataModelComponent'
-import { actionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
+import { actionCreators } from '../../redux/reducers/dataModelReducer/dataModelReducerReducer'
 
 // Global State
 export function mapStateToProps (state, props) {
   return {
-    starCount: state.basicReducer.count
+    // startNode: state.dataModelReducer.startNode,
+    // relationships: state.dataModelReducer.relationships,
+    zoomStatus: state.dataModelReducer.zoomStatus
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch
 export const propsMapping: Callbacks = {
-  increment: actionCreators.increment,
-  decrement: actionCreators.decrement
+  setZoomStatus: actionCreators.setZoomStatus
 }
 
 // If you want to use the function mapping
@@ -25,8 +26,14 @@ export const propsMapping: Callbacks = {
 export default compose(
   connect(mapStateToProps, propsMapping),
   lifecycle({
+    componentWillMount: function () {
+        console.log('component will mount', this.props)
+    },
     componentDidMount: function () {
-      console.log('fetch data model', this.props)
+        console.log('component did mount', this.props)
+    },
+    componentWillReceiveProps: function (nextProps) {
+        console.log('com will receive props', nextProps)
     }
   })
 )(DataModel)

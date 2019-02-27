@@ -1,5 +1,10 @@
 import { createAction, handleActions } from 'redux-actions'
-import { FETCH_CLIENT_ACCESS_TOKEN_SUCCESS, FETCH_USER_AUTHENTICATION_SUCCESS, UPDATE_NOTIFICATION_VIEW_STATUS_SUCCESS } from '../../sagas/basic/basicSaga'
+import {
+  FETCH_CLIENT_ACCESS_TOKEN_SUCCESS,
+  FETCH_USER_AUTHENTICATION_SUCCESS,
+  FETCH_PACKAGE_SUCCESS,
+  UPDATE_NOTIFICATION_VIEW_STATUS_SUCCESS
+} from '../../sagas/basic/basicSaga'
 // Name Spaced Action Types
 const INCREMENT = 'BasicReducer/INCREMENT'
 const DECREMENT = 'BasicReducer/DECREMENT'
@@ -38,8 +43,9 @@ export const actions = {
   SET_NOTIFICATION_FLAG,
   TOGGLE_FLIPIN_X,
   UPDATE_NOTIFICATION_VIEW_STATUS_SUCCESS,
-  RESET_NOTIFICATION_RESPONSE
-  }
+  RESET_NOTIFICATION_RESPONSE,
+  FETCH_PACKAGE_SUCCESS
+}
 
 export const actionCreators = {
   increment: createAction(INCREMENT),
@@ -62,8 +68,6 @@ export const actionCreators = {
 }
 
 export const initialState = {
-  // count: 0,
-  // string: 'number',
   modalIsOpen: false,
   successmodalIsOpen: false,
   currentPage: 1,
@@ -83,7 +87,8 @@ export const initialState = {
   isDropDownOpen: false,
   notificationFlag: false,
   flipInX: 'm-login--signin',
-  updateNotificationViewStatusResponse: ''
+  updateNotificationViewStatusResponse: '',
+  packages: ''
 }
 
 export default handleActions(
@@ -159,6 +164,9 @@ export default handleActions(
     }),
     [RESET_NOTIFICATION_RESPONSE]: (state, action) => ({ ...state,
       updateNotificationViewStatusResponse: ''
+    }),
+    [FETCH_PACKAGE_SUCCESS]: (state, action) => ({ ...state,
+      packages: action.payload
     })
   },
   initialState

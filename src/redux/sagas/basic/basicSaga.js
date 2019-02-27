@@ -16,6 +16,9 @@ export const UPDATE_NOTIFICATION_VIEW_STATUS_FAILURE = 'saga/Basic/UPDATE_NOTIFI
 export const FETCH_ROLES = 'saga/Basic/FETCH_ROLES'
 export const FETCH_ROLES_SUCCESS = 'saga/Basic/FETCH_ROLES_SUCCESS'
 export const FETCH_ROLES_FAILURE = 'saga/Basic/FETCH_ROLES_FAILURE'
+export const FETCH_PACKAGE = 'saga/Basic/FETCH_PACKAGE'
+export const FETCH_PACKAGE_SUCCESS = 'saga/Basic/FETCH_PACKAGE_SUCCESS'
+export const FETCH_PACKAGE_FAILURE = 'saga/Basic/FETCH_PACKAGE_FAILURE'
 
 export const actionCreators = {
   fetchClientAccessToken: createAction(FETCH_CLIENT_ACCESS_TOKEN),
@@ -29,7 +32,10 @@ export const actionCreators = {
   updateNotificationViewStatusFailure: createAction(UPDATE_NOTIFICATION_VIEW_STATUS_FAILURE),
   fetchRoles: createAction(FETCH_ROLES),
   fetchRolesSuccess: createAction(FETCH_ROLES_SUCCESS),
-  fetchRolesFailure: createAction(FETCH_ROLES_FAILURE)
+  fetchRolesFailure: createAction(FETCH_ROLES_FAILURE),
+  fetchPackage: createAction(FETCH_PACKAGE),
+  fetchPackageSuccess: createAction(FETCH_PACKAGE_SUCCESS),
+  fetchPackageFailure: createAction(FETCH_PACKAGE_FAILURE)
 }
 
 export default function * watchBasic () {
@@ -37,7 +43,8 @@ export default function * watchBasic () {
     takeLatest(FETCH_CLIENT_ACCESS_TOKEN, getClientAccessToken),
     takeLatest(FETCH_USER_AUTHENTICATION, getUserAuthentication),
     takeLatest(UPDATE_NOTIFICATION_VIEW_STATUS, updateNotificationViewStatus),
-    takeLatest(FETCH_ROLES, getRoles)
+    takeLatest(FETCH_ROLES, getRoles),
+    takeLatest(FETCH_PACKAGE, getPackage)
   ]
 }
 
@@ -90,5 +97,18 @@ export function * getRoles (action) {
     yield put(actionCreators.fetchRolesSuccess(roles.data))
   } catch (error) {
     yield put(actionCreators.fetchRolesFailure(error))
+  }
+}
+
+export function * getPackage (action) {
+  try {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
+    const packages = yield call(
+      axios.get,
+      api.getPackage
+    )
+    yield put(actionCreators.fetchPackageSuccess(packages.data))
+  } catch (error) {
+    yield put(actionCreators.fetchPackageFailure(error))
   }
 }
