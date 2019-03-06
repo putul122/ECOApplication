@@ -28,7 +28,9 @@ export const FETCH_COMPONENT_MODEL_PRESPECTIVES_FAILURE = 'saga/Model/FETCH_COMP
 export const FETCH_META_MODEL_PRESPECTIVES = 'saga/Model/FETCH_META_MODEL_PRESPECTIVES'
 export const FETCH_META_MODEL_PRESPECTIVES_SUCCESS = 'saga/Model/FETCH_META_MODEL_PRESPECTIVES_SUCCESS'
 export const FETCH_META_MODEL_PRESPECTIVES_FAILURE = 'saga/Model/FETCH_META_MODEL_PRESPECTIVES_FAILURE'
-
+export const DELETE_COMPONENT_MODEL_PERSPECTIVES = 'saga/Model/DELETE_COMPONENT_MODEL_PERSPECTIVES'
+export const DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS = 'saga/Model/DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS'
+export const DELETE_COMPONENT_MODEL_PERSPECTIVES_FAILURE = 'saga/Model/DELETE_COMPONENT_MODEL_PERSPECTIVES_FAILURE'
 
 export const actionCreators = {
   fetchMetaModelPrespective: createAction(FETCH_META_MODEL_PRESPECTIVE),
@@ -51,7 +53,10 @@ export const actionCreators = {
   fetchComponentModelPrespectivesFailure: createAction(FETCH_COMPONENT_MODEL_PRESPECTIVES_FAILURE),
   fetchMetaModelPrespectives: createAction(FETCH_META_MODEL_PRESPECTIVES),
   fetchMetaModelPrespectivesSuccess: createAction(FETCH_META_MODEL_PRESPECTIVES_SUCCESS),
-  fetchMetaModelPrespectivesFailure: createAction(FETCH_META_MODEL_PRESPECTIVES_FAILURE)
+  fetchMetaModelPrespectivesFailure: createAction(FETCH_META_MODEL_PRESPECTIVES_FAILURE),
+  deleteComponentModelPerspectives: createAction(DELETE_COMPONENT_MODEL_PERSPECTIVES),
+  deleteComponentModelPerspectivesSuccess: createAction(DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS),
+  deleteComponentModelPerspectivesFailure: createAction(DELETE_COMPONENT_MODEL_PERSPECTIVES_FAILURE)
 }
 
 export default function * watchModel () {
@@ -62,8 +67,24 @@ export default function * watchModel () {
     takeLatest(FETCH_ALL_MODEL_PRESPECTIVES, getAllModelPerspectives),
     takeLatest(UPDATE_ALL_MODEL_PRESPECTIVES, updateAllModelPerspectives),
     takeLatest(FETCH_COMPONENT_MODEL_PRESPECTIVES, getComponentModelPerspectives),
-    takeLatest(FETCH_META_MODEL_PRESPECTIVES, getMetaModelPrespectives)
+    takeLatest(FETCH_META_MODEL_PRESPECTIVES, getMetaModelPrespectives),
+    takeLatest(DELETE_COMPONENT_MODEL_PERSPECTIVES, deleteComponentModelPerspectives)
   ]
+}
+
+export function * deleteComponentModelPerspectives (action) {
+  try {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
+    const deleteModelPerspective = yield call(
+      axios.delete,
+      api.deleteComponent(action.payload.id)
+      // action.payload
+     )
+     console.log(deleteModelPerspective)
+    yield put(actionCreators.deleteComponentModelPerspectivesSuccess(deleteModelPerspective.data))
+  } catch (error) {
+    yield put(actionCreators.deleteComponentModelPerspectivesFailure(error))
+  }
 }
 
 export function * getMetaModelPrespective (action) {

@@ -1,10 +1,13 @@
 import {createAction, handleActions} from 'redux-actions'
 import {
     FETCH_MODEL_PRESPECTIVES_SUCCESS,
-    FETCH_META_MODEL_PRESPECTIVE_SUCCESS
+    FETCH_META_MODEL_PRESPECTIVE_SUCCESS,
+    UPDATE_MODEL_PRESPECTIVES_SUCCESS,
+    DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS
 } from '../../sagas/model/modelSaga'
-import {ADD_COMPONENT_COMPONENT_SUCCESS} from '../../sagas/applicationDetail/applicationDetailSaga'
-import {DELETE_COMPONENT_TYPE_COMPONENT_SUCCESS} from '../../sagas/componentTypeComponent/componentTypeComponentSaga'
+// import {DELETE_COMPONENT_TYPE_COMPONENT_SUCCESS} from '../../sagas/componentTypeComponent/componentTypeComponentSaga'
+// import {ADD_COMPONENT_COMPONENT_SUCCESS} from '../../sagas/applicationDetail/applicationDetailSaga'
+import {FETCH_DROPDOWN_DATA_SUCCESS} from '../../sagas/service/serviceSaga'
 // Name Spaced Action Types
 const SET_ADD_SETTINGS = 'perspectivesReducer/SET_ADD_SETTINGS'
 const SET_CURRENT_PAGE = 'perspectivesReducer/SET_CURRENT_PAGE'
@@ -20,10 +23,11 @@ export const actions = {
   SET_ADD_SETTINGS,
   SET_AVAILABLE_ACTION,
   SET_PER_PAGE,
-  ADD_COMPONENT_COMPONENT_SUCCESS,
+  UPDATE_MODEL_PRESPECTIVES_SUCCESS,
   RESET_RESPONSE,
-  DELETE_COMPONENT_TYPE_COMPONENT_SUCCESS,
-  SET_CONNECTION_DATA
+  DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS,
+  SET_CONNECTION_DATA,
+  FETCH_DROPDOWN_DATA_SUCCESS
 }
 
 export const actionCreators = {
@@ -55,7 +59,8 @@ export const initialState = {
     description: '',
     selectedCategory: null,
     selectedOwner: null,
-    deleteObject: null
+    deleteObject: null,
+    createResponse: null
   },
   availableAction: {
     Create: false,
@@ -67,7 +72,8 @@ export const initialState = {
   connectionData: '',
   perPage: 10,
   createComponentResponse: '',
-  deleteComponentResponse: ''
+  deleteComponentResponse: '',
+  dropdownData: ''
 }
 
 export default handleActions(
@@ -97,22 +103,27 @@ export default handleActions(
       ...state,
       perPage: action.payload
     }),
-    [ADD_COMPONENT_COMPONENT_SUCCESS]: (state, action) => ({
+    [UPDATE_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
       ...state,
       createComponentResponse: action.payload
     }),
-    [DELETE_COMPONENT_TYPE_COMPONENT_SUCCESS]: (state, action) => ({
+    [DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS]: (state, action) => ({
       ...state,
       deleteComponentResponse: action.payload
     }),
     [RESET_RESPONSE]: (state, action) => ({
       ...state,
       createComponentResponse: '',
-      deleteComponentResponse: ''
+      deleteComponentResponse: '',
+      dropdownData: ''
     }),
     [SET_CONNECTION_DATA]: (state, action) => ({
       ...state,
       connectionData: action.payload
+    }),
+    [FETCH_DROPDOWN_DATA_SUCCESS]: (state, action) => ({
+      ...state,
+      dropdownData: action.payload
     })
   },
   initialState

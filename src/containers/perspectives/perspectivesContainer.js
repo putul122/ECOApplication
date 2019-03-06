@@ -5,6 +5,7 @@ import { actions as sagaActions } from '../../redux/sagas'
 import { actionCreators } from '../../redux/reducers/perspectivesReducer/perspectivesReducerReducer'
 import { actionCreators as basicActionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
 import _ from 'lodash'
+console.log('sagaActions', sagaActions)
 // Global State
 export function mapStateToProps (state, props) {
   return {
@@ -19,7 +20,8 @@ export function mapStateToProps (state, props) {
     perPage: state.perspectivesReducer.perPage,
     createComponentResponse: state.perspectivesReducer.createComponentResponse,
     deleteComponentResponse: state.perspectivesReducer.deleteComponentResponse,
-    connectionData: state.perspectivesReducer.connectionData
+    connectionData: state.perspectivesReducer.connectionData,
+    dropdownData: state.perspectivesReducer.dropdownData
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch
@@ -28,16 +30,16 @@ export const propsMapping: Callbacks = {
   setModalOpenStatus: basicActionCreators.setModalOpenStatus,
   fetchModelPrespectives: sagaActions.modelActions.fetchModelPrespectives,
   fetchMetaModelPrespective: sagaActions.modelActions.fetchMetaModelPrespective,
-  fetchCategory: sagaActions.serviceActions.fetchCategory,
-  fetchOwner: sagaActions.serviceActions.fetchOwner,
+  fetchDropdownData: sagaActions.serviceActions.fetchDropdownData,
   setCurrentPage: actionCreators.setCurrentPage,
   setAddSettings: actionCreators.setAddSettings,
   setPerPage: actionCreators.setPerPage,
   setAvailableAction: actionCreators.setAvailableAction,
   resetResponse: actionCreators.resetResponse,
   addComponentComponent: sagaActions.applicationDetailActions.addComponentComponent,
-  deletecomponentTypeComponent: sagaActions.componentTypeComponentActions.deletecomponentTypeComponent,
-  setConnectionData: actionCreators.setConnectionData
+  deleteComponentModelPerspectives: sagaActions.modelActions.deleteComponentModelPerspectives,
+  setConnectionData: actionCreators.setConnectionData,
+  updateModelPrespectives: sagaActions.modelActions.updateModelPrespectives
 }
 
 // If you want to use the function mapping
@@ -80,22 +82,13 @@ export default compose(
       metaModelPrespectivePayload.id = this.props.match.params.id
       metaModelPrespectivePayload.viewKey = {viewKey: this.props.match.params.viewKey}
       this.props.fetchMetaModelPrespective && this.props.fetchMetaModelPrespective(metaModelPrespectivePayload)
-      let appPackage = JSON.parse(localStorage.getItem('packages'))
-      let componentTypes = appPackage.resources[0].component_types
-      let componentTypeIdForCategory = _.result(_.find(componentTypes, function (obj) {
-        return obj.key === 'Service Category'
-      }), 'component_type')
-      let componentTypeIdForOwner = _.result(_.find(componentTypes, function (obj) {
-        return obj.key === 'Department'
-      }), 'component_type')
-      this.props.fetchCategory && this.props.fetchCategory(componentTypeIdForCategory)
-      this.props.fetchOwner && this.props.fetchOwner(componentTypeIdForOwner)
     },
     componentDidMount: function () {
       // eslint-disable-next-line
       // mApp && mApp.block('#entitlementList', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     },
     componentWillReceiveProps: function (nextProps) {
+      console.log('nextProps', nextProps)
       if (nextProps.authenticateUser && nextProps.authenticateUser.resources) {
         if (!nextProps.authenticateUser.resources[0].result) {
           this.props.history.push('/')
@@ -103,7 +96,7 @@ export default compose(
       }
       if (nextProps.modelPrespectives && nextProps.modelPrespectives !== '') {
         // eslint-disable-next-line
-        mApp && mApp.unblockPage()
+        // mApp && mApp.unblockPage()
       }
       if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcess) {
         if (nextProps.metaModelPerspective.resources[0].crude) {
@@ -111,7 +104,14 @@ export default compose(
           let crude = nextProps.crude
           let mask = nextProps.metaModelPerspective.resources[0].crude
           let labelParts = nextProps.metaModelPerspective.resources[0].parts
-          let connectionData = []
+          let connectionData = {}
+          connectionData.operation = {
+            toCallApi: true,
+            isComplete: false,
+            processIndex: 0
+          }
+          connectionData.selectedValues = []
+          let cData = []
           for (let option in crude) {
             if (crude.hasOwnProperty(option)) {
               if (mask & crude[option]) {
@@ -123,39 +123,79 @@ export default compose(
             if (data.standard_property === null && data.type_property === null) {
               let obj = {}
               obj.name = data.name
-              obj.componentId = data.constraint.component_type.id
+              if (data.constraint_inverted) {
+                obj.componentId = data.constraint.component_type.id
+              } else {
+                obj.componentId = data.constraint.target_component_type.id
+              }
               obj.data = null
-              connectionData.push(obj)
+              obj.processed = false
+              obj.partIndex = index
+              cData.push(obj)
+              connectionData.selectedValues.push(null)
             }
           })
+          connectionData.data = cData
+          connectionData.selectOption = []
           nextProps.setConnectionData(connectionData)
           availableAction['toProcess'] = false
           nextProps.setAvailableAction(availableAction)
         }
       }
       if (nextProps.createComponentResponse && nextProps.createComponentResponse !== '') {
-        // eslint-disable-next-line
-        mApp && mApp.unblockPage()
-        if (nextProps.createComponentResponse.error_code === null) {
-          let payload = {}
-          payload['meta_model_perspective_id[0]'] = this.props.match.params.id
-          payload['view_key[0]'] = this.props.match.params.viewKey
-          this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
-          // eslint-disable-next-line
-          toastr.success('Successfully added Component ' +  nextProps.addSettings.name , 'Nice!')
-        } else {
-          // eslint-disable-next-line
-          toastr.error(nextProps.createComponentResponse.error_message, nextProps.createComponentResponse.error_code)
-        }
+        let addSettings = {...nextProps.addSettings}
+        addSettings.name = ''
+        addSettings.description = ''
+        addSettings.createResponse = nextProps.createComponentResponse
+        nextProps.setAddSettings(addSettings)
+        let payload = {}
+        payload['meta_model_perspective_id[0]'] = this.props.match.params.id
+        payload['view_key[0]'] = this.props.match.params.viewKey
+        this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
         nextProps.resetResponse()
       }
       if (nextProps.deleteComponentResponse && nextProps.deleteComponentResponse !== '') {
         if (nextProps.deleteComponentResponse.error_code === null) {
           // eslint-disable-next-line
-          toastr.success('The ' + this.props.deleteComponentResponse.resources[0].name + ' was successfully deleted', 'Zapped!')
+          toastr.success('The ' + nextProps.deleteComponentResponse.resources[0].name + ' was successfully deleted', 'Zapped!')
+          let payload = {}
+          payload['meta_model_perspective_id[0]'] = this.props.match.params.id
+          payload['view_key[0]'] = this.props.match.params.viewKey
+          this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
+          // eslint-disable-next-line
+          mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
         } else {
           // eslint-disable-next-line
           toastr.error(nextProps.deleteComponentResponse.error_message, nextProps.deleteComponentResponse.error_code)
+        }
+        this.props.resetResponse()
+      }
+      if (nextProps.connectionData !== '' && nextProps.connectionData.operation.toCallApi && !nextProps.connectionData.operation.isComplete) {
+        console.log('nextProps.connectionData', nextProps.connectionData)
+        let connectionData = {...nextProps.connectionData}
+        let processIndex = nextProps.connectionData.operation.processIndex
+        let totalLength = nextProps.connectionData.data.length
+        if (processIndex < totalLength) {
+          let processData = nextProps.connectionData.data[processIndex]
+          nextProps.fetchDropdownData && nextProps.fetchDropdownData(processData.componentId)
+          connectionData.operation.processIndex = processIndex + 1
+          connectionData.operation.toCallApi = false
+        }
+        if (processIndex === totalLength) {
+          connectionData.operation.isComplete = true
+        }
+        nextProps.setConnectionData(connectionData)
+      }
+      if (nextProps.dropdownData !== '') {
+        console.log('nextProps.dropdownData', nextProps.dropdownData)
+        if (nextProps.dropdownData.error_code === null) {
+          let connectionData = {...nextProps.connectionData}
+          connectionData.selectOption.push(nextProps.dropdownData.resources)
+          connectionData.operation.toCallApi = true
+          nextProps.setConnectionData(connectionData)
+        } else {
+          // eslint-disable-next-line
+          toastr.error(nextProps.dropdownData.error_message, nextProps.dropdownData.error_code)
         }
         this.props.resetResponse()
       }

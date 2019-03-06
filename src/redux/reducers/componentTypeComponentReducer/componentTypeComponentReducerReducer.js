@@ -77,7 +77,6 @@ export const actionCreators = {
     pushComponentPropertyPayload: createAction(PUSH_COMPONENT_PROPERTY_PAYLOAD),
     resetUpdateRelationshipResponse: createAction(RESET_UPDATE_RELATIONSHIP_RESPONSE),
     setDiscussionModalOpenStatus: createAction(SET_DISCUSSION_MODAL_OPEN_STATUS),
-    setRedirectFlag: createAction(DELETE_COMPONENT_TYPE_COMPONENT_SUCCESS),
     setRelationshipActionSettings: createAction(SET_RELATIONSHIP_ACTION_SETTINGS),
     editComponentRelationshipProperties: createAction(EDIT_COMPONENT_RELATIONSHIP_PROPERTY),
     resetComponentRelationshipProperties: createAction(RESET_COMPONENT_RELATIONSHIP_PROPERTY),

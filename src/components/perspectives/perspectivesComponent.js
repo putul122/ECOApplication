@@ -9,6 +9,7 @@ ReactModal.setAppElement('#root')
 
 export default function Perspectives (props) {
   console.log('perspectives props', props)
+  let connectionSelectBoxList = ''
   let searchTextBox
   let perPage = props.perPage
   let currentPage = props.currentPage
@@ -21,6 +22,8 @@ export default function Perspectives (props) {
   let totalPages
   let tableHeader = []
   let labels = []
+  let messageList = ''
+  let style = {}
   let serviceName = props.addSettings.deleteObject ? props.addSettings.deleteObject.subject_name : ''
   let handleBlurdropdownChange = function (event) {
     console.log('handle Blur change', event.target.value)
@@ -46,12 +49,12 @@ export default function Perspectives (props) {
     addSettings.deleteObject = data
     props.setAddSettings(addSettings)
   }
-  let closeModal = function (event) {
-    event.preventDefault()
+  let closeModal = function () {
     let addSettings = {...props.addSettings}
     addSettings.isModalOpen = false
     addSettings.isDeleteModalOpen = false
     addSettings.deleteObject = null
+    addSettings.createResponse = null
     props.setAddSettings(addSettings)
   }
   let editName = function (event) {
@@ -69,14 +72,43 @@ export default function Perspectives (props) {
     // eslint-disable-next-line
     mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     let addSettings = JSON.parse(JSON.stringify(props.addSettings))
-    let payload = {
-      'component_type': {
-        'id': props.metaModelPerspective.resources[0].component_type.id
-      },
-      'name': addSettings.name,
-      'description': addSettings.description
-    }
-    props.addComponentComponent(payload)
+    let patchPayload = []
+    let obj = {}
+    obj.op = 'add'
+    obj.path = '/-'
+    obj.value = {}
+    obj.value.parts = []
+    obj.value.parts[0] = {'value': addSettings.name}
+    obj.value.parts[1] = {'value': addSettings.description}
+    let connectionData = {...props.connectionData}
+    connectionData.selectedValues.forEach(function (data, index) {
+      if (data) {
+        let connections = []
+        connections.push(data.id)
+        obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
+      } else {
+        obj.value.parts[connectionData.data[index].partIndex] = {}
+      }
+    })
+    // let payload = {
+    //   'component_type': {
+    //     'id': props.metaModelPerspective.resources[0].component_type.id
+    //   },
+    //   'name': addSettings.name,
+    //   'description': addSettings.description
+    // }
+    // props.addComponentComponent(payload)
+    
+    // payload.data = patchPayload
+    patchPayload.push(obj)
+    let payload = {}
+    payload.queryString = {}
+    payload.queryString.meta_model_perspective_id = props.metaModelPerspective.resources[0].id
+    payload.queryString.apply_changes = true
+    payload.data = {}
+    payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
+    console.log('payload', payload)
+    props.updateModelPrespectives(payload)
   }
   let removeComponent = function (event) {
     event.preventDefault()
@@ -85,7 +117,7 @@ export default function Perspectives (props) {
       let payload = {
         'id': addSettings.deleteObject.subject_id
       }
-      props.deletecomponentTypeComponent(payload)
+      props.deleteComponentModelPerspectives(payload)
     }
     closeModal()
   }
@@ -103,9 +135,10 @@ export default function Perspectives (props) {
       //     }
       //   }
       // }
-      if (props.modelPrespectives.length > 0) {
+      console.log('list props', props)
+      if (props.modelPrespectives.length > 1) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
-        if (modelPrespectives.length > 0) {
+        if (modelPrespectives.length > 1) {
           modelPrespectivesList = modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
             if (data.error_code === null) {
               let childList = []
@@ -248,6 +281,77 @@ export default function Perspectives (props) {
     }
     tableHeader.push(<th key={'last'} className=''><h5>Action</h5></th>)
   }
+  let handleSelectChange = function (index) {
+    return function (newValue: any, actionMeta: any) {
+      console.log('newValue', newValue)
+      console.log('actionMeta', actionMeta)
+      console.log('index', index)
+      let connectionData = {...props.connectionData}
+      let selectedValues = connectionData.selectedValues
+      if (actionMeta.action === 'select-option') {
+        selectedValues[index] = newValue
+        connectionData.selectedValues = selectedValues
+        props.setConnectionData(connectionData)
+      }
+      if (actionMeta.action === 'clear') {
+        selectedValues[index] = null
+        connectionData.selectedValues = selectedValues
+        props.setConnectionData(connectionData)
+      }
+    }
+  }
+  if (props.connectionData !== '' && props.connectionData.operation.isComplete) {
+    // eslint-disable-next-line
+    mApp && mApp.unblockPage()
+    let connectionData = {...props.connectionData}
+    connectionSelectBoxList = connectionData.data.map(function (data, index) {
+      let selectOptions = connectionData.selectOption[index].map(function (component, id) {
+        component.value = component.id
+        component.label = component.name
+        return component
+      })
+      return (<div className='form-group row'>
+      <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+      <div className='col-8'>
+        <Select
+          className='input-sm m-input'
+          placeholder={'Select ' + data.name}
+          isClearable
+          value={connectionData.selectedValues[index]}
+          onChange={handleSelectChange(index)}
+          options={selectOptions}
+          />
+      </div>
+    </div>)
+    })
+  }
+  if (props.addSettings.createResponse !== null) {
+    if (props.addSettings.createResponse.length > 0) {
+      messageList = props.addSettings.createResponse.map(function (data, index) {
+        if (data.error_code === null) {
+          if (data.message != null) {
+            return (<li key={index}>{data.message}</li>)
+          } else {
+            if (props.addSettings.createResponse.length === 1) {
+              return (<li key={99}>{'No data has been added.'}</li>)
+            }
+          }
+        } else {
+          return (<li key={index}>{'Error Code: ' + data.error_code + 'Message: ' + data.error_message}</li>)
+        }
+      })
+    } else {
+      messageList = []
+      messageList.push((
+        <li key={0}>{'No data has been added.'}</li>
+      ))
+    }
+  }
+  if (props.addSettings.createResponse !== null) {
+    style = {'height': 'calc(60vh - 55px)', 'overflow': 'auto'}
+  } else {
+    style = {}
+  }
 return (
   <div>
     <div id='entitlementList'>
@@ -351,13 +455,14 @@ return (
           <div className=''>
             <div className='modal-content' style={{'height': '400px'}}>
               <div className='modal-header'>
-                <h4 className='modal-title' id='exampleModalLabel'>Add Services</h4>
+              {props.addSettings.createResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Add Perspective</h4>)}
+              {props.addSettings.createResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Create Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
               <div className='modal-body' style={{'height': 'calc(60vh - 55px)', 'overflow': 'auto'}}>
-                <div className='col-md-12'>
+                {props.addSettings.createResponse === null && (<div className='col-md-12'>
                   {/* {messageBlock} */}
                   <div className='form-group m-form__group row'>
                     <div className='col-8'>
@@ -376,47 +481,15 @@ return (
                       <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
                     </div>
                   </div>
-                  <div className='form-group row'>
-                    <div className='col-2'><label htmlFor='Category' className='col-form-label'>Category</label></div>
-                    <div className='col-8'>
-                      <Select
-                        className='input-sm m-input'
-                        placeholder='Select Category'
-                        isClearable
-                        // isOptionDisabled={''}
-                        // defaultValue={childPropertyOption[0]}
-                        // isDisabled={false}
-                        // isLoading={false}
-                        // isClearable={true}
-                        value={''}
-                        onChange={''}
-                        isSearchable
-                        />
-                    </div>
-                  </div>
-                  <div className='form-group row'>
-                    <div className='col-2'><label htmlFor='Category' className='col-form-label'>Service Owner</label></div>
-                    <div className='col-8'>
-                      <Select
-                        className='input-sm m-input'
-                        placeholder='Select Service Owner'
-                        isClearable
-                        // isOptionDisabled={''}
-                        // defaultValue={childPropertyOption[0]}
-                        // isDisabled={false}
-                        // isLoading={false}
-                        // isClearable={true}
-                        value={''}
-                        onChange={''}
-                        isSearchable
-                        />
-                    </div>
-                  </div>
-                </div>
+                  {connectionSelectBoxList}
+                </div>)}
+                {props.addSettings.createResponse !== null && (<ul className=''>
+                    {messageList}
+                  </ul>)}
               </div>
               <div className='modal-footer'>
-                <button type='button' onClick={closeModal} className='btn btn-outline-danger btn-sm'>Cancel</button>
-                <button className='btn btn-outline-info btn-sm' onClick={createComponent} >Add Service</button>
+                <button type='button' onClick={closeModal} className='btn btn-outline-danger btn-sm'>Close</button>
+                {props.addSettings.createResponse === null && (<button className='btn btn-outline-info btn-sm' onClick={createComponent} >Add</button>)}
               </div>
             </div>
           </div>
@@ -462,5 +535,6 @@ return (
     currentPage: PropTypes.any,
     perPage: PropTypes.any,
     crude: PropTypes.any,
-    availableAction: PropTypes.any
+    availableAction: PropTypes.any,
+    connectionData: PropTypes.any
   }

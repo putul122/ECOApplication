@@ -241,11 +241,11 @@ export function * deleteComponentTypeComponent (action) {
       api.deleteComponent(action.payload.id)
       // action.payload
      )
+     console.log(deleteComponent)
     yield put(actionCreators.deletecomponentTypeComponentSuccess(deleteComponent.data))
   } catch (error) {
     yield put(actionCreators.deletecomponentTypeComponentFailure(error))
   }
-  console.log(action.payload)
 }
 
 export function * getRelationshipProperty (action) {

@@ -4,51 +4,31 @@ import { createAction } from 'redux-actions'
 import api from '../../../constants'
 
 // Saga action strings
-export const FETCH_CATEGORY = 'saga/service/FETCH_CATEGORY'
-export const FETCH_CATEGORY_SUCCESS = 'saga/service/FETCH_CATEGORY_SUCCESS'
-export const FETCH_CATEGORY_FAILURE = 'saga/service/FETCH_CATEGORY_FAILURE'
-export const FETCH_OWNER = 'saga/service/FETCH_OWNER'
-export const FETCH_OWNER_SUCCESS = 'saga/service/FETCH_OWNER_SUCCESS'
-export const FETCH_OWNER_FAILURE = 'saga/service/FETCH_OWNER_FAILURE'
+export const FETCH_DROPDOWN_DATA = 'saga/service/FETCH_DROPDOWN_DATA'
+export const FETCH_DROPDOWN_DATA_SUCCESS = 'saga/service/FETCH_DROPDOWN_DATA_SUCCESS'
+export const FETCH_DROPDOWN_DATA_FAILURE = 'saga/service/FETCH_DROPDOWN_DATA_FAILURE'
 
 export const actionCreators = {
-  fetchCategory: createAction(FETCH_CATEGORY),
-  fetchCategorySuccess: createAction(FETCH_CATEGORY_SUCCESS),
-  fetchCategoryFailure: createAction(FETCH_CATEGORY_FAILURE),
-  fetchOwner: createAction(FETCH_OWNER),
-  fetchOwnerSuccess: createAction(FETCH_OWNER_SUCCESS),
-  fetchOwnerFailure: createAction(FETCH_OWNER_FAILURE)
+  fetchDropdownData: createAction(FETCH_DROPDOWN_DATA),
+  fetchDropdownDataSuccess: createAction(FETCH_DROPDOWN_DATA_SUCCESS),
+  fetchDropdownDataFailure: createAction(FETCH_DROPDOWN_DATA_FAILURE)
 }
 
 export default function * watchServices () {
   yield [
-    takeLatest(FETCH_CATEGORY, getCategory),
-    takeLatest(FETCH_OWNER, getOwner)
+    takeLatest(FETCH_DROPDOWN_DATA, getDropdownData)
   ]
 }
 
-export function * getCategory (action) {
+export function * getDropdownData (action) {
   try {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
-    const categories = yield call(
+    const dropdownData = yield call(
       axios.get,
       api.getComponentTypeComponents(action.payload)
     )
-    yield put(actionCreators.fetchCategorySuccess(categories.data))
+    yield put(actionCreators.fetchDropdownDataSuccess(dropdownData.data))
   } catch (error) {
-    yield put(actionCreators.fetchCategoryFailure(error))
-  }
-}
-
-export function * getOwner (action) {
-  try {
-    axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
-    const owners = yield call(
-      axios.get,
-      api.getComponentTypeComponents(action.payload)
-    )
-    yield put(actionCreators.fetchOwnerSuccess(owners.data))
-  } catch (error) {
-    yield put(actionCreators.fetchOwnerFailure(error))
+    yield put(actionCreators.fetchDropdownDataFailure(error))
   }
 }
