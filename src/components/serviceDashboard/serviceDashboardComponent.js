@@ -20,9 +20,12 @@ export default function ServiceDashboard (props) {
       }
       console.log('List', List)
       parts.forEach(function (partData, i) {
-        if (partData.value.metric === 'count') {
-          subjectCount = partData.value.value
+        if (partData.value.hasOwnProperty(subjectName)) {
+          subjectCount = partData.value[subjectName].count
         }
+        // if (partData.value.metric === 'count') {
+        //   subjectCount = partData.value.value
+        // }
       })
       return (
         <div className='col-md-4'>
