@@ -6,6 +6,13 @@ import Select from 'react-select'
 import PropTypes from 'prop-types'
 import styles from './perspectivesComponent.scss'
 ReactModal.setAppElement('#root')
+let comparer = function (otherArray){
+  return function(current){
+    return otherArray.filter(function(other){
+      return other.value === current.value && other.display === current.display
+    }).length === 0;
+  }
+}
 
 export default function Perspectives (props) {
   console.log('perspectives props', props)
@@ -32,15 +39,60 @@ export default function Perspectives (props) {
     console.log('handle change', event.target.value, typeof event.target.value)
     props.setPerPage(parseInt(event.target.value))
   }
+  let openUpdateModal = function (data) {
+    console.log('data', data)
+    let addSettings = {...props.addSettings}
+    let labelParts = props.metaModelPerspective.resources[0].parts
+    let selectedValues = []
+    if (data.parts) {
+      labelParts.forEach(function (partData, ix) {
+        if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+          if (partData.name === 'Name') {
+            addSettings.name = data.parts[ix].value
+          }
+          if (partData.name === 'Description') {
+            addSettings.description = data.parts[ix].value
+          }
+        } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
+          if (data.parts[ix].value.length > 0) {
+            // todo write code for multiple component
+            let eachSelectedValues = []
+            data.parts[ix].value.forEach(function (value, ix) {
+              let targetComponent = value.target_component
+              targetComponent.label = targetComponent.name
+              targetComponent.value = targetComponent.id
+              eachSelectedValues.push(targetComponent)
+            })
+            selectedValues.push(eachSelectedValues)
+          } else {
+            selectedValues.push(null)
+          }
+        }
+      })
+    }
+    addSettings.isEditModalOpen = true
+    addSettings.updateObject = data
+    addSettings.updateResponse = null
+    props.setAddSettings(addSettings)
+    let connectionData = {...props.connectionData}
+    connectionData.selectedValues = selectedValues
+    connectionData.initialSelectedValues = JSON.parse(JSON.stringify(selectedValues))
+    props.setConnectionData(connectionData)
+  }
   let openModal = function (event) {
     event.preventDefault()
     let addSettings = {...props.addSettings}
     addSettings.isModalOpen = true
     addSettings.name = ''
     addSettings.description = ''
-    addSettings.selectedCategory = null
-    addSettings.selectedOwner = null
     props.setAddSettings(addSettings)
+    let connectionData = {...props.connectionData}
+    let selectedValues = []
+    connectionData.selectedValues.forEach(function (data) {
+      selectedValues.push(null)
+    })
+    connectionData.selectedValues = selectedValues
+    props.setConnectionData(connectionData)
   }
   let openDeleteModal = function (data) {
     console.log('delete', data)
@@ -53,6 +105,7 @@ export default function Perspectives (props) {
     let addSettings = {...props.addSettings}
     addSettings.isModalOpen = false
     addSettings.isDeleteModalOpen = false
+    addSettings.isEditModalOpen = false
     addSettings.deleteObject = null
     addSettings.createResponse = null
     props.setAddSettings(addSettings)
@@ -82,24 +135,26 @@ export default function Perspectives (props) {
     obj.value.parts[1] = {'value': addSettings.description}
     let connectionData = {...props.connectionData}
     connectionData.selectedValues.forEach(function (data, index) {
-      if (data) {
-        let connections = []
-        connections.push(data.id)
-        obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
+      if (Array.isArray(data)) {
+        if (data.length > 0) {
+          let connections = []
+          data.forEach(function (selectedValue, ix) {
+            connections.push(selectedValue.id)
+          })
+          obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
+        } else {
+          obj.value.parts[connectionData.data[index].partIndex] = {}
+        }
       } else {
-        obj.value.parts[connectionData.data[index].partIndex] = {}
+        if (data) {
+          let connections = []
+          connections.push(data.id)
+          obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
+        } else {
+          obj.value.parts[connectionData.data[index].partIndex] = {}
+        }
       }
     })
-    // let payload = {
-    //   'component_type': {
-    //     'id': props.metaModelPerspective.resources[0].component_type.id
-    //   },
-    //   'name': addSettings.name,
-    //   'description': addSettings.description
-    // }
-    // props.addComponentComponent(payload)
-    
-    // payload.data = patchPayload
     patchPayload.push(obj)
     let payload = {}
     payload.queryString = {}
@@ -109,6 +164,99 @@ export default function Perspectives (props) {
     payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
     console.log('payload', payload)
     props.updateModelPrespectives(payload)
+  }
+  let updateComponent = function (event) {
+    event.preventDefault()
+    // eslint-disable-next-line
+    mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+    let addSettings = JSON.parse(JSON.stringify(props.addSettings))
+    let connectionData = JSON.parse(JSON.stringify(props.connectionData))
+    let labelParts = props.metaModelPerspective.resources[0].parts
+    let data = addSettings.updateObject
+    let patchPayload = []
+    if (data.parts) {
+      labelParts.forEach(function (partData, index) {
+        let valueType = ''
+        let obj = {}
+        if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+          obj.op = 'replace'
+          valueType = partData.standard_property
+          obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
+          if (partData.standard_property === 'name') {
+            obj.value = props.addSettings.name
+          }
+          if (partData.standard_property === 'description') {
+            obj.value = props.addSettings.description
+          }
+          patchPayload.push(obj)
+        } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
+          let dataIndex = connectionData.data.findIndex(p => p.name == partData.name)
+          if (dataIndex !== -1) {
+            // found index
+            let initialSelectedValue = connectionData.initialSelectedValues[dataIndex]
+            let selectedValue = connectionData.selectedValues[dataIndex]
+            let onlyInInitial = []
+            if (initialSelectedValue) {
+              onlyInInitial = initialSelectedValue.filter(comparer(selectedValue))
+            }
+            let onlyInFinal = []
+            if (selectedValue) {
+              onlyInFinal = selectedValue.filter(comparer(initialSelectedValue))
+            }
+            // remove operation payload
+            if (onlyInInitial.length > 0) {
+              let connectionIdArray = data.parts[index].value
+              let value = []
+              onlyInInitial.forEach(function (removeData, rid) {
+                let found = _.find(connectionIdArray, function (obj) { return (obj.target_component.id === removeData.id) })
+                console.log('found ----', found)
+                if (found) {
+                  // set connection id
+                  value.push(found.connection.id)
+                }
+              })
+              let obj = {}
+              obj.op = 'remove'
+              obj.value = value
+              valueType = 'value/-'
+              obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
+              patchPayload.push(obj)
+              console.log('connectionId obj', connectionIdArray, obj)
+            }
+            console.log('index', dataIndex)
+            console.log('onlyInInitial', onlyInInitial)
+            console.log('onlyInFinal', onlyInFinal)
+            let existingTargetComponent = connectionData.selectedValues[dataIndex]
+            console.log('existingTargetComponent', existingTargetComponent)
+            if (onlyInFinal.length > 0) {
+              let value = []
+              onlyInFinal.forEach(function (targetComponent, rid) {
+                value.push(targetComponent.id)
+              })
+              let obj = {}
+              obj.op = 'add'
+              obj.value = value
+              valueType = 'value/-'
+              obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
+              patchPayload.push(obj)
+              console.log('add obj', obj)
+            }
+
+          } else {
+            console.log('index', dataIndex)
+          }
+        }
+      })
+    }
+    let payload = {}
+    payload.queryString = {}
+    payload.queryString.meta_model_perspective_id = props.metaModelPerspective.resources[0].id
+    payload.queryString.apply_changes = true
+    payload.data = {}
+    payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
+    console.log('payload', payload)
+    console.log('updateComponentModelPrespectives', props.updateComponentModelPrespectives)
+    props.updateComponentModelPrespectives(payload)
   }
   let removeComponent = function (event) {
     event.preventDefault()
@@ -177,7 +325,7 @@ export default function Perspectives (props) {
                 let availableAction = {...props.availableAction}
                 let list = []
                 if (availableAction.Update) {
-                  list.push(<a href='javascript:void(0);'>{'Edit'}</a>)
+                  list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openUpdateModal(data) }} >{'Edit'}</a>)
                 }
                 if (availableAction.Delete) {
                   list.push(<a onClick={(event) => { event.preventDefault(); openDeleteModal(data) }} href='javascript:void(0);'>{'Delete'}</a>)
@@ -288,7 +436,7 @@ export default function Perspectives (props) {
       console.log('index', index)
       let connectionData = {...props.connectionData}
       let selectedValues = connectionData.selectedValues
-      if (actionMeta.action === 'select-option') {
+      if (actionMeta.action === 'select-option' || actionMeta.action === 'remove-value') {
         selectedValues[index] = newValue
         connectionData.selectedValues = selectedValues
         props.setConnectionData(connectionData)
@@ -316,6 +464,7 @@ export default function Perspectives (props) {
         <Select
           className='input-sm m-input'
           placeholder={'Select ' + data.name}
+          isMulti = {data.max !== 1 ? true : false}
           isClearable
           value={connectionData.selectedValues[index]}
           onChange={handleSelectChange(index)}
@@ -330,20 +479,42 @@ export default function Perspectives (props) {
       messageList = props.addSettings.createResponse.map(function (data, index) {
         if (data.error_code === null) {
           if (data.message != null) {
-            return (<li key={index}>{data.message}</li>)
+            return (<li className='m-list-search__result-item' key={index}>{data.message}</li>)
           } else {
             if (props.addSettings.createResponse.length === 1) {
-              return (<li key={99}>{'No data has been added.'}</li>)
+              return (<li className='m-list-search__result-item' key={99}>{'No data has been added.'}</li>)
             }
           }
         } else {
-          return (<li key={index}>{'Error Code: ' + data.error_code + 'Message: ' + data.error_message}</li>)
+          return (<li className='m-list-search__result-item' key={index}>{'Error Code: ' + data.error_code + 'Message: ' + data.error_message}</li>)
         }
       })
     } else {
       messageList = []
       messageList.push((
         <li key={0}>{'No data has been added.'}</li>
+      ))
+    }
+  }
+  if (props.addSettings.updateResponse !== null) {
+    if (props.addSettings.updateResponse.length > 0) {
+      messageList = props.addSettings.updateResponse.map(function (data, index) {
+        if (data.error_code === null) {
+          if (data.message != null) {
+            return (<li className='m-list-search__result-item' key={index}>{data.message}</li>)
+          } else {
+            if (props.addSettings.updateResponse.length === 1) {
+              return (<li className='m-list-search__result-item' key={99}>{'No data has been added.'}</li>)
+            }
+          }
+        } else {
+          return (<li className='m-list-search__result-item' key={index}>{'Error Code: ' + data.error_code + 'Message: ' + data.error_message}</li>)
+        }
+      })
+    } else {
+      messageList = []
+      messageList.push((
+        <li className='m-list-search__result-item' key={0}>{'No data has been added.'}</li>
       ))
     }
   }
@@ -483,13 +654,63 @@ return (
                   </div>
                   {connectionSelectBoxList}
                 </div>)}
-                {props.addSettings.createResponse !== null && (<ul className=''>
+                {props.addSettings.createResponse !== null && (<div className='m-list-search__results'>
                     {messageList}
-                  </ul>)}
+                  </div>)}
               </div>
               <div className='modal-footer'>
                 <button type='button' onClick={closeModal} className='btn btn-outline-danger btn-sm'>Close</button>
                 {props.addSettings.createResponse === null && (<button className='btn btn-outline-info btn-sm' onClick={createComponent} >Add</button>)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </ReactModal>
+      <ReactModal isOpen={props.addSettings.isEditModalOpen}
+        onRequestClose={closeModal}
+        className='modal-dialog modal-lg'
+        style={{'content': {'top': '20%'}}}
+        >
+        {/* <button onClick={closeModal} ><i className='la la-close' /></button> */}
+        <div className={''}>
+          <div className=''>
+            <div className='modal-content' style={{'height': '400px'}}>
+              <div className='modal-header'>
+              {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit Perspective</h4>)}
+              {props.addSettings.updateResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Update Report</h4>)}
+                <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
+                  <span aria-hidden='true'>×</span>
+                </button>
+              </div>
+              <div className='modal-body' style={{'height': 'calc(60vh - 55px)', 'overflow': 'auto'}}>
+                {props.addSettings.updateResponse === null && (<div className='col-md-12'>
+                  {/* {messageBlock} */}
+                  <div className='form-group m-form__group row'>
+                    <div className='col-8'>
+                      {/* <input className='form-control m-input' type='email' placeholder='Enter User Name' ref={input => (userName = input)} id='example-userName-input' /> */}
+                    </div>
+                  </div>
+                  <div className='form-group m-form__group row'>
+                    <label htmlFor='example-input' className='col-2 col-form-label'>Name</label>
+                    <div className='col-8'>
+                      <input className='form-control m-input' value={props.addSettings.name} onChange={editName} placeholder='Enter Name' id='example-email-input' autoComplete='off' />
+                    </div>
+                  </div>
+                  <div className='form-group m-form__group row'>
+                    <label htmlFor='example-input' className='col-2 col-form-label'>Description</label>
+                    <div className='col-8'>
+                      <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
+                    </div>
+                  </div>
+                  {connectionSelectBoxList}
+                </div>)}
+                {props.addSettings.updateResponse !== null && (<div className='m-list-search__results'>
+                    {messageList}
+                  </div>)}
+              </div>
+              <div className='modal-footer'>
+                <button type='button' onClick={closeModal} className='btn btn-outline-danger btn-sm'>Close</button>
+                {props.addSettings.updateResponse === null && (<button className='btn btn-outline-info btn-sm' onClick={updateComponent} >Update</button>)}
               </div>
             </div>
           </div>

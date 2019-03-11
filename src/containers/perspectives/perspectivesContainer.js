@@ -21,6 +21,7 @@ export function mapStateToProps (state, props) {
     createComponentResponse: state.perspectivesReducer.createComponentResponse,
     deleteComponentResponse: state.perspectivesReducer.deleteComponentResponse,
     connectionData: state.perspectivesReducer.connectionData,
+    updateComponentResponse: state.perspectivesReducer.updateComponentResponse,
     dropdownData: state.perspectivesReducer.dropdownData
   }
 }
@@ -39,7 +40,8 @@ export const propsMapping: Callbacks = {
   addComponentComponent: sagaActions.applicationDetailActions.addComponentComponent,
   deleteComponentModelPerspectives: sagaActions.modelActions.deleteComponentModelPerspectives,
   setConnectionData: actionCreators.setConnectionData,
-  updateModelPrespectives: sagaActions.modelActions.updateModelPrespectives
+  updateModelPrespectives: sagaActions.modelActions.updateModelPrespectives,
+  updateComponentModelPrespectives: sagaActions.modelActions.updateComponentModelPrespectives
 }
 
 // If you want to use the function mapping
@@ -131,6 +133,8 @@ export default compose(
               obj.data = null
               obj.processed = false
               obj.partIndex = index
+              obj.max = data.constraint.max
+              obj.min = data.constraint.min
               cData.push(obj)
               connectionData.selectedValues.push(null)
             }
@@ -147,6 +151,18 @@ export default compose(
         addSettings.name = ''
         addSettings.description = ''
         addSettings.createResponse = nextProps.createComponentResponse
+        nextProps.setAddSettings(addSettings)
+        let payload = {}
+        payload['meta_model_perspective_id[0]'] = this.props.match.params.id
+        payload['view_key[0]'] = this.props.match.params.viewKey
+        this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
+        nextProps.resetResponse()
+      }
+      if (nextProps.updateComponentResponse && nextProps.updateComponentResponse !== '') {
+        let addSettings = {...nextProps.addSettings}
+        addSettings.name = ''
+        addSettings.description = ''
+        addSettings.updateResponse = nextProps.updateComponentResponse
         nextProps.setAddSettings(addSettings)
         let payload = {}
         payload['meta_model_perspective_id[0]'] = this.props.match.params.id
