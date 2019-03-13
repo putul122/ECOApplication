@@ -261,7 +261,7 @@ export default function Perspectives (props) {
       } else if (data.type_property.property_type.key === 'Text') {
         obj.value.parts[data.partIndex] = {value: {'text_value': data.type_property.text_value}}
       } else if (data.type_property.property_type.key === 'List') {
-        obj.value.parts[data.partIndex] = {value: {'value_set_value_id': data.type_property.value_set_value.id}}
+        obj.value.parts[data.partIndex] = {value: {'value_set_value_id': data.type_property.value_set_value ? data.type_property.value_set_value.id : null}}
       } else {
         obj.value.parts[data.partIndex] = {value: {'other_value': data.type_property.other_value}}
       }
@@ -362,6 +362,7 @@ export default function Perspectives (props) {
           let customerProperty = _.find(connectionData.customerProperty, function (obj) {
             return obj.name === partData.name
           })
+          console.log('customerProperty', customerProperty)
           if (customerProperty) {
             if (customerProperty.type_property.property_type.key === 'Boolean') {
               valueType = `boolean_value`
@@ -380,7 +381,7 @@ export default function Perspectives (props) {
               obj.value = customerProperty.type_property.text_value
             } else if (customerProperty.type_property.property_type.key === 'List') {
               valueType = `value_set_value_id`
-              obj.value = customerProperty.type_property.value_set_value.id
+              obj.value = customerProperty.type_property.value_set_value ? customerProperty.type_property.value_set_value.id : null
             } else {
               valueType = `other_value`
               obj.value = customerProperty.type_property.other_value
