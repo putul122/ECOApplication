@@ -302,17 +302,43 @@ export default function Perspectives (props) {
           patchPayload.push(obj)
         } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
           let dataIndex = connectionData.data.findIndex(p => p.name == partData.name)
+          console.log('dataIndex', dataIndex)
           if (dataIndex !== -1) {
             // found index
+            let max = connectionData.data[dataIndex].max
             let initialSelectedValue = connectionData.initialSelectedValues[dataIndex]
             let selectedValue = connectionData.selectedValues[dataIndex]
+            console.log('initialSelectedValue', initialSelectedValue)
+            console.log('selectedValue', selectedValue)
             let onlyInInitial = []
             if (initialSelectedValue) {
-              onlyInInitial = initialSelectedValue.filter(comparer(selectedValue))
+              if (max === 1) {
+                let temp = []
+                temp.push(initialSelectedValue)
+                initialSelectedValue = temp
+              }
+            }
+            if (selectedValue) {
+              if (max === 1) {
+                let temp = []
+                temp.push(selectedValue)
+                selectedValue = temp
+              }
+            }
+            if (initialSelectedValue) {
+              if (selectedValue) {
+                onlyInInitial = initialSelectedValue.filter(comparer(selectedValue))
+              } else {
+                onlyInInitial = initialSelectedValue
+              }
             }
             let onlyInFinal = []
             if (selectedValue) {
-              onlyInFinal = selectedValue.filter(comparer(initialSelectedValue))
+              if (initialSelectedValue) {
+                onlyInFinal = selectedValue.filter(comparer(initialSelectedValue))
+              } else {
+                onlyInFinal = selectedValue
+              }              
             }
             // remove operation payload
             if (onlyInInitial.length > 0) {
