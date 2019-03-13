@@ -114,6 +114,7 @@ export default compose(
           }
           connectionData.selectedValues = []
           let cData = []
+          let customerProperty = []
           for (let option in crude) {
             if (crude.hasOwnProperty(option)) {
               if (mask & crude[option]) {
@@ -138,8 +139,13 @@ export default compose(
               cData.push(obj)
               connectionData.selectedValues.push(null)
             }
+            if (data.standard_property === null && data.type_property !== null) {
+              data.partIndex = index
+              customerProperty.push(data)
+            }
           })
           connectionData.data = cData
+          connectionData.customerProperty = customerProperty
           connectionData.selectOption = []
           nextProps.setConnectionData(connectionData)
           availableAction['toProcess'] = false

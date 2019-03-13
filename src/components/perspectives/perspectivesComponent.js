@@ -3,6 +3,8 @@ import _ from 'lodash'
 import debounce from 'lodash/debounce'
 import ReactModal from 'react-modal'
 import Select from 'react-select'
+import moment from 'moment'
+import DatePicker from 'react-datepicker'
 import PropTypes from 'prop-types'
 import styles from './perspectivesComponent.scss'
 ReactModal.setAppElement('#root')
@@ -17,6 +19,7 @@ let comparer = function (otherArray){
 export default function Perspectives (props) {
   console.log('perspectives props', props)
   let connectionSelectBoxList = ''
+  let businessPropertyList = ''
   let searchTextBox
   let perPage = props.perPage
   let currentPage = props.currentPage
@@ -32,6 +35,42 @@ export default function Perspectives (props) {
   let messageList = ''
   let style = {}
   let serviceName = props.addSettings.deleteObject ? props.addSettings.deleteObject.subject_name : ''
+  let editProperty = function (index, value) {
+    let connectionData = {...props.connectionData}
+    let customerProperty = connectionData.customerProperty
+    let propertyType = customerProperty[index].type_property.property_type
+    if (propertyType.key === 'Boolean') {
+      customerProperty[index].type_property.boolean_value = value
+    } else if (propertyType.key === 'Integer') {
+      customerProperty[index].type_property.int_value = value
+    } else if (propertyType.key === 'Decimal') {
+      customerProperty[index].type_property.float_value = value
+    } else if (propertyType.key === 'DateTime') {
+      customerProperty[index].type_property.date_time_value = value.format('DD MMM YYYY')
+    } else if (propertyType.key === 'Text') {
+      customerProperty[index].type_property.text_value = value
+    } else {
+      customerProperty[index].type_property.other_value = value
+    }
+    connectionData.customerProperty = customerProperty
+    props.setConnectionData(connectionData)
+  }
+  let handlePropertySelect = function (index) {
+    return function (newValue: any, actionMeta: any) {
+      console.log('newValue', newValue)
+      console.log('actionMeta', actionMeta)
+      let connectionData = JSON.parse(JSON.stringify(props.connectionData))
+      let customerProperty = connectionData.customerProperty
+      if (actionMeta.action === 'select-option') {
+        customerProperty[index].type_property.value_set_value = newValue
+      }
+      if (actionMeta.action === 'clear') {
+        customerProperty[index].type_property.value_set_value = newValue
+      }
+      connectionData.customerProperty = customerProperty 
+      props.setConnectionData(connectionData)
+    }
+  }
   let handleBlurdropdownChange = function (event) {
     console.log('handle Blur change', event.target.value)
   }
@@ -44,6 +83,7 @@ export default function Perspectives (props) {
     let addSettings = {...props.addSettings}
     let labelParts = props.metaModelPerspective.resources[0].parts
     let selectedValues = []
+    let setCustomerProperty = []
     if (data.parts) {
       labelParts.forEach(function (partData, ix) {
         if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
@@ -67,6 +107,24 @@ export default function Perspectives (props) {
           } else {
             selectedValues.push(null)
           }
+        } else if (partData.standard_property === null && partData.type_property !== null) { // Customer Property
+          let value = null
+          if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
+            value = data.parts[ix].value !== null ? data.parts[ix].value.int_value : ''
+          } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+            value = data.parts[ix].value !== null ? data.parts[ix].value.float_value : ''
+          } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+            value = data.parts[ix].value !== null ? data.parts[ix].value.text_value : ''
+          } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+            value = data.parts[ix].value !== null ? data.parts[ix].value.date_time_value : ''
+          } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+            value = data.parts[ix].value !== null ? data.parts[ix].value.boolean_value : ''
+          } else if (labelParts[ix].type_property.property_type.key === 'List') {
+            value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
+          } else {
+            value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
+          }
+          setCustomerProperty.push(value)
         }
       })
     }
@@ -75,6 +133,23 @@ export default function Perspectives (props) {
     addSettings.updateResponse = null
     props.setAddSettings(addSettings)
     let connectionData = {...props.connectionData}
+    let existingCustomerProperty = connectionData.customerProperty.map(function (data, index) {
+      if (data.type_property.property_type.key === 'Boolean') {
+        data.type_property.boolean_value = setCustomerProperty[index]
+      } else if (data.type_property.property_type.key === 'Integer') {
+        data.type_property.int_value = setCustomerProperty[index]
+      } else if (data.type_property.property_type.key === 'Decimal') {
+        data.type_property.float_value = setCustomerProperty[index]
+      } else if (data.type_property.property_type.key === 'DateTime') {
+        data.type_property.date_time_value = setCustomerProperty[index]
+      } else if (data.type_property.property_type.key === 'Text') {
+        data.type_property.text_value = setCustomerProperty[index]
+      } else {
+        data.type_property.other_value = setCustomerProperty[index]
+      }
+      return data
+    })
+    connectionData.customerProperty = existingCustomerProperty
     connectionData.selectedValues = selectedValues
     connectionData.initialSelectedValues = JSON.parse(JSON.stringify(selectedValues))
     props.setConnectionData(connectionData)
@@ -91,7 +166,26 @@ export default function Perspectives (props) {
     connectionData.selectedValues.forEach(function (data) {
       selectedValues.push(null)
     })
+    let resetCustomerProperty = connectionData.customerProperty.map(function (data, index) {
+      if (data.type_property.property_type.key === 'Boolean') {
+        data.type_property.boolean_value = null
+      } else if (data.type_property.property_type.key === 'Integer') {
+        data.type_property.int_value = null
+      } else if (data.type_property.property_type.key === 'Decimal') {
+        data.type_property.float_value = null
+      } else if (data.type_property.property_type.key === 'DateTime') {
+        data.type_property.date_time_value = null
+      } else if (data.type_property.property_type.key === 'Text') {
+        data.type_property.text_value = null
+      } else if (data.type_property.property_type.key === 'List') {
+        data.type_property.value_set_value = null
+      } else {
+        data.type_property.other_value = null
+      }
+      return data
+    })
     connectionData.selectedValues = selectedValues
+    connectionData.customerProperty = resetCustomerProperty
     props.setConnectionData(connectionData)
   }
   let openDeleteModal = function (data) {
@@ -153,6 +247,23 @@ export default function Perspectives (props) {
         } else {
           obj.value.parts[connectionData.data[index].partIndex] = {}
         }
+      }
+    })
+    connectionData.customerProperty.forEach(function (data, index) {
+      if (data.type_property.property_type.key === 'Boolean') {
+        obj.value.parts[data.partIndex] = {value: {'boolean_value': data.type_property.boolean_value}}
+      } else if (data.type_property.property_type.key === 'Integer') {
+        obj.value.parts[data.partIndex] = {value: {'int_value': data.type_property.int_value}}
+      } else if (data.type_property.property_type.key === 'Decimal') {
+        obj.value.parts[data.partIndex] = {value: {'float_value': data.type_property.float_value}}
+      } else if (data.type_property.property_type.key === 'DateTime') {
+        obj.value.parts[data.partIndex] = {value: {'date_time_value': data.type_property.date_time_value}}
+      } else if (data.type_property.property_type.key === 'Text') {
+        obj.value.parts[data.partIndex] = {value: {'text_value': data.type_property.text_value}}
+      } else if (data.type_property.property_type.key === 'List') {
+        obj.value.parts[data.partIndex] = {value: {'value_set_value_id': data.type_property.value_set_value.id}}
+      } else {
+        obj.value.parts[data.partIndex] = {value: {'other_value': data.type_property.other_value}}
       }
     })
     patchPayload.push(obj)
@@ -245,6 +356,38 @@ export default function Perspectives (props) {
           } else {
             console.log('index', dataIndex)
           }
+        } if (partData.standard_property === null && partData.type_property !== null) {
+          let obj = {}
+          obj.op = 'replace'
+          let customerProperty = _.find(connectionData.customerProperty, function (obj) {
+            return obj.name === partData.name
+          })
+          if (customerProperty) {
+            if (customerProperty.type_property.property_type.key === 'Boolean') {
+              valueType = `boolean_value`
+              obj.value = customerProperty.type_property.boolean_value
+            } else if (customerProperty.type_property.property_type.key === 'Integer') {
+              valueType = `int_value`
+              obj.value = customerProperty.type_property.int_value
+            } else if (customerProperty.type_property.property_type.key === 'Decimal') {
+              valueType = `float_value`
+              obj.value = customerProperty.type_property.float_value
+            } else if (customerProperty.type_property.property_type.key === 'DateTime') {
+              valueType = `date_time_value`
+              obj.value = customerProperty.type_property.date_time_value
+            } else if (customerProperty.type_property.property_type.key === 'Text') {
+              valueType = `text_value`
+              obj.value = customerProperty.type_property.text_value
+            } else if (customerProperty.type_property.property_type.key === 'List') {
+              valueType = `value_set_value_id`
+              obj.value = customerProperty.type_property.value_set_value.id
+            } else {
+              valueType = `other_value`
+              obj.value = customerProperty.type_property.other_value
+            } 
+            obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
+            patchPayload.push(obj)
+          }
         }
       })
     }
@@ -286,6 +429,7 @@ export default function Perspectives (props) {
       console.log('list props', props)
       if (props.modelPrespectives.length > 1) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
+        modelPrespectives.splice(-1,1)
         if (modelPrespectives.length > 1) {
           modelPrespectivesList = modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
             if (data.error_code === null) {
@@ -316,7 +460,7 @@ export default function Perspectives (props) {
                   } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
                     value = partData.value !== null ? partData.value.boolean_value : ''
                   } else if (labelParts[ix].type_property.property_type.key === 'List') {
-                    value = partData.value !== null ? partData.value.value_set_value : ''
+                    value = partData.value !== null ? (partData.value.value_set_value ? partData.value.value_set_value.name : '') : ''
                   } else {
                     value = partData.value !== null ? partData.value.other_value : ''
                   }
@@ -332,13 +476,6 @@ export default function Perspectives (props) {
                 }
                 childList.push(<td className='' key={'last' + index}>{list}</td>)
               }
-              // if (childList.length > 0) {
-              //   let list = []
-              //   crud.forEach(function (action, index) {
-              //     list.push(<a href='javascript:void(0);'>{action}</a>)
-              //   })
-              //   childList.push(<td className='' key={'last' + index}>{list}</td>)
-              // }
               return (<tr key={index}>{childList}</tr>)
             }
           })
@@ -363,7 +500,7 @@ export default function Perspectives (props) {
     }
   }
   if (props.modelPrespectives && props.modelPrespectives !== '') {
-    totalPages = Math.ceil(props.modelPrespectives.length / perPage)
+    totalPages = Math.ceil((props.modelPrespectives.length - 1) / perPage)
     let i = 1
     while (i <= totalPages) {
       let pageParameter = {}
@@ -472,6 +609,86 @@ export default function Perspectives (props) {
           />
       </div>
     </div>)
+    })
+    businessPropertyList = connectionData.customerProperty.map(function (data, index) {
+      let value = null
+      if (data.type_property.property_type.key === 'Integer') {
+        value = data.type_property.int_value
+        return (<div className='form-group row'>
+          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+          <div className='col-8 form-group m-form__group has-info'>
+            <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+            {false && (<div className='form-control-feedback'>should be Number</div>)}
+          </div>
+        </div>)
+      } else if (data.type_property.property_type.key === 'Decimal') {
+        value = data.type_property.float_value
+        return (<div className='form-group row'>
+          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+          <div className='col-8 form-group m-form__group has-info'>
+            <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+            {false && (<div className='form-control-feedback'>should be Number</div>)}
+          </div>
+        </div>)
+      } else if (data.type_property.property_type.key === 'DateTime') {
+        value = data.type_property.date_time_value ? moment(data.type_property.date_time_value).format('DD MMM YYYY') : ''
+        return (<div className='form-group row'>
+          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+          <div className='col-8 form-group m-form__group has-info'>
+            <DatePicker
+              className='input-sm form-control m-input'
+              selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
+              dateFormat='DD MMM YYYY'
+              onSelect={(date) => { editProperty(index, date) }}
+              />
+            {/* <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editTextProperty(index, childIndex, event.target.value) }} placeholder='Enter Here' /> */}
+            {false && (<div className='form-control-feedback'>should be Date</div>)}
+          </div>
+        </div>)
+      } else if (data.type_property.property_type.key === 'Text') {
+        value = data.type_property.text_value
+        return (<div className='form-group row'>
+          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+          <div className='col-8 form-group m-form__group has-info'>
+            <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+            {false && (<div className='form-control-feedback'>should be Text</div>)}
+          </div>
+        </div>)
+      } else if (data.type_property.property_type.key === 'List') {
+        let propertyOption = data.type_property.value_set.values.map((option, opIndex) => {
+          option.label = option.name
+          option.value = option.id
+          return option
+        })
+        let dvalue = data.type_property.value_set_value
+        if (data.type_property.value_set_value !== null) {
+          dvalue.label = data.type_property.value_set_value.name
+          dvalue.value = data.type_property.value_set_value.id
+        }
+        value = data.type_property.value_set_value ? data.type_property.value_set_value.name : null
+        return (<div className='form-group row'>
+          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+          <Select
+              className='col-8 input-sm m-input'
+              placeholder='Select Options'
+              isClearable
+              defaultValue={dvalue}
+              onChange={handlePropertySelect(index)}
+              isSearchable={false}
+              name={'selectProperty'}
+              options={propertyOption}
+            />
+        </div>)
+      } else {
+        value = data.type_property.other_value
+        return (<div className='form-group row'>
+          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+          <div className='col-8 form-group m-form__group has-info'>
+            <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+            {true && (<div className='form-control-feedback'>should be Text</div>)}
+          </div>
+        </div>)
+      }
     })
   }
   if (props.addSettings.createResponse !== null) {
@@ -652,6 +869,7 @@ return (
                       <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
                     </div>
                   </div>
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                 </div>)}
                 {props.addSettings.createResponse !== null && (<div className='m-list-search__results'>
@@ -702,6 +920,7 @@ return (
                       <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
                     </div>
                   </div>
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                 </div>)}
                 {props.addSettings.updateResponse !== null && (<div className='m-list-search__results'>
