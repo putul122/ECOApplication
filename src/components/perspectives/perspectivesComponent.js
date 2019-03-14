@@ -15,7 +15,7 @@ let comparer = function (otherArray){
     }).length === 0;
   }
 }
-
+const customStylescrud = { content: { top: '15%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function Perspectives (props) {
   console.log('perspectives props', props)
   let connectionSelectBoxList = ''
@@ -862,13 +862,13 @@ return (
   <div>
       <ReactModal isOpen={props.addSettings.isModalOpen}
         onRequestClose={closeModal}
-        className='modal-dialog modal-lg'
-        style={{'content': {'top': '20%'}}}
+        // className='modal-dialog modal-lg'
+        style={customStylescrud}
         >
         {/* <button onClick={closeModal} ><i className='la la-close' /></button> */}
         <div className={''}>
           <div className=''>
-            <div className='modal-content' style={{'height': '400px'}}>
+            <div className='modal-content'>
               <div className='modal-header'>
               {props.addSettings.createResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Add Perspective</h4>)}
               {props.addSettings.createResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Create Report</h4>)}
@@ -876,7 +876,7 @@ return (
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
-              <div className='modal-body' style={{'height': 'calc(60vh - 55px)', 'overflow': 'auto'}}>
+              <div className='modal-body' style={{'height': 'calc(70vh - 30px)', 'overflow': 'auto'}}>
                 {props.addSettings.createResponse === null && (<div className='col-md-12'>
                   {/* {messageBlock} */}
                   <div className='form-group m-form__group row'>
