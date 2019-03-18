@@ -1,20 +1,24 @@
-import { createAction, handleActions } from 'redux-actions'
+import { createAction, handleActions } from 'redux-actions';
 import {
   FETCH_EX_USERS_SUCCESS,
   FETCH_USERS_SUCCESS,
   FETCH_USER_SUCCESS,
   ADD_USER_SUCCESS,
   UPDATE_USER_SUCCESS,
-  DELETE_USER_SUCCESS } from '../../sagas/user/userSaga'
-import {FETCH_ROLES_SUCCESS} from '../../sagas/basic/basicSaga'
+  DELETE_USER_SUCCESS,
+  INVITE_USER_SUCCESS,
+  OPEN_INVITE_USER,
+  CLOSE_INVITE_USER
+} from '../../sagas/user/userSaga';
+import { FETCH_ROLES_SUCCESS } from '../../sagas/basic/basicSaga';
 // Name Spaced Action Types
-const SET_CURRENT_PAGE = 'UsersReducer/SET_CURRENT_PAGE'
-const SET_USER_ACTION_SETTINGS = 'UsersReducer/SET_USER_ACTION_SETTINGS'
-const SET_PER_PAGE = 'UsersReducer/SET_PER_PAGE'
-const SET_ROLE_DATA = 'UsersReducer/SET_ROLE_DATA'
-const SET_UPDATE_PAYLOAD = 'UsersReducer/SET_UPDATE_PAYLOAD'
-const RESET_RESPONSE = 'UsersReducer/RESET_RESPONSE'
-const SET_USERS_DATA = 'UsersReducer/SET_USERS_DATA'
+const SET_CURRENT_PAGE = 'UsersReducer/SET_CURRENT_PAGE';
+const SET_USER_ACTION_SETTINGS = 'UsersReducer/SET_USER_ACTION_SETTINGS';
+const SET_PER_PAGE = 'UsersReducer/SET_PER_PAGE';
+const SET_ROLE_DATA = 'UsersReducer/SET_ROLE_DATA';
+const SET_UPDATE_PAYLOAD = 'UsersReducer/SET_UPDATE_PAYLOAD';
+const RESET_RESPONSE = 'UsersReducer/RESET_RESPONSE';
+const SET_USERS_DATA = 'UsersReducer/SET_USERS_DATA';
 
 export const actions = {
   FETCH_EX_USERS_SUCCESS,
@@ -30,8 +34,11 @@ export const actions = {
   RESET_RESPONSE,
   FETCH_ROLES_SUCCESS,
   SET_UPDATE_PAYLOAD,
-  SET_USERS_DATA
-}
+  SET_USERS_DATA,
+  INVITE_USER_SUCCESS,
+  OPEN_INVITE_USER,
+  CLOSE_INVITE_USER
+};
 
 export const actionCreators = {
   setCurrentPage: createAction(SET_CURRENT_PAGE),
@@ -41,7 +48,7 @@ export const actionCreators = {
   setUpdatePayload: createAction(SET_UPDATE_PAYLOAD),
   resetResponse: createAction(RESET_RESPONSE),
   setUsersData: createAction(SET_USERS_DATA)
-}
+};
 
 export const initialState = {
   externalUsers: '',
@@ -62,6 +69,7 @@ export const initialState = {
     selectedEmail: '',
     selectedRole: null,
     isAddModalOpen: false,
+    isInviteUserModalOpen: false,
     isDeActivateModalOpen: false,
     isActivateModalOpen: false,
     userData: '',
@@ -71,7 +79,7 @@ export const initialState = {
     activateButton: false,
     isConfirmationModalOpen: false
   }
-}
+};
 
 export default handleActions(
   {
@@ -100,8 +108,8 @@ export default handleActions(
       deleteUserResponse: action.payload
     }),
     [SET_CURRENT_PAGE]: (state, action) => ({
-    ...state,
-    currentPage: action.payload
+      ...state,
+      currentPage: action.payload
     }),
     [SET_USER_ACTION_SETTINGS]: (state, action) => ({
       ...state,
@@ -136,7 +144,32 @@ export default handleActions(
       ...state,
       users: action.payload.users,
       copyUsers: action.payload.copyUsers
+    }),
+    [INVITE_USER_SUCCESS]: (state, action) => {
+      console.log(action.payload);
+      return {
+        ...state,
+        createUserResponse: 'User successfully created',
+        userActionSettings: {
+          ...state.userActionSettings,
+          isInviteUserModalOpen: false
+        }
+      };
+    },
+    [OPEN_INVITE_USER]: (state, action) => ({
+      ...state,
+      userActionSettings: {
+        ...state.userActionSettings,
+        isInviteUserModalOpen: true
+      }
+    }),
+    [CLOSE_INVITE_USER]: (state, action) => ({
+      ...state,
+      userActionSettings: {
+        ...state.userActionSettings,
+        isInviteUserModalOpen: false
+      }
     })
   },
   initialState
-)
+);
