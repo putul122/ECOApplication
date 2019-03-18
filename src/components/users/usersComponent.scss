@@ -1,15 +1,40 @@
-h5{
-    font-weight: bold;
+h5 {
+  font-weight: bold;
 }
 
 a.disabled {
-    /* Make the disabled links grayish*/
-    color: gray;
-    pointer-events: none;
+  /* Make the disabled links grayish*/
+  color: gray;
+  pointer-events: none;
 }
-a:hover{
-    color: unset;
-    text-decoration: none;
+a:hover {
+  color: unset;
+  text-decoration: none;
 }
 
-.pointerDisabled { pointer-events: none; }
+.pointerDisabled {
+  pointer-events: none;
+}
+
+.Modal {
+  position: absolute;
+  top: 200px;
+  left: 300px;
+  right: 300px;
+  bottom: 450px;
+}
+
+.modal_title_class {
+  width: 100%;
+  text-align: center;
+}
+
+.border_none {
+  border: none;
+}
+
+.submit_button_div {
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+}
