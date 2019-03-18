@@ -44,7 +44,7 @@ export default handleActions(
     [SET_MODAL_OPEN_STATUS]: (state, action) => ({
       ...state,
       isModalOpen: action.payload
-    }),
+    })
     // [FETCH_TEMPLATES_SUCCESS]: (state, action) => ({
     //   ...state,
     //   templates: action.payload

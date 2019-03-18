@@ -1,23 +1,22 @@
 import React from 'react'
 import _ from 'lodash'
-import debounce from 'lodash/debounce'
 import ReactModal from 'react-modal'
 import Select from 'react-select'
 import moment from 'moment'
 import DatePicker from 'react-datepicker'
 import PropTypes from 'prop-types'
 import styles from './perspectivesComponent.scss'
+import 'react-datepicker/dist/react-datepicker.css'
 ReactModal.setAppElement('#root')
-let comparer = function (otherArray){
-  return function(current){
-    return otherArray.filter(function(other){
+let comparer = function (otherArray) {
+  return function (current) {
+    return otherArray.filter(function (other) {
       return other.value === current.value && other.display === current.display
-    }).length === 0;
+    }).length === 0
   }
 }
 const customStylescrud = { content: { top: '15%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function Perspectives (props) {
-  console.log('perspectives props', props)
   let connectionSelectBoxList = ''
   let businessPropertyList = ''
   let searchTextBox
@@ -33,8 +32,8 @@ export default function Perspectives (props) {
   let tableHeader = []
   let labels = []
   let messageList = ''
-  let style = {}
   let serviceName = props.addSettings.deleteObject ? props.addSettings.deleteObject.subject_name : ''
+  console.log('perspectives props', props, searchTextBox, styles)
   let editProperty = function (index, value) {
     let connectionData = {...props.connectionData}
     let customerProperty = connectionData.customerProperty
@@ -67,7 +66,7 @@ export default function Perspectives (props) {
       if (actionMeta.action === 'clear') {
         customerProperty[index].type_property.value_set_value = newValue
       }
-      connectionData.customerProperty = customerProperty 
+      connectionData.customerProperty = customerProperty
       props.setConnectionData(connectionData)
     }
   }
@@ -301,7 +300,7 @@ export default function Perspectives (props) {
           }
           patchPayload.push(obj)
         } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
-          let dataIndex = connectionData.data.findIndex(p => p.name == partData.name)
+          let dataIndex = connectionData.data.findIndex(p => p.name === partData.name)
           console.log('dataIndex', dataIndex)
           if (dataIndex !== -1) {
             // found index
@@ -338,7 +337,7 @@ export default function Perspectives (props) {
                 onlyInFinal = selectedValue.filter(comparer(initialSelectedValue))
               } else {
                 onlyInFinal = selectedValue
-              }              
+              }
             }
             // remove operation payload
             if (onlyInInitial.length > 0) {
@@ -378,7 +377,6 @@ export default function Perspectives (props) {
               patchPayload.push(obj)
               console.log('add obj', obj)
             }
-
           } else {
             console.log('index', dataIndex)
           }
@@ -411,7 +409,7 @@ export default function Perspectives (props) {
             } else {
               valueType = `other_value`
               obj.value = customerProperty.type_property.other_value
-            } 
+            }
             obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
             patchPayload.push(obj)
           }
@@ -456,7 +454,7 @@ export default function Perspectives (props) {
       console.log('list props', props)
       if (props.modelPrespectives.length > 1) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
-        modelPrespectives.splice(-1,1)
+        modelPrespectives.splice(-1, 1)
         if (modelPrespectives.length > 1) {
           modelPrespectivesList = modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
             if (data.error_code === null) {
@@ -515,7 +513,6 @@ export default function Perspectives (props) {
             </tr>
           ))
         }
-        
       } else {
         modelPrespectivesList = []
         modelPrespectivesList.push((
@@ -623,19 +620,19 @@ export default function Perspectives (props) {
         return component
       })
       return (<div className='form-group row'>
-      <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-      <div className='col-8'>
-        <Select
-          className='input-sm m-input'
-          placeholder={'Select ' + data.name}
-          isMulti = {data.max !== 1 ? true : false}
-          isClearable
-          value={connectionData.selectedValues[index]}
-          onChange={handleSelectChange(index)}
-          options={selectOptions}
+        <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+        <div className='col-8'>
+          <Select
+            className='input-sm m-input'
+            placeholder={'Select ' + data.name}
+            isMulti={data.max !== 1}
+            isClearable
+            value={connectionData.selectedValues[index]}
+            onChange={handleSelectChange(index)}
+            options={selectOptions}
           />
-      </div>
-    </div>)
+        </div>
+      </div>)
     })
     businessPropertyList = connectionData.customerProperty.map(function (data, index) {
       let value = null
@@ -696,14 +693,14 @@ export default function Perspectives (props) {
         return (<div className='form-group row'>
           <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
           <Select
-              className='col-8 input-sm m-input'
-              placeholder='Select Options'
-              isClearable
-              defaultValue={dvalue}
-              onChange={handlePropertySelect(index)}
-              isSearchable={false}
-              name={'selectProperty'}
-              options={propertyOption}
+            className='col-8 input-sm m-input'
+            placeholder='Select Options'
+            isClearable
+            defaultValue={dvalue}
+            onChange={handlePropertySelect(index)}
+            isSearchable={false}
+            name={'selectProperty'}
+            options={propertyOption}
             />
         </div>)
       } else {
@@ -761,11 +758,6 @@ export default function Perspectives (props) {
         <li className='m-list-search__result-item' key={0}>{'No data has been added.'}</li>
       ))
     }
-  }
-  if (props.addSettings.createResponse !== null) {
-    style = {'height': 'calc(60vh - 55px)', 'overflow': 'auto'}
-  } else {
-    style = {}
   }
 return (
   <div>
@@ -859,7 +851,7 @@ return (
         </div>
       </div>
     </div>
-  <div>
+    <div>
       <ReactModal isOpen={props.addSettings.isModalOpen}
         onRequestClose={closeModal}
         // className='modal-dialog modal-lg'
@@ -870,8 +862,8 @@ return (
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
-              {props.addSettings.createResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Add Perspective</h4>)}
-              {props.addSettings.createResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Create Report</h4>)}
+                {props.addSettings.createResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Add Perspective</h4>)}
+                {props.addSettings.createResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Create Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
                 </button>
@@ -900,8 +892,8 @@ return (
                   {connectionSelectBoxList}
                 </div>)}
                 {props.addSettings.createResponse !== null && (<div className='m-list-search__results'>
-                    {messageList}
-                  </div>)}
+                  {messageList}
+                </div>)}
               </div>
               <div className='modal-footer'>
                 <button type='button' onClick={closeModal} className='btn btn-outline-danger btn-sm'>Close</button>
@@ -921,8 +913,8 @@ return (
           <div className=''>
             <div className='modal-content' style={{'height': '400px'}}>
               <div className='modal-header'>
-              {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit Perspective</h4>)}
-              {props.addSettings.updateResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Update Report</h4>)}
+                {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit Perspective</h4>)}
+                {props.addSettings.updateResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Update Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
                 </button>
@@ -951,8 +943,8 @@ return (
                   {connectionSelectBoxList}
                 </div>)}
                 {props.addSettings.updateResponse !== null && (<div className='m-list-search__results'>
-                    {messageList}
-                  </div>)}
+                  {messageList}
+                </div>)}
               </div>
               <div className='modal-footer'>
                 <button type='button' onClick={closeModal} className='btn btn-outline-danger btn-sm'>Close</button>
@@ -996,12 +988,11 @@ return (
   }
   Perspectives.propTypes = {
     addSettings: PropTypes.any,
-    setModalOpenStatus: PropTypes.func,
     modelPrespectives: PropTypes.any,
     metaModelPerspective: PropTypes.any,
     currentPage: PropTypes.any,
     perPage: PropTypes.any,
-    crude: PropTypes.any,
+    // crude: PropTypes.any,
     availableAction: PropTypes.any,
     connectionData: PropTypes.any
   }

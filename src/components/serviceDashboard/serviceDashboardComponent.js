@@ -11,7 +11,7 @@ export default function ServiceDashboard (props) {
       let subjectName = data.subject_name
       let parts = data.parts
       let subjectCount = ''
-      let List = _.find(perspectives, function (obj) { 
+      let List = _.find(perspectives, function (obj) {
         return (obj.perspective === data.perspective_id && obj.role_key === 'List')
       })
       let listLink = 'javascript:void(0);'
@@ -73,7 +73,7 @@ export default function ServiceDashboard (props) {
       )
     })
   }
-  
+
   return (
     <div>
       <div className='row'>

@@ -42,7 +42,7 @@ export default compose(
           payload['meta_model_perspective_id[' + count + ']'] = data.perspective
           payload['view_key[' + count + ']'] = data.view_key
           count++
-        }       
+        }
       })
       console.log('payload', payload)
       this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)

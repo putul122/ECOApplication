@@ -13,7 +13,7 @@ export function mapStateToProps (state, props) {
 }
 // In Object form, each funciton is automatically wrapped in a dispatch
 export const propsMapping: Callbacks = {
-  setModalOpenStatus: basicActionCreators.setModalOpenStatus,
+  setModalOpenStatus: basicActionCreators.setModalOpenStatus
 //   fetchPackage: sagaActions.basicActions.fetchPackage
 }
 

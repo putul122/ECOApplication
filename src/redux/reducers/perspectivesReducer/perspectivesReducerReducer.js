@@ -75,7 +75,6 @@ export const initialState = {
     toProcess: false
   },
   connectionData: '',
-  perPage: 10,
   createComponentResponse: '',
   updateComponentResponse: '',
   deleteComponentResponse: '',

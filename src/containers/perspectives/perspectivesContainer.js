@@ -4,7 +4,6 @@ import Perspectives from '../../components/perspectives/perspectivesComponent'
 import { actions as sagaActions } from '../../redux/sagas'
 import { actionCreators } from '../../redux/reducers/perspectivesReducer/perspectivesReducerReducer'
 import { actionCreators as basicActionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
-import _ from 'lodash'
 console.log('sagaActions', sagaActions)
 // Global State
 export function mapStateToProps (state, props) {
@@ -17,7 +16,6 @@ export function mapStateToProps (state, props) {
     crude: state.perspectivesReducer.crude,
     addSettings: state.perspectivesReducer.addSettings,
     availableAction: state.perspectivesReducer.availableAction,
-    perPage: state.perspectivesReducer.perPage,
     createComponentResponse: state.perspectivesReducer.createComponentResponse,
     deleteComponentResponse: state.perspectivesReducer.deleteComponentResponse,
     connectionData: state.perspectivesReducer.connectionData,

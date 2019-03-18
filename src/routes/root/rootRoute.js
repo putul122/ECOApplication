@@ -210,10 +210,10 @@ export default class Root extends Component {
         <Route exact path='/components/:id' component={(props) => this.loadView('componentTypeComponent', props)} />
         <Route exact path='/forgot_password' component={(props) => this.loadView('forgotPassword', props)} />
         <Route exact path='/change_password' component={(props) => this.loadView('changePassword', props)} />
-				<Route exact path='/perspectives/:id/:viewKey' component={(props) => this.loadView('perspectives', props)} />
-				<Route exact path='/services/:id' component={(props) => this.loadView('viewService', props)} />
-				<Route exact path='/' component={(props) => this.loadView('landing', props)} />			
-			</Switch>
+        <Route exact path='/perspectives/:id/:viewKey' component={(props) => this.loadView('perspectives', props)} />
+        <Route exact path='/services/:id' component={(props) => this.loadView('viewService', props)} />
+        <Route exact path='/' component={(props) => this.loadView('landing', props)} />
+      </Switch>
     </BrowserRouter>
   </AppWrapper>
 		)

@@ -61,7 +61,7 @@ export const actionCreators = {
   deleteComponentModelPerspectivesFailure: createAction(DELETE_COMPONENT_MODEL_PERSPECTIVES_FAILURE),
   updateComponentModelPrespectives: createAction(UPDATE_COMPONENT_MODEL_PRESPECTIVES),
   updateComponentModelPrespectivesSuccess: createAction(UPDATE_COMPONENT_MODEL_PRESPECTIVES_SUCCESS),
-  updateComponentModelPrespectivesFailure: createAction(UPDATE_COMPONENT_MODEL_PRESPECTIVES_FAILURE),
+  updateComponentModelPrespectivesFailure: createAction(UPDATE_COMPONENT_MODEL_PRESPECTIVES_FAILURE)
 }
 
 export default function * watchModel () {

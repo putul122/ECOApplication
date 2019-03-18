@@ -78,10 +78,10 @@ export default function TreeMap (props) {
   plotMap(data)
   return (
     <div className=''>
-        <div className='col-md-12'><span>Services per Capability</span></div>
-        <div id='mainScreen'>
-          <div className='col-md-8' id='treeLayout' />
-        </div>
+      <div className='col-md-12'><span>Services per Capability</span></div>
+      <div id='mainScreen'>
+        <div className='col-md-8' id='treeLayout' />
+      </div>
     </div>
     )
   }
