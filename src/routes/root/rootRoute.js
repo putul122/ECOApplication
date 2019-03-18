@@ -156,15 +156,6 @@ export default class Root extends Component {
 		}
 		resolve(require('../perspectivesPage/perspectivesPageRoute').default)
 	break
-	case 'viewService':
-		if (module.hot) {
-						module.hot.accept('../viewServicePage/viewServicePageRoute', () => {
-				require('../viewServicePage/viewServicePageRoute').default // eslint-disable-line
-								this.forceUpdate()
-						})
-		}
-		resolve(require('../viewServicePage/viewServicePageRoute').default)
-	break
 	case 'users':
 		if (module.hot) {
 			module.hot.accept('../usersPage/usersPageRoute', () => {
@@ -211,7 +202,6 @@ export default class Root extends Component {
         <Route exact path='/forgot_password' component={(props) => this.loadView('forgotPassword', props)} />
         <Route exact path='/change_password' component={(props) => this.loadView('changePassword', props)} />
         <Route exact path='/perspectives/:id/:viewKey' component={(props) => this.loadView('perspectives', props)} />
-        <Route exact path='/services/:id' component={(props) => this.loadView('viewService', props)} />
         <Route exact path='/' component={(props) => this.loadView('landing', props)} />
       </Switch>
     </BrowserRouter>
