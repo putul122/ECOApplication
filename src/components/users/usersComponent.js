@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import ReactModal from 'react-modal'
 import _ from 'lodash'
+import debounce from 'lodash/debounce'
 import PropTypes from 'prop-types'
 
 import styles from './usersComponent.scss'
@@ -33,6 +34,14 @@ class Users extends Component {
       })
     )
   }
+
+  handleInputChange = debounce(e => {
+    this.fetchUsers(
+      this.state.pageSize,
+      this.state.currentPage,
+      this.state.searchTerm
+    )
+  }, 500)
 
   pageSizeBlurHandler = async e => {
     console.log('Hello Blur')
@@ -262,18 +271,14 @@ class Users extends Component {
                               style={{ display: 'flex' }}
                             >
                               <div style={{ display: 'flex' }}>
-                                <button
-                                  style={{ margin: '10px' }}
-                                  onClick={this.searchUsersClickHandler}
-                                >
-                                  Search
-                                </button>
+                                <h5 style={{ margin: '10px' }}>Search</h5>
                                 <div className='m-input-icon m-input-icon--left'>
                                   <input
                                     type='text'
                                     className='form-control m-input'
                                     placeholder='Search...'
                                     id='generalSearch'
+                                    onKeyUp={this.handleInputChange}
                                     value={searchTerm}
                                     onChange={e =>
                                       this.setState({
