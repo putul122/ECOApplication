@@ -1,4 +1,4 @@
-import { createAction, handleActions } from 'redux-actions';
+import { createAction, handleActions } from 'redux-actions'
 import {
   FETCH_EX_USERS_SUCCESS,
   FETCH_USERS_SUCCESS,
@@ -9,16 +9,16 @@ import {
   INVITE_USER_SUCCESS,
   OPEN_INVITE_USER,
   CLOSE_INVITE_USER
-} from '../../sagas/user/userSaga';
-import { FETCH_ROLES_SUCCESS } from '../../sagas/basic/basicSaga';
+} from '../../sagas/user/userSaga'
+import { FETCH_ROLES_SUCCESS } from '../../sagas/basic/basicSaga'
 // Name Spaced Action Types
-const SET_CURRENT_PAGE = 'UsersReducer/SET_CURRENT_PAGE';
-const SET_USER_ACTION_SETTINGS = 'UsersReducer/SET_USER_ACTION_SETTINGS';
-const SET_PER_PAGE = 'UsersReducer/SET_PER_PAGE';
-const SET_ROLE_DATA = 'UsersReducer/SET_ROLE_DATA';
-const SET_UPDATE_PAYLOAD = 'UsersReducer/SET_UPDATE_PAYLOAD';
-const RESET_RESPONSE = 'UsersReducer/RESET_RESPONSE';
-const SET_USERS_DATA = 'UsersReducer/SET_USERS_DATA';
+const SET_CURRENT_PAGE = 'UsersReducer/SET_CURRENT_PAGE'
+const SET_USER_ACTION_SETTINGS = 'UsersReducer/SET_USER_ACTION_SETTINGS'
+const SET_PER_PAGE = 'UsersReducer/SET_PER_PAGE'
+const SET_ROLE_DATA = 'UsersReducer/SET_ROLE_DATA'
+const SET_UPDATE_PAYLOAD = 'UsersReducer/SET_UPDATE_PAYLOAD'
+const RESET_RESPONSE = 'UsersReducer/RESET_RESPONSE'
+const SET_USERS_DATA = 'UsersReducer/SET_USERS_DATA'
 
 export const actions = {
   FETCH_EX_USERS_SUCCESS,
@@ -38,7 +38,7 @@ export const actions = {
   INVITE_USER_SUCCESS,
   OPEN_INVITE_USER,
   CLOSE_INVITE_USER
-};
+}
 
 export const actionCreators = {
   setCurrentPage: createAction(SET_CURRENT_PAGE),
@@ -48,7 +48,7 @@ export const actionCreators = {
   setUpdatePayload: createAction(SET_UPDATE_PAYLOAD),
   resetResponse: createAction(RESET_RESPONSE),
   setUsersData: createAction(SET_USERS_DATA)
-};
+}
 
 export const initialState = {
   externalUsers: '',
@@ -79,7 +79,7 @@ export const initialState = {
     activateButton: false,
     isConfirmationModalOpen: false
   }
-};
+}
 
 export default handleActions(
   {
@@ -146,7 +146,7 @@ export default handleActions(
       copyUsers: action.payload.copyUsers
     }),
     [INVITE_USER_SUCCESS]: (state, action) => {
-      console.log(action.payload);
+      console.log(action.payload)
       return {
         ...state,
         createUserResponse: 'User successfully created',
@@ -154,7 +154,7 @@ export default handleActions(
           ...state.userActionSettings,
           isInviteUserModalOpen: false
         }
-      };
+      }
     },
     [OPEN_INVITE_USER]: (state, action) => ({
       ...state,
@@ -172,4 +172,4 @@ export default handleActions(
     })
   },
   initialState
-);
+)

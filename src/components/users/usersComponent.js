@@ -1,18 +1,18 @@
-import React, { Component } from 'react';
-import ReactModal from 'react-modal';
-import _ from 'lodash';
+import React, { Component } from 'react'
+import ReactModal from 'react-modal'
+import _ from 'lodash'
+import PropTypes from 'prop-types'
 
-import styles from './usersComponent.scss';
-ReactModal.setAppElement('#root');
+import styles from './usersComponent.scss'
+ReactModal.setAppElement('#root')
 
 class Users extends Component {
   state = {
     searchTerm: '',
-    pageSize: 10,
+    pageSize: 1,
     currentPage: 1,
     previousClass: '',
     nextClass: '',
-    currentPage: 1,
     invitedEmail: '',
     totalPages: 1
   };
@@ -28,50 +28,54 @@ class Users extends Component {
             <td>{user.email}</td>
             <td>{user.roles.toString()}</td>
           </tr>
-        );
+        )
       })
-    );
+    )
   };
 
   pageSizeChangeHandler = async e => {
     await this.setState({
       pageSize: +e.target.value
-    });
+    })
     this.fetchUsers(
       this.state.pageSize,
       this.state.currentPage,
       this.state.searchTerm
-    );
+    )
   };
+
+  pageSizeBlurHandler = () => {
+    console.log('Handle Blur')
+  }
 
   searchUsersClickHandler = () => {
     this.fetchUsers(
       this.state.pageSize,
       this.state.currentPage,
       this.state.searchTerm
-    );
+    )
   };
 
   fetchUsersForGivenPageNumber = async (e, pageNumber, arrow = null) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (arrow === 'next') {
       await this.setState(prevState => {
-        return { currentPage: prevState.currentPage + 1 };
-      });
+        return { currentPage: prevState.currentPage + 1 }
+      })
     } else if (arrow === 'prev') {
       await this.setState(prevState => {
-        return { currentPage: prevState.currentPage - 1 };
-      });
+        return { currentPage: prevState.currentPage - 1 }
+      })
     } else {
-      await this.setState({ currentPage: pageNumber });
+      await this.setState({ currentPage: pageNumber })
     }
 
     this.fetchUsers(
       this.state.pageSize,
       this.state.currentPage,
       this.state.searchTerm
-    );
+    )
   };
 
   fetchUsers = () => {
@@ -79,30 +83,30 @@ class Users extends Component {
       page_size: this.state.pageSize,
       page: this.state.currentPage,
       search: this.state.searchTerm
-    };
-    this.props.fetchUsers(payload);
+    }
+    this.props.fetchUsers(payload)
   };
 
   inviteUserClickHandler = () => {
-    this.props.openInviteUser();
-    this.setState({ isInviteUserModalOpen: true });
+    this.props.openInviteUser()
+    this.setState({ isInviteUserModalOpen: true })
   };
 
   closeInviteUserModal = () => {
-    this.props.closeInviteUser();
-    this.setState({ isInviteUserModalOpen: false });
+    this.props.closeInviteUser()
+    this.setState({ isInviteUserModalOpen: false })
   };
 
   inviteUserSubmitHandler = e => {
-    e.preventDefault();
+    e.preventDefault()
     const payload = {
       email: this.state.invitedEmail,
       accept_invitation_url: `${window.location.origin}/invite_user`
-    };
-    this.props.inviteUser(payload);
+    }
+    this.props.inviteUser(payload)
   };
 
-  render() {
+  render () {
     const {
       searchTerm,
       previousClass,
@@ -110,75 +114,75 @@ class Users extends Component {
       currentPage,
       invitedEmail,
       pageSize
-    } = this.state;
+    } = this.state
 
     const {
-      userActionSettings: { isInviteUserModalOpen },
-      getUserResponse: { total_count }
-    } = this.props;
+      userActionSettings: { isInviteUserModalOpen }
+    } = this.props
 
-    const totalPages = Math.floor(total_count / pageSize);
-    let pageArray = [];
-    let paginationLimit = 6;
+    const totalPages = Math.floor(this.props.getUserResponse.total_count / pageSize)
+    let pageArray = []
+    let paginationLimit = 6
 
-    let i = 1;
+    let i = 1
     while (i <= totalPages) {
-      let pageParameter = {};
-      pageParameter.number = i;
-      pageParameter.class = '';
-      pageArray.push(pageParameter);
-      i++;
+      let pageParameter = {}
+      pageParameter.number = i
+      pageParameter.class = ''
+      pageArray.push(pageParameter)
+      i++
     }
-    pageArray = _.chunk(pageArray, paginationLimit);
-    const listPage = _.filter(pageArray, function(group) {
-      let found = _.filter(group, { number: currentPage });
+    pageArray = _.chunk(pageArray, paginationLimit)
+    const listPage = _.filter(pageArray, function (group) {
+      let found = _.filter(group, { number: currentPage })
       if (found.length > 0) {
-        return group;
+        return group
       }
-    });
+    })
 
     return (
-      <div id="userList">
+      <div id='userList'>
         <ReactModal
           isOpen={isInviteUserModalOpen}
           onRequestClose={this.closeInviteUserModal}
           className={styles.Modal}
         >
-          <div className="modal-dialog" role="document">
-            <div className="modal-content">
+          <div className='modal-dialog' role='document'>
+            <div className='modal-content'>
               <div className={`modal-header ${styles.border_none}`}>
                 <h5 className={`modal-title ${styles.modal_title_class}`}>
                   Invite User
                 </h5>
                 <button
-                  type="button"
-                  className="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
+                  type='button'
+                  className='close'
+                  data-dismiss='modal'
+                  aria-label='Close'
                   onClick={this.closeInviteUserModal}
                 >
-                  <span aria-hidden="true">&times;</span>
+                  <span aria-hidden='true'>&times;</span>
                 </button>
               </div>
-              <div className="modal-body">
+              <div className='modal-body'>
                 <form onSubmit={this.inviteUserSubmitHandler}>
-                  <div className="form-group row">
-                    <label className="col-sm-2 col-form-label">Email</label>
-                    <div className="col-sm-10">
+                  <div className='form-group row'>
+                    <label className='col-sm-2 col-form-label' htmlFor='email'>Email</label>
+                    <div className='col-sm-10'>
                       <input
-                        type="text"
-                        className="form-control"
+                        type='text'
+                        className='form-control'
                         value={invitedEmail}
                         onChange={e =>
                           this.setState({ invitedEmail: e.target.value })
                         }
+                        id='email'
                       />
                     </div>
                   </div>
                   <div className={`form-group row ${styles.submit_button_div}`}>
                     <button
-                      type="submit"
-                      className="btn btn-outline-info btn-md text-right"
+                      type='submit'
+                      className='btn btn-outline-info btn-md text-right'
                     >
                       Invite User
                     </button>
@@ -189,26 +193,26 @@ class Users extends Component {
           </div>
         </ReactModal>
 
-        <div className="row">
-          <div className="col-md-12">
+        <div className='row'>
+          <div className='col-md-12'>
             <h1> Users </h1>
-            <div className="m_datatable" id="scrolling_vertical">
+            <div className='m_datatable' id='scrolling_vertical'>
               <div
-                className="m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll"
-                id="scrolling_vertical"
+                className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
+                id='scrolling_vertical'
               >
-                <div className="">
-                  <div className="m-portlet">
-                    <div className="m-portlet__body">
+                <div className=''>
+                  <div className='m-portlet'>
+                    <div className='m-portlet__body'>
                       <div
-                        id="m_table_1_wrapper"
-                        className="dataTables_wrapper dt-bootstrap4"
+                        id='m_table_1_wrapper'
+                        className='dataTables_wrapper dt-bootstrap4'
                       >
-                        <div className="row">
-                          <div className="col-md-10" />
-                          <div className="col-md-2 float-right">
+                        <div className='row'>
+                          <div className='col-md-10' />
+                          <div className='col-md-2 float-right'>
                             <button
-                              className="btn btn-outline-info btn-sm pull-right"
+                              className='btn btn-outline-info btn-sm pull-right'
                               onClick={this.inviteUserClickHandler}
                             >
                               Invite User
@@ -217,50 +221,51 @@ class Users extends Component {
                           </div>
                         </div>
                         <br />
-                        <div className="row" style={{ marginBottom: '20px' }}>
-                          <div className="col-sm-12 col-md-6">
+                        <div className='row' style={{ marginBottom: '20px' }}>
+                          <div className='col-sm-12 col-md-6'>
                             <div
-                              className="dataTables_length"
-                              id="m_table_1_length"
+                              className='dataTables_length'
+                              id='m_table_1_length'
                               style={{ display: 'flex' }}
                             >
                               <h5 style={{ margin: '8px' }}>Show</h5>
                               <select
                                 value={pageSize}
-                                name="m_table_1_length"
-                                aria-controls="m_table_1"
-                                className="custom-select custom-select-sm form-control form-control-sm"
+                                name='m_table_1_length'
+                                aria-controls='m_table_1'
+                                className='custom-select custom-select-sm form-control form-control-sm'
                                 style={{ height: '40px' }}
                                 onChange={this.pageSizeChangeHandler}
+                                onBlur={this.pageSizeBlurHandler}
                               >
-                                <option value={10}>10</option>
-                                <option value={25}>25</option>
-                                <option value={50}>50</option>
-                                <option value={100}>100</option>
+                                <option value={1}>1</option>
+                                <option value={2}>2</option>
+                                <option value={3}>3</option>
+                                <option value={5}>5</option>
                               </select>
                               <h5 style={{ margin: '8px' }}>Entries</h5>
                               {/* </label> */}
                             </div>
                           </div>
-                          <div className="col-sm-12 col-md-6">
+                          <div className='col-sm-12 col-md-6'>
                             <div
-                              className="dataTables_length pull-right"
-                              id="m_table_1_length"
+                              className='dataTables_length pull-right'
+                              id='m_table_1_length'
                               style={{ display: 'flex' }}
                             >
                               <div style={{ display: 'flex' }}>
-                                <h5
+                                <button
                                   style={{ margin: '10px' }}
                                   onClick={this.searchUsersClickHandler}
                                 >
                                   Search
-                                </h5>
-                                <div className="m-input-icon m-input-icon--left">
+                                </button>
+                                <div className='m-input-icon m-input-icon--left'>
                                   <input
-                                    type="text"
-                                    className="form-control m-input"
-                                    placeholder="Search..."
-                                    id="generalSearch"
+                                    type='text'
+                                    className='form-control m-input'
+                                    placeholder='Search...'
+                                    id='generalSearch'
                                     value={searchTerm}
                                     onChange={e =>
                                       this.setState({
@@ -268,9 +273,9 @@ class Users extends Component {
                                       })
                                     }
                                   />
-                                  <span className="m-input-icon__icon m-input-icon__icon--left">
+                                  <span className='m-input-icon__icon m-input-icon__icon--left'>
                                     <span>
-                                      <i className="la la-search" />
+                                      <i className='la la-search' />
                                     </span>
                                   </span>
                                 </div>
@@ -280,7 +285,7 @@ class Users extends Component {
                         </div>
                       </div>
                       <div
-                        className="dataTables_scrollBody"
+                        className='dataTables_scrollBody'
                         style={{
                           position: 'relative',
                           overflow: 'auto',
@@ -289,20 +294,20 @@ class Users extends Component {
                         }}
                       >
                         <table
-                          className="m-portlet table table-striped- table-bordered table-hover table-checkable dataTable no-footer"
-                          id="m_table_1"
-                          aria-describedby="m_table_1_info"
-                          role="grid"
+                          className='m-portlet table table-striped- table-bordered table-hover table-checkable dataTable no-footer'
+                          id='m_table_1'
+                          aria-describedby='m_table_1_info'
+                          role='grid'
                         >
                           <thead>
-                            <tr role="row">
-                              <th className="">
+                            <tr role='row'>
+                              <th className=''>
                                 <h5>Name</h5>
                               </th>
-                              <th className="">
+                              <th className=''>
                                 <h5>Email</h5>
                               </th>
-                              <th className="">
+                              <th className=''>
                                 <h5>Roles</h5>
                               </th>
                             </tr>
@@ -310,20 +315,20 @@ class Users extends Component {
                           <tbody>{this.userList()}</tbody>
                         </table>
                       </div>
-                      <div className="row">
-                        <div className="col-md-12" id="scrolling_vertical">
+                      <div className='row'>
+                        <div className='col-md-12' id='scrolling_vertical'>
                           <div
-                            className="m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll pull-right"
-                            id="scrolling_vertical"
+                            className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll pull-right'
+                            id='scrolling_vertical'
                           >
-                            <div className="m-datatable__pager m-datatable--paging-loaded clearfix">
-                              <ul className="m-datatable__pager-nav">
+                            <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
+                              <ul className='m-datatable__pager-nav'>
                                 {currentPage > 1 && (
                                   <li>
                                     <a
-                                      href=""
-                                      title="Previous"
-                                      id="m_blockui_1_5"
+                                      href=''
+                                      title='Previous'
+                                      id='m_blockui_1_5'
                                       className={
                                         'm-datatable__pager-link m-datatable__pager-link--prev ' +
                                         previousClass
@@ -336,7 +341,7 @@ class Users extends Component {
                                         )
                                       }
                                     >
-                                      <i className="la la-angle-left" />
+                                      <i className='la la-angle-left' />
                                     </a>
                                   </li>
                                 )}
@@ -345,15 +350,15 @@ class Users extends Component {
                                   listPage[0].map(page => {
                                     if (page.number === currentPage) {
                                       page.class =
-                                        'm-datatable__pager-link--active';
+                                        'm-datatable__pager-link--active'
                                     } else {
-                                      page.class = '';
+                                      page.class = ''
                                     }
 
                                     return (
                                       <li key={page.number}>
                                         <a
-                                          href=""
+                                          href=''
                                           className={
                                             'm-datatable__pager-link m-datatable__pager-link-number ' +
                                             page.class
@@ -370,15 +375,15 @@ class Users extends Component {
                                           {page.number}
                                         </a>
                                       </li>
-                                    );
+                                    )
                                   })}
 
                                 {currentPage !== totalPages &&
                                   totalPages !== 1 && (
                                     <li>
                                       <a
-                                        href=""
-                                        title="Next"
+                                        href=''
+                                        title='Next'
                                         className={
                                           'm-datatable__pager-link m-datatable__pager-link--next ' +
                                           nextClass
@@ -391,7 +396,7 @@ class Users extends Component {
                                           )
                                         }
                                       >
-                                        <i className="la la-angle-right" />
+                                        <i className='la la-angle-right' />
                                       </a>
                                     </li>
                                   )}
@@ -408,7 +413,16 @@ class Users extends Component {
           </div>
         </div>
       </div>
-    );
+    )
   }
 }
-export default Users;
+export default Users
+
+Users.propTypes = {
+  userActionSettings: PropTypes.any,
+  getUserResponse: PropTypes.any,
+  fetchUsers: PropTypes.func,
+  openInviteUser: PropTypes.func,
+  closeInviteUser: PropTypes.func,
+  inviteUser: PropTypes.func
+}
