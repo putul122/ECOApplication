@@ -2,8 +2,6 @@ import { connect } from 'react-redux'
 import { compose, lifecycle } from 'recompose'
 import Users from '../../components/users/usersComponent'
 import { actions as sagaActions } from '../../redux/sagas/'
-import { actionCreators } from '../../redux/reducers/usersReducer/usersReducerReducer'
-import { actionCreators as basicActionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
 
 // Global State
 export function mapStateToProps (state, props) {
