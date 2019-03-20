@@ -30,7 +30,8 @@ export const propsMapping: Callbacks = {
   fetchUsers: sagaActions.userActions.fetchUsers,
   inviteUser: sagaActions.userActions.inviteUser,
   openInviteUser: sagaActions.userActions.openInviteUser,
-  closeInviteUser: sagaActions.userActions.closeInviteUser
+  closeInviteUser: sagaActions.userActions.closeInviteUser,
+  deleteUser: sagaActions.userActions.deleteUser
 }
 
 // eslint-disable-next-line

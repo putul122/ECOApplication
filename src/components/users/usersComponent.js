@@ -29,10 +29,23 @@ class Users extends Component {
             <td>{user.first_name + ' ' + user.last_name}</td>
             <td>{user.email}</td>
             <td>{user.roles.toString()}</td>
+            <td>
+              <span>{user.is_active ? 'DeActivate' : 'Activate'}</span>/
+              <a href='' onClick={e => this.removeUser(e, user.id)}>
+                <span>Remove</span>
+              </a>
+            </td>
           </tr>
         )
       })
     )
+  }
+
+  removeUser = (e, userId) => {
+    e.preventDefault()
+
+    const payload = { user_id: userId }
+    this.props.deleteUser(payload)
   }
 
   handleInputChange = debounce(e => {
@@ -323,6 +336,9 @@ class Users extends Component {
                               <th className=''>
                                 <h5>Roles</h5>
                               </th>
+                              <th className=''>
+                                <h5>Actions</h5>
+                              </th>
                             </tr>
                           </thead>
                           <tbody>{this.userList()}</tbody>
@@ -436,6 +452,7 @@ Users.propTypes = {
   openInviteUser: PropTypes.func,
   closeInviteUser: PropTypes.func,
   inviteUser: PropTypes.func,
+  deleteUser: PropTypes.func,
   userActionSettings: PropTypes.any
 }
 
