@@ -30,8 +30,25 @@ class Users extends Component {
             <td>{user.email}</td>
             <td>{user.roles.toString()}</td>
             <td>
-              <span>{user.is_active ? 'DeActivate' : 'Activate'}</span>/
-              <a href='' onClick={e => this.removeUser(e, user.id)}>
+              <span>
+                {user.is_active ? (
+                  <a href='' onClick={e => this.removeUser(e, user.id)}>
+                    <span>DeActivate</span>
+                  </a>
+                ) : (
+                  <a href='' onClick={e => this.activateUser(e, user.email)}>
+                    <span>Activate</span>
+                  </a>
+                )}
+              </span>
+              /
+              <a
+                href=''
+                onClick={e => {
+                  e.preventDefault()
+                  this.removeUser(e, user.id)
+                }}
+              >
                 <span>Remove</span>
               </a>
             </td>
@@ -41,10 +58,37 @@ class Users extends Component {
     )
   }
 
+  activateUser = (e, email) => {
+    e.preventDefault()
+
+    const password =
+      Math.random()
+        .toString(36)
+        .substring(2, 15) +
+      Math.random()
+        .toString(36)
+        .substring(2, 15)
+
+    this.props.createUser({
+      email,
+      password,
+      client_id: this.props.client_id,
+      client_secret: this.props.client_secret,
+      pageSize: this.state.pageSize,
+      currentPage: this.state.currentPage,
+      searchTerm: this.state.searchTerm
+    })
+  }
+
   removeUser = (e, userId) => {
     e.preventDefault()
 
-    const payload = { user_id: userId }
+    const payload = {
+      user_id: userId,
+      pageSize: this.state.pageSize,
+      currentPage: this.state.currentPage,
+      searchTerm: this.state.searchTerm
+    }
     this.props.deleteUser(payload)
   }
 
@@ -448,10 +492,13 @@ class Users extends Component {
 
 Users.propTypes = {
   getUserResponse: PropTypes.any,
+  client_id: PropTypes.any,
+  client_secret: PropTypes.any,
   fetchUsers: PropTypes.func,
   openInviteUser: PropTypes.func,
   closeInviteUser: PropTypes.func,
   inviteUser: PropTypes.func,
+  createUser: PropTypes.func,
   deleteUser: PropTypes.func,
   userActionSettings: PropTypes.any
 }

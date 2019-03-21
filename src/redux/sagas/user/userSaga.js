@@ -113,9 +113,9 @@ export function * getUsers (action) {
       'Bearer ' + localStorage.getItem('userAccessToken')
     const qs = queryString.stringify(action.payload)
     const endpoint = `${api.createUser}?${qs}`
-    console.log(endpoint)
+
     const users = yield call(axios.get, endpoint)
-    console.log(users)
+
     yield put(actionCreators.fetchUsersSuccess(users.data))
   } catch (error) {
     yield put(actionCreators.fetchUsersFailure(error))
@@ -139,6 +139,13 @@ export function * createUser (action) {
       'Bearer ' + localStorage.getItem('userAccessToken')
     const user = yield call(axios.post, api.createUser, action.payload)
     yield put(actionCreators.addUserSuccess(user.data))
+
+    const qs = queryString.stringify(action.payload)
+    const endpoint = `${api.createUser}?${qs}`
+
+    const users = yield call(axios.get, endpoint)
+
+    yield put(actionCreators.fetchUsersSuccess(users.data))
   } catch (error) {
     yield put(actionCreators.addUserFailure(error))
   }
@@ -168,7 +175,15 @@ export function * deleteUser (action) {
       api.deleteUser(action.payload.user_id)
       // {params: action.payload}
     )
+
     yield put(actionCreators.deleteUserSuccess(user.data))
+
+    const qs = queryString.stringify(action.payload)
+    const endpoint = `${api.createUser}?${qs}`
+
+    const users = yield call(axios.get, endpoint)
+
+    yield put(actionCreators.fetchUsersSuccess(users.data))
   } catch (error) {
     yield put(actionCreators.deleteUserFailure(error))
   }

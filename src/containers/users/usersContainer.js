@@ -6,8 +6,8 @@ import { actions as sagaActions } from '../../redux/sagas/'
 // Global State
 export function mapStateToProps (state, props) {
   return {
-    // client_id: state.basicReducer.client_id,
-    // client_secret: state.basicReducer.client_secret,
+    client_id: state.basicReducer.client_id,
+    client_secret: state.basicReducer.client_secret,
     // authenticateUser: state.basicReducer.authenticateUser,
     // externalUsers: state.usersReducer.externalUsers,
     // users: state.usersReducer.users,
@@ -31,7 +31,8 @@ export const propsMapping: Callbacks = {
   inviteUser: sagaActions.userActions.inviteUser,
   openInviteUser: sagaActions.userActions.openInviteUser,
   closeInviteUser: sagaActions.userActions.closeInviteUser,
-  deleteUser: sagaActions.userActions.deleteUser
+  deleteUser: sagaActions.userActions.deleteUser,
+  createUser: sagaActions.userActions.addUser
 }
 
 // eslint-disable-next-line
