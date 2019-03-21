@@ -1,7 +1,10 @@
 import React, { Component } from 'react'
 import ReactModal from 'react-modal'
 import _ from 'lodash'
+<<<<<<< HEAD
 import debounce from 'lodash/debounce'
+=======
+>>>>>>> ad122d36110015c371b77492c1588c3508e71088
 import PropTypes from 'prop-types'
 
 import styles from './usersComponent.scss'
@@ -10,7 +13,7 @@ ReactModal.setAppElement('#root')
 class Users extends Component {
   state = {
     searchTerm: '',
-    pageSize: 10,
+    pageSize: 1,
     currentPage: 1,
     previousClass: '',
     nextClass: '',
@@ -113,6 +116,10 @@ class Users extends Component {
       this.state.currentPage,
       this.state.searchTerm
     )
+  }
+
+  pageSizeBlurHandler = () => {
+    console.log('Handle Blur')
   }
 
   searchUsersClickHandler = () => {
@@ -312,10 +319,10 @@ class Users extends Component {
                                 onChange={this.pageSizeChangeHandler}
                                 onBlur={this.pageSizeBlurHandler}
                               >
-                                <option value={10}>10</option>
-                                <option value={25}>25</option>
-                                <option value={50}>50</option>
-                                <option value={100}>100</option>
+                                <option value={1}>1</option>
+                                <option value={2}>2</option>
+                                <option value={3}>3</option>
+                                <option value={5}>5</option>
                               </select>
                               <h5 style={{ margin: '8px' }}>Entries</h5>
                               {/* </label> */}
