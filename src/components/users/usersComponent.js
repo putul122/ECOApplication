@@ -1,10 +1,7 @@
 import React, { Component } from 'react'
 import ReactModal from 'react-modal'
 import _ from 'lodash'
-<<<<<<< HEAD
 import debounce from 'lodash/debounce'
-=======
->>>>>>> ad122d36110015c371b77492c1588c3508e71088
 import PropTypes from 'prop-types'
 
 import styles from './usersComponent.scss'
@@ -13,7 +10,7 @@ ReactModal.setAppElement('#root')
 class Users extends Component {
   state = {
     searchTerm: '',
-    pageSize: 1,
+    pageSize: 10,
     currentPage: 1,
     previousClass: '',
     nextClass: '',
@@ -42,7 +39,7 @@ class Users extends Component {
                   <a href='' onClick={e => this.activateUser(e, user.email)}>
                     <span>Activate</span>
                   </a>
-                )}
+                  )}
               </span>
               /
               <a
@@ -319,10 +316,10 @@ class Users extends Component {
                                 onChange={this.pageSizeChangeHandler}
                                 onBlur={this.pageSizeBlurHandler}
                               >
-                                <option value={1}>1</option>
-                                <option value={2}>2</option>
-                                <option value={3}>3</option>
-                                <option value={5}>5</option>
+                                <option value={10}>10</option>
+                                <option value={25}>25</option>
+                                <option value={35}>35</option>
+                                <option value={50}>50</option>
                               </select>
                               <h5 style={{ margin: '8px' }}>Entries</h5>
                               {/* </label> */}
@@ -459,8 +456,8 @@ class Users extends Component {
                                   })}
 
                                 {currentPage !== totalPages &&
-                                  totalPages !== 1 && (
-                                    <li>
+                                  totalPages > 1 && (
+                                    <li>{console.log(totalPages)}
                                       <a
                                         href=''
                                         title='Next'

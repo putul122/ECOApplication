@@ -6,7 +6,6 @@ import { actions as sagaActions } from '../../redux/sagas/'
 // Global State
 export function mapStateToProps (state, props) {
   return {
-<<<<<<< HEAD
     client_id: state.basicReducer.client_id,
     client_secret: state.basicReducer.client_secret,
     // authenticateUser: state.basicReducer.authenticateUser,
@@ -17,8 +16,6 @@ export function mapStateToProps (state, props) {
     // roles: state.usersReducer.roles,
     // userRoles: state.usersReducer.userRoles,
     // updatePayload: state.usersReducer.updatePayload,
-=======
->>>>>>> ad122d36110015c371b77492c1588c3508e71088
     getUserResponse: state.usersReducer.getUserResponse,
     createUserResponse: state.usersReducer.createUserResponse,
     userActionSettings: state.usersReducer.userActionSettings
