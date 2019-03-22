@@ -10,96 +10,96 @@ const api = {
     'https://ecoconductor-dev-api-account.azurewebsites.net/user_access_token',
   registerProcess:
     'https://ecoconductor-dev-api-notification.azurewebsites.net/processes',
-  getUser: function(userId) {
-    return 'https://account-eco-dev.ecoconductor.com/users/' + userId;
+  getUser: function (userId) {
+    return 'https://account-eco-dev.ecoconductor.com/users/' + userId
   },
-  deleteUser: function(userId) {
-    return 'https://account-eco-dev.ecoconductor.com/users/' + userId;
+  deleteUser: function (userId) {
+    return 'https://account-eco-dev.ecoconductor.com/users/' + userId
   },
   getExternalUsers: 'https://account-eco-dev.ecoconductor.com/external_users',
   // getRoles: 'https://account-eco-dev.ecoconductor.com/roles',
-  getActivityMessage: function() {
-    return 'https://ecoconductor-dev-api-notification.azurewebsites.net/messages';
+  getActivityMessage: function () {
+    return 'https://ecoconductor-dev-api-notification.azurewebsites.net/messages'
   },
-  getComponentById: function(componentTypeId) {
+  getComponentById: function (componentTypeId) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/component_types/' +
       componentTypeId
-    );
+    )
   },
-  getComponentTypeConstraints: function(componentTypeId) {
+  getComponentTypeConstraints: function (componentTypeId) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/component_types/' +
       componentTypeId +
       '/constraints'
-    );
+    )
   },
-  getComponentTypeComponents: function(componentTypeId) {
+  getComponentTypeComponents: function (componentTypeId) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/component_types/' +
       componentTypeId +
       '/components'
-    );
+    )
   },
-  getComponent: function(payload) {
+  getComponent: function (payload) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
       payload.componentTypeComponentId
-    );
+    )
   },
   getComponents:
     'https://ecoconductor-dev-api-model.azurewebsites.net/components',
-  getComponentProperty: function(payload) {
+  getComponentProperty: function (payload) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
       payload.componentTypeComponentId +
       '/component_properties'
-    );
+    )
   },
-  getComponentRelationships: function(payload) {
+  getComponentRelationships: function (payload) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
       payload.componentTypeComponentId +
       '/component_relationships'
-    );
+    )
   },
-  addComponent: function(payload) {
-    return 'https://ecoconductor-dev-api-model.azurewebsites.net/components';
+  addComponent: function (payload) {
+    return 'https://ecoconductor-dev-api-model.azurewebsites.net/components'
   },
-  getComponentConstraints: function(payload) {
+  getComponentConstraints: function (payload) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
       payload.componentTypeComponentId +
       '/constraints'
-    );
+    )
   },
-  updateComponentRelationships: function(payload) {
+  updateComponentRelationships: function (payload) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
       payload.componentId +
       '/component_relationships'
-    );
+    )
   },
-  updateComponentProperties: function(payload) {
+  updateComponentProperties: function (payload) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
       payload.componentId +
       '/component_properties'
-    );
+    )
   },
-  updateComponent: function(payload) {
+  updateComponent: function (payload) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
       payload.componentId
-    );
+    )
   },
-  deleteComponent: function(componentTypeId) {
+  deleteComponent: function (componentTypeId) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
       componentTypeId
-    );
+    )
   },
-  viewComponentRelationship: function(payload) {
+  viewComponentRelationship: function (payload) {
     if (payload.relationshipType === 'Parent') {
       return (
         'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
@@ -107,7 +107,7 @@ const api = {
         '/component_relationships/' +
         payload.relationshipId +
         '?parent=true'
-      );
+      )
     } else if (payload.relationshipType === 'Child') {
       return (
         'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
@@ -115,32 +115,32 @@ const api = {
         '/component_relationships/' +
         payload.relationshipId +
         '?child=true'
-      );
+      )
     } else {
       return (
         'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
         payload.componentId +
         '/component_relationships/' +
         payload.relationshipId
-      );
+      )
     }
   },
-  deleteRelationship: function(payload) {
+  deleteRelationship: function (payload) {
     return (
       'https://ecoconductor-dev-api-model.azurewebsites.net/components/' +
       payload.componentId +
       '/component_relationships/' +
       payload.relationshipId
-    );
+    )
   },
   getDiscussions:
     'https://ecoconductor-dev-api-notification.azurewebsites.net/discussions',
-  getDiscussionMessages: function(id) {
+  getDiscussionMessages: function (id) {
     return (
       'https://ecoconductor-dev-api-notification.azurewebsites.net/discussions/' +
       id +
       '/messages'
-    );
+    )
   },
   getAccountArtefacts: 'https://account-eco-dev.ecoconductor.com/artefacts',
   getModelArtefacts: 'https://model-eco-dev.ecoconductor.com/artefacts',
@@ -149,40 +149,40 @@ const api = {
   createDiscussion: 'https://notification-eco-dev.ecoconductor.com/discussions',
   getModelPerspectives:
     'https://model-eco-dev.ecoconductor.com/model_perspectives',
-  updateModelPerspectives: function(metaModelPerspectiveId) {
+  updateModelPerspectives: function (metaModelPerspectiveId) {
     return (
       'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id=' +
       metaModelPerspectiveId
-    );
+    )
   },
-  getMetaModelPerspective: function(perspectiveId) {
+  getMetaModelPerspective: function (perspectiveId) {
     return (
       'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/' +
       perspectiveId
-    );
+    )
   },
   getMetaModelPerspectives:
     'https://ecoconductor-dev-api-model.azurewebsites.net/meta_model_perspectives',
-  getAllModelPerspectives: function(payload) {
+  getAllModelPerspectives: function (payload) {
     return (
       'https://model-eco-dev.ecoconductor.com/model_perspectives?' + payload
-    );
+    )
   },
   forgotPassword: 'https://account-eco-dev.ecoconductor.com/user_passwords',
   getRoles: 'https://account-eco-dev.ecoconductor.com/roles',
   createRole: 'https://account-eco-dev.ecoconductor.com/roles',
-  deleteRole: function(roleId) {
-    return 'https://account-eco-dev.ecoconductor.com/roles/' + roleId;
+  deleteRole: function (roleId) {
+    return 'https://account-eco-dev.ecoconductor.com/roles/' + roleId
   },
-  getRole: function(roleId) {
-    return 'https://account-eco-dev.ecoconductor.com/roles/' + roleId;
+  getRole: function (roleId) {
+    return 'https://account-eco-dev.ecoconductor.com/roles/' + roleId
   },
-  updateRole: function(roleId) {
-    return 'https://account-eco-dev.ecoconductor.com/roles/' + roleId;
+  updateRole: function (roleId) {
+    return 'https://account-eco-dev.ecoconductor.com/roles/' + roleId
   },
   inviteUser: 'https://account-eco-dev.ecoconductor.com/user_invitations',
   iconURL: 'https://ecoconductor-dev-api-resources.azurewebsites.net/icons/',
   getPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SM'
-};
+}
 
-export default api;
+export default api

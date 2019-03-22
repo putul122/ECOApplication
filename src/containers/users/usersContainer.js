@@ -2,14 +2,13 @@ import { connect } from 'react-redux'
 import { compose, lifecycle } from 'recompose'
 import Users from '../../components/users/usersComponent'
 import { actions as sagaActions } from '../../redux/sagas/'
-import { actionCreators } from '../../redux/reducers/usersReducer/usersReducerReducer'
-import { actionCreators as basicActionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
 
 // Global State
 export function mapStateToProps (state, props) {
   return {
-    // client_id: state.basicReducer.client_id,
-    // client_secret: state.basicReducer.client_secret,
+<<<<<<< HEAD
+    client_id: state.basicReducer.client_id,
+    client_secret: state.basicReducer.client_secret,
     // authenticateUser: state.basicReducer.authenticateUser,
     // externalUsers: state.usersReducer.externalUsers,
     // users: state.usersReducer.users,
@@ -18,13 +17,11 @@ export function mapStateToProps (state, props) {
     // roles: state.usersReducer.roles,
     // userRoles: state.usersReducer.userRoles,
     // updatePayload: state.usersReducer.updatePayload,
+=======
+>>>>>>> ad122d36110015c371b77492c1588c3508e71088
     getUserResponse: state.usersReducer.getUserResponse,
     createUserResponse: state.usersReducer.createUserResponse,
-    // updateUserResponse: state.usersReducer.updateUserResponse,
-    // deleteUserResponse: state.usersReducer.deleteUserResponse,
     userActionSettings: state.usersReducer.userActionSettings
-    // currentPage: state.usersReducer.currentPage,
-    // perPage: state.usersReducer.perPage
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch
@@ -32,7 +29,9 @@ export const propsMapping: Callbacks = {
   fetchUsers: sagaActions.userActions.fetchUsers,
   inviteUser: sagaActions.userActions.inviteUser,
   openInviteUser: sagaActions.userActions.openInviteUser,
-  closeInviteUser: sagaActions.userActions.closeInviteUser
+  closeInviteUser: sagaActions.userActions.closeInviteUser,
+  deleteUser: sagaActions.userActions.deleteUser,
+  createUser: sagaActions.userActions.addUser
 }
 
 // eslint-disable-next-line
