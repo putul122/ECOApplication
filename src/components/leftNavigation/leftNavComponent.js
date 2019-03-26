@@ -36,7 +36,7 @@ class LeftNavigation extends React.Component {
           <ul id='' className={'m-menu__item m-menu__item--submenu'}>
             <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '} style={{'paddingTop': '20px'}}>
               <a className='m-menu__link' href='/home'>
-                <i className='m-menu__link-icon flaticon-menu' style={{'font-size': '25px'}} />
+                <i className='m-menu__link-icon flaticon-menu' style={{'font-size': '25px', 'color': '#01002F'}} />
                 <span className={styles.navtext}>
                 Home
                 </span>
