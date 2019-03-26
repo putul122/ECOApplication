@@ -11,6 +11,11 @@ const mHeaderStyle = {
   height: '100%',
   float: 'left'
 }
+
+const paddingStyles = {
+  paddingBottom: '15px'
+}
+
 let userToken = localStorage.getItem('userAccessToken')
 var connection = new signalR.HubConnectionBuilder()
           .withUrl('https://notification-eco-dev.ecoconductor.com/notification', {
@@ -135,7 +140,7 @@ export default function HeaderComponent (props) {
               </div>
             </div>
             {/* <!-- END: Brand --> */}
-            <div className='m-stack__item m-stack__item--fluid m-header-head' id='m_header_nav'>
+            <div className='m-stack__item m-stack__item--fluid m-header-head' id='m_header_nav' style={paddingStyles}>
               <div className='m-header__title' style={mHeaderStyle}>
                 <h3 className='m-header__title-text' style={{'padding': '0 10px 0 30px', 'marginTop': '25px'}}>Select Module</h3>
               </div>
