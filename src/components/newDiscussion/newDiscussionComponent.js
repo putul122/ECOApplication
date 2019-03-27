@@ -228,7 +228,8 @@ return (
               </form>
             </div>
             <div className='modal-footer'>
-              <button type='button' onClick={createDiscussion} id='m_login_signup' className='btn btn-outline-info btn-sm m-btn m-btn--custom'>Create Discussion</button>
+              <button type='reset' className='btn btn-primary' onClick={createDiscussion} id='m_login_signup'>Create Discussion</button>
+              <button type='reset' className='btn btn-secondary' onClick={closeDiscussionModal} >Cancel</button>
             </div>
           </div>
         </div>
