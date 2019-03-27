@@ -69,13 +69,13 @@ a{
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 300px;
-    background-color: black;
-    color: #fff;
+    background-color: white;
+    color: #a7abc3;
     text-align: center;
     border-radius: 6px;
-    padding: 5px 0;
+    padding: 5px 5px;
 	left: 0px;
-	bottom: 18px;
+	top: 25px;
     /* Position the tooltip */
     position: absolute;
     z-index: 1;
