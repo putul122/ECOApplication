@@ -138,7 +138,8 @@ export function * createUser (action) {
     axios.defaults.headers.common['Authorization'] =
       'Bearer ' + localStorage.getItem('userAccessToken')
     const user = yield call(axios.post, api.createUser, action.payload)
-    yield put(actionCreators.addUserSuccess(user.data))
+    const addUserSuccessCompleted = yield put(actionCreators.addUserSuccess(user.data))
+    console.log(addUserSuccessCompleted)
 
     const qs = queryString.stringify(action.payload)
     const endpoint = `${api.createUser}?${qs}`
