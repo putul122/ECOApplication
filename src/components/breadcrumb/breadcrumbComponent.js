@@ -1,6 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+import styles from './breadcrumbcomponent.scss'
 
 export default function Breadcrumb (props) {
   let breadcrumb = props.breadcrumb
@@ -26,7 +27,7 @@ export default function Breadcrumb (props) {
   }
 
   return (
-    <div className='m-subheader ' style={{'padding': '10px 10px -10px 10px'}}>
+    <div className={`m-subheader ${styles.customPadding}`}>
       <div className='d-flex align-items-center'>
         <div className='mr-auto'>
           <h3 className='m-subheader__title m-subheader__title--separator'>{pageName}</h3>

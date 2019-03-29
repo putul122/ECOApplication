@@ -81,14 +81,18 @@ export default function ApplicationActivity (props) {
           if (differenceInDays === 0) {
             messageTime = moment(message.created).fromNow()
           } else {
-            messageTime = moment(message.created).format('DD MMM h:mA')
+            messageTime = moment(message.created).format('DD MMM hh:m')
           }
           let timeContent = '<span class="pull-right">' + messageTime + '</span>'
           //  console.log(ReactHtmlParser(messageContent + timeContent))
-          return (<li key={i}>
-            <img src={userIconlink} alt={message.author.name} />{ReactHtmlParser('<span style="font-zise:10px">' + message.author.name + '</span>' + ':')} {ReactHtmlParser(messageContent + timeContent)}
-            {props.notificationReceived && message.new && (<span className='m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger pull-right' />)}
-          </li>)
+          return (
+            <div>
+              <li key={i}>
+                <img src={userIconlink} alt={message.author.name} />{ReactHtmlParser('<span style="font-zise:10px">' + message.author.name + '</span>' + ':')} {ReactHtmlParser(messageContent + timeContent)}
+                {props.notificationReceived && message.new && (<span className='m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger pull-right' />)}
+              </li>
+              <div className={styles.horizontalActivityDivider} />
+            </div>)
         })
       let handleTitleClick = function (value) {
         let obj = {}

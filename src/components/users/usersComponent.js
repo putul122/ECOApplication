@@ -10,7 +10,7 @@ ReactModal.setAppElement('#root')
 class Users extends Component {
   state = {
     searchTerm: '',
-    pageSize: 10,
+    pageSize: 1,
     currentPage: 1,
     previousClass: '',
     nextClass: '',
@@ -194,6 +194,7 @@ class Users extends Component {
     const totalPages = Math.floor(
       this.props.getUserResponse.total_count / pageSize
     )
+
     let pageArray = []
     let paginationLimit = 6
 
@@ -212,6 +213,10 @@ class Users extends Component {
         return group
       }
     })
+
+    const startValueOfRange = (currentPage - 1) * pageSize + 1
+    const endValueOfRange = currentPage * pageSize
+    const totalItems = totalPages * pageSize
 
     return (
       <div id='userList'>
@@ -300,59 +305,26 @@ class Users extends Component {
                         </div>
                         <br />
                         <div className='row' style={{ marginBottom: '20px' }}>
+
                           <div className='col-sm-12 col-md-6'>
                             <div
                               className='dataTables_length'
                               id='m_table_1_length'
-                              style={{ display: 'flex' }}
                             >
-                              <h5 style={{ margin: '8px' }}>Show</h5>
-                              <select
-                                value={pageSize}
-                                name='m_table_1_length'
-                                aria-controls='m_table_1'
-                                className='custom-select custom-select-sm form-control form-control-sm'
-                                style={{ height: '40px' }}
-                                onChange={this.pageSizeChangeHandler}
-                                onBlur={this.pageSizeBlurHandler}
-                              >
-                                <option value={10}>10</option>
-                                <option value={25}>25</option>
-                                <option value={35}>35</option>
-                                <option value={50}>50</option>
-                              </select>
-                              <h5 style={{ margin: '8px' }}>Entries</h5>
-                              {/* </label> */}
-                            </div>
-                          </div>
-                          <div className='col-sm-12 col-md-6'>
-                            <div
-                              className='dataTables_length pull-right'
-                              id='m_table_1_length'
-                              style={{ display: 'flex' }}
-                            >
-                              <div style={{ display: 'flex' }}>
-                                <h5 style={{ margin: '10px' }}>Search</h5>
-                                <div className='m-input-icon m-input-icon--left'>
-                                  <input
-                                    type='text'
-                                    className='form-control m-input'
-                                    placeholder='Search...'
-                                    id='generalSearch'
-                                    onKeyUp={this.handleInputChange}
-                                    value={searchTerm}
-                                    onChange={e =>
+                              <div>
+                                <input
+                                  type='text'
+                                  className='form-control pull-left'
+                                  placeholder='Search...'
+                                  id='generalSearch'
+                                  onKeyUp={this.handleInputChange}
+                                  value={searchTerm}
+                                  onChange={e =>
                                       this.setState({
                                         searchTerm: e.target.value
                                       })
-                                    }
-                                  />
-                                  <span className='m-input-icon__icon m-input-icon__icon--left'>
-                                    <span>
-                                      <i className='la la-search' />
-                                    </span>
-                                  </span>
-                                </div>
+                                    } />
+
                               </div>
                             </div>
                           </div>
@@ -393,9 +365,9 @@ class Users extends Component {
                         </table>
                       </div>
                       <div className='row'>
-                        <div className='col-md-12' id='scrolling_vertical'>
+                        <div className='col-sm-12 col-md-6' id='scrolling_vertical'>
                           <div
-                            className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll pull-right'
+                            className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
                             id='scrolling_vertical'
                           >
                             <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
@@ -480,6 +452,17 @@ class Users extends Component {
                               </ul>
                             </div>
                           </div>
+                        </div>
+                        <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing}`}>
+                          <div className='dropdown bootstrap-select kt-datatable__pager-size' style={{width: '80px'}}>
+                            <select className='selectpicker kt-datatable__pager-size' title='Select page size' data-width='80px' data-selected='10' tabIndex='-98' onChange={e => this.setState({ pageSize: e.target.value })} onBlur={() => console.log('Select Blur')}>
+                              <option value='1'>1</option>
+                              <option value='2'>2</option>
+                              <option value='3'>3</option>
+                              <option value='5'>5</option>
+                            </select>
+                          </div>
+                          <span> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
                         </div>
                       </div>
                     </div>
