@@ -5,7 +5,7 @@ import Select from 'react-select'
 import moment from 'moment'
 import DatePicker from 'react-datepicker'
 import PropTypes from 'prop-types'
-import styles from './perspectivesComponent.scss'
+import styles from './perspectiveHierarchyComponent.scss'
 import 'react-datepicker/dist/react-datepicker.css'
 ReactModal.setAppElement('#root')
 let comparer = function (otherArray) {
@@ -16,7 +16,8 @@ let comparer = function (otherArray) {
   }
 }
 const customStylescrud = { content: { top: '10%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
-export default function Perspectives (props) {
+export default function PerspectiveHierarchy (props) {
+  let perspectiveName = ''
   let connectionSelectBoxList = ''
   let businessPropertyList = ''
   let searchTextBox
@@ -33,7 +34,39 @@ export default function Perspectives (props) {
   let labels = []
   let messageList = ''
   let serviceName = props.addSettings.deleteObject ? props.addSettings.deleteObject.subject_name : ''
-  console.log('perspectives props', props, searchTextBox, styles)
+  let expandSettings = props.expandSettings
+  console.log('perspectives props', props, searchTextBox, expandSettings)
+  let handleClick = function (data, level) {
+    console.log(data)
+    let expandFlag = true
+    let expandSettings = {...props.expandSettings}
+    let selectedObject = expandSettings.selectedObject[level]
+    if (selectedObject && selectedObject.name === data.name) {
+      expandFlag = !selectedObject.expandFlag
+      if (!expandFlag) {
+        // resetList()
+        // props.resetResponse()
+      }
+    } else {
+      expandFlag = true
+      expandSettings.metaModelPerspectives[level] = data.metaModelPerspectives
+      expandSettings.selectedObject[level] = data
+    }
+    if (expandFlag) {
+      expandSettings.processAPIResponse = true
+      let payload = {}
+      payload['meta_model_perspective_id'] = data.metaModelPerspectives.id
+      payload['view_key'] = data.metaModelPerspectives.view_key
+      payload['parent_reference'] = data.parentReference
+      props.fetchNestedModelPrespectives(payload)
+    }
+    expandSettings.selectedObject[level].expandFlag = expandFlag
+    expandSettings.level = level
+    props.setExpandSettings(expandSettings)
+    // props.fetchSupplierSoftwares && props.fetchSupplierSoftwares(payload)
+    // eslint-disable-next-line
+    // mApp && mApp.block('#supplierList', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+  }
   let editProperty = function (index, value) {
     let connectionData = {...props.connectionData}
     let customerProperty = connectionData.customerProperty
@@ -437,6 +470,9 @@ export default function Perspectives (props) {
     }
     closeModal()
   }
+  let genericExpandRow = function () {
+    
+  }
   let listModelPrespectives = function () {
     console.log('list modal pers', props)
     if (props.modelPrespectives !== '') {
@@ -452,28 +488,88 @@ export default function Perspectives (props) {
       //   }
       // }
       console.log('list props', props)
-      if (props.modelPrespectives.length > 1) {
+      if (props.modelPrespectives.length > 1 && !props.expandSettings.processAPIResponse) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
         modelPrespectives.splice(-1, 1)
         if (modelPrespectives.length > 1) {
+          let expandSettings = JSON.parse(JSON.stringify(props.expandSettings))
+          let expandLevel = expandSettings.level
           modelPrespectivesList = modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
             if (data.error_code === null) {
-              let childList = []
+              let rowColumn = []
+              let faClass = 'fa fa-plus'
+              let childList = ''
+              let selectedObject = {}
               if (data.parts) {
                 data.parts.forEach(function (partData, ix) {
                   let value
+                  let isName = false
                   if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
+                    // console.log('partData standard property', partData, labelParts[ix], ix)
+                    isName = true
                     value = partData ? partData.value : ''
-                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
-                    if (partData.value) {
+                    selectedObject.name = value
+                    if (expandSettings.level !== null) {
+                      // expand row is clicked for first row
+                      if (expandSettings.level === 0) {
+                        if (expandSettings.selectedObject[expandLevel].name === value && expandSettings.selectedObject[expandLevel].expandFlag) {
+                          faClass = 'fa fa-minus'
+                          console.log('expandSettings', expandSettings)
+                          if (props.expandSettings.modelPerspectives[expandLevel].length > 0) {
+                            let childLabelParts = props.expandSettings.metaModelPerspectives[expandLevel].parts
+                            console.log('childLabelParts', childLabelParts)
+                            childList = props.expandSettings.modelPerspectives[expandLevel].map(function (childData, idx) {
+                              let childRowColumn = []
+                              console.log('childData', childData)
+                              if (childData.parts) {
+                                childData.parts.forEach(function (childPartData, cix) {
+                                  let childValue
+                                  let isChildName = false
+                                  if (childLabelParts[cix].standard_property !== null && childLabelParts[cix].type_property === null) { // Standard Property
+                                    isChildName = true
+                                    childValue = childPartData ? childPartData.value : ''
+                                    childRowColumn.push(<td className='' key={'ch_' + index + '_' + idx + '_' + cix}>{isChildName && (<i className={'fa fa-plus'} aria-hidden='true' style={{'cursor': 'pointer'}} />)} {childValue}</td>)
+                                  } else {
+                                    childValue = ''
+                                  }
+                                  // childRowColumn.push(<td className='' key={'ch_' + index + '_' + idx + '_' + cix}>{isChildName && (<i className={'fa fa-minus'} aria-hidden='true' style={{'cursor': 'pointer'}} />)} {childValue}</td>)
+                                })
+                              }
+                              return (
+                                <tr key={'child' + idx}>
+                                  <td>{''}</td>
+                                  <td>{''}</td>
+                                  <td>{''}</td>
+                                  {childRowColumn}
+                                  <td>{''}</td>
+                                </tr>
+                              )
+                            })
+                          } else {
+                            childList = []
+                            childList.push((
+                              <tr key={0}>
+                                <td colSpan='5'>{'No data to display'}</td>
+                              </tr>
+                            ))
+                          }
+                        }
+                      }
+                    }
+                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null) { // Connection Property
+                    // console.log('partData', partData, labelParts[ix], ix)
+                    if (Array.isArray(partData.value)) {
                       let targetComponents = []
                       partData.value.forEach(function (data, index) {
                         targetComponents.push(data.target_component.name)
                       })
                       value = targetComponents.toString()
                     } else {
-                      value = partData.value || ''
+                      selectedObject.parentReference = partData.value.parent_reference
+                      value = 'Add Agreement'
+                      selectedObject.metaModelPerspectives = labelParts[ix].constraint_perspective
                     }
+                    // value = ''
                   } else if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
                     value = partData.value !== null ? partData.value.int_value : ''
                   } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
@@ -489,7 +585,8 @@ export default function Perspectives (props) {
                   } else {
                     value = partData.value !== null ? partData.value.other_value : ''
                   }
-                  childList.push(<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
+                  // console.log('value', value)
+                  rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{isName && (<i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} />)} {value}</td>)
                 })
                 let availableAction = {...props.availableAction}
                 let list = []
@@ -499,9 +596,16 @@ export default function Perspectives (props) {
                 if (availableAction.Delete) {
                   list.push(<a onClick={(event) => { event.preventDefault(); openDeleteModal(data) }} href='javascript:void(0);'>{'Delete'}</a>)
                 }
-                childList.push(<td className='' key={'last' + index}>{list}</td>)
+                rowColumn.push(<td className='' key={'last' + index}>{list}</td>)
               }
-              return (<tr key={index}>{childList}</tr>)
+              return (
+                <tbody>
+                  <tr key={index}>
+                    {rowColumn}
+                  </tr>
+                  {childList}
+                </tbody>
+              )
             }
           })
           // props.setConnectionData(connectionData)
@@ -582,6 +686,7 @@ export default function Perspectives (props) {
     handleListAndPagination(page)
   }
   if (props.metaModelPerspective && props.metaModelPerspective !== '' && props.metaModelPerspective.error_code === null) {
+    perspectiveName = props.metaModelPerspective.resources[0].name
     if (props.metaModelPerspective.resources[0].parts.length > 0) {
       tableHeader = props.metaModelPerspective.resources[0].parts.map(function (data, index) {
         labels.push(data.name)
@@ -773,7 +878,7 @@ return (
                     <div className='row'>
                       <div className='col-md-10' />
                       {props.availableAction.Create && (<div className='col-md-2 float-right'>
-                        <button type='button' onClick={openModal} className='btn btn-outline-info btn-sm' style={{'float': 'right'}}>Add </button>&nbsp;
+                        <button type='button' onClick={openModal} className='btn btn-outline-info btn-sm' style={{'float': 'right'}}>Add {perspectiveName}</button>&nbsp;
                       </div>)}
                     </div>
                     <br />
@@ -816,9 +921,9 @@ return (
                             {tableHeader}
                           </tr>
                         </thead>
-                        <tbody>
-                          {modelPrespectivesList}
-                        </tbody>
+                        {/* <tbody> */}
+                        {modelPrespectivesList}
+                        {/* </tbody> */}
                       </table>
                     </div>
                     <div className='row'>
@@ -862,7 +967,7 @@ return (
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
-                {props.addSettings.createResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Add Perspective</h4>)}
+                {props.addSettings.createResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Add {perspectiveName}</h4>)}
                 {props.addSettings.createResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Create Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
@@ -913,7 +1018,7 @@ return (
           <div className=''>
             <div className='modal-content' >
               <div className='modal-header'>
-                {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit Perspective</h4>)}
+                {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit {perspectiveName}</h4>)}
                 {props.addSettings.updateResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Update Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
@@ -962,14 +1067,14 @@ return (
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
-                <h4 className='modal-title' id='exampleModalLabel'>Delete Service</h4>
+                <h4 className='modal-title' id='exampleModalLabel'>Delete {perspectiveName}</h4>
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
               <div className='modal-body'>
                 <div>
-                  <h6>Confirm deletion of Service {serviceName}</h6>
+                  <h6>Confirm deletion of {perspectiveName} {serviceName}</h6>
                 </div>
               </div>
               <div className='modal-footer'>
@@ -986,7 +1091,7 @@ return (
   </div>
       )
   }
-  Perspectives.propTypes = {
+  PerspectiveHierarchy.propTypes = {
     addSettings: PropTypes.any,
     modelPrespectives: PropTypes.any,
     metaModelPerspective: PropTypes.any,
@@ -994,5 +1099,6 @@ return (
     perPage: PropTypes.any,
     // crude: PropTypes.any,
     availableAction: PropTypes.any,
-    connectionData: PropTypes.any
+    connectionData: PropTypes.any,
+    expandSettings: PropTypes.any
   }

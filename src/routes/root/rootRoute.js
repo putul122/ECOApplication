@@ -199,6 +199,15 @@ export default class Root extends Component {
               require('../perspectivesPage/perspectivesPageRoute').default
             )
             break
+          case 'perspectiveHierarchy':
+            if (module.hot) {
+                    module.hot.accept('../perspectiveHierarchyPage/perspectiveHierarchyPageRoute', () => {
+                require('../perspectiveHierarchyPage/perspectiveHierarchyPageRoute').default // eslint-disable-line
+                        this.forceUpdate()
+                    })
+            }
+            resolve(require('../perspectiveHierarchyPage/perspectiveHierarchyPageRoute').default)
+          break
           case 'invite_user':
             if (module.hot) {
               module.hot.accept(
@@ -284,8 +293,8 @@ export default class Root extends Component {
             />
             <Route
               exact
-              path='/service_dashboard'
-              component={props => this.loadView('serviceDashboard', props)}
+              path='/select-module/:dashboardKey'
+              component={(props) => this.loadView('serviceDashboard', props)}
             />
             <Route
               exact
@@ -328,6 +337,11 @@ export default class Root extends Component {
               exact
               path='/perspectives/:id/:viewKey'
               component={props => this.loadView('perspectives', props)}
+            />
+            <Route
+              exact
+              path='/perspective_hierarchy/:id/:viewKey'
+              component={(props) => this.loadView('perspectiveHierarchy', props)}
             />
             <Route
               exact

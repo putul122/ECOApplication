@@ -3,19 +3,20 @@ import {
     FETCH_MODEL_PRESPECTIVES_SUCCESS
 } from '../../sagas/model/modelSaga'
 // Name Spaced Action Types
-const SET_MODAL_OPEN_STATUS = 'serviceDashboardReducer/SET_MODAL_OPEN_STATUS'
+const SET_DASHBOARD_PERSPECTIVES = 'serviceDashboardReducer/SET_DASHBOARD_PERSPECTIVES'
 
 export const actions = {
-    FETCH_MODEL_PRESPECTIVES_SUCCESS
+    FETCH_MODEL_PRESPECTIVES_SUCCESS,
+    SET_DASHBOARD_PERSPECTIVES
 }
 
 export const actionCreators = {
-  setModalOpenStatus: createAction(SET_MODAL_OPEN_STATUS)
+  setDashboardPerspectives: createAction(SET_DASHBOARD_PERSPECTIVES)
 }
 
 export const initialState = {
     dashboardPerspectives: '',
-    isModalOpen: false
+    data: ''
 }
 
 export default handleActions(
@@ -24,9 +25,9 @@ export default handleActions(
       ...state,
       dashboardPerspectives: action.payload
     }),
-    [SET_MODAL_OPEN_STATUS]: (state, action) => ({
+    [SET_DASHBOARD_PERSPECTIVES]: (state, action) => ({
       ...state,
-      isModalOpen: action.payload
+      data: action.payload
     })
   },
   initialState

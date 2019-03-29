@@ -19,6 +19,7 @@ import dataModelReducer from './dataModelReducer/dataModelReducerReducer'
 import viewServiceReducer from './viewServiceReducer/viewServiceReducerReducer'
 import serviceDashboardReducer from './serviceDashboardReducer/serviceDashboardReducerReducer'
 import perspectivesReducer from './perspectivesReducer/perspectivesReducerReducer'
+import perspectiveHierarchyReducer from './perspectiveHierarchy/perspectiveHierarchyReducer'
 
 export default combineReducers({
     basicReducer,
@@ -40,5 +41,6 @@ export default combineReducers({
     dataModelReducer,
     viewServiceReducer,
     serviceDashboardReducer,
-    perspectivesReducer
+    perspectivesReducer,
+    perspectiveHierarchyReducer
 })

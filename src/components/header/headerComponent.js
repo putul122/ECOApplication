@@ -101,7 +101,7 @@ export default function HeaderComponent (props) {
   }
   return (
     <div>
-      <header id='m_header' className='m-grid__item    m-header ' m-minimize-offset='200' m-minimize-mobile-offset='200' >
+      <header id='m_header' className='m-grid__item    m-header ' >
         <div className='m-container m-container--fluid m-container--full-height' >
           <div className='m-stack m-stack--ver m-stack--desktop'>
             {/* <!-- BEGIN: Brand --> */}
@@ -141,13 +141,13 @@ export default function HeaderComponent (props) {
               </div>
               <div className='m-header-menu m-aside-header-menu-mobile m-aside-header-menu-mobile--offcanvas  m-header-menu--skin-light m-header-menu--submenu-skin-light m-aside-header-menu-mobile--skin-light m-aside-header-menu-mobile--submenu-skin-light '>
                 <ul className='m-menu__nav  m-menu__nav--submenu-arrow '>
-                  <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} m-menu-submenu-toggle='click' aria-haspopup='true'>
-                    <a href='/service_dashboard' className='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
+                  <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} aria-haspopup='true'>
+                    <a href='/select-module/s-eco' className='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
                       <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>S-ECO</span>
                     </a>
                   </li>
-                  <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} m-menu-submenu-toggle='click' aria-haspopup='true'>
-                    <a href='javascript:;' className='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
+                  <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} aria-haspopup='true'>
+                    <a href='/select-module/p-eco' className='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
                       <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>P-ECO</span>
                     </a>
                   </li>

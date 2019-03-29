@@ -4,8 +4,14 @@ import _ from 'lodash'
 // import TreeMap from '../treeMap/treeMapComponent'
 export default function ServiceDashboard (props) {
   let dashboardPerspectiveList = ''
+  let dashboardKey = props.match.params.dashboardKey
   if (props.dashboardPerspectives && props.dashboardPerspectives !== '') {
-    let appPackage = JSON.parse(localStorage.getItem('packages'))
+    let appPackage = ''
+    if (dashboardKey === 's-eco') {
+      appPackage = JSON.parse(localStorage.getItem('packages'))
+    } else if (dashboardKey === 'p-eco') {
+      appPackage = JSON.parse(localStorage.getItem('slaPackages'))
+    }
     let perspectives = appPackage.resources[0].perspectives
     dashboardPerspectiveList = props.dashboardPerspectives.map(function (data, index) {
       let subjectName = data.subject_name
@@ -15,8 +21,13 @@ export default function ServiceDashboard (props) {
         return (obj.perspective === data.perspective_id && obj.role_key === 'List')
       })
       let listLink = 'javascript:void(0);'
+      console.log('List', List)
       if (List) {
-        listLink = '/perspectives/' + List.perspective + '/' + List.view_key
+        if (dashboardKey === 's-eco') {
+          listLink = '/perspectives/' + List.perspective + '/' + List.view_key
+        } else if (dashboardKey === 'p-eco') {
+          listLink = '/perspective_hierarchy/' + List.perspective + '/' + List.view_key
+        }
       }
       console.log('List', List)
       parts.forEach(function (partData, i) {
@@ -92,5 +103,6 @@ export default function ServiceDashboard (props) {
 }
 
 ServiceDashboard.propTypes = {
-  dashboardPerspectives: PropTypes.any
+  dashboardPerspectives: PropTypes.any,
+  match: PropTypes.any
 }
