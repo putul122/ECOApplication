@@ -174,7 +174,8 @@ export default handleActions(
     }),
     [FETCH_NESTED_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
       ...state,
-      nestedModelPerspectives: action.payload
+      nestedModelPerspectives: action.payload,
+      expandSettings: {...state.expandSettings, 'processAPIResponse': true}
     }),
     [SET_HEADER_DATA]: (state, action) => ({
       ...state,

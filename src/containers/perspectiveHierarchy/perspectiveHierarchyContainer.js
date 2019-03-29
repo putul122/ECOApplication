@@ -194,8 +194,13 @@ export default compose(
         if (addSettings.initiatedFrom === 'ParentNode') {
           payload['meta_model_perspective_id[0]'] = this.props.match.params.id
           payload['view_key[0]'] = this.props.match.params.viewKey
-        } else {}
-        this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
+          this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
+        } else {
+          payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
+          payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
+          payload['parent_reference'] = addSettings.selectedData.parentReference
+          this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
+        }
         nextProps.resetResponse()
       }
       if (nextProps.updateComponentResponse && nextProps.updateComponentResponse !== '') {

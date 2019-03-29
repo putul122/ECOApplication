@@ -241,8 +241,9 @@ export default function PerspectiveHierarchy (props) {
     if (level === 'ChildrenNode') {
       if (data) {
         console.log(data)
-        if (data.container_perspective_id === null) {
-          let rolePerspectives = data.role_perspectives
+        if (data.containerPerspectiveId === null) {
+          console.log('if data', data)
+          let rolePerspectives = data.rolePerspectives
           let payload = {}
           perspectiveId = rolePerspectives.Create.part_perspective_id
           viewKey = rolePerspectives.Create.part_perspective_view_key
@@ -254,11 +255,12 @@ export default function PerspectiveHierarchy (props) {
             mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
           }
         } else {
+          console.log('else data', data)
           let payload = {}
-          perspectiveId = data.container_perspective_id
-          viewKey = data.container_perspective_view_key
-          payload.id = data.container_perspective_id
-          payload.viewKey = {'view_key': data.container_perspective_view_key}
+          perspectiveId = data.containerPerspectiveId
+          viewKey = data.containerPerspectiveViewKey
+          payload.id = data.containerPerspectiveId
+          payload.viewKey = {'view_key': data.containerPerspectiveViewKey}
           props.fetchCrudMetaModelPrespective && props.fetchCrudMetaModelPrespective(payload)
           // eslint-disable-next-line
           mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
@@ -397,7 +399,7 @@ export default function PerspectiveHierarchy (props) {
     payload.data = {}
     payload.data[props.addSettings.perspectiveId] = patchPayload
     console.log('payload', payload)
-    // props.updateModelPrespectives(payload)
+    props.updateModelPrespectives(payload)
   }
   let updateComponent = function (event) {
     event.preventDefault()
@@ -588,6 +590,7 @@ export default function PerspectiveHierarchy (props) {
             selectedObject.metaModelPerspectives = childLabelParts[cix].constraint_perspective
             selectedObject.containerPerspectiveId = childLabelParts[cix].container_perspective_id
             selectedObject.containerPerspectiveViewKey = childLabelParts[cix].container_perspective_view_key
+            selectedObject.rolePerspectives = childLabelParts[cix].role_perspectives
           }
         }
       })
@@ -826,6 +829,7 @@ export default function PerspectiveHierarchy (props) {
                     selectedObject.metaModelPerspectives = labelParts[ix].constraint_perspective
                     selectedObject.containerPerspectiveId = labelParts[ix].container_perspective_id
                     selectedObject.containerPerspectiveViewKey = labelParts[ix].container_perspective_view_key
+                    selectedObject.rolePerspectives = labelParts[ix].role_perspectives
                     let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
                     if (columnId !== -1) {
                       headerColumn[columnId].isProcessed = true
