@@ -11,6 +11,7 @@ export function mapStateToProps (state, props) {
     authenticateUser: state.basicReducer.authenticateUser,
     modelPrespectives: state.perspectiveHierarchyReducer.modelPrespectives,
     metaModelPerspective: state.perspectiveHierarchyReducer.metaModelPerspective,
+    crudMetaModelPerspective: state.perspectiveHierarchyReducer.crudMetaModelPerspective,
     currentPage: state.perspectiveHierarchyReducer.currentPage,
     perPage: state.perspectiveHierarchyReducer.perPage,
     crude: state.perspectiveHierarchyReducer.crude,
@@ -33,6 +34,7 @@ export const propsMapping: Callbacks = {
   fetchModelPrespectives: sagaActions.modelActions.fetchModelPrespectives,
   fetchMetaModelPrespective: sagaActions.modelActions.fetchMetaModelPrespective,
   fetchDropdownData: sagaActions.serviceActions.fetchDropdownData,
+  fetchCrudMetaModelPrespective: sagaActions.serviceActions.fetchCrudMetaModelPrespective,
   setCurrentPage: actionCreators.setCurrentPage,
   setAddSettings: actionCreators.setAddSettings,
   setPerPage: actionCreators.setPerPage,
@@ -104,12 +106,12 @@ export default compose(
         // eslint-disable-next-line
         // mApp && mApp.unblockPage()
       }
-      if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcess) {
-        if (nextProps.metaModelPerspective.resources[0].crude) {
+      if (nextProps.crudMetaModelPerspective && nextProps.crudMetaModelPerspective !== '' && nextProps.availableAction.toProcess) {
+        if (nextProps.crudMetaModelPerspective.resources[0].crude) {
           let availableAction = {...nextProps.availableAction}
           let crude = nextProps.crude
-          let mask = nextProps.metaModelPerspective.resources[0].crude
-          let labelParts = nextProps.metaModelPerspective.resources[0].parts
+          let mask = nextProps.crudMetaModelPerspective.resources[0].crude
+          let labelParts = nextProps.crudMetaModelPerspective.resources[0].parts
           let connectionData = {}
           connectionData.operation = {
             toCallApi: true,
@@ -118,6 +120,7 @@ export default compose(
           }
           connectionData.selectedValues = []
           let cData = []
+          let standardProperty = []
           let customerProperty = []
           for (let option in crude) {
             if (crude.hasOwnProperty(option)) {
@@ -143,6 +146,10 @@ export default compose(
               cData.push(obj)
               connectionData.selectedValues.push(null)
             }
+            if (data.standard_property !== null && data.type_property === null) {
+              data.partIndex = index
+              standardProperty.push(data)
+            }
             if (data.standard_property === null && data.type_property !== null) {
               data.partIndex = index
               customerProperty.push(data)
@@ -150,17 +157,32 @@ export default compose(
           })
           connectionData.data = cData
           connectionData.customerProperty = customerProperty
+          connectionData.standardProperty = standardProperty
           connectionData.selectOption = []
           nextProps.setConnectionData(connectionData)
           availableAction['toProcess'] = false
           nextProps.setAvailableAction(availableAction)
-          let headerData = {...this.props.headerData}
-          let metaData = []
-          metaData.push(nextProps.metaModelPerspective.resources[0])
-          headerData.metaModelPerspective = metaData
-          headerData.toProcess = true
-          this.props.setHeaderData(headerData)
         }
+      }
+      if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcessMetaModel) {
+        let headerData = {...this.props.headerData}
+        let availableAction = {...nextProps.availableAction}
+        let crude = nextProps.crude
+        let mask = nextProps.metaModelPerspective.resources[0].crude
+        let metaData = []
+        metaData.push(nextProps.metaModelPerspective.resources[0])
+        headerData.metaModelPerspective = metaData
+        headerData.toProcess = true
+        nextProps.setHeaderData(headerData)
+        availableAction['toProcessMetaModel'] = false
+        for (let option in crude) {
+          if (crude.hasOwnProperty(option)) {
+            if (mask & crude[option]) {
+              availableAction[option] = true
+            }
+          }
+        }
+        nextProps.setAvailableAction(availableAction)
       }
       if (nextProps.createComponentResponse && nextProps.createComponentResponse !== '') {
         let addSettings = {...nextProps.addSettings}
@@ -169,8 +191,10 @@ export default compose(
         addSettings.createResponse = nextProps.createComponentResponse
         nextProps.setAddSettings(addSettings)
         let payload = {}
-        payload['meta_model_perspective_id[0]'] = this.props.match.params.id
-        payload['view_key[0]'] = this.props.match.params.viewKey
+        if (addSettings.initiatedFrom === 'ParentNode') {
+          payload['meta_model_perspective_id[0]'] = this.props.match.params.id
+          payload['view_key[0]'] = this.props.match.params.viewKey
+        } else {}
         this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
         nextProps.resetResponse()
       }
@@ -215,6 +239,8 @@ export default compose(
         }
         if (processIndex === totalLength) {
           connectionData.operation.isComplete = true
+          // eslint-disable-next-line
+          mApp && mApp.unblockPage()
         }
         nextProps.setConnectionData(connectionData)
       }

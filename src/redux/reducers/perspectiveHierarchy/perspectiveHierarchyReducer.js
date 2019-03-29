@@ -10,7 +10,8 @@ import {
 // import {ADD_COMPONENT_COMPONENT_SUCCESS} from '../../sagas/applicationDetail/applicationDetailSaga'
 import {
   FETCH_DROPDOWN_DATA_SUCCESS,
-  FETCH_NESTED_MODEL_PRESPECTIVES_SUCCESS
+  FETCH_NESTED_MODEL_PRESPECTIVES_SUCCESS,
+  FETCH_CRUD_META_MODEL_PRESPECTIVE_SUCCESS
 } from '../../sagas/service/serviceSaga'
 // Name Spaced Action Types
 const SET_ADD_SETTINGS = 'perspectivesHierarchyReducer/SET_ADD_SETTINGS'
@@ -54,6 +55,7 @@ export const actionCreators = {
 export const initialState = {
   modelPrespectives: '',
   metaModelPerspective: '',
+  crudMetaModelPerspective: '',
   nestedModelPerspectives: '',
   currentPage: 1,
   perPage: 10,
@@ -76,14 +78,19 @@ export const initialState = {
     deleteObject: null,
     updateObject: null,
     createResponse: null,
-    updateResponse: null
+    updateResponse: null,
+    selectedData: null,
+    perspectiveId: null,
+    viewKey: null,
+    initiatedFrom: null
   },
   availableAction: {
     Create: false,
     Read: false,
     Update: false,
     Delete: false,
-    toProcess: false
+    toProcess: false,
+    toProcessMetaModel: false
   },
   connectionData: '',
   createComponentResponse: '',
@@ -115,7 +122,7 @@ export default handleActions(
     [FETCH_META_MODEL_PRESPECTIVE_SUCCESS]: (state, action) => ({
       ...state,
       metaModelPerspective: action.payload,
-      availableAction: {...state.availableAction, 'toProcess': true}
+      availableAction: {...state.availableAction, 'toProcessMetaModel': true}
     }),
     [SET_ADD_SETTINGS]: (state, action) => ({
       ...state,
@@ -172,6 +179,11 @@ export default handleActions(
     [SET_HEADER_DATA]: (state, action) => ({
       ...state,
       headerData: action.payload
+    }),
+    [FETCH_CRUD_META_MODEL_PRESPECTIVE_SUCCESS]: (state, action) => ({
+      ...state,
+      crudMetaModelPerspective: action.payload,
+      availableAction: {...state.availableAction, 'toProcess': true}
     })
   },
   initialState

@@ -18,6 +18,7 @@ let comparer = function (otherArray) {
 const customStylescrud = { content: { top: '10%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function PerspectiveHierarchy (props) {
   let perspectiveName = ''
+  let standardPropertyList = ''
   let connectionSelectBoxList = ''
   let businessPropertyList = ''
   let searchTextBox
@@ -34,6 +35,15 @@ export default function PerspectiveHierarchy (props) {
   let messageList = ''
   let serviceName = props.addSettings.deleteObject ? props.addSettings.deleteObject.subject_name : ''
   let expandSettings = props.expandSettings
+  if (props.addSettings.isModalOpen) {
+    if (props.addSettings.selectedData) {
+      perspectiveName = props.addSettings.selectedData.name
+    } else {
+      perspectiveName = props.metaModelPerspective ? props.metaModelPerspective.resources[0].name : ''
+    }
+  } else {
+    perspectiveName = props.metaModelPerspective ? props.metaModelPerspective.resources[0].name : ''
+  }
   console.log('perspectives props', props, searchTextBox, expandSettings)
   let handleClick = function (data, level) {
     console.log(data)
@@ -69,6 +79,10 @@ export default function PerspectiveHierarchy (props) {
         payload['meta_model_perspective_id'] = data.metaModelPerspectives.id
         payload['view_key'] = data.metaModelPerspectives.view_key
         payload['parent_reference'] = data.parentReference
+        if (data.containerPerspectiveId) {
+          payload['container_meta_model_perspective_id'] = data.containerPerspectiveId
+          payload['container_view_key'] = data.containerPerspectiveViewKey
+        }
         props.fetchNestedModelPrespectives(payload)
       }
     }
@@ -196,39 +210,91 @@ export default function PerspectiveHierarchy (props) {
     connectionData.initialSelectedValues = JSON.parse(JSON.stringify(selectedValues))
     props.setConnectionData(connectionData)
   }
-  let openModal = function (event) {
-    event.preventDefault()
+  let openModal = function (data, level) {
     let addSettings = {...props.addSettings}
+    let perspectiveId = ''
+    let viewKey = ''
     addSettings.isModalOpen = true
     addSettings.name = ''
     addSettings.description = ''
-    props.setAddSettings(addSettings)
-    let connectionData = {...props.connectionData}
-    let selectedValues = []
-    connectionData.selectedValues.forEach(function (data) {
-      selectedValues.push(null)
-    })
-    let resetCustomerProperty = connectionData.customerProperty.map(function (data, index) {
-      if (data.type_property.property_type.key === 'Boolean') {
-        data.type_property.boolean_value = null
-      } else if (data.type_property.property_type.key === 'Integer') {
-        data.type_property.int_value = null
-      } else if (data.type_property.property_type.key === 'Decimal') {
-        data.type_property.float_value = null
-      } else if (data.type_property.property_type.key === 'DateTime') {
-        data.type_property.date_time_value = null
-      } else if (data.type_property.property_type.key === 'Text') {
-        data.type_property.text_value = null
-      } else if (data.type_property.property_type.key === 'List') {
-        data.type_property.value_set_value = null
-      } else {
-        data.type_property.other_value = null
+    addSettings.selectedData = data
+    // props.setAddSettings(addSettings)
+    console.log('open modal', data, level)
+    if (level === 'ParentNode') {
+      let appPackage = JSON.parse(localStorage.getItem('slaPackages'))
+      let perspectives = appPackage.resources[0].perspectives
+      perspectiveId = props.match.params.id
+      viewKey = _.result(_.find(perspectives, function (obj) {
+        return (obj.perspective === parseInt(perspectiveId) && obj.role_key === 'Create')
+      }), 'view_key')
+
+      console.log('view_key key', viewKey, perspectiveId, perspectives)
+      if (viewKey) {
+        let payload = {}
+        payload.id = perspectiveId
+        payload.viewKey = {'view_key': viewKey}
+        props.fetchCrudMetaModelPrespective && props.fetchCrudMetaModelPrespective(payload)
+        // eslint-disable-next-line
+        mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       }
-      return data
-    })
-    connectionData.selectedValues = selectedValues
-    connectionData.customerProperty = resetCustomerProperty
-    props.setConnectionData(connectionData)
+    }
+    if (level === 'ChildrenNode') {
+      if (data) {
+        console.log(data)
+        if (data.container_perspective_id === null) {
+          let rolePerspectives = data.role_perspectives
+          let payload = {}
+          perspectiveId = rolePerspectives.Create.part_perspective_id
+          viewKey = rolePerspectives.Create.part_perspective_view_key
+          if (rolePerspectives) {
+            payload.id = rolePerspectives.Create.part_perspective_id
+            payload.viewKey = {'view_key': rolePerspectives.Create.part_perspective_view_key}
+            props.fetchCrudMetaModelPrespective && props.fetchCrudMetaModelPrespective(payload)
+            // eslint-disable-next-line
+            mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+          }
+        } else {
+          let payload = {}
+          perspectiveId = data.container_perspective_id
+          viewKey = data.container_perspective_view_key
+          payload.id = data.container_perspective_id
+          payload.viewKey = {'view_key': data.container_perspective_view_key}
+          props.fetchCrudMetaModelPrespective && props.fetchCrudMetaModelPrespective(payload)
+          // eslint-disable-next-line
+          mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+        }
+      }
+    }
+    addSettings.initiatedFrom = level
+    addSettings.perspectiveId = perspectiveId
+    addSettings.viewKey = viewKey
+    props.setAddSettings(addSettings)
+    // let connectionData = {...props.connectionData}
+    // let selectedValues = []
+    // connectionData.selectedValues.forEach(function (data) {
+    //   selectedValues.push(null)
+    // })
+    // let resetCustomerProperty = connectionData.customerProperty.map(function (data, index) {
+    //   if (data.type_property.property_type.key === 'Boolean') {
+    //     data.type_property.boolean_value = null
+    //   } else if (data.type_property.property_type.key === 'Integer') {
+    //     data.type_property.int_value = null
+    //   } else if (data.type_property.property_type.key === 'Decimal') {
+    //     data.type_property.float_value = null
+    //   } else if (data.type_property.property_type.key === 'DateTime') {
+    //     data.type_property.date_time_value = null
+    //   } else if (data.type_property.property_type.key === 'Text') {
+    //     data.type_property.text_value = null
+    //   } else if (data.type_property.property_type.key === 'List') {
+    //     data.type_property.value_set_value = null
+    //   } else {
+    //     data.type_property.other_value = null
+    //   }
+    //   return data
+    // })
+    // connectionData.selectedValues = selectedValues
+    // connectionData.customerProperty = resetCustomerProperty
+    // props.setConnectionData(connectionData)
   }
   let openDeleteModal = function (data) {
     console.log('delete', data)
@@ -244,7 +310,9 @@ export default function PerspectiveHierarchy (props) {
     addSettings.isEditModalOpen = false
     addSettings.deleteObject = null
     addSettings.createResponse = null
+    addSettings.selectedData = null
     props.setAddSettings(addSettings)
+    props.setConnectionData('')
   }
   let editName = function (event) {
     let addSettings = JSON.parse(JSON.stringify(props.addSettings))
@@ -267,15 +335,15 @@ export default function PerspectiveHierarchy (props) {
     obj.path = '/-'
     obj.value = {}
     obj.value.parts = []
-    obj.value.parts[0] = {'value': addSettings.name}
-    obj.value.parts[1] = {'value': addSettings.description}
     let connectionData = {...props.connectionData}
     connectionData.selectedValues.forEach(function (data, index) {
       if (Array.isArray(data)) {
         if (data.length > 0) {
           let connections = []
           data.forEach(function (selectedValue, ix) {
-            connections.push(selectedValue.id)
+            let obj = {}
+            obj.target_id = selectedValue.id
+            connections.push(obj)
           })
           obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
         } else {
@@ -284,11 +352,20 @@ export default function PerspectiveHierarchy (props) {
       } else {
         if (data) {
           let connections = []
-          connections.push(data.id)
+          let obj = {}
+          obj.target_id = data.id
+          connections.push(obj)
           obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
         } else {
           obj.value.parts[connectionData.data[index].partIndex] = {}
         }
+      }
+    })
+    connectionData.standardProperty.forEach(function (data, index) {
+      if (data.standard_property === 'name') {
+        obj.value.parts[data.partIndex] = {'value': addSettings.name}
+      } else if (data.standard_property === 'description') {
+        obj.value.parts[data.partIndex] = {'value': addSettings.description}
       }
     })
     connectionData.customerProperty.forEach(function (data, index) {
@@ -311,12 +388,16 @@ export default function PerspectiveHierarchy (props) {
     patchPayload.push(obj)
     let payload = {}
     payload.queryString = {}
-    payload.queryString.meta_model_perspective_id = props.metaModelPerspective.resources[0].id
+    payload.queryString.meta_model_perspective_id = props.addSettings.perspectiveId
+    payload.queryString.view_key = props.addSettings.viewKey
     payload.queryString.apply_changes = true
+    if (addSettings.initiatedFrom === 'ChildrenNode') {
+      payload.queryString.parent_reference = addSettings.selectedData.parentReference
+    }
     payload.data = {}
-    payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
+    payload.data[props.addSettings.perspectiveId] = patchPayload
     console.log('payload', payload)
-    props.updateModelPrespectives(payload)
+    // props.updateModelPrespectives(payload)
   }
   let updateComponent = function (event) {
     event.preventDefault()
@@ -505,6 +586,8 @@ export default function PerspectiveHierarchy (props) {
           if (labelData.constraint_perspective) {
             selectedObject.parentReference = childData[cix] ? childData[cix].value.parent_reference : null
             selectedObject.metaModelPerspectives = childLabelParts[cix].constraint_perspective
+            selectedObject.containerPerspectiveId = childLabelParts[cix].container_perspective_id
+            selectedObject.containerPerspectiveViewKey = childLabelParts[cix].container_perspective_view_key
           }
         }
       })
@@ -537,7 +620,7 @@ export default function PerspectiveHierarchy (props) {
             // selectedObject.parentReference = childPartData.value.parent_reference
             childValue = labelData.constraint_perspective.name
             // selectedObject.metaModelPerspectives = childLabelParts[cix].constraint_perspective
-            childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}><a href='javascript:void(0);' >{'Add ' + childValue}</a></td>)
+            childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}><a onClick={() => openModal(selectedObject, 'ChildrenNode')} href='javascript:void(0);' >{'Add ' + childValue}</a></td>)
             let columnId = props.headerData.headerColumn.indexOf(labelData.name)
             if (columnId !== -1) {
               headerColumn[columnId].isProcessed = true
@@ -741,12 +824,14 @@ export default function PerspectiveHierarchy (props) {
                     selectedObject.parentReference = partData.value.parent_reference
                     value = labelParts[ix].constraint_perspective.name
                     selectedObject.metaModelPerspectives = labelParts[ix].constraint_perspective
+                    selectedObject.containerPerspectiveId = labelParts[ix].container_perspective_id
+                    selectedObject.containerPerspectiveViewKey = labelParts[ix].container_perspective_view_key
                     let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
                     if (columnId !== -1) {
                       headerColumn[columnId].isProcessed = true
                       headerColumn[columnId].level = 0
                     }
-                    rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><a href='javascript:void(0);' >{'Add ' + value}</a></td>)
+                    rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><a href='javascript:void(0);' onClick={(event) => openModal(selectedObject, 'ChildrenNode')} >{'Add ' + value}</a></td>)
                   }
                   // console.log('value', value)
                   // if (toPush) {
@@ -925,6 +1010,28 @@ export default function PerspectiveHierarchy (props) {
       </div>)
     })
     console.log('connectionSelectBoxList', connectionSelectBoxList)
+    standardPropertyList = connectionData.standardProperty.map(function (data, index) {
+      if (data.standard_property === 'name') {
+        return (
+          <div className='form-group m-form__group row'>
+            <label htmlFor='example-input' className='col-2 col-form-label'>Name</label>
+            <div className='col-8'>
+              <input className='form-control m-input' value={props.addSettings.name} onChange={editName} placeholder='Enter Name' id='example-email-input' autoComplete='off' />
+            </div>
+          </div>
+        )
+      }
+      if (data.standard_property === 'description') {
+        return (
+          <div className='form-group m-form__group row'>
+            <label htmlFor='example-input' className='col-2 col-form-label'>Description</label>
+            <div className='col-8'>
+              <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
+            </div>
+          </div>
+        )
+      }
+    })
     businessPropertyList = connectionData.customerProperty.map(function (data, index) {
       let value = null
       if (data.type_property.property_type.key === 'Integer') {
@@ -1065,7 +1172,7 @@ return (
                     <div className='row'>
                       <div className='col-md-10' />
                       {props.availableAction.Create && (<div className='col-md-2 float-right'>
-                        <button type='button' onClick={openModal} className='btn btn-outline-info btn-sm' style={{'float': 'right'}}>Add {perspectiveName}</button>&nbsp;
+                        <button type='button' onClick={(event) => openModal(null, 'ParentNode')} className='btn btn-outline-info btn-sm' style={{'float': 'right'}}>Add {perspectiveName}</button>&nbsp;
                       </div>)}
                     </div>
                     <br />
@@ -1159,7 +1266,7 @@ return (
                       {/* <input className='form-control m-input' type='email' placeholder='Enter User Name' ref={input => (userName = input)} id='example-userName-input' /> */}
                     </div>
                   </div>
-                  <div className='form-group m-form__group row'>
+                  {/* <div className='form-group m-form__group row'>
                     <label htmlFor='example-input' className='col-2 col-form-label'>Name</label>
                     <div className='col-8'>
                       <input className='form-control m-input' value={props.addSettings.name} onChange={editName} placeholder='Enter Name' id='example-email-input' autoComplete='off' />
@@ -1170,9 +1277,10 @@ return (
                     <div className='col-8'>
                       <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
                     </div>
-                  </div>
-                  {businessPropertyList}
-                  {'connectionSelectBoxList'}
+                  </div> */}
+                  {standardPropertyList}
+                  {'businessPropertyList'}
+                  {connectionSelectBoxList}
                 </div>)}
                 {props.addSettings.createResponse !== null && (<div className='m-list-search__results'>
                   {messageList}
@@ -1222,8 +1330,8 @@ return (
                       <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
                     </div>
                   </div>
-                  {businessPropertyList}
-                  {connectionSelectBoxList}
+                  {'businessPropertyList'}
+                  {'connectionSelectBoxList'}
                 </div>)}
                 {props.addSettings.updateResponse !== null && (<div className='m-list-search__results'>
                   {messageList}
