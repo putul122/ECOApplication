@@ -90,7 +90,8 @@ export const initialState = {
     Update: false,
     Delete: false,
     toProcess: false,
-    toProcessMetaModel: false
+    toProcessMetaModel: false,
+    toProcessModelPerspectives: false
   },
   connectionData: '',
   createComponentResponse: '',
@@ -117,7 +118,8 @@ export default handleActions(
   {
     [FETCH_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
       ...state,
-      modelPrespectives: action.payload
+      modelPrespectives: action.payload,
+      availableAction: {...state.availableAction, 'toProcessModelPerspectives': true}
     }),
     [FETCH_META_MODEL_PRESPECTIVE_SUCCESS]: (state, action) => ({
       ...state,

@@ -13,6 +13,9 @@ export const FETCH_NESTED_MODEL_PRESPECTIVES_FAILURE = 'saga/service/FETCH_NESTE
 export const FETCH_CRUD_META_MODEL_PRESPECTIVE = 'saga/service/FETCH_CRUD_META_MODEL_PRESPECTIVE'
 export const FETCH_CRUD_META_MODEL_PRESPECTIVE_SUCCESS = 'saga/service/FETCH_CRUD_META_MODEL_PRESPECTIVE_SUCCESS'
 export const FETCH_CRUD_META_MODEL_PRESPECTIVE_FAILURE = 'saga/service/FETCH_CRUD_META_MODEL_PRESPECTIVE_FAILURE'
+export const FETCH_CRUD_MODEL_PRESPECTIVES = 'saga/service/FETCH_CRUD_MODEL_PRESPECTIVES'
+export const FETCH_CRUD_MODEL_PRESPECTIVES_SUCCESS = 'saga/service/FETCH_CRUD_MODEL_PRESPECTIVES_SUCCESS'
+export const FETCH_CRUD_MODEL_PRESPECTIVES_FAILURE = 'saga/service/FETCH_CRUD_MODEL_PRESPECTIVES_FAILURE'
 
 export const actionCreators = {
   fetchDropdownData: createAction(FETCH_DROPDOWN_DATA),
@@ -23,15 +26,34 @@ export const actionCreators = {
   fetchNestedModelPrespectivesFailure: createAction(FETCH_NESTED_MODEL_PRESPECTIVES_FAILURE),
   fetchCrudMetaModelPrespective: createAction(FETCH_CRUD_META_MODEL_PRESPECTIVE),
   fetchCrudMetaModelPrespectiveSuccess: createAction(FETCH_CRUD_META_MODEL_PRESPECTIVE_SUCCESS),
-  fetchCrudMetaModelPrespectiveFailure: createAction(FETCH_CRUD_META_MODEL_PRESPECTIVE_FAILURE)
+  fetchCrudMetaModelPrespectiveFailure: createAction(FETCH_CRUD_META_MODEL_PRESPECTIVE_FAILURE),
+  fetchCrudModelPrespectives: createAction(FETCH_CRUD_MODEL_PRESPECTIVES),
+  fetchCrudModelPrespectivesSuccess: createAction(FETCH_CRUD_MODEL_PRESPECTIVES_SUCCESS),
+  fetchCrudModelPrespectivesFailure: createAction(FETCH_CRUD_MODEL_PRESPECTIVES_FAILURE)
 }
 
 export default function * watchServices () {
   yield [
     takeLatest(FETCH_DROPDOWN_DATA, getDropdownData),
     takeLatest(FETCH_NESTED_MODEL_PRESPECTIVES, getNestedModelPrespectives),
-    takeLatest(FETCH_CRUD_META_MODEL_PRESPECTIVE, getMetaModelPrespective)
+    takeLatest(FETCH_CRUD_META_MODEL_PRESPECTIVE, getMetaModelPrespective),
+    takeLatest(FETCH_CRUD_MODEL_PRESPECTIVES, getCrudModelPrespectives)
   ]
+}
+
+export function * getCrudModelPrespectives (action) {
+  try {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
+    axios.defaults.headers.common['responseType'] = 'stream'
+    const modelPrespectives = yield call(
+      axios.get,
+      api.getModelPerspectives,
+      {params: action.payload}
+    )
+    yield put(actionCreators.fetchCrudModelPrespectivesSuccess(modelPrespectives.data))
+  } catch (error) {
+    yield put(actionCreators.fetchCrudModelPrespectivesFailure(error))
+  }
 }
 
 export function * getMetaModelPrespective (action) {

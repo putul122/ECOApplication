@@ -3,10 +3,10 @@ import _ from 'lodash'
 import ReactModal from 'react-modal'
 import Select from 'react-select'
 import moment from 'moment'
-import DatePicker from 'react-datepicker'
 import PropTypes from 'prop-types'
 import styles from './perspectiveHierarchyComponent.scss'
 import 'react-datepicker/dist/react-datepicker.css'
+import DatePicker from 'react-datepicker'
 ReactModal.setAppElement('#root')
 let comparer = function (otherArray) {
   return function (current) {
@@ -17,6 +17,7 @@ let comparer = function (otherArray) {
 }
 const customStylescrud = { content: { top: '10%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function PerspectiveHierarchy (props) {
+  console.log('props ==========================', props)
   let perspectiveName = ''
   let standardPropertyList = ''
   let connectionSelectBoxList = ''
@@ -37,7 +38,7 @@ export default function PerspectiveHierarchy (props) {
   let expandSettings = props.expandSettings
   if (props.addSettings.isModalOpen) {
     if (props.addSettings.selectedData) {
-      perspectiveName = props.addSettings.selectedData.name
+      perspectiveName = props.addSettings.selectedData.metaModelPerspectives.name
     } else {
       perspectiveName = props.metaModelPerspective ? props.metaModelPerspective.resources[0].name : ''
     }
@@ -75,6 +76,8 @@ export default function PerspectiveHierarchy (props) {
     if (expandFlag) {
       if (data.metaModelPerspectives) {
         expandSettings.processAPIResponse = true
+        // eslint-disable-next-line
+    mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
         let payload = {}
         payload['meta_model_perspective_id'] = data.metaModelPerspectives.id
         payload['view_key'] = data.metaModelPerspectives.view_key
@@ -241,29 +244,27 @@ export default function PerspectiveHierarchy (props) {
     if (level === 'ChildrenNode') {
       if (data) {
         console.log(data)
-        if (data.containerPerspectiveId === null) {
+        if (data.rolePerspectives) {
           console.log('if data', data)
           let rolePerspectives = data.rolePerspectives
           let payload = {}
           perspectiveId = rolePerspectives.Create.part_perspective_id
           viewKey = rolePerspectives.Create.part_perspective_view_key
-          if (rolePerspectives) {
-            payload.id = rolePerspectives.Create.part_perspective_id
-            payload.viewKey = {'view_key': rolePerspectives.Create.part_perspective_view_key}
-            props.fetchCrudMetaModelPrespective && props.fetchCrudMetaModelPrespective(payload)
-            // eslint-disable-next-line
-            mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
-          }
-        } else {
-          console.log('else data', data)
-          let payload = {}
-          perspectiveId = data.containerPerspectiveId
-          viewKey = data.containerPerspectiveViewKey
-          payload.id = data.containerPerspectiveId
-          payload.viewKey = {'view_key': data.containerPerspectiveViewKey}
+          payload.id = rolePerspectives.Create.part_perspective_id
+          payload.viewKey = {'view_key': rolePerspectives.Create.part_perspective_view_key}
           props.fetchCrudMetaModelPrespective && props.fetchCrudMetaModelPrespective(payload)
           // eslint-disable-next-line
           mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+        } else {
+          console.log('else data', data)
+          // let payload = {}
+          // perspectiveId = data.containerPerspectiveId
+          // viewKey = data.containerPerspectiveViewKey
+          // payload.id = data.containerPerspectiveId
+          // payload.viewKey = {'view_key': data.containerPerspectiveViewKey}
+          // props.fetchCrudMetaModelPrespective && props.fetchCrudMetaModelPrespective(payload)
+          // // eslint-disable-next-line
+          // mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
         }
       }
     }
@@ -606,13 +607,13 @@ export default function PerspectiveHierarchy (props) {
               headerColumn[columnId].level = currentLevel
               if (columnId > 0) {
                 for (let i = 0; i < columnId; i++) {
-                  headerColumn[columnId].isProcessed = true
-                  headerColumn[columnId].level = currentLevel
+                  headerColumn[i].isProcessed = true
+                  headerColumn[i].level = currentLevel
                   childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_start' + i}>{''}</td>)
                 }
               }
             }
-            if (props.expandSettings.level >= 0 && (props.expandSettings.selectedObject[currentLevel] && props.expandSettings.selectedObject[currentLevel].name === childValue)) {
+            if (props.expandSettings.level > currentLevel && currentLevel >= 0 && props.expandSettings.selectedObject[currentLevel + 1].name === childValue) {
               faClass = 'fa fa-minus'
             }
             childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, currentLevel + 1) }} style={{'cursor': 'pointer'}} /> {childValue}</td>)
@@ -624,7 +625,8 @@ export default function PerspectiveHierarchy (props) {
             childValue = labelData.constraint_perspective.name
             // selectedObject.metaModelPerspectives = childLabelParts[cix].constraint_perspective
             childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}><a onClick={() => openModal(selectedObject, 'ChildrenNode')} href='javascript:void(0);' >{'Add ' + childValue}</a></td>)
-            let columnId = props.headerData.headerColumn.indexOf(labelData.name)
+            let columnId = props.headerData.headerColumn.indexOf(childValue)
+            console.log('qqqqqq', props.headerData.headerColumn, childValue, columnId)
             if (columnId !== -1) {
               headerColumn[columnId].isProcessed = true
               headerColumn[columnId].level = 0
@@ -633,11 +635,21 @@ export default function PerspectiveHierarchy (props) {
         }
       })
       console.log('generate rows headerColumn', headerColumn)
-      // headerColumn.forEach(function (columnData, cid) {
-      //   if (!columnData.isProcessed) {
-      //     childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_last' + cid} >{''}</td>)
-      //   }
-      // })
+      let length = headerColumn.length
+      headerColumn.forEach(function (columnData, cid) {
+        if (!columnData.isProcessed & length !== cid + 1) {
+          childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_last' + cid} >{''}</td>)
+        }
+      })
+      let availableAction = {...props.availableAction}
+      let list = []
+      if (availableAction.Update) {
+        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openUpdateModal(selectedObject) }} >{'Edit'}</a>)
+      }
+      if (availableAction.Delete) {
+        list.push(<a onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject) }} href='javascript:void(0);'>{'Delete'}</a>)
+      }
+      childRowColumn.push(<td className='' key={'last'} >{list}</td>)
     }
     console.log('childRowColumn ->>>>>>>>>>', childRowColumn)
     return childRowColumn
@@ -719,11 +731,6 @@ export default function PerspectiveHierarchy (props) {
           console.log(' why else equal', startLevel, expandLevel)
           break
         }
-        console.log('/// check conditions')
-        console.log(expandLevel, '-----', startLevel)
-        console.log(expandLevel > startLevel)
-        console.log(expandLevel >= startLevel)
-        console.log('/// end conditions')
       } while (expandLevel - startLevel >= 0)
       if (startLevel === -1) {
         console.log('nested if equal', startLevel, childList)
@@ -1037,6 +1044,7 @@ export default function PerspectiveHierarchy (props) {
       }
     })
     businessPropertyList = connectionData.customerProperty.map(function (data, index) {
+      console.log('data business', data, index)
       let value = null
       if (data.type_property.property_type.key === 'Integer') {
         value = data.type_property.int_value
@@ -1057,16 +1065,16 @@ export default function PerspectiveHierarchy (props) {
           </div>
         </div>)
       } else if (data.type_property.property_type.key === 'DateTime') {
-        value = data.type_property.date_time_value ? moment(data.type_property.date_time_value).format('DD MMM YYYY') : ''
+        value = data.type_property.date_time_value ? moment(data.type_property.date_time_value).format('DD MMM YYYY') : null
         return (<div className='form-group row'>
           <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
           <div className='col-8 form-group m-form__group has-info'>
             <DatePicker
               className='input-sm form-control m-input'
-              selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
+              selected={value}
               dateFormat='DD MMM YYYY'
               onSelect={(date) => { editProperty(index, date) }}
-              />
+            />
             {/* <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editTextProperty(index, childIndex, event.target.value) }} placeholder='Enter Here' /> */}
             {false && (<div className='form-control-feedback'>should be Date</div>)}
           </div>
@@ -1283,7 +1291,7 @@ return (
                     </div>
                   </div> */}
                   {standardPropertyList}
-                  {'businessPropertyList'}
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                 </div>)}
                 {props.addSettings.createResponse !== null && (<div className='m-list-search__results'>

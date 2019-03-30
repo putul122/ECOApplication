@@ -80,7 +80,7 @@ export default compose(
   lifecycle({
     componentWillMount: function () {
       // eslint-disable-next-line
-      // mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+      mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
       let payload = {}
       payload['meta_model_perspective_id[0]'] = this.props.match.params.id
@@ -102,9 +102,12 @@ export default compose(
           this.props.history.push('/')
         }
       }
-      if (nextProps.modelPrespectives && nextProps.modelPrespectives !== '') {
+      if (nextProps.modelPrespectives && nextProps.modelPrespectives !== '' && nextProps.availableAction.toProcessModelPerspectives) {
         // eslint-disable-next-line
-        // mApp && mApp.unblockPage()
+        mApp && mApp.unblockPage()
+        let availableAction = nextProps.availableAction
+        availableAction['toProcessModelPerspectives'] = false
+        nextProps.setAvailableAction(availableAction)
       }
       if (nextProps.crudMetaModelPerspective && nextProps.crudMetaModelPerspective !== '' && nextProps.availableAction.toProcess) {
         if (nextProps.crudMetaModelPerspective.resources[0].crude) {
@@ -264,6 +267,8 @@ export default compose(
       }
       if (nextProps.nestedModelPerspectives !== '' && nextProps.expandSettings.processAPIResponse) {
         console.log('nextProps.nestedModelPerspectives', nextProps.nestedModelPerspectives)
+        // eslint-disable-next-line
+        mApp && mApp.unblockPage()
         if (nextProps.nestedModelPerspectives.length > 0) {
           let expandSettings = JSON.parse(JSON.stringify(nextProps.expandSettings))
           let level = expandSettings.level
@@ -310,15 +315,19 @@ export default compose(
           let headerColumn = []
           if (metaModelPerspective.length > 0) {
             metaModelPerspective.forEach(function (data, index) {
-              data.parts.forEach(function (partData, idx) {
-                if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
-                  if (partData.standard_property === 'name') {
+              // if (data.view_key === nextProps.match.params.viewKey) {
+                data.parts.forEach(function (partData, idx) {
+                  if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+                    if (partData.standard_property === 'name') {
+                      headerColumn.push(partData.name)
+                    }
+                  } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
                     headerColumn.push(partData.name)
                   }
-                } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
-                  headerColumn.push(partData.name)
-                }
-              })
+                })
+              // } else {
+              //   headerColumn.push(data.name)
+              // }
             })
           }
           headerData.headerColumn = headerColumn
