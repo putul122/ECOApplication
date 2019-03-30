@@ -4,7 +4,6 @@ import PerspectiveHierarchy from '../../components/perspectiveHierarchy/perspect
 import { actions as sagaActions } from '../../redux/sagas'
 import { actionCreators } from '../../redux/reducers/perspectiveHierarchy/perspectiveHierarchyReducer'
 import { actionCreators as basicActionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
-console.log('sagaActions', sagaActions)
 // Global State
 export function mapStateToProps (state, props) {
   return {
@@ -24,7 +23,8 @@ export function mapStateToProps (state, props) {
     dropdownData: state.perspectiveHierarchyReducer.dropdownData,
     expandSettings: state.perspectiveHierarchyReducer.expandSettings,
     nestedModelPerspectives: state.perspectiveHierarchyReducer.nestedModelPerspectives,
-    headerData: state.perspectiveHierarchyReducer.headerData
+    headerData: state.perspectiveHierarchyReducer.headerData,
+    crudModelPerspectives: state.perspectiveHierarchyReducer.crudModelPerspectives
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch
@@ -46,6 +46,7 @@ export const propsMapping: Callbacks = {
   updateModelPrespectives: sagaActions.modelActions.updateModelPrespectives,
   updateComponentModelPrespectives: sagaActions.modelActions.updateComponentModelPrespectives,
   fetchNestedModelPrespectives: sagaActions.serviceActions.fetchNestedModelPrespectives,
+  fetchCrudModelPrespectives: sagaActions.serviceActions.fetchCrudModelPrespectives,
   setExpandSettings: actionCreators.setExpandSettings,
   setHeaderData: actionCreators.setHeaderData
 }
@@ -109,6 +110,92 @@ export default compose(
         availableAction['toProcessModelPerspectives'] = false
         nextProps.setAvailableAction(availableAction)
       }
+      if (nextProps.crudModelPerspectives && nextProps.crudModelPerspectives !== '' && !nextProps.availableAction.toProcess && nextProps.connectionData !== '' && nextProps.availableAction.toProcessCrudModel) {
+        if (nextProps.crudModelPerspectives.error_code === null) {
+          console.log('crudModelPerspectives', nextProps.crudModelPerspectives)
+          let addSettings = JSON.parse(JSON.stringify(nextProps.addSettings))
+          let labelParts = nextProps.crudMetaModelPerspective.resources[0].parts
+          let data = nextProps.crudModelPerspectives.resources[0]
+          let selectedValues = []
+          let setCustomerProperty = []
+          if (data.parts) {
+            labelParts.forEach(function (partData, ix) {
+              console.log(partData, data.parts[ix])
+              if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+                if (partData.standard_property === 'name') {
+                  addSettings.name = data.parts[ix].value
+                }
+                if (partData.standard_property === 'description') {
+                  addSettings.description = data.parts[ix].value
+                }
+              } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
+                if (data.parts[ix].value.length > 0) {
+                  // todo write code for multiple component
+                  let eachSelectedValues = []
+                  data.parts[ix].value.forEach(function (value, ix) {
+                    let targetComponent = value.target_component
+                    targetComponent.label = targetComponent.name
+                    targetComponent.value = targetComponent.id
+                    eachSelectedValues.push(targetComponent)
+                  })
+                  selectedValues.push(eachSelectedValues)
+                } else {
+                  selectedValues.push(null)
+                }
+              } else if (partData.standard_property === null && partData.type_property !== null) { // Customer Property
+                let value = null
+                if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
+                  value = data.parts[ix].value !== null ? data.parts[ix].value.int_value : ''
+                } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+                  value = data.parts[ix].value !== null ? data.parts[ix].value.float_value : ''
+                } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+                  value = data.parts[ix].value !== null ? data.parts[ix].value.text_value : ''
+                } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+                  value = data.parts[ix].value !== null ? data.parts[ix].value.date_time_value : ''
+                } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+                  value = data.parts[ix].value !== null ? data.parts[ix].value.boolean_value : ''
+                } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                  value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
+                } else {
+                  value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
+                }
+                setCustomerProperty.push(value)
+              }
+            })
+          }
+          addSettings.isEditModalOpen = true
+          addSettings.updateObject = data
+          addSettings.updateResponse = null
+          nextProps.setAddSettings(addSettings)
+          let connectionData = {...nextProps.connectionData}
+          let existingCustomerProperty = connectionData.customerProperty.map(function (data, index) {
+            if (data.type_property.property_type.key === 'Boolean') {
+              data.type_property.boolean_value = setCustomerProperty[index]
+            } else if (data.type_property.property_type.key === 'Integer') {
+              data.type_property.int_value = setCustomerProperty[index]
+            } else if (data.type_property.property_type.key === 'Decimal') {
+              data.type_property.float_value = setCustomerProperty[index]
+            } else if (data.type_property.property_type.key === 'DateTime') {
+              data.type_property.date_time_value = setCustomerProperty[index]
+            } else if (data.type_property.property_type.key === 'Text') {
+              data.type_property.text_value = setCustomerProperty[index]
+            } else {
+              data.type_property.other_value = setCustomerProperty[index]
+            }
+            return data
+          })
+          connectionData.customerProperty = existingCustomerProperty
+          connectionData.selectedValues = selectedValues
+          connectionData.initialSelectedValues = JSON.parse(JSON.stringify(selectedValues))
+          nextProps.setConnectionData(connectionData)
+          let availableAction = nextProps.availableAction
+          availableAction['toProcessCrudModel'] = false
+          nextProps.setAvailableAction(availableAction)
+        } else {
+          // eslint-disable-next-line
+          toastr.error(nextProps.crudModelPerspectives.error_message, nextProps.crudModelPerspectives.error_code)
+        }
+      }
       if (nextProps.crudMetaModelPerspective && nextProps.crudMetaModelPerspective !== '' && nextProps.availableAction.toProcess) {
         if (nextProps.crudMetaModelPerspective.resources[0].crude) {
           let availableAction = {...nextProps.availableAction}
@@ -165,6 +252,7 @@ export default compose(
           nextProps.setConnectionData(connectionData)
           availableAction['toProcess'] = false
           nextProps.setAvailableAction(availableAction)
+          console.log(nextProps)
         }
       }
       if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcessMetaModel) {

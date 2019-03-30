@@ -147,13 +147,13 @@ export default function HeaderComponent (props) {
               <div className='m-header-menu m-aside-header-menu-mobile m-aside-header-menu-mobile--offcanvas  m-header-menu--skin-light m-header-menu--submenu-skin-light m-aside-header-menu-mobile--skin-light m-aside-header-menu-mobile--submenu-skin-light '>
                 <ul className='m-menu__nav  m-menu__nav--submenu-arrow '>
                   <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} aria-haspopup='true'>
-                    <a href='/select-module/s-eco' className='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
-                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>S-ECO</span>
+                    <a href='/select-module/s-eco' className='m-menu__link m-menu__toggle ' title='Service Design'>
+                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>Service Design</span>
                     </a>
                   </li>
                   <li className='m-menu__item m-menu__item--active m-menu__item--submenu m-menu__item--rel ' style={{'padding': '0 0px'}} aria-haspopup='true'>
-                    <a href='/select-module/p-eco' className='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
-                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>P-ECO</span>
+                    <a href='/select-module/p-eco' className='m-menu__link m-menu__toggle ' title='SLA Management'>
+                      <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary'>SLA Management</span>
                     </a>
                   </li>
                 </ul>

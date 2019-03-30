@@ -47,8 +47,8 @@ export function * getCrudModelPrespectives (action) {
     axios.defaults.headers.common['responseType'] = 'stream'
     const modelPrespectives = yield call(
       axios.get,
-      api.getModelPerspectives,
-      {params: action.payload}
+      api.getModelPerspective(action.payload.id),
+      {params: action.payload.data}
     )
     yield put(actionCreators.fetchCrudModelPrespectivesSuccess(modelPrespectives.data))
   } catch (error) {

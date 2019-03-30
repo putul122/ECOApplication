@@ -147,6 +147,12 @@ const api = {
   updateNotificationViewStatus:
     'https://notification-eco-dev.ecoconductor.com/notification_view_status',
   createDiscussion: 'https://notification-eco-dev.ecoconductor.com/discussions',
+  getModelPerspective: function (subjectId) {
+    return (
+      'https://model-eco-dev.ecoconductor.com/model_perspectives/' +
+      subjectId
+    )
+  },
   getModelPerspectives:
     'https://model-eco-dev.ecoconductor.com/model_perspectives',
   updateModelPerspectives: function (metaModelPerspectiveId) {

@@ -11,7 +11,8 @@ import {
 import {
   FETCH_DROPDOWN_DATA_SUCCESS,
   FETCH_NESTED_MODEL_PRESPECTIVES_SUCCESS,
-  FETCH_CRUD_META_MODEL_PRESPECTIVE_SUCCESS
+  FETCH_CRUD_META_MODEL_PRESPECTIVE_SUCCESS,
+  FETCH_CRUD_MODEL_PRESPECTIVES_SUCCESS
 } from '../../sagas/service/serviceSaga'
 // Name Spaced Action Types
 const SET_ADD_SETTINGS = 'perspectivesHierarchyReducer/SET_ADD_SETTINGS'
@@ -57,6 +58,7 @@ export const initialState = {
   metaModelPerspective: '',
   crudMetaModelPerspective: '',
   nestedModelPerspectives: '',
+  crudModelPerspectives: '',
   currentPage: 1,
   perPage: 10,
   crude: {
@@ -91,7 +93,8 @@ export const initialState = {
     Delete: false,
     toProcess: false,
     toProcessMetaModel: false,
-    toProcessModelPerspectives: false
+    toProcessModelPerspectives: false,
+    toProcessCrudModel: false
   },
   connectionData: '',
   createComponentResponse: '',
@@ -187,6 +190,11 @@ export default handleActions(
       ...state,
       crudMetaModelPerspective: action.payload,
       availableAction: {...state.availableAction, 'toProcess': true}
+    }),
+    [FETCH_CRUD_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
+      ...state,
+      crudModelPerspectives: action.payload,
+      availableAction: {...state.availableAction, 'toProcessCrudModel': true}
     })
   },
   initialState
