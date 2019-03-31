@@ -34,7 +34,8 @@ export default function PerspectiveHierarchy (props) {
   let totalPages
   let tableHeader = []
   let messageList = ''
-  let deletaPerspectiveName = props.addSettings.deleteObject ? props.addSettings.deleteObject.name : ''
+  let deletePerspectiveName = props.addSettings.deleteObject ? props.addSettings.deleteObject.name : ''
+  let updatePerspectiveName = props.addSettings.selectedData ? props.addSettings.selectedData.editName : ''
   let expandSettings = props.expandSettings
   if (props.addSettings.isModalOpen) {
     if (props.addSettings.selectedData) {
@@ -186,7 +187,7 @@ export default function PerspectiveHierarchy (props) {
     }
     if (level === 'ChildrenNode') {
       if (data) {
-        console.log(data)
+        console.log('children node -----------', data)
         if (data.rolePerspectives) {
           console.log('if data', data)
           let rolePerspectives = data.rolePerspectives
@@ -206,7 +207,7 @@ export default function PerspectiveHierarchy (props) {
             paydata['meta_model_perspective_id'] = perspectiveId
             paydata['view_key'] = viewKey
             let modelPerspectivePayload = {}
-            modelPerspectivePayload.id = data.subjectId
+            modelPerspectivePayload.id = data.editSubjectId
             modelPerspectivePayload.data = paydata
             props.fetchCrudModelPrespectives(modelPerspectivePayload)
           }
@@ -214,6 +215,8 @@ export default function PerspectiveHierarchy (props) {
           mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
         } else {
           console.log('else data', data)
+          addSettings.isModalOpen = false
+          addSettings.isEditModalOpen = false
           // let payload = {}
           // perspectiveId = data.metaModelPerspectives.id
           // let payloadData = {}
@@ -504,6 +507,9 @@ export default function PerspectiveHierarchy (props) {
   }
   let buildRow = function (childData, currentLevel, subjectId) {
     let childLabelParts = props.expandSettings.metaModelPerspectives[currentLevel].parts
+    let expandSettings = JSON.parse(JSON.stringify(props.expandSettings))
+    let editSelectedObject = expandSettings.selectedObject[currentLevel] || {}
+    editSelectedObject.editSubjectId = subjectId
     console.log('childLabelParts', childLabelParts)
     let childRowColumn = []
     let faClass = 'fa fa-plus'
@@ -539,6 +545,7 @@ export default function PerspectiveHierarchy (props) {
         if (labelData.standard_property !== null && labelData.type_property === null) { // Standard Property
           if (labelData.standard_property === 'name') {
             childValue = childData[cix] ? childData[cix].value : ''
+            editSelectedObject.editName = childData[cix] ? childData[cix].value : ''
             // selectedObject.name = childValue
             let columnId = props.headerData.headerColumn.indexOf(labelData.name)
             if (columnId !== -1) {
@@ -583,7 +590,7 @@ export default function PerspectiveHierarchy (props) {
       let availableAction = {...props.availableAction}
       let list = []
       if (availableAction.Update) {
-        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ChildrenNode', 'Edit') }} >{'Edit'}</a>)
+        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} >{'Edit'}</a>)
       }
       if (availableAction.Delete) {
         list.push(<a onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject) }} href='javascript:void(0);'>{'Delete'}</a>)
@@ -605,6 +612,7 @@ export default function PerspectiveHierarchy (props) {
       }
     })
     if (rowToExpand) {
+      // start from topmost level
       startLevel = expandLevel
       console.log('expand level', startLevel)
       do {
@@ -618,7 +626,7 @@ export default function PerspectiveHierarchy (props) {
               let parentList = []
               props.expandSettings.modelPerspectives[startLevel].forEach(function (childData, idx) {
                 let childRowColumn = []
-                childRowColumn = buildRow(childData.parts, startLevel, props.expandSettings.modelPerspectives[startLevel].subjectId)
+                childRowColumn = buildRow(childData.parts, startLevel, childData.subject_id)
                 parentList.push(
                   <tr>
                     {childRowColumn}
@@ -1244,7 +1252,7 @@ return (
           <div className=''>
             <div className='modal-content' >
               <div className='modal-header'>
-                {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit {perspectiveName}</h4>)}
+                {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit {updatePerspectiveName}</h4>)}
                 {props.addSettings.updateResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Update Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
@@ -1293,14 +1301,14 @@ return (
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
-                <h4 className='modal-title' id='exampleModalLabel'>Delete {deletaPerspectiveName}</h4>
+                <h4 className='modal-title' id='exampleModalLabel'>Delete {deletePerspectiveName}</h4>
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
               <div className='modal-body'>
                 <div>
-                  <h6>Confirm deletion of {deletaPerspectiveName}</h6>
+                  <h6>Confirm deletion of {deletePerspectiveName}</h6>
                 </div>
               </div>
               <div className='modal-footer'>
