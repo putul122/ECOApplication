@@ -488,6 +488,9 @@ export default function PerspectiveHierarchy (props) {
     payload.queryString = {}
     payload.queryString.meta_model_perspective_id = props.crudMetaModelPerspective.resources[0].id
     payload.queryString.apply_changes = true
+    if (addSettings.initiatedFrom === 'ChildrenNode') {
+      payload.queryString.parent_reference = addSettings.selectedData.parentReference
+    }
     payload.data = {}
     payload.data[props.crudMetaModelPerspective.resources[0].id] = patchPayload
     console.log('payload', payload)

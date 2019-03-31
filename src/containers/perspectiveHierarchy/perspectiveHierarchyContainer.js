@@ -281,6 +281,8 @@ export default compose(
         addSettings.description = ''
         addSettings.createResponse = nextProps.createComponentResponse
         nextProps.setAddSettings(addSettings)
+        // eslint-disable-next-line
+        mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
         let payload = {}
         if (addSettings.initiatedFrom === 'ParentNode') {
           payload['meta_model_perspective_id[0]'] = this.props.match.params.id
@@ -301,9 +303,18 @@ export default compose(
         addSettings.updateResponse = nextProps.updateComponentResponse
         nextProps.setAddSettings(addSettings)
         let payload = {}
-        payload['meta_model_perspective_id[0]'] = this.props.match.params.id
-        payload['view_key[0]'] = this.props.match.params.viewKey
-        this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
+        // eslint-disable-next-line
+        mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+        if (addSettings.initiatedFrom === 'ParentNode') {
+          payload['meta_model_perspective_id[0]'] = this.props.match.params.id
+          payload['view_key[0]'] = this.props.match.params.viewKey
+          this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
+        } else {
+          payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
+          payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
+          payload['parent_reference'] = addSettings.selectedData.parentReference
+          this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
+        }
         nextProps.resetResponse()
       }
       if (nextProps.deleteComponentResponse && nextProps.deleteComponentResponse !== '') {
