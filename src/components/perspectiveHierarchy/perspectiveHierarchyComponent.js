@@ -59,6 +59,7 @@ export default function PerspectiveHierarchy (props) {
   let handleClick = function (data, level) {
     console.log(data)
     console.log('level', level)
+    console.log(props.expandSettings)
     let expandFlag = true
     let expandSettings = {...props.expandSettings}
     let selectedObject = expandSettings.selectedObject[level]
@@ -82,6 +83,11 @@ export default function PerspectiveHierarchy (props) {
       expandSettings.metaModelPerspectives[level] = data.metaModelPerspectives
       expandSettings.selectedObject[level] = data
       expandSettings.selectedObject[level].expandFlag = expandFlag
+      if (data.rolePerspectives) {
+        expandSettings.selectedObject[level].showChildExpandIcon = true
+      } else {
+        expandSettings.selectedObject[level].showChildExpandIcon = false
+      }
     }
     if (expandFlag) {
       if (data.metaModelPerspectives) {
@@ -527,8 +533,9 @@ export default function PerspectiveHierarchy (props) {
     let childLabelParts = props.expandSettings.metaModelPerspectives[currentLevel].parts
     let expandSettings = JSON.parse(JSON.stringify(props.expandSettings))
     let editSelectedObject = expandSettings.selectedObject[currentLevel] || {}
+    let showChildExpandIcon = props.expandSettings.selectedObject[currentLevel].showChildExpandIcon
     editSelectedObject.editSubjectId = subjectId
-    console.log('childLabelParts', childLabelParts)
+    console.log('childLabelParts', childLabelParts, expandSettings)
     let childRowColumn = []
     let faClass = 'fa fa-plus'
     let selectedObject = {}
@@ -556,6 +563,9 @@ export default function PerspectiveHierarchy (props) {
             selectedObject.rolePerspectives = childLabelParts[cix].role_perspectives
             selectedObject.subjectId = subjectId
           }
+          // if (childLabelParts[cix].role_perspectives === null) {
+          //   faClass = ''
+          // }
         }
       })
       childLabelParts.forEach(function (labelData, cix) {
@@ -577,16 +587,23 @@ export default function PerspectiveHierarchy (props) {
                 }
               }
             }
-            if (props.expandSettings.level > currentLevel && currentLevel >= 0 && props.expandSettings.selectedObject[currentLevel + 1].name === childValue) {
+            if (props.expandSettings.level > currentLevel && currentLevel >= 0 && props.expandSettings.selectedObject[currentLevel + 1].name === childValue && showChildExpandIcon) {
               faClass = 'fa fa-minus'
+            }
+            if (!showChildExpandIcon) {
+              faClass = ''
             }
             let availableAction = {...props.availableAction}
             let list = []
-            if (availableAction.Update) {
-              list.push(<button type='button' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} className='m-btn btn btn-info'><i className='fa flaticon-edit-1' /></button>)
-            }
-            if (availableAction.Delete) {
-              list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, currentLevel) }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
+            if (showChildExpandIcon) {
+              if (faClass !== '') {
+                if (availableAction.Update) {
+                  list.push(<button type='button' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} className='m-btn btn btn-info'><i className='fa flaticon-edit-1' /></button>)
+                }
+                if (availableAction.Delete) {
+                  list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, currentLevel) }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
+                }
+              }
             }
             childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}>
               <i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, currentLevel + 1) }} style={{'cursor': 'pointer'}} /> {childValue}&nbsp;&nbsp;
@@ -601,7 +618,11 @@ export default function PerspectiveHierarchy (props) {
             // selectedObject.parentReference = childPartData.value.parent_reference
             childValue = labelData.constraint_perspective.name
             // selectedObject.metaModelPerspectives = childLabelParts[cix].constraint_perspective
-            childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}><a onClick={() => openModal(selectedObject, 'ChildrenNode', 'Add')} href='javascript:void(0);' >{'Add ' + childValue}</a></td>)
+            if (labelData.role_perspectives) {
+              childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}><a onClick={() => openModal(selectedObject, 'ChildrenNode', 'Add')} href='javascript:void(0);' >{'Add ' + childValue}</a></td>)
+            } else {
+              childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}>{''}</td>)
+            }
             let columnId = props.headerData.headerColumn.indexOf(childValue)
             console.log('qqqqqq', props.headerData.headerColumn, childValue, columnId)
             if (columnId !== -1) {
