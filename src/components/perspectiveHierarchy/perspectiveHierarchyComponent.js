@@ -247,10 +247,14 @@ export default function PerspectiveHierarchy (props) {
     addSettings.viewKey = viewKey
     props.setAddSettings(addSettings)
   }
-  let openDeleteModal = function (data) {
-    console.log('delete', data)
+  let openDeleteModal = function (data, level) {
+    console.log('delete', data, level)
     let addSettings = {...props.addSettings}
-    addSettings.isDeleteModalOpen = false
+    if (level === null || level === 0) {
+      addSettings.isDeleteModalOpen = true
+    } else {
+      addSettings.isDeleteModalOpen = false
+    }
     addSettings.deleteObject = data
     props.setAddSettings(addSettings)
   }
@@ -504,8 +508,8 @@ export default function PerspectiveHierarchy (props) {
     }
     payload.data = {}
     payload.data[props.crudMetaModelPerspective.resources[0].id] = patchPayload
-    console.log('payload', payload)
-    console.log('updateComponentModelPrespectives', props.updateComponentModelPrespectives)
+    // console.log('payload', payload)
+    // console.log('updateComponentModelPrespectives', props.updateComponentModelPrespectives)
     props.updateComponentModelPrespectives(payload)
   }
   let removeComponent = function (event) {
@@ -513,7 +517,7 @@ export default function PerspectiveHierarchy (props) {
     let addSettings = {...props.addSettings}
     if (addSettings.deleteObject) {
       let payload = {
-        'id': addSettings.deleteObject.subject_id
+        'id': addSettings.deleteObject.subjectId
       }
       props.deleteComponentModelPerspectives(payload)
     }
@@ -582,7 +586,7 @@ export default function PerspectiveHierarchy (props) {
               list.push(<button type='button' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} className='m-btn btn btn-info'><i className='fa flaticon-edit-1' /></button>)
             }
             if (availableAction.Delete) {
-              list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject) }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
+              list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, currentLevel) }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
             }
             childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}>
               <i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, currentLevel + 1) }} style={{'cursor': 'pointer'}} /> {childValue}&nbsp;&nbsp;
@@ -802,7 +806,7 @@ export default function PerspectiveHierarchy (props) {
                         list.push(<button type='button' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} className='m-btn btn btn-info'><i className='fa flaticon-edit-1' /></button>)
                       }
                       if (availableAction.Delete) {
-                        list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject) }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
+                        list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null) }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
                       }
                       rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
                         <div className='btn-group-sm m-btn-group--pill btn-group' role='group' aria-label='First group'>
