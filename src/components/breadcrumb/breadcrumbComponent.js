@@ -29,7 +29,7 @@ export default function Breadcrumb (props) {
   return (
     <div className={`m-subheader ${styles.customPadding}`}>
       <div className='d-flex align-items-center'>
-        <div className='mr-auto'>
+        <div style={{ marginLeft: '25px' }}>
           <h3 className='m-subheader__title m-subheader__title--separator'>{pageName}</h3>
           <ul className='m-subheader__breadcrumbs m-nav m-nav--inline'>
             <li className='m-nav__item m-nav__item--home'>
