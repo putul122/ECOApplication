@@ -28,7 +28,7 @@ class LeftNavigation extends React.Component {
       </ul> */}
         <nav className={styles.mainmenu}>
           <div className={styles.logotext}>
-            <a href='/'>
+            <a href='/home'>
               <img alt='' src='/assets/ECO-Conductor.png' width='100px' className={styles.logotext} />
             </a>
             {/* <h1 className={styles.logotext}>LM</h1> */}
