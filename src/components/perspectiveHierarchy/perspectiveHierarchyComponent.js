@@ -37,6 +37,15 @@ export default function PerspectiveHierarchy (props) {
   let deletePerspectiveName = props.addSettings.deleteObject ? props.addSettings.deleteObject.name : ''
   let updatePerspectiveName = props.addSettings.selectedData ? props.addSettings.selectedData.editName : ''
   let expandSettings = props.expandSettings
+  if (props.addSettings.isEditModalOpen) {
+    if (props.addSettings.selectedData) {
+      if (props.addSettings.selectedData.initiatedFrom === 'ParentNode') {
+        updatePerspectiveName = props.addSettings.selectedData.name
+      } else if (props.addSettings.selectedData.initiatedFrom === 'ChildrenNode') {
+        updatePerspectiveName = props.addSettings.selectedData.editName
+      }
+    }
+  }
   if (props.addSettings.isModalOpen) {
     if (props.addSettings.selectedData) {
       perspectiveName = props.addSettings.selectedData.metaModelPerspectives.name
@@ -241,7 +250,7 @@ export default function PerspectiveHierarchy (props) {
   let openDeleteModal = function (data) {
     console.log('delete', data)
     let addSettings = {...props.addSettings}
-    addSettings.isDeleteModalOpen = true
+    addSettings.isDeleteModalOpen = false
     addSettings.deleteObject = data
     props.setAddSettings(addSettings)
   }
@@ -252,6 +261,8 @@ export default function PerspectiveHierarchy (props) {
     addSettings.isEditModalOpen = false
     addSettings.deleteObject = null
     addSettings.createResponse = null
+    addSettings.updateResponse = null
+    addSettings.deleteResponse = null
     addSettings.selectedData = null
     props.setAddSettings(addSettings)
     props.setConnectionData('')
@@ -565,7 +576,20 @@ export default function PerspectiveHierarchy (props) {
             if (props.expandSettings.level > currentLevel && currentLevel >= 0 && props.expandSettings.selectedObject[currentLevel + 1].name === childValue) {
               faClass = 'fa fa-minus'
             }
-            childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, currentLevel + 1) }} style={{'cursor': 'pointer'}} /> {childValue}</td>)
+            let availableAction = {...props.availableAction}
+            let list = []
+            if (availableAction.Update) {
+              list.push(<button type='button' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} className='m-btn btn btn-info'><i className='fa flaticon-edit-1' /></button>)
+            }
+            if (availableAction.Delete) {
+              list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject) }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
+            }
+            childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}>
+              <i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, currentLevel + 1) }} style={{'cursor': 'pointer'}} /> {childValue}&nbsp;&nbsp;
+              <div className='btn-group-sm m-btn-group--pill btn-group' role='group' aria-label='First group'>
+                {list}
+              </div>
+            </td>)
           }
         } else if (labelData.standard_property === null && labelData.type_property === null) { // Connection Property
           // console.log('partData', partData, labelParts[ix], ix)
@@ -590,15 +614,15 @@ export default function PerspectiveHierarchy (props) {
           childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_last' + cid} >{''}</td>)
         }
       })
-      let availableAction = {...props.availableAction}
-      let list = []
-      if (availableAction.Update) {
-        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} >{'Edit'}</a>)
-      }
-      if (availableAction.Delete) {
-        list.push(<a onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject) }} href='javascript:void(0);'>{'Delete'}</a>)
-      }
-      childRowColumn.push(<td className='' key={'last'} >{list}</td>)
+      // let availableAction = {...props.availableAction}
+      // let list = []
+      // if (availableAction.Update) {
+      //   list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} >{'Edit'}</a>)
+      // }
+      // if (availableAction.Delete) {
+      //   list.push(<a onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject) }} href='javascript:void(0);'>{'Delete'}</a>)
+      // }
+      // childRowColumn.push(<td className='' key={'last'} >{list}</td>)
     }
     console.log('childRowColumn ->>>>>>>>>>', childRowColumn)
     return childRowColumn
@@ -694,7 +718,7 @@ export default function PerspectiveHierarchy (props) {
         })
       })
     }
-    tableHeader.push(<th key={'last'} className=''><h5>Action</h5></th>)
+    // tableHeader.push(<th key={'last'} className=''><h5>Action</h5></th>)
   }
   let listModelPrespectives = function () {
     console.log('list modal pers', props)
@@ -733,13 +757,29 @@ export default function PerspectiveHierarchy (props) {
               let selectedObject = {}
               selectedObject.subjectId = data.subject_id
               if (data.parts) {
+                labelParts.forEach(function (labelData, cix) {
+                  if (labelData.standard_property !== null && labelData.type_property === null) { // Standard Property
+                    if (labelData.standard_property === 'name') {
+                      selectedObject.name = data.parts[cix] ? data.parts[cix].value : ''
+                    }
+                  } else if (labelData.standard_property === null && labelData.type_property === null) { // Connection Property
+                    if (labelData.constraint_perspective) {
+                      selectedObject.parentReference = data.parts[cix] ? data.parts[cix].value.parent_reference : null
+                      selectedObject.metaModelPerspectives = labelParts[cix].constraint_perspective
+                      selectedObject.containerPerspectiveId = labelParts[cix].container_perspective_id
+                      selectedObject.containerPerspectiveViewKey = labelParts[cix].container_perspective_view_key
+                      selectedObject.rolePerspectives = labelParts[cix].role_perspectives
+                      selectedObject.subjectId = data.subject_id
+                    }
+                  }
+                })
                 data.parts.forEach(function (partData, ix) {
                   let value
                   if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
                     // console.log('partData standard property', partData, labelParts[ix], ix)
                     if (labelParts[ix].standard_property === 'name') {
                       value = partData ? partData.value : ''
-                      selectedObject.name = value
+                      // selectedObject.name = value
                       let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
                       if (columnId !== -1) {
                         headerColumn[columnId].isProcessed = true
@@ -756,7 +796,19 @@ export default function PerspectiveHierarchy (props) {
                       if (expandSettings.level >= 0 && (expandSettings.selectedObject[0] && expandSettings.selectedObject[0].name === value)) {
                         faClass = 'fa fa-minus'
                       }
-                      rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}</td>)
+                      let availableAction = {...props.availableAction}
+                      let list = []
+                      if (availableAction.Update) {
+                        list.push(<button type='button' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} className='m-btn btn btn-info'><i className='fa flaticon-edit-1' /></button>)
+                      }
+                      if (availableAction.Delete) {
+                        list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject) }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
+                      }
+                      rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
+                        <div className='btn-group-sm m-btn-group--pill btn-group' role='group' aria-label='First group'>
+                          {list}
+                        </div>
+                      </td>)
                     }
                   } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
                     let targetComponents = []
@@ -771,12 +823,12 @@ export default function PerspectiveHierarchy (props) {
                     }
                     rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
                   } else if (labelParts[ix].constraint_perspective !== null) { // Perspectives Property
-                    selectedObject.parentReference = partData.value.parent_reference
+                    // selectedObject.parentReference = partData.value.parent_reference
                     value = labelParts[ix].constraint_perspective.name
-                    selectedObject.metaModelPerspectives = labelParts[ix].constraint_perspective
-                    selectedObject.containerPerspectiveId = labelParts[ix].container_perspective_id
-                    selectedObject.containerPerspectiveViewKey = labelParts[ix].container_perspective_view_key
-                    selectedObject.rolePerspectives = labelParts[ix].role_perspectives
+                    // selectedObject.metaModelPerspectives = labelParts[ix].constraint_perspective
+                    // selectedObject.containerPerspectiveId = labelParts[ix].container_perspective_id
+                    // selectedObject.containerPerspectiveViewKey = labelParts[ix].container_perspective_view_key
+                    // selectedObject.rolePerspectives = labelParts[ix].role_perspectives
                     let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
                     if (columnId !== -1) {
                       headerColumn[columnId].isProcessed = true
@@ -796,15 +848,15 @@ export default function PerspectiveHierarchy (props) {
                   rowColumn.push(<td className='' key={'ch_' + index + '_emp' + cid} >{''}</td>)
                 }
               })
-              let availableAction = {...props.availableAction}
-              let list = []
-              if (availableAction.Update) {
-                list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} >{'Edit'}</a>)
-              }
-              if (availableAction.Delete) {
-                list.push(<a onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject) }} href='javascript:void(0);'>{'Delete'}</a>)
-              }
-              rowColumn.push(<td className='' key={'last' + index} >{list}</td>)
+              // let availableAction = {...props.availableAction}
+              // let list = []
+              // if (availableAction.Update) {
+              //   list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} >{'Edit'}</a>)
+              // }
+              // if (availableAction.Delete) {
+              //   list.push(<a onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject) }} href='javascript:void(0);'>{'Delete'}</a>)
+              // }
+              // rowColumn.push(<td className='' key={'last' + index} >{list}</td>)
               return (
                 <table style={{'tableLayout': 'fixed', 'width': '100%'}} className='table table-striped- table-bordered table-hover table-checkable responsive no-wrap dataTable dtr-inline collapsed' id='m_table_1' aria-describedby='m_table_1_info' role='grid'>
                   {index === 0 && (<thead>
