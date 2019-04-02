@@ -232,7 +232,9 @@ export default function Perspectives (props) {
         if (data.length > 0) {
           let connections = []
           data.forEach(function (selectedValue, ix) {
-            connections.push(selectedValue.id)
+            let obj = {}
+            obj.target_id = selectedValue.id
+            connections.push(obj)
           })
           obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
         } else {
@@ -241,7 +243,9 @@ export default function Perspectives (props) {
       } else {
         if (data) {
           let connections = []
-          connections.push(data.id)
+          let obj = {}
+          obj.target_id = data.id
+          connections.push(obj)
           obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
         } else {
           obj.value.parts[connectionData.data[index].partIndex] = {}
@@ -365,13 +369,15 @@ export default function Perspectives (props) {
             let existingTargetComponent = connectionData.selectedValues[dataIndex]
             console.log('existingTargetComponent', existingTargetComponent)
             if (onlyInFinal.length > 0) {
-              let value = []
+              let connections = []
               onlyInFinal.forEach(function (targetComponent, rid) {
-                value.push(targetComponent.id)
+                let obj = {}
+                obj.target_id = targetComponent.id
+                connections.push(obj)
               })
               let obj = {}
               obj.op = 'add'
-              obj.value = value
+              obj.value = connections
               valueType = 'value/-'
               obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
               patchPayload.push(obj)
@@ -453,8 +459,9 @@ export default function Perspectives (props) {
       // }
       console.log('list props', props)
       if (props.modelPrespectives.length > 1) {
-        let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
-        modelPrespectives.splice(-1, 1)
+        let modelPrespectives = JSON.parse(JSON.stringify(props.modelPrespectives))
+        modelPrespectives = _.filter(modelPrespectives, {'error_code': null})
+        // modelPrespectives.splice(-1, 1)
         if (modelPrespectives.length > 1) {
           modelPrespectivesList = modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
             if (data.error_code === null) {
