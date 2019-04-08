@@ -37,6 +37,7 @@ export default function ApplicationDetail (props) {
   let componentComponents = props.componentComponents.resources
   let componentComponentsList
   let totalNoPages
+  let pageSize = 10
   let perPage = props.perPage
   let currentPage = props.currentPage
   let nextClass = ''
@@ -48,12 +49,13 @@ export default function ApplicationDetail (props) {
   let paginationLimit = 5
   let NameInputBox
   let DescriptionBox
-  let handleBlurChange = function (event) {
-    console.log('handle Blur change', event.target.value)
-  }
-  let handleChange = function (event) {
-    console.log('handle change', event.target.value, typeof event.target.value)
-    props.setPerPage(parseInt(event.target.value))
+  // let handleBlurChange = function (event) {
+  //   console.log('handle Blur change', event.target.value)
+  // }
+  var handleChange = function (pageNo) {
+    console.log('handle change', pageNo, typeof pageNo)
+    props.setPerPage(parseInt(pageNo))
+    // showCurrentPages = pageNo
   }
   let openDiscussionModal = function (event) {
     event.preventDefault()
@@ -75,11 +77,11 @@ export default function ApplicationDetail (props) {
           componentDescription = componentComponent.description.length > 75 ? componentComponent.description.substring(0, 75) + ' ...' : componentComponent.description
         }
         return (
-          <tr className='m-datatable__row m-datatable__row--even' key={index} style={{ 'left': '0px' }} >
-            <td className='m-datatable__cell--sorted m-datatable__cell' style={{ 'width': '142px' }} data-toggle='tooltip' data-placement='top' title={componentComponent.name} data-original-title={componentComponent.name} >
+          <tr className='table-tr m-datatable__row m-datatable__row--even' key={index} style={{ 'left': '0px' }} >
+            <td className='table-td pres-th m-datatable__cell--sorted m-datatable__cell' style={{ 'width': '142px' }} data-toggle='tooltip' data-placement='top' title={componentComponent.name} data-original-title={componentComponent.name} >
               <span className='m-card-user m-card-user__details'><Link to={'/components/' + componentComponent.id}>{ componentComponent.name.length > 75 ? componentComponent.name.substring(0, 75) + ' ...' : componentComponent.name }</Link></span>
             </td>
-            <td className='m-datatable__cell--sorted m-datatable__cell'><span style={{pointer: 'cursor'}} data-toggle='tooltip' data-placement='top' title={componentComponent.description} data-original-title={componentComponent.description} >{ componentDescription }</span></td>
+            <td className='table-td pres-th m-datatable__cell--sorted m-datatable__cell'><span style={{pointer: 'cursor'}} data-toggle='tooltip' data-placement='top' title={componentComponent.description} data-original-title={componentComponent.description} >{ componentDescription }</span></td>
           </tr>
         )
       })
@@ -87,8 +89,8 @@ export default function ApplicationDetail (props) {
       console.log('else', props)
       componentComponentsList = []
       componentComponentsList.push((
-        <tr key={0}>
-          <td colSpan='2'>{'No data to display'}</td>
+        <tr key={0} className='table-tr'>
+          <td className='table-td pres-th' colSpan='2'>{'No data to display'}</td>
         </tr>
       ))
     }
@@ -118,8 +120,7 @@ export default function ApplicationDetail (props) {
     })
   }
 
-  let handlePrevious = function (event) {
-    event.preventDefault()
+  let handlePrevious = function () {
     if (currentPage === 1) {
       previousClass = 'm-datatable__pager-link--disabled'
     } else {
@@ -167,7 +168,52 @@ export default function ApplicationDetail (props) {
       if (found.length > 0) { return group }
     })
   }
-
+  // let handleLast = function (tpages) {
+  //   if (currentPage === totalNoPages) {
+  //     nextClass = 'm-datatable__pager-link--disabled'
+  //   } else {
+  //     let payload = {
+  //     'id': props.componentDetail.resources[0].id,
+  //     'ComponentTypeComponent': {
+  //       'search': searchTextBox.value ? searchTextBox.value : '',
+  //       'page_size': props.perPage,
+  //       'page': tpages,
+  //       'recommended': searchTextBox.value === ''
+  //     }
+  //   }
+  //   props.fetchComponentComponent(payload)
+  //   // eslint-disable-next-line
+  //   mApp.block('#style-1', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+  //   props.setCurrentPage(currentPage + 1)
+  //   }
+  //   listPage = _.filter(pageArray, function (group) {
+  //     let found = _.filter(group, {'number': currentPage + 1})
+  //     if (found.length > 0) { return group }
+  //   })
+  // }
+  // let handleFirst = function () {
+  //   if (currentPage === totalNoPages) {
+  //     nextClass = 'm-datatable__pager-link--disabled'
+  //   } else {
+  //     let payload = {
+  //     'id': props.componentDetail.resources[0].id,
+  //     'ComponentTypeComponent': {
+  //       'search': searchTextBox.value ? searchTextBox.value : '',
+  //       'page_size': props.perPage,
+  //       'page': currentPage + 1,
+  //       'recommended': searchTextBox.value === ''
+  //     }
+  //   }
+  //   props.fetchComponentComponent(payload)
+  //   // eslint-disable-next-line
+  //   mApp.block('#style-1', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+  //   props.setCurrentPage(currentPage + 1)
+  //   }
+  //   listPage = _.filter(pageArray, function (group) {
+  //     let found = _.filter(group, {'number': currentPage + 1})
+  //     if (found.length > 0) { return group }
+  //   })
+  // }
   let handlePage = function (page) {
     if (page === 1) {
       previousClass = 'm-datatable__pager-link--disabled'
@@ -242,6 +288,12 @@ export default function ApplicationDetail (props) {
     props.setConfirmationModalOpenStatus(false)
     props.setModalOpenStatus(false)
   }
+  // var showCurrentPages = props.componentComponents.resources ? props.componentComponents.resources.length : 1
+  const startValueOfRange = (currentPage - 1) * pageSize + 1
+  const endValueOfRange = currentPage * pageSize
+  var activeClass = ''
+
+  props.componentComponents && console.log(props.componentComponents.total_count)
   return (
     <div>
       <div className='m-alert m-alert--icon m-alert--air m-alert--square alert alert-dismissible m--margin-bottom-30' role='alert'>
@@ -351,17 +403,17 @@ export default function ApplicationDetail (props) {
               <div className='m_datatable' id='scrolling_vertical'>
                 <div className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll' id='scrolling_vertical' style={{ 'display': 'block', 'min-height': '500px', 'max-height': '550px' }}>
                   <div className='dataTables_scrollBody' style={{position: 'relative', overflow: 'auto', width: '100%', 'maxHeight': '80vh'}}>
-                    <table className='table table-striped- table-bordered table-hover table-checkable dataTable no-footer' >
-                      <thead className='m-datatable__head'>
-                        <tr className='m-datatable__row' style={{ 'left': '0px;' }}>
+                    <table className='table-pres table table-striped- table-bordered table-hover table-checkable dataTable no-footer' >
+                      <thead className='table-head pres-th m-datatable__head'>
+                        <tr className='table-head-row m-datatable__row' style={{ 'left': '0px;' }}>
                           {/* <th data-field='RecordID' className='m-datatable__cell m-datatable__cell--check'>
                             <span style={{width: 40}}><label htmlFor='m-checkbox m-checkbox--single m-checkbox--all m-checkbox--solid m-checkbox--brand'>
                               <input type='checkbox' /><span /></label></span></th> */}
-                          <th className='m-datatable__cell m-datatable__cell--sort'>Name</th>
-                          <th className='m-datatable__cell m-datatable__cell--sort'>Description</th>
+                          <th className='table-th pres-th m-datatable__cell m-datatable__cell--sort'>Name</th>
+                          <th className='table-th pres-th m-datatable__cell m-datatable__cell--sort'>Description</th>
                         </tr>
                       </thead>
-                      <tbody className='m-datatable__body ps ps--active-y ps--scrolling-y' id='style-1'>
+                      <tbody className='table-body pres-th m-datatable__body ps ps--active-y ps--scrolling-y' id='style-1'>
                         { componentComponentsList }
                         {/* <div className='ps__rail-x' >
                           <div className='ps__thumb-x' style={{ 'left': '0px', 'width': '0px' }} />
@@ -370,8 +422,7 @@ export default function ApplicationDetail (props) {
                       </tbody>
                     </table>
                   </div>
-                  <br />
-                  <div className='row' style={{ 'textAlign': 'center' }}>
+                  {/* <div className='row' style={{ 'textAlign': 'center' }}>
                     <div className='col-sm-12 col-md-6'>
                       <div className='dataTables_length' id='m_table_1_length'>
                         <label className='col-5' htmlFor='page_no' >Show </label>
@@ -383,25 +434,46 @@ export default function ApplicationDetail (props) {
                         </select><label className='col-3' htmlFor='page_no' >entries</label>
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                   <div className='col-sm-12 col-md-6' />
-                  <div className='m-datatable__pager m-datatable--paging-loaded pull-left' style={{ 'textAlign': 'center' }}>
-                    <ul className='m-datatable__pager-nav'>
-                      {/* <li><a href='' title='First' className='m-datatable__pager-link m-datatable__pager-link--first' data-page={1}><i className='la la-angle-double-left' /></a></li> */}
-                      <li><a href='' title='Previous' className={'m-datatable__pager-link m-datatable__pager-link--prev ' + previousClass} onClick={handlePrevious} data-page='4'><i className='la la-angle-left' /></a></li>
+                  <div className='m-datatable__pager m-datatable--paging-loaded pull-left pagination'>
+                    <ul className='m-datatable__pager-nav  pag pagination'>
+                      {/* {currentPage !== 1 && totalNoPages > 1 ? <li className='page-item'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={() => { handlePrevious(); handleFirst() }} data-page='4'><span aria-hidden='true'>&laquo;</span><span className={'sr-only'}>Previous</span></a></li> : ''} */}
+                      {currentPage !== 1 && totalNoPages > 1 ? <li className='page-item anchors'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={handlePrevious} data-page='4'><span aria-hidden='true'>&lt;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
                       {listPage[0] && listPage[0].map(function (page, index) {
-                          if (page.number === currentPage) {
-                            page.class = 'm-datatable__pager-link--active'
-                          } else {
-                            page.class = ''
-                          }
-                          return (<li key={index} >
-                            <a href='' className={'m-datatable__pager-link m-datatable__pager-link-number ' + page.class} data-page={page.number} title={page.number} onClick={(event) => { event.preventDefault(); handlePage(page.number) }} >{page.number}</a>
-                          </li>)
-                        })}
-                      <li><a href='' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next ' + nextClass} onClick={handleNext} data-page='4'><i className='la la-angle-right' /></a></li>
-                      {/* <li><a href='' title='Last' className='m-datatable__pager-link m-datatable__pager-link--last' data-page={18}><i className='la la-angle-double-right' /></a></li> */}
+                              if (page.number === currentPage) {
+                                      page.class = 'm-datatable__pager-link--active activ'
+                                      activeClass = 'actives'
+                                    } else {
+                                      page.class = ''
+                                      activeClass = ''
+                                    }
+                                    return (<li key={index} className={'page-item' + activeClass}>
+                                      <a href='javascript:void(0)' className={'m-datatable__pager-link m-datatable__pager-link-number actives  page-link list ' + page.class} data-page={page.number} title={page.number} onClick={(event) => { event.preventDefault(); handlePage(page.number) }} >{page.number}</a>
+                                    </li>)
+                                  })}
+                      {currentPage !== totalNoPages &&
+                        totalNoPages > 1 && (
+                        <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={handleNext} data-page='4'><span aria-hidden='true'>&gt;</span><span className={'sr-only'}>Next</span></a></li>
+                      )}
+                      {/* {currentPage !== totalNoPages &&
+                        totalNoPages > 1 && (
+                        <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={() => handleLast(totalNoPages)} data-page='4'><span aria-hidden='true'>&raquo;</span><span className={'sr-only'}>Next</span></a></li>
+                      )} */}
                     </ul>
+                  </div>
+                  {/* showing dropdown */}
+                  <div className='showing-div showspace'>
+                    <div className='dropup dropup-showing showspace' style={{ position: 'relative' }}>
+                      <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{props.perPage}<span className='caret' /></button>
+                      <ul className='dropdown-menu menu'>
+                        <li><a href='javascript:void(0)' onClick={() => handleChange(10)}>10</a></li>
+                        <li><a href='javascript:void(0)' onClick={() => handleChange(25)}>25</a></li>
+                        <li><a href='javascript:void(0)' onClick={() => handleChange(50)}>50</a></li>
+                        <li><a href='javascri pt:void(0)' onClick={() => handleChange(100)}>100</a></li>
+                      </ul>
+                    </div>
+                    <span className='showing-text' style={{ position: 'relative', right: '70px' }}> Showing {startValueOfRange} - {endValueOfRange} of {props.componentComponents.total_count}</span>
                   </div>
                 </div>
               </div>
