@@ -146,13 +146,13 @@ export default function HeaderComponent (props) {
                   <div className={styles.tooltiptext}>
                     <ul>
                       <li m-menu-submenu-toggle='click' aria-haspopup='true'>
-                        <a href='/service_dashboard' className='m-menu__link m-menu__toggle' title='Non functional dummy link'>
+                        <a href='/select-module/s-eco' className='m-menu__link m-menu__toggle' title='Non functional dummy link'>
                           <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary' style={{border: 'none', width: '100%'}}>S-ECO</span>
                         </a>
                         <div className={styles.divider} />
                       </li>
                       <li m-menu-submenu-toggle='click' aria-haspopup='true'>
-                        <a href='javascript:;' className='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
+                        <a href='select-module/p-eco' className='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
                           <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary' style={{border: 'none', width: '100%'}}>P-ECO</span>
                         </a>
                       </li>
