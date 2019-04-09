@@ -20,7 +20,6 @@ class Users extends Component {
 
   userList = () => {
     const getUserResponse = this.props.getUserResponse
-    console.log('asd', getUserResponse)
     return (
       this.props &&
       getUserResponse &&
@@ -235,7 +234,7 @@ class Users extends Component {
     const endValueOfRange = (currentPage * pageSize) <= this.props.getUserResponse.total_count ? (currentPage * pageSize) : this.props.getUserResponse.total_count
     const totalItems = this.props.getUserResponse.total_count
     var activeClass = ''
-    console.log('asdassdasdasdsadasdasdasd', pageSize)
+
     return (
       <div id='userList'>
         <ReactModal
@@ -296,7 +295,6 @@ class Users extends Component {
 
         <div className='row'>
           <div className='col-md-12'>
-            <h1> User </h1>
             <div className='m_datatable' id='scrolling_vertical'>
               <div
                 className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
@@ -471,7 +469,7 @@ class Users extends Component {
                                   })}
                                 {currentPage !== totalPages &&
                                   totalPages > 1 && (
-                                  <li className='page-item'>{console.log(totalPages)}
+                                  <li className='page-item'>
                                     <a
                                       href=''
                                       title='Next'
@@ -494,7 +492,7 @@ class Users extends Component {
                                 )}
                                 {currentPage !== totalPages &&
                                   totalPages > 1 && (
-                                  <li className='page-item'>{console.log(totalPages)}
+                                  <li className='page-item'>
                                     <a
                                       href=''
                                       title='Next'
