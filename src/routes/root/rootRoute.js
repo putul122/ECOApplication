@@ -128,6 +128,24 @@ export default class Root extends Component {
                 .default
             )
             break
+          case 'roles':
+            if (module.hot) {
+              module.hot.accept('../rolesPage/rolesPageRoute', () => {
+                        require('../rolesPage/rolesPageRoute').default // eslint-disable-line
+                this.forceUpdate()
+              })
+            }
+            resolve(require('../rolesPage/rolesPageRoute').default)
+            break
+          case 'editRoles':
+            if (module.hot) {
+              module.hot.accept('../editRolesPage/editRolesPageRoute', () => {
+                        require('../editRolesPage/editRolesPageRoute').default // eslint-disable-line
+                this.forceUpdate()
+              })
+            }
+            resolve(require('../editRolesPage/editRolesPageRoute').default)
+            break
           case 'taskDetail':
             if (module.hot) {
               module.hot.accept('../taskDetailPage/taskDetailPageRoute', () => {
@@ -348,6 +366,8 @@ export default class Root extends Component {
               path='/'
               component={props => this.loadView('landing', props)}
             />
+            <Route exact path='/roles' component={(props) => this.loadView('roles', props)} />
+            <Route exact path='/edit-roles/:id' component={(props) => this.loadView('editRoles', props)} />
           </Switch>
         </BrowserRouter>
       </AppWrapper>

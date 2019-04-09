@@ -82,6 +82,22 @@ class LeftNavigation extends React.Component {
                 </span>
               </a>
             </li>
+            <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
+              <a className='m-menu__link' href='/roles'>
+                <i className='m-menu__link-icon flaticon-interface-8' style={{'font-size': '25px'}} />
+                <span className={styles.navtext}>
+                  Roles
+                </span>
+              </a>
+            </li>
+            <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
+              <a className='m-menu__link' href='/roles'>
+                <i className='m-menu__link-icon flaticon-coins' style={{'font-size': '25px'}} />
+                <span className={styles.navtext}>
+                  Billing
+                </span>
+              </a>
+            </li>
           </ul>
         </nav>
       </div>

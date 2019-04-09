@@ -20,6 +20,8 @@ import viewServiceReducer from './viewServiceReducer/viewServiceReducerReducer'
 import serviceDashboardReducer from './serviceDashboardReducer/serviceDashboardReducerReducer'
 import perspectivesReducer from './perspectivesReducer/perspectivesReducerReducer'
 import perspectiveHierarchyReducer from './perspectiveHierarchy/perspectiveHierarchyReducer'
+import rolesReducer from './rolesReducer/rolesReducerReducer'
+import editRolesReducer from './editRolesReducer/editRolesReducerReducer'
 
 export default combineReducers({
     basicReducer,
@@ -42,5 +44,7 @@ export default combineReducers({
     viewServiceReducer,
     serviceDashboardReducer,
     perspectivesReducer,
+    rolesReducer,
+    editRolesReducer,
     perspectiveHierarchyReducer
 })
