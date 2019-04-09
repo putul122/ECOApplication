@@ -26,8 +26,8 @@ const defaultStyle = {
     },
     '&multiLine': {
         control: {
-            fontFamily: 'monospace',
-            border: '1px solid silver'
+            fontFamily: 'sans-serif, Arial',
+            border: '1px solid #EBEDF2'
         },
         highlighter: {
             padding: 9

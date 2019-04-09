@@ -53,20 +53,20 @@ export default function ForgotPassword (props) {
 //     }
 //   }
   return (
-    <div className='m-login__wrapper-2 m-portlet-full-height'>
+    <div className='m-portlet-full-height='>
       <div className='m-login__contanier'>
         <div className='m-login__head'>
           {/* <h3 className='m-login__title'>Login To Your Account</h3> */}
           <h2 className='m-login__title'>Forgot Password</h2>
         </div>
-        <div className='m-login__form m-form col-md-6'>
+        <div className='m-login__form m-form col-md-12  extraSpacings'>
           <div className='form-group m-form__group'>
             <input className='form-control' type='text' ref={input => (EmailBox = input)} placeholder='Email' />
           </div>
           {/* <div className='form-group m-form__group'>
             <input className='form-control m-login__form-input--last' type='Password' placeholder='Password' />
           </div> */}
-          <div className='row m-login__form-sub'>
+          <div className='row m-login__form-sub extraSpacing'>
             <div className='col m--align-left'>
               {/* <label className='m-checkbox m-checkbox--focus'>
                     <input type='checkbox' name='remember' /> Remember me
@@ -77,8 +77,8 @@ export default function ForgotPassword (props) {
               <a href='' id='m_login_forget_password' className='m-link'>Forgot Password ?</a>
             </div> */}
           </div>
-          <div className='m-login__form-action pull-right'>
-            <button className='btn btn-outline-info btn-sm m-btn m-btn--custom' onClick={handleSubmitemail}>Change Password</button>
+          <div className='m-login__form-action'>
+            <button className='btn btn-outline-info m-btn--pill' onClick={handleSubmitemail}>Change Password</button>
           </div>
         </div>
       </div>

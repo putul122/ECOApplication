@@ -104,7 +104,14 @@ export default function ApplicationActivity (props) {
       return (
         <li key={index} style={liStyle} >
           <div className={styles.groupspace}>
-            <img src={contextIconlink} alt={context} /><div className={styles.tooltip} style={{'fontSize': '14px'}} ><b><a onClick={(event) => { handleTitleClick(null) }} href='javascript:void(0);' >{context}</a></b><span className={styles.tooltiptext}>{description}</span></div>:&nbsp;<a onClick={(event) => { handleTitleClick(discussionId) }} href='javascript:void(0);'>{discussion}</a>
+            <img src={contextIconlink} alt={context} />
+            <div className={styles.tooltip} style={{'fontSize': '14px'}} >
+              <b>
+                <a onClick={(event) => { handleTitleClick(null) }} href='javascript:void(0);' >{context}</a>
+              </b>
+              <span className={styles.tooltiptext}>{description}</span>
+            </div>
+              :&nbsp;<a onClick={(event) => { handleTitleClick(discussionId) }} href='javascript:void(0);'>{discussion}</a>
             <ul>
               {messageList}
             </ul>

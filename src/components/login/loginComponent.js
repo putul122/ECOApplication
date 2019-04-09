@@ -22,23 +22,32 @@ export default function Login (props) {
   let messageBlock = loggedInMessageResponse('')
   // let disabledButton = ''
   let loadingClass = ''
-  let handleSubmit = function () {
+  let handelClick = function (event) {
+    if (props.flipInX === 'm-login--signin') {
+      props.toggleFlipInX('m-login--signup')
+      localStorage.setItem('forget', true)
+    } else {
+      props.toggleFlipInX('m-login--signin')
+      localStorage.setItem('forget', true)
+    }
+  }
+  let handleSubmit = function (event) {
     messageBlock = loggedInMessageResponse('')
     console.log('bbbbbb', EmailBox.value)
     if (EmailBox.value !== '' && PasswordBox !== '') {
       // let name = FullNameBox.value
       // name.split(' ', 2)[0] + Math.random()
       // To set unique user id in your system when it is available
-      // window.fcWidget.setExternalId(EmailBox.value)
+      window.fcWidget.setExternalId(EmailBox.value)
       // To set user name
       // window.fcWidget.user.setFirstName(name)
       // To set user email
-      // window.fcWidget.user.setEmail(PasswordBox.value)
+      window.fcWidget.user.setEmail(PasswordBox.value)
       // To set user properties
-      // window.fcWidget.user.setProperties({
-      //   plan: 'Estate',                 // meta property 1
-      //   status: 'Active'                // meta property 2
-      // })
+      window.fcWidget.user.setProperties({
+        plan: 'Estate',                 // meta property 1
+        status: 'Active'                // meta property 2
+      })
     }
     let payload = {
       'email': EmailBox.value,
@@ -57,12 +66,6 @@ export default function Login (props) {
     loadingClass = 'm-loader m-loader--right m-loader--light ' + styles.disabled
   } else {
     loadingClass = ''
-  }
-
-  let keyPressed = function (event) {
-    if (event.key === 'Enter') {
-      handleSubmit()
-    }
   }
 
   if (loggedInresponse !== '') {
@@ -88,10 +91,10 @@ export default function Login (props) {
           </div> */}
           {messageBlock}
           <div className='form-group m-form__group'>
-            <input onKeyPress={keyPressed} className='form-control' type='text' ref={input => (EmailBox = input)} placeholder='Email' />
+            <input className='form-control' type='text' ref={input => (EmailBox = input)} placeholder='Email' />
           </div>
           <div className='form-group m-form__group'>
-            <input onKeyPress={keyPressed} className='form-control m-login__form-input--last' type='Password' ref={input => (PasswordBox = input)} placeholder='Password' />
+            <input className='form-control m-login__form-input--last' type='Password' ref={input => (PasswordBox = input)} placeholder='Password' />
           </div>
           <div className='row m-login__form-sub'>
             <div className='col m--align-left'>
@@ -101,7 +104,7 @@ export default function Login (props) {
               </label> */}
             </div>
             <div className='col m--align-right'>
-              <a href='/forgot_password' id='m_login_forget_password' className='m-link'>Forgot Password ?</a>
+              <a onClick={handelClick} href='javascript:void(0)' id='m_login_forget_password' className='m-link'>Forgot Password ?</a>
             </div>
           </div>
           <div className='m-login__form-action'>
@@ -116,9 +119,9 @@ export default function Login (props) {
 Login.propTypes = {
   // isLoggedin: PropTypes.any,
   loginProcess: PropTypes.any,
-  // loginUser: PropTypes.func,
-  // client_id: PropTypes.any,
-  // client_secret: PropTypes.any,
-  loggedInresponse: PropTypes.any
-  // setLoginProcessStatus: PropTypes.func
+  loginUser: PropTypes.func,
+  client_id: PropTypes.any,
+  client_secret: PropTypes.any,
+  loggedInresponse: PropTypes.any,
+  setLoginProcessStatus: PropTypes.func
 }

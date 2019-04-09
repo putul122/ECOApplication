@@ -10,7 +10,7 @@ ReactModal.setAppElement('#root')
 class Users extends Component {
   state = {
     searchTerm: '',
-    pageSize: 1,
+    pageSize: 10,
     currentPage: 1,
     previousClass: '',
     nextClass: '',
@@ -20,37 +20,43 @@ class Users extends Component {
 
   userList = () => {
     const getUserResponse = this.props.getUserResponse
+    console.log('asd', getUserResponse)
     return (
       this.props &&
       getUserResponse &&
       getUserResponse.resources.map((user, index) => {
         return (
-          <tr key={index}>
-            <td>{user.first_name + ' ' + user.last_name}</td>
-            <td>{user.email}</td>
-            <td>{user.roles.toString()}</td>
-            <td>
-              <span>
-                {user.is_active ? (
-                  <a href='' onClick={e => this.removeUser(e, user.id)}>
-                    <span>DeActivate</span>
-                  </a>
-                ) : (
-                  <a href='' onClick={e => this.activateUser(e, user.email)}>
-                    <span>Activate</span>
-                  </a>
-                  )}
-              </span>
-              /
-              <a
-                href=''
-                onClick={e => {
-                  e.preventDefault()
-                  this.removeUser(e, user.id)
-                }}
-              >
-                <span>Remove</span>
-              </a>
+          <tr key={index} className='table-tr'>
+            <td className='table-td'>
+              {user.first_name + ' ' + user.last_name}
+            </td>
+            <td className='table-td'>
+              {user.email}
+            </td>
+            <td className='table-td'>
+              {user.is_active ? <span className='activated'>Activated</span> : <span className='deactivated'>Deativated</span>
+              }
+            </td>
+            <td className='table-td'>
+              <div className='table-div'>
+                <span className='dropdown butn'>
+                  <button className='btn btn-secondary dropdown-toggle removecaret' type='button' id='dropdownMenuButton' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false' >
+                    <img src='/assets/gear.png' alt='gear' className='td-icons' />
+                  </button>
+                  <div className='dropdown-menu dropmenu' aria-labelledby='#dropdownMenuButton'>
+                    {user.is_active ? <a onClick={e => this.removeUser(e, user.id)} className='dropdown-item anchor' href='javascript:void(0)'>Deactivate</a> : <a onClick={e => this.activateUser(e, user.email)} className='dropdown-item anchor' href='javascript:void(0)'>Activate</a>}
+                  </div>
+                </span>
+                <span>
+                  <button onClick={e => {
+                    e.preventDefault()
+                    this.removeUser(e, user.id)
+                  }}
+                    className='btn btn-secondary dropdown-toggle removecaret' type='button'>
+                    <img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' />
+                  </button>
+                </span>
+              </div>
             </td>
           </tr>
         )
@@ -138,6 +144,14 @@ class Users extends Component {
       await this.setState(prevState => {
         return { currentPage: prevState.currentPage - 1 }
       })
+    } else if (arrow === 'end') {
+      await this.setState(prevState => {
+        return { currentPage: pageNumber }
+      })
+    } else if (arrow === 'start') {
+      await this.setState(prevState => {
+        return { currentPage: 1 }
+      })
     } else {
       await this.setState({ currentPage: pageNumber })
     }
@@ -176,6 +190,9 @@ class Users extends Component {
     }
     this.props.inviteUser(payload)
   }
+  showingPage = page => {
+    this.setState({ pageSize: page })
+  }
 
   render () {
     const {
@@ -191,7 +208,7 @@ class Users extends Component {
       userActionSettings: { isInviteUserModalOpen }
     } = this.props
 
-    const totalPages = Math.floor(
+    const totalPages = Math.ceil(
       this.props.getUserResponse.total_count / pageSize
     )
 
@@ -215,9 +232,10 @@ class Users extends Component {
     })
 
     const startValueOfRange = (currentPage - 1) * pageSize + 1
-    const endValueOfRange = currentPage * pageSize
-    const totalItems = totalPages * pageSize
-
+    const endValueOfRange = (currentPage * pageSize) <= this.props.getUserResponse.total_count ? (currentPage * pageSize) : this.props.getUserResponse.total_count
+    const totalItems = this.props.getUserResponse.total_count
+    var activeClass = ''
+    console.log('asdassdasdasdsadasdasdasd', pageSize)
     return (
       <div id='userList'>
         <ReactModal
@@ -278,7 +296,7 @@ class Users extends Component {
 
         <div className='row'>
           <div className='col-md-12'>
-            <h1> Users </h1>
+            <h1> User </h1>
             <div className='m_datatable' id='scrolling_vertical'>
               <div
                 className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
@@ -311,20 +329,21 @@ class Users extends Component {
                               className='dataTables_length'
                               id='m_table_1_length'
                             >
-                              <div>
+                              <div className='search-container'>
                                 <input
                                   type='text'
-                                  className='form-control pull-left'
+                                  className='form-control pull-left Search-bar'
                                   placeholder='Search...'
                                   id='generalSearch'
                                   onKeyUp={this.handleInputChange}
                                   value={searchTerm}
                                   onChange={e =>
-                                      this.setState({
-                                        searchTerm: e.target.value
-                                      })
-                                    } />
-
+                                    this.setState({
+                                      searchTerm: e.target.value
+                                    })
+                                  } />
+                                <img src='/assets/search.png' alt='Search icon' className='search-icon'
+                                />
                               </div>
                             </div>
                           </div>
@@ -340,28 +359,30 @@ class Users extends Component {
                         }}
                       >
                         <table
-                          className='m-portlet table table-striped- table-bordered table-hover table-checkable dataTable no-footer'
+                          className='m-portlet table table-striped- table-hover table-checkable dataTable no-footer'
                           id='m_table_1'
                           aria-describedby='m_table_1_info'
                           role='grid'
                         >
-                          <thead>
-                            <tr role='row'>
-                              <th className=''>
-                                <h5>Name</h5>
+                          <thead className='table-head'>
+                            <tr role='row' className='table-head-row'>
+                              <th className='table-th'>
+                                <p>Name</p>
                               </th>
-                              <th className=''>
-                                <h5>Email</h5>
+                              <th className='table-th'>
+                                <p>Email</p>
                               </th>
-                              <th className=''>
-                                <h5>Roles</h5>
+                              <th className='table-th'>
+                                <p>Status</p>
                               </th>
-                              <th className=''>
-                                <h5>Actions</h5>
+                              <th className='table-th'>
+                                <p>Actions</p>
                               </th>
                             </tr>
                           </thead>
-                          <tbody>{this.userList()}</tbody>
+                          <tbody className='table-body'>
+                            {this.userList()}
+                          </tbody>
                         </table>
                       </div>
                       <div className='row'>
@@ -371,15 +392,38 @@ class Users extends Component {
                             id='scrolling_vertical'
                           >
                             <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
-                              <ul className='m-datatable__pager-nav'>
+                              <ul className='pagination pg-blue pag'>
                                 {currentPage > 1 && (
-                                  <li>
+                                  <li className='page-item'>
                                     <a
                                       href=''
                                       title='Previous'
                                       id='m_blockui_1_5'
                                       className={
-                                        'm-datatable__pager-link m-datatable__pager-link--prev ' +
+                                        'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
+                                        previousClass
+                                      }
+                                      onClick={e =>
+                                        this.fetchUsersForGivenPageNumber(
+                                          e,
+                                          currentPage,
+                                          'start'
+                                        )
+                                      }
+                                    >
+                                      <span aria-hidden='true'>&laquo;</span>
+                                      <span className={'sr-only'}>Previous</span>
+                                    </a>
+                                  </li>
+                                )}
+                                {currentPage > 1 && (
+                                  <li className='page-item'>
+                                    <a
+                                      href=''
+                                      title='Previous'
+                                      id='m_blockui_1_5'
+                                      className={
+                                        'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
                                         previousClass
                                       }
                                       onClick={e =>
@@ -390,28 +434,27 @@ class Users extends Component {
                                         )
                                       }
                                     >
-                                      <i className='la la-angle-left' />
+                                      <span aria-hidden='true'>&lt;</span>
+                                      <span className={'sr-only'}>Previous</span>
                                     </a>
                                   </li>
                                 )}
-
                                 {listPage[0] &&
                                   listPage[0].map(page => {
                                     if (page.number === currentPage) {
                                       page.class =
-                                        'm-datatable__pager-link--active'
+                                      'kt-datatable__pager-link--active activ'
+                                      activeClass = 'active'
                                     } else {
+                                      activeClass = ''
                                       page.class = ''
                                     }
 
                                     return (
-                                      <li key={page.number}>
+                                      <li key={page.number} className={'page-item' + activeClass}>
                                         <a
                                           href=''
-                                          className={
-                                            'm-datatable__pager-link m-datatable__pager-link-number ' +
-                                            page.class
-                                          }
+                                          className={`kt-datatable__pager-link kt-datatable__pager-link-number ${page.class} page-link list `}
                                           data-page={page.number}
                                           title={page.number}
                                           onClick={e =>
@@ -420,49 +463,77 @@ class Users extends Component {
                                               page.number
                                             )
                                           }
-                                        >
+                                          >
                                           {page.number}
                                         </a>
                                       </li>
                                     )
                                   })}
-
                                 {currentPage !== totalPages &&
                                   totalPages > 1 && (
-                                    <li>{console.log(totalPages)}
-                                      <a
-                                        href=''
-                                        title='Next'
-                                        className={
-                                          'm-datatable__pager-link m-datatable__pager-link--next ' +
-                                          nextClass
-                                        }
-                                        onClick={e =>
-                                          this.fetchUsersForGivenPageNumber(
-                                            e,
-                                            currentPage,
-                                            'next'
-                                          )
-                                        }
-                                      >
-                                        <i className='la la-angle-right' />
-                                      </a>
-                                    </li>
-                                  )}
+                                  <li className='page-item'>{console.log(totalPages)}
+                                    <a
+                                      href=''
+                                      title='Next'
+                                      className={
+                                        'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
+                                        nextClass
+                                      }
+                                      onClick={e =>
+                                        this.fetchUsersForGivenPageNumber(
+                                          e,
+                                          currentPage,
+                                          'next'
+                                        )
+                                      }
+                                    >
+                                      <span aria-hidden='true'>&gt;</span>
+                                      <span className={'sr-only'}>Next</span>
+                                    </a>
+                                  </li>
+                                )}
+                                {currentPage !== totalPages &&
+                                  totalPages > 1 && (
+                                  <li className='page-item'>{console.log(totalPages)}
+                                    <a
+                                      href=''
+                                      title='Next'
+                                      className={
+                                        'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
+                                        nextClass
+                                      }
+                                      onClick={e =>
+                                        this.fetchUsersForGivenPageNumber(
+                                          e,
+                                          totalPages,
+                                          'end'
+                                        )
+                                      }
+                                    >
+                                      <span aria-hidden='true'>&raquo;</span>
+                                      <span className={'sr-only'}>Next</span>
+                                    </a>
+                                  </li>
+                                )}
                               </ul>
                             </div>
                           </div>
                         </div>
                         <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing}`}>
-                          <div className='dropdown bootstrap-select kt-datatable__pager-size' style={{width: '80px'}}>
-                            <select className='selectpicker kt-datatable__pager-size' title='Select page size' data-width='80px' data-selected='10' tabIndex='-98' onChange={e => this.setState({ pageSize: e.target.value })} onBlur={() => console.log('Select Blur')}>
-                              <option value='1'>1</option>
-                              <option value='2'>2</option>
-                              <option value='3'>3</option>
-                              <option value='5'>5</option>
-                            </select>
+                          {/* showing dropdown */}
+                          <div className='showing-div showspace spaceMargin '>
+                            <div className='dropup dropup-showing'>
+                              <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{this.state.pageSize}<span className='caret' /></button>
+                              <ul className='dropdown-menu menu'>
+                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(1)}>10</a></li>
+                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(20)}>20</a></li>
+                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(30)}>30</a></li>
+                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(40)}>40</a></li>
+                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(50)}>50</a></li>
+                              </ul>
+                            </div>
+                            <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
                           </div>
-                          <span> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
                         </div>
                       </div>
                     </div>

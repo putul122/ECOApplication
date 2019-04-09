@@ -15,17 +15,18 @@ let comparer = function (otherArray) {
     }).length === 0
   }
 }
-const customStylescrud = { content: { top: '10%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
+const customStylescrud = { content: { top: '15%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function Perspectives (props) {
   let connectionSelectBoxList = ''
   let businessPropertyList = ''
   let searchTextBox
-  let perPage = props.perPage
+  let perPage = props.perPage || 10
   let currentPage = props.currentPage
   let nextClass = ''
   let previousClass = ''
   let pageArray = []
   let listPage = []
+  // let pageSize = 10
   let paginationLimit = 6
   let modelPrespectivesList = ''
   let totalPages
@@ -70,12 +71,13 @@ export default function Perspectives (props) {
       props.setConnectionData(connectionData)
     }
   }
-  let handleBlurdropdownChange = function (event) {
-    console.log('handle Blur change', event.target.value)
-  }
-  let handledropdownChange = function (event) {
-    console.log('handle change', event.target.value, typeof event.target.value)
-    props.setPerPage(parseInt(event.target.value))
+  // let handleBlurdropdownChange = function (event) {
+  //   console.log('handle Blur change', event.target.value)
+  // }
+  let handledropdownChange = function (pages) {
+    console.log('handle change', pages, typeof pages)
+    props.setPerPage(parseInt(pages))
+    // showCurrentPages = pages
   }
   let openUpdateModal = function (data) {
     console.log('data', data)
@@ -232,9 +234,7 @@ export default function Perspectives (props) {
         if (data.length > 0) {
           let connections = []
           data.forEach(function (selectedValue, ix) {
-            let obj = {}
-            obj.target_id = selectedValue.id
-            connections.push(obj)
+            connections.push(selectedValue.id)
           })
           obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
         } else {
@@ -243,9 +243,7 @@ export default function Perspectives (props) {
       } else {
         if (data) {
           let connections = []
-          let obj = {}
-          obj.target_id = data.id
-          connections.push(obj)
+          connections.push(data.id)
           obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
         } else {
           obj.value.parts[connectionData.data[index].partIndex] = {}
@@ -369,15 +367,13 @@ export default function Perspectives (props) {
             let existingTargetComponent = connectionData.selectedValues[dataIndex]
             console.log('existingTargetComponent', existingTargetComponent)
             if (onlyInFinal.length > 0) {
-              let connections = []
+              let value = []
               onlyInFinal.forEach(function (targetComponent, rid) {
-                let obj = {}
-                obj.target_id = targetComponent.id
-                connections.push(obj)
+                value.push(targetComponent.id)
               })
               let obj = {}
               obj.op = 'add'
-              obj.value = connections
+              obj.value = value
               valueType = 'value/-'
               obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
               patchPayload.push(obj)
@@ -459,9 +455,8 @@ export default function Perspectives (props) {
       // }
       console.log('list props', props)
       if (props.modelPrespectives.length > 1) {
-        let modelPrespectives = JSON.parse(JSON.stringify(props.modelPrespectives))
-        modelPrespectives = _.filter(modelPrespectives, {'error_code': null})
-        // modelPrespectives.splice(-1, 1)
+        let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
+        modelPrespectives.splice(-1, 1)
         if (modelPrespectives.length > 1) {
           modelPrespectivesList = modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
             if (data.error_code === null) {
@@ -471,7 +466,7 @@ export default function Perspectives (props) {
                   let value
                   if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
                     value = partData ? partData.value : ''
-                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
+                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null) { // Connection Property
                     if (partData.value) {
                       let targetComponents = []
                       partData.value.forEach(function (data, index) {
@@ -496,35 +491,35 @@ export default function Perspectives (props) {
                   } else {
                     value = partData.value !== null ? partData.value.other_value : ''
                   }
-                  childList.push(<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
+                  childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
                 })
                 let availableAction = {...props.availableAction}
                 let list = []
                 if (availableAction.Update) {
-                  list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openUpdateModal(data) }} >{'Edit'}</a>)
+                  list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openUpdateModal(data) }} > <img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
                 }
                 if (availableAction.Delete) {
-                  list.push(<a onClick={(event) => { event.preventDefault(); openDeleteModal(data) }} href='javascript:void(0);'>{'Delete'}</a>)
+                  list.push(<a onClick={(event) => { event.preventDefault(); openDeleteModal(data) }} href='javascript:void(0);'><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
                 }
-                childList.push(<td className='' key={'last' + index}>{list}</td>)
+                childList.push(<td className='table-td pres-th' key={'last' + index}>{list}</td>)
               }
-              return (<tr key={index}>{childList}</tr>)
+              return (<tr className='table-tr' key={index}>{childList}</tr>)
             }
           })
           // props.setConnectionData(connectionData)
         } else {
           modelPrespectivesList = []
           modelPrespectivesList.push((
-            <tr key={0}>
-              <td colSpan={labelParts.length}>{'No data to display'}</td>
+            <tr key={0} className='table-tr'>
+              <td className='table-td pres-th' colSpan={labelParts.length}>{'No data to display'}</td>
             </tr>
           ))
         }
       } else {
         modelPrespectivesList = []
         modelPrespectivesList.push((
-          <tr key={0}>
-            <td colSpan={labelParts.length}>{'No data to display'}</td>
+          <tr key={0} className='table-tr'>
+            <td className='table-td pres-th' colSpan={labelParts.length}>{'No data to display'}</td>
           </tr>
         ))
       }
@@ -561,8 +556,7 @@ export default function Perspectives (props) {
       if (found.length > 0) { return group }
     })
   }
-  let handlePrevious = function (event) {
-    event.preventDefault()
+  let handlePrevious = function () {
     if (currentPage === 1) {
       previousClass = styles.disabled
     } else {
@@ -580,6 +574,18 @@ export default function Perspectives (props) {
       handleListAndPagination(currentPage + 1)
     }
   }
+  let handleLast = function (pages) {
+    if (currentPage === totalPages) {
+      nextClass = styles.disabled
+    } else {
+      props.setCurrentPage(pages)
+      handleListAndPagination(pages)
+    }
+  }
+  let handleFirst = function () {
+    props.setCurrentPage(1)
+    handleListAndPagination(1)
+  }
   let handlePage = function (page) {
     if (page === 1) {
       previousClass = 'm-datatable__pager-link--disabled'
@@ -592,10 +598,10 @@ export default function Perspectives (props) {
     if (props.metaModelPerspective.resources[0].parts.length > 0) {
       tableHeader = props.metaModelPerspective.resources[0].parts.map(function (data, index) {
         labels.push(data.name)
-        return (<th key={index} className=''><h5>{data.name}</h5></th>)
+        return (<th key={index} className='table-th pres-th'><p>{data.name}</p></th>)
       })
     }
-    tableHeader.push(<th key={'last'} className=''><h5>Action</h5></th>)
+    tableHeader.push(<th key={'last'} className='table-th pres-th'><p>Action</p></th>)
   }
   let handleSelectChange = function (index) {
     return function (newValue: any, actionMeta: any) {
@@ -766,6 +772,12 @@ export default function Perspectives (props) {
       ))
     }
   }
+  // var showCurrentPages = modelPrespectivesList.length
+  const startValueOfRange = (currentPage - 1) * perPage + 1
+  const endValueOfRange = (currentPage * perPage) <= (modelPrespectivesList.length) ? (currentPage * perPage) : (modelPrespectivesList.length)
+
+  var activeClass = ''
+  console.log('qq', modelPrespectivesList.length)
 return (
   <div>
     <div id='entitlementList'>
@@ -787,22 +799,8 @@ return (
                     <div id='m_table_1_wrapper' className='dataTables_wrapper dt-bootstrap4'>
                       <div className='row' style={{'marginBottom': '20px'}}>
                         <div className='col-sm-12 col-md-6'>
-                          <div className='dataTables_length' id='m_table_1_length' style={{'display': 'flex'}}>
-                            <h5 style={{'margin': '8px'}}>Show</h5>
-                            <select value={props.perPage} name='m_table_1_length' onBlur={handleBlurdropdownChange} onChange={handledropdownChange} aria-controls='m_table_1' className='custom-select custom-select-sm form-control form-control-sm' style={{'height': '40px'}}>
-                              <option value={10}>10</option>
-                              <option value={25}>25</option>
-                              <option value={50}>50</option>
-                              <option value={100}>100</option>
-                            </select>
-                            <h5 style={{'margin': '8px'}}>Entries</h5>
-                            {/* </label> */}
-                          </div>
-                        </div>
-                        <div className='col-sm-12 col-md-6'>
-                          <div className='dataTables_length pull-right' id='m_table_1_length' style={{'display': 'flex'}}>
-                            <div style={{'display': 'flex'}}>
-                              <h5 style={{'margin': '10px'}}>Search</h5>
+                          <div className='dataTables_length pull-left' id='m_table_1_length' style={{'display': 'flex'}}>
+                            <div style={{'display': 'flex', 'width': '350px'}}>
                               <div className='m-input-icon m-input-icon--left'>
                                 <input type='text' className='form-control m-input' placeholder='Search...' id='generalSearch' ref={input => (searchTextBox = input)} onKeyUp={''} />
                                 <span className='m-input-icon__icon m-input-icon__icon--left'>
@@ -814,42 +812,116 @@ return (
                             </div>
                           </div>
                         </div>
+                        {/* <div className='col-sm-12 col-md-6'>
+                          <div className='dataTables_length' id='m_table_1_length' style={{'display': 'flex'}}>
+                            <h5 style={{'margin': '8px'}}>Show</h5>
+                            <select value={props.perPage} name='m_table_1_length' onBlur={handleBlurdropdownChange} onChange={handledropdownChange} aria-controls='m_table_1' className='custom-select custom-select-sm form-control form-control-sm' style={{'height': '40px'}}>
+                              <option value={10}>10</option>
+                              <option value={25}>25</option>
+                              <option value={50}>50</option>
+                              <option value={100}>100</option>
+                            </select>
+                            <h5 style={{'margin': '8px'}}>Entries</h5>
+                          </div>
+                        </div> */}
                       </div>
                     </div>
                     <div className='dataTables_scrollBody' style={{position: 'relative', overflow: 'auto', width: '100%', 'maxHeight': '100vh'}}>
-                      <table className='m-portlet table table-striped- table-bordered table-hover table-checkable dataTable no-footer' id='m_table_1' aria-describedby='m_table_1_info' role='grid'>
-                        <thead>
-                          <tr role='row'>
+                      <table className='table-pres m-portlet table table-striped- table-bordered table-hover table-checkable dataTable no-footer' id='m_table_1' aria-describedby='m_table_1_info' role='grid'>
+                        <thead className='table-head pres-th'>
+                          <tr role='row' className='table-head-row'>
                             {tableHeader}
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody className='table-body pres-th'>
                           {modelPrespectivesList}
                         </tbody>
                       </table>
                     </div>
+                    {/* dummy row */}
                     <div className='row'>
-                      <div className='col-md-12' id='scrolling_vertical'>
-                        <div className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll pull-right' id='scrolling_vertical' style={{}}>
+                      <div className='col-sm-12 col-md-6' id='scrolling_vertical'>
+                        <div
+                          className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
+                          id='scrolling_vertical'
+                        >
                           <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
-                            <ul className='m-datatable__pager-nav'>
-                              <li><a href='' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev ' + previousClass} onClick={handlePrevious} data-page='4'><i className='la la-angle-left' /></a></li>
+                            <ul className='m-datatable__pager-nav  pag'>
+                              {currentPage !== 1 && totalPages > 1 ? <li className='page-item'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={() => { handlePrevious(); handleFirst() }} data-page='4'><span aria-hidden='true'>&laquo;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
+                              {currentPage !== 1 && totalPages > 1 ? <li className='page-item anchors'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={handlePrevious} data-page='4'><span aria-hidden='true'>&lt;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
                               {listPage[0] && listPage[0].map(function (page, index) {
                                       if (page.number === currentPage) {
-                                              page.class = 'm-datatable__pager-link--active'
+                                              page.class = 'm-datatable__pager-link--active activ'
+                                              activeClass = 'actives'
                                             } else {
                                               page.class = ''
+                                              activeClass = ''
                                             }
-                                            return (<li key={index} >
-                                              <a href='' className={'m-datatable__pager-link m-datatable__pager-link-number ' + page.class} data-page={page.number} title={page.number} onClick={(event) => { event.preventDefault(); handlePage(page.number) }} >{page.number}</a>
+                                            return (<li key={index} className={'page-item' + activeClass}>
+                                              <a href='javascript:void(0)' className={'m-datatable__pager-link m-datatable__pager-link-number actives  page-link list ' + page.class} data-page={page.number} title={page.number} onClick={(event) => { event.preventDefault(); handlePage(page.number) }} >{page.number}</a>
                                             </li>)
                                           })}
-                              <li><a href='' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next ' + nextClass} onClick={handleNext} data-page='4'><i className='la la-angle-right' /></a></li>
+                              {currentPage !== totalPages &&
+                                totalPages > 1 && (
+                                <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={handleNext} data-page='4'><span aria-hidden='true'>&gt;</span><span className={'sr-only'}>Next</span></a></li>
+                              )}
+                              {currentPage !== totalPages &&
+                                totalPages > 1 && (
+                                <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={() => handleLast(totalPages)} data-page='4'><span aria-hidden='true'>&raquo;</span><span className={'sr-only'}>Next</span></a></li>
+                              )}
                             </ul>
                           </div>
                         </div>
                       </div>
+                      <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing} `}>
+                        {/* showing dropdown */}
+                        <div className='showing-div showspace spaceMargin'>
+                          <div className='dropup dropup-showing'>
+                            <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{props.perPage}<span className='caret' /></button>
+                            <ul className='dropdown-menu menu'>
+                              <li><a href='javascript:void(0)' onClick={() => handledropdownChange(10)}>10</a></li>
+                              <li><a href='javascript:void(0)' onClick={() => handledropdownChange(25)}>25</a></li>
+                              <li><a href='javascript:void(0)' onClick={() => handledropdownChange(50)}>50</a></li>
+                              <li><a href='javascript:void(0)' onClick={() => handledropdownChange(100)}>100</a></li>
+                            </ul>
+                          </div>
+                          <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {props.modelPrespectives.length} </span>
+                        </div>
+                      </div>
                     </div>
+                    {/* original row */}
+                    {/* <div className='row'>
+                      <div className='col-md-12' id='scrolling_vertical'>
+                        <div className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll pull-right' id='scrolling_vertical' style={{}}>
+                          <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
+                            <ul className='m-datatable__pager-nav  pag'>
+                              {currentPage !== 1 && totalPages > 1 ? <li className='page-item'><a href='' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={handlePrevious} data-page='4'><span aria-hidden='true'>&laquo;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
+                              {currentPage !== 1 && totalPages > 1 ? <li className='page-item anchors'><a href='' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={handlePrevious} data-page='4'><span aria-hidden='true'>&lt;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
+                              {listPage[0] && listPage[0].map(function (page, index) {
+                                      if (page.number === currentPage) {
+                                              page.class = 'm-datatable__pager-link--active activ'
+                                              activeClass = 'actives'
+                                            } else {
+                                              page.class = ''
+                                              activeClass = ''
+                                            }
+                                            return (<li key={index} className={'page-item' + activeClass}>
+                                              <a href='' className={'m-datatable__pager-link m-datatable__pager-link-number actives  page-link list ' + page.class} data-page={page.number} title={page.number} onClick={(event) => { event.preventDefault(); handlePage(page.number) }} >{page.number}</a>
+                                            </li>)
+                                          })}
+                              {currentPage !== totalPages &&
+                                totalPages > 1 && (
+                                <li className='page-item'><a href='' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={handleNext} data-page='4'><span aria-hidden='true'>&gt;</span><span className={'sr-only'}>Next</span></a></li>
+                              )}
+                              {currentPage !== totalPages &&
+                                totalPages > 1 && (
+                                <li className='page-item'><a href='' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={handleNext} data-page='4'><span aria-hidden='true'>&raquo;</span><span className={'sr-only'}>Next</span></a></li>
+                              )}
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -912,13 +984,13 @@ return (
       </ReactModal>
       <ReactModal isOpen={props.addSettings.isEditModalOpen}
         onRequestClose={closeModal}
-        // className='modal-dialog modal-lg'
-        style={customStylescrud}
+        className='modal-dialog modal-lg'
+        style={{'content': {'top': '20%'}}}
         >
         {/* <button onClick={closeModal} ><i className='la la-close' /></button> */}
         <div className={''}>
           <div className=''>
-            <div className='modal-content' >
+            <div className='modal-content' style={{'height': '400px'}}>
               <div className='modal-header'>
                 {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit Perspective</h4>)}
                 {props.addSettings.updateResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Update Report</h4>)}
@@ -926,7 +998,7 @@ return (
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
-              <div className='modal-body' style={{'height': 'calc(70vh - 30px)', 'overflow': 'auto'}}>
+              <div className='modal-body' style={{'height': 'calc(60vh - 55px)', 'overflow': 'auto'}}>
                 {props.addSettings.updateResponse === null && (<div className='col-md-12'>
                   {/* {messageBlock} */}
                   <div className='form-group m-form__group row'>

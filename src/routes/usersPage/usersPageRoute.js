@@ -16,7 +16,7 @@ class UsersPageRoute extends React.Component {
             {/* <!-- BEGIN: Subheader --> */}
             <Breadcrumb />
             {/* <!-- END: Subheader --> */}
-            <div className='m-content'>
+            <div className='m-content' style={{ paddingTop: '20px' }}>
               <div className='row'>
                 <div className='col-xl-12'>
                   <Users {...this.props} />

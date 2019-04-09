@@ -31,6 +31,7 @@ export default function Sheets (props) {
   let previousClass = ''
   let pageArray = []
   let listPage = []
+  let pageSize = 1
   let paginationLimit = 6
   let modelPrespectivesList = ''
   let totalPages
@@ -42,11 +43,9 @@ export default function Sheets (props) {
   let importWrapperClass = ''
   let messageList = ''
   let uploadFile = ''
-  let handleBlurdropdownChange = function (event) {
-    console.log('handle Blur change', event.target.value)
-  }
-  let handledropdownChange = function (event) {
-    props.setPerPage(parseInt(event.target.value))
+    let handledropdownChange = function (pages) {
+    props.setPerPage(parseInt(pages))
+    showCurrentPages = pages
   }
   let openExportModal = function () {
     // eslint-disable-next-line
@@ -454,7 +453,7 @@ export default function Sheets (props) {
     if (props.metaModelPerspective.resources[0].parts.length > 0) {
       tableHeader = props.metaModelPerspective.resources[0].parts.map(function (data, index) {
         labels.push(data.name)
-        return (<th key={index} className=''><h5>{data.name}</h5></th>)
+        return (<th key={index} className='table-th pres-th'><p>{data.name}</p></th>)
       })
     }
   }
@@ -495,16 +494,16 @@ export default function Sheets (props) {
               } else {
                 value = partData.value !== null ? partData.value.other_value : ''
               }
-              childList.push(<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
+              childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
             })
           }
-          return (<tr key={index}>{childList}</tr>)
+          return (<tr className='table-tr' key={index}>{childList}</tr>)
         })
       } else {
         modelPrespectivesList = []
         modelPrespectivesList.push((
-          <tr key={0}>
-            <td colSpan={labelParts.length}>{'No data to display'}</td>
+          <tr key={0} className='table-tr'>
+            <td className='table-td pres-th' colSpan={labelParts.length}>{'No data to display'}</td>
           </tr>
         ))
       }
@@ -543,7 +542,6 @@ export default function Sheets (props) {
     })
   }
   let handlePrevious = function (event) {
-    event.preventDefault()
     if (currentPage === 1) {
       previousClass = styles.disabled
     } else {
@@ -560,6 +558,18 @@ export default function Sheets (props) {
       props.setCurrentPage(currentPage + 1)
       handleListAndPagination(currentPage + 1)
     }
+  }
+  let handleLast = function (lastPage) {
+    if (currentPage === totalPages) {
+      nextClass = styles.disabled
+    } else {
+      props.setCurrentPage(lastPage)
+      handleListAndPagination(lastPage)
+    }
+  }
+  let handleFirst = function () {
+    props.setCurrentPage(1)
+    handleListAndPagination(1)
   }
   let handlePage = function (page) {
     if (page === 1) {
@@ -585,6 +595,11 @@ export default function Sheets (props) {
       ))
     }
   }
+  var showCurrentPages = modelPrespectivesList.length
+  const startValueOfRange = (currentPage - 1) * pageSize + 1
+  const endValueOfRange = (showCurrentPages * pageSize) <= (props.modelPrespectives.length) ? (showCurrentPages * pageSize) : (props.modelPrespectives.length - 1)
+  // const totalItems = totalPages * pageSize
+  var activeClass = ''
 return (
   <div>
     <div id='entitlementList'>
@@ -622,23 +637,9 @@ return (
                       </div>
                       {props.modalSettings.selectedMetaModel !== null && (<div className='row' style={{'marginBottom': '20px'}}>
                         <div className='col-sm-12 col-md-6'>
-                          <div className='dataTables_length' id='m_table_1_length' style={{'display': 'flex'}}>
-                            <h5 style={{'margin': '8px'}}>Show</h5>
-                            <select value={props.perPage} onBlur={handleBlurdropdownChange} onChange={handledropdownChange} name='m_table_1_length' aria-controls='m_table_1' className='custom-select custom-select-sm form-control form-control-sm' style={{'height': '40px'}}>
-                              <option value={10}>10</option>
-                              <option value={25}>25</option>
-                              <option value={50}>50</option>
-                              <option value={100}>100</option>
-                            </select>
-                            <h5 style={{'margin': '8px'}}>Entries</h5>
-                            {/* </label> */}
-                          </div>
-                        </div>
-                        <div className='col-sm-12 col-md-6'>
-                          <div className='dataTables_length pull-right' id='m_table_1_length' style={{'display': 'flex'}}>
-                            <div style={{'display': 'flex'}}>
-                              <h5 style={{'margin': '10px'}}>Search</h5>
-                              <div className='m-input-icon m-input-icon--left'>
+                          <div className='dataTables_length pull-left' id='m_table_1_length' style={{'display': 'flex'}}>
+                            <div style={{'display': 'flex', 'width': '350px'}}>
+                              <div className='m-input-icon m-input-icon--left pull-left'>
                                 <input type='text' className='form-control m-input' placeholder='Search...' id='generalSearch' ref={input => (searchTextBox = input)} onKeyUp={handleInputChange} />
                                 <span className='m-input-icon__icon m-input-icon__icon--left'>
                                   <span>
@@ -652,39 +653,69 @@ return (
                       </div>)}
                     </div>
                     {props.modalSettings.selectedMetaModel !== null && (<div className='dataTables_scrollBody' style={{position: 'relative', overflow: 'auto', width: '100%', 'maxHeight': '100vh'}} id='ModelPerspectiveList'>
-                      <table className='m-portlet table table-striped- table-bordered table-hover table-checkable dataTable no-footer' id='m_table_1' aria-describedby='m_table_1_info' role='grid'>
-                        <thead>
-                          <tr role='row'>
+                      <table className='table-pres m-portlet table table-striped- table-bordered table-hover table-checkable dataTable no-footer' id='m_table_1' aria-describedby='m_table_1_info' role='grid'>
+                        <thead className='table-head pres-th'>
+                          <tr role='row' className='table-head-row'>
                             {tableHeader}
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody className='table-body pres-th'>
                           {modelPrespectivesList}
                         </tbody>
                       </table>
                     </div>)}
-                    {props.modalSettings.selectedMetaModel !== null && (<div className='row'>
-                      <div className='col-md-12' id='scrolling_vertical'>
-                        <div className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll pull-right' id='scrolling_vertical' style={{}}>
+                    {props.modalSettings.selectedMetaModel !== null && (
+                    <div className='row'>
+                      <div className='col-sm-12 col-md-6' id='scrolling_vertical'>
+                        <div
+                          className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
+                          id='scrolling_vertical'
+                        >
                           <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
-                            <ul className='m-datatable__pager-nav'>
-                              <li><a href='' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev ' + previousClass} onClick={handlePrevious} data-page='4'><i className='la la-angle-left' /></a></li>
+                            <ul className='m-datatable__pager-nav  pag'>
+                              {currentPage !== 1 && totalPages > 1 ? <li className='page-item'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={() => { handlePrevious(); handleFirst() }} data-page='4'><span aria-hidden='true'>&laquo;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
+                              {currentPage !== 1 && totalPages > 1 ? <li className='page-item anchors'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={handlePrevious} data-page='4'><span aria-hidden='true'>&lt;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
                               {listPage[0] && listPage[0].map(function (page, index) {
                                       if (page.number === currentPage) {
-                                              page.class = 'm-datatable__pager-link--active'
+                                              page.class = 'm-datatable__pager-link--active activ'
+                                              activeClass = 'actives'
                                             } else {
                                               page.class = ''
+                                              activeClass = ''
                                             }
-                                            return (<li key={index} >
-                                              <a href='' className={'m-datatable__pager-link m-datatable__pager-link-number ' + page.class} data-page={page.number} title={page.number} onClick={(event) => { event.preventDefault(); handlePage(page.number) }} >{page.number}</a>
+                                            return (<li key={index} className={'page-item' + activeClass}>
+                                              <a href='javascript:void(0)' className={'m-datatable__pager-link m-datatable__pager-link-number actives  page-link list ' + page.class} data-page={page.number} title={page.number} onClick={(event) => { event.preventDefault(); handlePage(page.number) }} >{page.number}</a>
                                             </li>)
                                           })}
-                              <li><a href='' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next ' + nextClass} onClick={handleNext} data-page='4'><i className='la la-angle-right' /></a></li>
+                              {currentPage !== totalPages &&
+                                totalPages > 1 && (
+                                <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={handleNext} data-page='4'><span aria-hidden='true'>&gt;</span><span className={'sr-only'}>Next</span></a></li>
+                              )}
+                              {currentPage !== totalPages &&
+                                totalPages > 1 && (
+                                <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={() => handleLast(totalPages)} data-page='4'><span aria-hidden='true'>&raquo;</span><span className={'sr-only'}>Next</span></a></li>
+                              )}
                             </ul>
                           </div>
                         </div>
                       </div>
-                    </div>)}
+                      <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing} `}>
+                        {/* showing dropdown */}
+                        <div className='showing-div showspace spaceMargin '>
+                          <div className='dropup dropup-showing'>
+                            <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{props.perPage}<span className='caret' /></button>
+                            <ul className='dropdown-menu menu'>
+                              <li><a href='javascript:void(0)' onClick={() => handledropdownChange(10)}>10</a></li>
+                              <li><a href='javascript:void(0)' onClick={() => handledropdownChange(25)}>25</a></li>
+                              <li><a href='javascript:void(0)' onClick={() => handledropdownChange(50)}>50</a></li>
+                              <li><a href='javascri pt:void(0)' onClick={() => handledropdownChange(100)}>100</a></li>
+                            </ul>
+                          </div>
+                          <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {props.modelPrespectives.length} </span>
+                        </div>
+                      </div>
+                    </div>
+                    )}
                   </div>
                 </div>
               </div>
