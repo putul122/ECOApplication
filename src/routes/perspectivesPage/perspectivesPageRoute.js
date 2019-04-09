@@ -7,7 +7,6 @@ import LeftNavigation from '../../components/leftNavigation/leftNavComponent'
 
 class PerspectivesPageRoute extends React.Component {
 	render () {
-    console.log('change Password param', this)
 		return (
   <div>
     <Header {...this.props} />

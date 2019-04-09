@@ -28,7 +28,7 @@ class LeftNavigation extends React.Component {
       </ul> */}
         <nav className={styles.mainmenu}>
           <div className={styles.logotext}>
-            <a href='/'>
+            <a href='/home'>
               <img alt='' src='/assets/ECO-Conductor.png' width='100px' className={styles.logotext} />
             </a>
             {/* <h1 className={styles.logotext}>LM</h1> */}
@@ -79,6 +79,22 @@ class LeftNavigation extends React.Component {
                 <i className='m-menu__link-icon flaticon-user ' style={{'font-size': '25px'}} />
                 <span className={styles.navtext}>
                   Users
+                </span>
+              </a>
+            </li>
+            <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
+              <a className='m-menu__link' href='/roles'>
+                <i className='m-menu__link-icon flaticon-interface-8' style={{'font-size': '25px'}} />
+                <span className={styles.navtext}>
+                  Roles
+                </span>
+              </a>
+            </li>
+            <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
+              <a className='m-menu__link' href='/roles'>
+                <i className='m-menu__link-icon flaticon-coins' style={{'font-size': '25px'}} />
+                <span className={styles.navtext}>
+                  Billing
                 </span>
               </a>
             </li>

@@ -19,6 +19,9 @@ export const FETCH_ROLES_FAILURE = 'saga/Basic/FETCH_ROLES_FAILURE'
 export const FETCH_PACKAGE = 'saga/Basic/FETCH_PACKAGE'
 export const FETCH_PACKAGE_SUCCESS = 'saga/Basic/FETCH_PACKAGE_SUCCESS'
 export const FETCH_PACKAGE_FAILURE = 'saga/Basic/FETCH_PACKAGE_FAILURE'
+export const FETCH_SLA_PACKAGE = 'saga/Basic/FETCH_SLA_PACKAGE'
+export const FETCH_SLA_PACKAGE_SUCCESS = 'saga/Basic/FETCH_SLA_PACKAGE_SUCCESS'
+export const FETCH_SLA_PACKAGE_FAILURE = 'saga/Basic/FETCH_SLA_PACKAGE_FAILURE'
 
 export const actionCreators = {
   fetchClientAccessToken: createAction(FETCH_CLIENT_ACCESS_TOKEN),
@@ -35,7 +38,10 @@ export const actionCreators = {
   fetchRolesFailure: createAction(FETCH_ROLES_FAILURE),
   fetchPackage: createAction(FETCH_PACKAGE),
   fetchPackageSuccess: createAction(FETCH_PACKAGE_SUCCESS),
-  fetchPackageFailure: createAction(FETCH_PACKAGE_FAILURE)
+  fetchPackageFailure: createAction(FETCH_PACKAGE_FAILURE),
+  fetchSLAPackage: createAction(FETCH_SLA_PACKAGE),
+  fetchSLAPackageSuccess: createAction(FETCH_SLA_PACKAGE_SUCCESS),
+  fetchSLAPackageFailure: createAction(FETCH_SLA_PACKAGE_FAILURE)
 }
 
 export default function * watchBasic () {
@@ -44,7 +50,8 @@ export default function * watchBasic () {
     takeLatest(FETCH_USER_AUTHENTICATION, getUserAuthentication),
     takeLatest(UPDATE_NOTIFICATION_VIEW_STATUS, updateNotificationViewStatus),
     takeLatest(FETCH_ROLES, getRoles),
-    takeLatest(FETCH_PACKAGE, getPackage)
+    takeLatest(FETCH_PACKAGE, getPackage),
+    takeLatest(FETCH_SLA_PACKAGE, getSLAPackage)
   ]
 }
 
@@ -110,5 +117,18 @@ export function * getPackage (action) {
     yield put(actionCreators.fetchPackageSuccess(packages.data))
   } catch (error) {
     yield put(actionCreators.fetchPackageFailure(error))
+  }
+}
+
+export function * getSLAPackage (action) {
+  try {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
+    const packages = yield call(
+      axios.get,
+      api.getSLAPackage
+    )
+    yield put(actionCreators.fetchSLAPackageSuccess(packages.data))
+  } catch (error) {
+    yield put(actionCreators.fetchSLAPackageFailure(error))
   }
 }

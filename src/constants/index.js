@@ -147,6 +147,12 @@ const api = {
   updateNotificationViewStatus:
     'https://notification-eco-dev.ecoconductor.com/notification_view_status',
   createDiscussion: 'https://notification-eco-dev.ecoconductor.com/discussions',
+  getModelPerspective: function (subjectId) {
+    return (
+      'https://model-eco-dev.ecoconductor.com/model_perspectives/' +
+      subjectId
+    )
+  },
   getModelPerspectives:
     'https://model-eco-dev.ecoconductor.com/model_perspectives',
   updateModelPerspectives: function (metaModelPerspectiveId) {
@@ -182,7 +188,8 @@ const api = {
   },
   inviteUser: 'https://account-eco-dev.ecoconductor.com/user_invitations',
   iconURL: 'https://ecoconductor-dev-api-resources.azurewebsites.net/icons/',
-  getPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SM'
+  getPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SM',
+  getSLAPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SLA'
 }
 
 export default api

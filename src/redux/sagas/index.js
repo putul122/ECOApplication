@@ -11,6 +11,7 @@ import watchUserActions, {actionCreators as userActions} from './user/userSaga'
 import watchModelActivity, {actionCreators as modelActions} from './model/modelSaga'
 import watchComponentModalView, {actionCreators as componentModalViewActions} from './componentModalView/componentModalViewSaga'
 import watchServices, {actionCreators as serviceActions} from './service/serviceSaga'
+import watchRoles, {actionCreators as rolesActions} from './roles/rolesSaga'
 
 export const actions = {
   basicActions,
@@ -23,6 +24,7 @@ export const actions = {
   componentTypeComponentActions,
   discussionActions,
   userActions,
+  rolesActions,
   modelActions,
   componentModalViewActions,
   serviceActions
@@ -41,6 +43,7 @@ export default function * rootSaga () {
     watchUserActions(),
     watchModelActivity(),
     watchComponentModalView(),
-    watchServices()
+    watchServices(),
+    watchRoles()
   ]
 }

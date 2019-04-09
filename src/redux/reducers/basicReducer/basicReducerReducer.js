@@ -3,7 +3,8 @@ import {
   FETCH_CLIENT_ACCESS_TOKEN_SUCCESS,
   FETCH_USER_AUTHENTICATION_SUCCESS,
   FETCH_PACKAGE_SUCCESS,
-  UPDATE_NOTIFICATION_VIEW_STATUS_SUCCESS
+  UPDATE_NOTIFICATION_VIEW_STATUS_SUCCESS,
+  FETCH_SLA_PACKAGE_SUCCESS
 } from '../../sagas/basic/basicSaga'
 // Name Spaced Action Types
 const INCREMENT = 'BasicReducer/INCREMENT'
@@ -88,7 +89,8 @@ export const initialState = {
   notificationFlag: false,
   flipInX: 'm-login--signin',
   updateNotificationViewStatusResponse: '',
-  packages: ''
+  packages: '',
+  slaPackages: ''
 }
 
 export default handleActions(
@@ -167,6 +169,9 @@ export default handleActions(
     }),
     [FETCH_PACKAGE_SUCCESS]: (state, action) => ({ ...state,
       packages: action.payload
+    }),
+    [FETCH_SLA_PACKAGE_SUCCESS]: (state, action) => ({ ...state,
+      slaPackages: action.payload
     })
   },
   initialState
