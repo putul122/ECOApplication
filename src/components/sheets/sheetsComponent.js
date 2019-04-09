@@ -25,13 +25,13 @@ export default function Sheets (props) {
   console.log(props)
   let copyModelPrespectives = props.copyModelPrespectives
   let searchTextBox
-  let perPage = props.perPage || 10
+  let perPage = props.perPage
   let currentPage = props.currentPage
   let nextClass = ''
   let previousClass = ''
   let pageArray = []
   let listPage = []
-  // let pageSize = 1
+  let pageSize = 1
   let paginationLimit = 6
   let modelPrespectivesList = ''
   let totalPages
@@ -559,22 +559,18 @@ export default function Sheets (props) {
       handleListAndPagination(currentPage + 1)
     }
   }
-  // let handleLast = function (lastPage) {
-  //   if (currentPage === totalPages) {
-  //     nextClass = styles.disabled
-  //   } else {
-  //     props.setCurrentPage(lastPage)
-  //     handleListAndPagination(lastPage)
-  //   }
-  // }
-  // let handleFirst = function () {
-  //   if (currentPage === totalPages) {
-  //     nextClass = styles.disabled
-  //   } else {
-  //     props.setCurrentPage(1)
-  //     handleListAndPagination(1)
-  //   }
-  // }
+  let handleLast = function (lastPage) {
+    if (currentPage === totalPages) {
+      nextClass = styles.disabled
+    } else {
+      props.setCurrentPage(lastPage)
+      handleListAndPagination(lastPage)
+    }
+  }
+  let handleFirst = function () {
+    props.setCurrentPage(1)
+    handleListAndPagination(1)
+  }
   let handlePage = function (page) {
     if (page === 1) {
       previousClass = 'm-datatable__pager-link--disabled'
@@ -600,8 +596,8 @@ export default function Sheets (props) {
     }
   }
   var showCurrentPages = modelPrespectivesList.length
-  const startValueOfRange = (currentPage - 1) * perPage + 1
-  const endValueOfRange = showCurrentPages * perPage
+  const startValueOfRange = (currentPage - 1) * pageSize + 1
+  const endValueOfRange = (showCurrentPages * pageSize) <= (props.modelPrespectives.length) ? (showCurrentPages * pageSize) : (props.modelPrespectives.length - 1)
   // const totalItems = totalPages * pageSize
   var activeClass = ''
 return (
@@ -677,7 +673,7 @@ return (
                         >
                           <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
                             <ul className='m-datatable__pager-nav  pag'>
-                              {/* {currentPage !== 1 && totalPages > 1 ? <li className='page-item'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={() => { handlePrevious(); handleFirst() }} data-page='4'><span aria-hidden='true'>&laquo;</span><span className={'sr-only'}>Previous</span></a></li> : ''} */}
+                              {currentPage !== 1 && totalPages > 1 ? <li className='page-item'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={() => { handlePrevious(); handleFirst() }} data-page='4'><span aria-hidden='true'>&laquo;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
                               {currentPage !== 1 && totalPages > 1 ? <li className='page-item anchors'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={handlePrevious} data-page='4'><span aria-hidden='true'>&lt;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
                               {listPage[0] && listPage[0].map(function (page, index) {
                                       if (page.number === currentPage) {
@@ -695,18 +691,18 @@ return (
                                 totalPages > 1 && (
                                 <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={handleNext} data-page='4'><span aria-hidden='true'>&gt;</span><span className={'sr-only'}>Next</span></a></li>
                               )}
-                              {/* {currentPage !== totalPages &&
+                              {currentPage !== totalPages &&
                                 totalPages > 1 && (
                                 <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={() => handleLast(totalPages)} data-page='4'><span aria-hidden='true'>&raquo;</span><span className={'sr-only'}>Next</span></a></li>
-                              )} */}
+                              )}
                             </ul>
                           </div>
                         </div>
                       </div>
                       <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing} `}>
                         {/* showing dropdown */}
-                        <div className='showing-div showspace spaceMargin ' style={{ position: 'relative', top: '25px' }}>
-                          <div className='dropup dropup-showing showspace'>
+                        <div className='showing-div showspace spaceMargin '>
+                          <div className='dropup dropup-showing'>
                             <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{props.perPage}<span className='caret' /></button>
                             <ul className='dropdown-menu menu'>
                               <li><a href='javascript:void(0)' onClick={() => handledropdownChange(10)}>10</a></li>
@@ -715,7 +711,7 @@ return (
                               <li><a href='javascri pt:void(0)' onClick={() => handledropdownChange(100)}>100</a></li>
                             </ul>
                           </div>
-                          <span className='showing-text text-right showingText' style={{ position: 'relative', right: '40px' }}> Showing {startValueOfRange} - {endValueOfRange} of {props.modelPrespectives.length} </span>
+                          <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {props.modelPrespectives.length} </span>
                         </div>
                       </div>
                     </div>

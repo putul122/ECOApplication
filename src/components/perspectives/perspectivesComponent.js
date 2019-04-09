@@ -574,22 +574,18 @@ export default function Perspectives (props) {
       handleListAndPagination(currentPage + 1)
     }
   }
-  // let handleLast = function (pages) {
-  //   if (currentPage === totalPages) {
-  //     nextClass = styles.disabled
-  //   } else {
-  //     props.setCurrentPage(pages)
-  //     handleListAndPagination(pages)
-  //   }
-  // }
-  // let handleFirst = function () {
-  //   if (currentPage === totalPages) {
-  //     nextClass = styles.disabled
-  //   } else {
-  //     props.setCurrentPage(1)
-  //     handleListAndPagination(1)
-  //   }
-  // }
+  let handleLast = function (pages) {
+    if (currentPage === totalPages) {
+      nextClass = styles.disabled
+    } else {
+      props.setCurrentPage(pages)
+      handleListAndPagination(pages)
+    }
+  }
+  let handleFirst = function () {
+    props.setCurrentPage(1)
+    handleListAndPagination(1)
+  }
   let handlePage = function (page) {
     if (page === 1) {
       previousClass = 'm-datatable__pager-link--disabled'
@@ -778,7 +774,7 @@ export default function Perspectives (props) {
   }
   // var showCurrentPages = modelPrespectivesList.length
   const startValueOfRange = (currentPage - 1) * perPage + 1
-  const endValueOfRange = currentPage * perPage
+  const endValueOfRange = (currentPage * perPage) <= (modelPrespectivesList.length) ? (currentPage * perPage) : (modelPrespectivesList.length)
 
   var activeClass = ''
   console.log('qq', modelPrespectivesList.length)
@@ -851,7 +847,7 @@ return (
                         >
                           <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
                             <ul className='m-datatable__pager-nav  pag'>
-                              {/* {currentPage !== 1 && totalPages > 1 ? <li className='page-item'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={() => { handlePrevious(); handleFirst() }} data-page='4'><span aria-hidden='true'>&laquo;</span><span className={'sr-only'}>Previous</span></a></li> : ''} */}
+                              {currentPage !== 1 && totalPages > 1 ? <li className='page-item'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={() => { handlePrevious(); handleFirst() }} data-page='4'><span aria-hidden='true'>&laquo;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
                               {currentPage !== 1 && totalPages > 1 ? <li className='page-item anchors'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={handlePrevious} data-page='4'><span aria-hidden='true'>&lt;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
                               {listPage[0] && listPage[0].map(function (page, index) {
                                       if (page.number === currentPage) {
@@ -869,18 +865,18 @@ return (
                                 totalPages > 1 && (
                                 <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={handleNext} data-page='4'><span aria-hidden='true'>&gt;</span><span className={'sr-only'}>Next</span></a></li>
                               )}
-                              {/* {currentPage !== totalPages &&
+                              {currentPage !== totalPages &&
                                 totalPages > 1 && (
                                 <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={() => handleLast(totalPages)} data-page='4'><span aria-hidden='true'>&raquo;</span><span className={'sr-only'}>Next</span></a></li>
-                              )} */}
+                              )}
                             </ul>
                           </div>
                         </div>
                       </div>
                       <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing} `}>
                         {/* showing dropdown */}
-                        <div className='showing-div showspace spaceMargin ' style={{ position: 'relative', top: '7px' }}>
-                          <div className='dropup dropup-showing showspace'>
+                        <div className='showing-div showspace spaceMargin'>
+                          <div className='dropup dropup-showing'>
                             <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{props.perPage}<span className='caret' /></button>
                             <ul className='dropdown-menu menu'>
                               <li><a href='javascript:void(0)' onClick={() => handledropdownChange(10)}>10</a></li>

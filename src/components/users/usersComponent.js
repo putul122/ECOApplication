@@ -144,6 +144,14 @@ class Users extends Component {
       await this.setState(prevState => {
         return { currentPage: prevState.currentPage - 1 }
       })
+    } else if (arrow === 'end') {
+      await this.setState(prevState => {
+        return { currentPage: pageNumber }
+      })
+    } else if (arrow === 'start') {
+      await this.setState(prevState => {
+        return { currentPage: 1 }
+      })
     } else {
       await this.setState({ currentPage: pageNumber })
     }
@@ -200,7 +208,7 @@ class Users extends Component {
       userActionSettings: { isInviteUserModalOpen }
     } = this.props
 
-    const totalPages = Math.floor(
+    const totalPages = Math.ceil(
       this.props.getUserResponse.total_count / pageSize
     )
 
@@ -224,9 +232,10 @@ class Users extends Component {
     })
 
     const startValueOfRange = (currentPage - 1) * pageSize + 1
-    const endValueOfRange = currentPage * pageSize
-    const totalItems = totalPages * pageSize
+    const endValueOfRange = (currentPage * pageSize) <= this.props.getUserResponse.total_count ? (currentPage * pageSize) : this.props.getUserResponse.total_count
+    const totalItems = this.props.getUserResponse.total_count
     var activeClass = ''
+    console.log('asdassdasdasdsadasdasdasd', pageSize)
     return (
       <div id='userList'>
         <ReactModal
@@ -398,7 +407,7 @@ class Users extends Component {
                                         this.fetchUsersForGivenPageNumber(
                                           e,
                                           currentPage,
-                                          'prev'
+                                          'start'
                                         )
                                       }
                                     >
@@ -496,8 +505,8 @@ class Users extends Component {
                                       onClick={e =>
                                         this.fetchUsersForGivenPageNumber(
                                           e,
-                                          currentPage,
-                                          'next'
+                                          totalPages,
+                                          'end'
                                         )
                                       }
                                     >
@@ -512,18 +521,18 @@ class Users extends Component {
                         </div>
                         <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing}`}>
                           {/* showing dropdown */}
-                          <div className='showing-div'>
+                          <div className='showing-div showspace spaceMargin '>
                             <div className='dropup dropup-showing'>
                               <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{this.state.pageSize}<span className='caret' /></button>
                               <ul className='dropdown-menu menu'>
-                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(10)}>10</a></li>
+                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(1)}>10</a></li>
                                 <li><a href='javascript:void(0)' onClick={() => this.showingPage(20)}>20</a></li>
                                 <li><a href='javascript:void(0)' onClick={() => this.showingPage(30)}>30</a></li>
                                 <li><a href='javascript:void(0)' onClick={() => this.showingPage(40)}>40</a></li>
                                 <li><a href='javascript:void(0)' onClick={() => this.showingPage(50)}>50</a></li>
                               </ul>
                             </div>
-                            <span className='showing-text'> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
+                            <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
                           </div>
                         </div>
                       </div>

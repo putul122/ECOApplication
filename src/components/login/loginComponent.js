@@ -22,6 +22,15 @@ export default function Login (props) {
   let messageBlock = loggedInMessageResponse('')
   // let disabledButton = ''
   let loadingClass = ''
+  let handelClick = function (event) {
+    if (props.flipInX === 'm-login--signin') {
+      props.toggleFlipInX('m-login--signup')
+      localStorage.setItem('forget', true)
+    } else {
+      props.toggleFlipInX('m-login--signin')
+      localStorage.setItem('forget', true)
+    }
+  }
   let handleSubmit = function (event) {
     messageBlock = loggedInMessageResponse('')
     console.log('bbbbbb', EmailBox.value)
@@ -95,7 +104,7 @@ export default function Login (props) {
               </label> */}
             </div>
             <div className='col m--align-right'>
-              <a href='/forgot_password' id='m_login_forget_password' className='m-link'>Forgot Password ?</a>
+              <a onClick={handelClick} href='javascript:void(0)' id='m_login_forget_password' className='m-link'>Forgot Password ?</a>
             </div>
           </div>
           <div className='m-login__form-action'>

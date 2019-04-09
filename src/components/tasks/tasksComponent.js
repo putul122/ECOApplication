@@ -11,9 +11,8 @@ export default function Tasks (props) {
   let email = ''
   let listPage = ''
   let currentPage = 1
-  let totalPages = 1
   let perPage = props.perPage || 10
-  // let pageSize = 10
+  let totalPages = 1
   let nextClass = ''
   let previousClass = ''
   console.log(searchTextBox, userName, email)
@@ -117,10 +116,9 @@ export default function Tasks (props) {
     // })
   }
   const startValueOfRange = (currentPage - 1) * perPage + 1
-  const endValueOfRange = currentPage * perPage
   const totalItems = totalPages * perPage
+  const endValueOfRange = (currentPage * perPage) <= totalItems ? (currentPage * perPage) : totalItems
 
-  console.log(startValueOfRange, endValueOfRange, totalPages)
     var activeClass = ''
     return (
       <div id='tasksList'>
@@ -234,8 +232,8 @@ export default function Tasks (props) {
                         </div>
                         <div className={`col-sm-12 col-md-6 text-right`}>
                           {/* showing dropdown */}
-                          <div className='showing-div showspace spaceMargin ' style={{ position: 'absolute', right: '25px', top: '7px' }}>
-                            <div className='dropup dropup-showing showspace'>
+                          <div className='showing-div showspace spaceMargin '>
+                            <div className='dropup dropup-showing'>
                               <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{props.perPage}<span className='caret' /></button>
                               <ul className='dropdown-menu menu'>
                                 <li><a href='javascript:void(0)' onClick={() => handledropdownChange(10)}>10</a></li>
@@ -244,7 +242,7 @@ export default function Tasks (props) {
                                 <li><a href='javascri pt:void(0)' onClick={() => handledropdownChange(100)}>100</a></li>
                               </ul>
                             </div>
-                            <span className='showing-text text-right showingText' style={{ position: 'relative', right: '35px' }}> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
+                            <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
                           </div>
                         </div>
                       </div>

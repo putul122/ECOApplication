@@ -37,8 +37,7 @@ export default function ApplicationDetail (props) {
   let componentComponents = props.componentComponents.resources
   let componentComponentsList
   let totalNoPages
-  let pageSize = 10
-  let perPage = props.perPage
+  let perPage = props.perPage || 10
   let currentPage = props.currentPage
   let nextClass = ''
   let previousClass = ''
@@ -168,52 +167,52 @@ export default function ApplicationDetail (props) {
       if (found.length > 0) { return group }
     })
   }
-  // let handleLast = function (tpages) {
-  //   if (currentPage === totalNoPages) {
-  //     nextClass = 'm-datatable__pager-link--disabled'
-  //   } else {
-  //     let payload = {
-  //     'id': props.componentDetail.resources[0].id,
-  //     'ComponentTypeComponent': {
-  //       'search': searchTextBox.value ? searchTextBox.value : '',
-  //       'page_size': props.perPage,
-  //       'page': tpages,
-  //       'recommended': searchTextBox.value === ''
-  //     }
-  //   }
-  //   props.fetchComponentComponent(payload)
-  //   // eslint-disable-next-line
-  //   mApp.block('#style-1', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
-  //   props.setCurrentPage(currentPage + 1)
-  //   }
-  //   listPage = _.filter(pageArray, function (group) {
-  //     let found = _.filter(group, {'number': currentPage + 1})
-  //     if (found.length > 0) { return group }
-  //   })
-  // }
-  // let handleFirst = function () {
-  //   if (currentPage === totalNoPages) {
-  //     nextClass = 'm-datatable__pager-link--disabled'
-  //   } else {
-  //     let payload = {
-  //     'id': props.componentDetail.resources[0].id,
-  //     'ComponentTypeComponent': {
-  //       'search': searchTextBox.value ? searchTextBox.value : '',
-  //       'page_size': props.perPage,
-  //       'page': currentPage + 1,
-  //       'recommended': searchTextBox.value === ''
-  //     }
-  //   }
-  //   props.fetchComponentComponent(payload)
-  //   // eslint-disable-next-line
-  //   mApp.block('#style-1', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
-  //   props.setCurrentPage(currentPage + 1)
-  //   }
-  //   listPage = _.filter(pageArray, function (group) {
-  //     let found = _.filter(group, {'number': currentPage + 1})
-  //     if (found.length > 0) { return group }
-  //   })
-  // }
+  let handleLast = function (tpages) {
+    if (currentPage === totalNoPages) {
+      nextClass = 'm-datatable__pager-link--disabled'
+    } else {
+      let payload = {
+      'id': props.componentDetail.resources[0].id,
+      'ComponentTypeComponent': {
+        'search': searchTextBox.value ? searchTextBox.value : '',
+        'page_size': props.perPage,
+        'page': tpages,
+        'recommended': searchTextBox.value === ''
+      }
+    }
+    props.fetchComponentComponent(payload)
+    // eslint-disable-next-line
+    mApp.block('#style-1', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+    props.setCurrentPage(tpages)
+    }
+    listPage = _.filter(pageArray, function (group) {
+      let found = _.filter(group, {'number': tpages})
+      if (found.length > 0) { return group }
+    })
+  }
+  let handleFirst = function () {
+    // if (currentPage === totalNoPages) {
+      // nextClass = 'm-datatable__pager-link--disabled'
+    // } else {
+    let payload = {
+    'id': props.componentDetail.resources[0].id,
+    'ComponentTypeComponent': {
+      'search': searchTextBox.value ? searchTextBox.value : '',
+      'page_size': props.perPage,
+      'page': 1,
+      'recommended': searchTextBox.value === ''
+      }
+    }
+    props.fetchComponentComponent(payload)
+    // eslint-disable-next-line
+    mApp.block('#style-1', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+    props.setCurrentPage(1)
+    // }
+    listPage = _.filter(pageArray, function (group) {
+      let found = _.filter(group, {'number': 1})
+      if (found.length > 0) { return group }
+    })
+  }
   let handlePage = function (page) {
     if (page === 1) {
       previousClass = 'm-datatable__pager-link--disabled'
@@ -289,11 +288,10 @@ export default function ApplicationDetail (props) {
     props.setModalOpenStatus(false)
   }
   // var showCurrentPages = props.componentComponents.resources ? props.componentComponents.resources.length : 1
-  const startValueOfRange = (currentPage - 1) * pageSize + 1
-  const endValueOfRange = currentPage * pageSize
+  const startValueOfRange = (currentPage - 1) * perPage + 1
+  const endValueOfRange = (currentPage * perPage) <= props.componentComponents.total_count ? (currentPage * perPage) : props.componentComponents.total_count
   var activeClass = ''
 
-  props.componentComponents && console.log(props.componentComponents.total_count)
   return (
     <div>
       <div className='m-alert m-alert--icon m-alert--air m-alert--square alert alert-dismissible m--margin-bottom-30' role='alert'>
@@ -438,7 +436,7 @@ export default function ApplicationDetail (props) {
                   <div className='col-sm-12 col-md-6' />
                   <div className='m-datatable__pager m-datatable--paging-loaded pull-left pagination'>
                     <ul className='m-datatable__pager-nav  pag pagination'>
-                      {/* {currentPage !== 1 && totalNoPages > 1 ? <li className='page-item'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={() => { handlePrevious(); handleFirst() }} data-page='4'><span aria-hidden='true'>&laquo;</span><span className={'sr-only'}>Previous</span></a></li> : ''} */}
+                      {currentPage !== 1 && totalNoPages > 1 ? <li className='page-item'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={() => { handlePrevious(); handleFirst() }} data-page='4'><span aria-hidden='true'>&laquo;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
                       {currentPage !== 1 && totalNoPages > 1 ? <li className='page-item anchors'><a href='javascript:void(0)' title='Previous' id='m_blockui_1_5' className={'m-datatable__pager-link m-datatable__pager-link--prev  page-link list links anchors' + previousClass} onClick={handlePrevious} data-page='4'><span aria-hidden='true'>&lt;</span><span className={'sr-only'}>Previous</span></a></li> : ''}
                       {listPage[0] && listPage[0].map(function (page, index) {
                               if (page.number === currentPage) {
@@ -456,15 +454,16 @@ export default function ApplicationDetail (props) {
                         totalNoPages > 1 && (
                         <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={handleNext} data-page='4'><span aria-hidden='true'>&gt;</span><span className={'sr-only'}>Next</span></a></li>
                       )}
-                      {/* {currentPage !== totalNoPages &&
+                      {currentPage !== totalNoPages &&
                         totalNoPages > 1 && (
                         <li className='page-item'><a href='javascript:void(0)' title='Next' className={'m-datatable__pager-link m-datatable__pager-link--next   page-link list links anchors' + nextClass} onClick={() => handleLast(totalNoPages)} data-page='4'><span aria-hidden='true'>&raquo;</span><span className={'sr-only'}>Next</span></a></li>
-                      )} */}
+                      )}
                     </ul>
                   </div>
                   {/* showing dropdown */}
-                  <div className='showing-div showspace'>
-                    <div className='dropup dropup-showing showspace' style={{ position: 'relative' }}>
+                  {/* <div className={`col-sm-12 col-md-6 text-right`}> */}
+                  <div className='showing-div showspace spaceMargin'>
+                    <div className='dropup dropup-showing'>
                       <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{props.perPage}<span className='caret' /></button>
                       <ul className='dropdown-menu menu'>
                         <li><a href='javascript:void(0)' onClick={() => handleChange(10)}>10</a></li>
@@ -473,8 +472,9 @@ export default function ApplicationDetail (props) {
                         <li><a href='javascri pt:void(0)' onClick={() => handleChange(100)}>100</a></li>
                       </ul>
                     </div>
-                    <span className='showing-text' style={{ position: 'relative', right: '70px' }}> Showing {startValueOfRange} - {endValueOfRange} of {props.componentComponents.total_count}</span>
+                    <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {props.componentComponents.total_count}</span>
                   </div>
+                  {/* </div> */}
                 </div>
               </div>
             </div>
