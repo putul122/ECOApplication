@@ -189,7 +189,8 @@ const api = {
   inviteUser: 'https://account-eco-dev.ecoconductor.com/user_invitations',
   iconURL: 'https://ecoconductor-dev-api-resources.azurewebsites.net/icons/',
   getPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SM',
-  getSLAPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SLA'
+  getSLAPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SLA',
+  getAllPackages: 'https://ecoconductor-dev-api-model.azurewebsites.net/model_packages'
 }
 
 export default api

@@ -6,13 +6,10 @@ export default function ServiceDashboard (props) {
   let dashboardPerspectiveList = ''
   let dashboardKey = props.match.params.dashboardKey
   if (props.dashboardPerspectives && props.dashboardPerspectives !== '') {
-    let appPackage = ''
-    if (dashboardKey === 's-eco') {
-      appPackage = JSON.parse(localStorage.getItem('packages'))
-    } else if (dashboardKey === 'p-eco') {
-      appPackage = JSON.parse(localStorage.getItem('slaPackages'))
-    }
-    let perspectives = appPackage.resources[0].perspectives
+    let packages = JSON.parse(localStorage.getItem('packages'))
+    let perspectives = _.result(_.find(packages.resources, function (obj) {
+      return obj.key === dashboardKey
+    }), 'perspectives')
     dashboardPerspectiveList = props.dashboardPerspectives.map(function (data, index) {
       let subjectName = data.subject_name
       let parts = data.parts
@@ -23,9 +20,9 @@ export default function ServiceDashboard (props) {
       let listLink = 'javascript:void(0);'
       console.log('List', List)
       if (List) {
-        if (dashboardKey === 's-eco') {
+        if (dashboardKey === 'ECO_SM') {
           listLink = '/perspectives/' + List.perspective + '/' + List.view_key
-        } else if (dashboardKey === 'p-eco') {
+        } else if (dashboardKey === 'ECO_SLA') {
           listLink = '/perspective_hierarchy/' + List.perspective + '/' + List.view_key
         }
       }

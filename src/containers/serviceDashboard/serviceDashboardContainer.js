@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import { compose, lifecycle } from 'recompose'
 import ServiceDashboard from '../../components/serviceDashboard/serviceDashboardComponent'
 import { actions as sagaActions } from '../../redux/sagas/'
-
+import _ from 'lodash'
 // Global State
 export function mapStateToProps (state, props) {
   return {
@@ -31,42 +31,25 @@ export default compose(
       mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
       let dashboardKey = this.props.match.params.dashboardKey
-      console.log('dashboard key', dashboardKey)
-      if (dashboardKey === 's-eco') {
-        let appPackage = JSON.parse(localStorage.getItem('packages'))
-        let perspectives = appPackage.resources[0].perspectives
-        let count = 0
-        let payload = {}
-        perspectives.forEach(function (data, index) {
-          if (data.role_key === 'Dashboard_Count') {
-            payload['meta_model_perspective_id[' + count + ']'] = data.perspective
-            payload['view_key[' + count + ']'] = data.view_key
-            count++
-          }
-        })
-        console.log('payload', payload)
-        this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
-      } else if (dashboardKey === 'p-eco') {
-        let appPackage = JSON.parse(localStorage.getItem('slaPackages'))
-        let perspectives = appPackage.resources[0].perspectives
-        console.log('sla packages', perspectives, appPackage)
-        let count = 0
-        let payload = {}
-        perspectives.forEach(function (data, index) {
-          if (data.role_key === 'Dashboard_Count') {
-            payload['meta_model_perspective_id[' + count + ']'] = data.perspective
-            payload['view_key[' + count + ']'] = data.view_key
-            count++
-          }
-        })
-        payload['count'] = true
-        console.log('payload', payload)
-        this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
-      }
+      let packages = JSON.parse(localStorage.getItem('packages'))
+      let perspectives = _.result(_.find(packages.resources, function (obj) {
+        return obj.key === dashboardKey
+      }), 'perspectives')
+      let count = 0
+      let payload = {}
+      perspectives.forEach(function (data, index) {
+        if (data.role_key === 'Dashboard_Count') {
+          payload['meta_model_perspective_id[' + count + ']'] = data.perspective
+          payload['view_key[' + count + ']'] = data.view_key
+          count++
+        }
+      })
+      payload['count'] = true
+      console.log('payload', payload)
+      this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
     },
     componentDidMount: function () {},
     componentWillReceiveProps: function (nextProps) {
-      console.log('component will receive props', nextProps)
       if (nextProps.authenticateUser && nextProps.authenticateUser.resources) {
         if (!nextProps.authenticateUser.resources[0].result) {
           this.props.history.push('/')

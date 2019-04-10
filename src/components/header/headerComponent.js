@@ -102,6 +102,20 @@ export default function HeaderComponent (props) {
     loginSlideClass = 'm-dropdown--close'
     props.setLoginslideFlag(false)
   }
+  let allPackage = JSON.parse(localStorage.getItem('packages'))
+  let selectModuleOptions = ''
+  if (allPackage && allPackage.error_code === null && allPackage.resources) {
+    selectModuleOptions = allPackage.resources.map(function (data, index) {
+      return (
+        <li m-menu-submenu-toggle='click' aria-haspopup='true'>
+          <a href={window.location.origin + '/select-module/' + data.key} className='m-menu__link m-menu__toggle' title={data.name} >
+            <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary' style={{border: 'none', width: '100%'}}>{data.key}</span>
+          </a>
+          <div className={styles.divider} />
+        </li>
+      )
+    })
+  }
   return (
     <div>
       <header id='m_header' className='m-grid__item    m-header ' m-minimize-offset='200' m-minimize-mobile-offset='200' >
@@ -145,17 +159,7 @@ export default function HeaderComponent (props) {
                   <a onClick={(event) => { console.log('clicked') }} href='javascript:void(0);' ><h3 className='m-header__title-text' style={{'padding': '0 10px 0 30px', 'marginTop': '25px', color: 'black'}}>Select Module</h3></a>
                   <div className={styles.tooltiptext}>
                     <ul>
-                      <li m-menu-submenu-toggle='click' aria-haspopup='true'>
-                        <a href={window.location.origin + '/select-module/s-eco'} className='m-menu__link m-menu__toggle' title='Non functional dummy link'>
-                          <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary' style={{border: 'none', width: '100%'}}>S-ECO</span>
-                        </a>
-                        <div className={styles.divider} />
-                      </li>
-                      <li m-menu-submenu-toggle='click' aria-haspopup='true'>
-                        <a href={window.location.origin + '/select-module/p-eco'} className='m-menu__link m-menu__toggle ' title='Non functional dummy link'>
-                          <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary' style={{border: 'none', width: '100%'}}>P-ECO</span>
-                        </a>
-                      </li>
+                      {selectModuleOptions}
                     </ul>
                   </div>
                 </div>
@@ -261,10 +265,8 @@ export default function HeaderComponent (props) {
 
 HeaderComponent.propTypes = {
   isLoggedin: PropTypes.any,
-  // setNotificationFlag: PropTypes.func,
   updateNotificationViewStatus: PropTypes.func,
   isQuickSlideOpen: PropTypes.any,
   isLoginSlideOpen: PropTypes.any,
-  notificationFlag: PropTypes.any,
-  setLoginslideFlag: PropTypes.func
+  notificationFlag: PropTypes.any
 }
