@@ -22,6 +22,9 @@ export const FETCH_PACKAGE_FAILURE = 'saga/Basic/FETCH_PACKAGE_FAILURE'
 export const FETCH_SLA_PACKAGE = 'saga/Basic/FETCH_SLA_PACKAGE'
 export const FETCH_SLA_PACKAGE_SUCCESS = 'saga/Basic/FETCH_SLA_PACKAGE_SUCCESS'
 export const FETCH_SLA_PACKAGE_FAILURE = 'saga/Basic/FETCH_SLA_PACKAGE_FAILURE'
+export const FETCH_ALL_PACKAGES = 'saga/Basic/FETCH_ALL_PACKAGES'
+export const FETCH_ALL_PACKAGES_SUCCESS = 'saga/Basic/FETCH_ALL_PACKAGES_SUCCESS'
+export const FETCH_ALL_PACKAGES_FAILURE = 'saga/Basic/FETCH_ALL_PACKAGES_FAILURE'
 
 export const actionCreators = {
   fetchClientAccessToken: createAction(FETCH_CLIENT_ACCESS_TOKEN),
@@ -41,7 +44,10 @@ export const actionCreators = {
   fetchPackageFailure: createAction(FETCH_PACKAGE_FAILURE),
   fetchSLAPackage: createAction(FETCH_SLA_PACKAGE),
   fetchSLAPackageSuccess: createAction(FETCH_SLA_PACKAGE_SUCCESS),
-  fetchSLAPackageFailure: createAction(FETCH_SLA_PACKAGE_FAILURE)
+  fetchSLAPackageFailure: createAction(FETCH_SLA_PACKAGE_FAILURE),
+  fetchAllPackages: createAction(FETCH_ALL_PACKAGES),
+  fetchAllPackagesSuccess: createAction(FETCH_ALL_PACKAGES_SUCCESS),
+  fetchAllPackagesFailure: createAction(FETCH_ALL_PACKAGES_FAILURE)
 }
 
 export default function * watchBasic () {
@@ -51,7 +57,8 @@ export default function * watchBasic () {
     takeLatest(UPDATE_NOTIFICATION_VIEW_STATUS, updateNotificationViewStatus),
     takeLatest(FETCH_ROLES, getRoles),
     takeLatest(FETCH_PACKAGE, getPackage),
-    takeLatest(FETCH_SLA_PACKAGE, getSLAPackage)
+    takeLatest(FETCH_SLA_PACKAGE, getSLAPackage),
+    takeLatest(FETCH_ALL_PACKAGES, getAllPackages)
   ]
 }
 
@@ -130,5 +137,18 @@ export function * getSLAPackage (action) {
     yield put(actionCreators.fetchSLAPackageSuccess(packages.data))
   } catch (error) {
     yield put(actionCreators.fetchSLAPackageFailure(error))
+  }
+}
+
+export function * getAllPackages (action) {
+  try {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
+    const packages = yield call(
+      axios.get,
+      api.getAllPackages
+    )
+    yield put(actionCreators.fetchAllPackagesSuccess(packages.data))
+  } catch (error) {
+    yield put(actionCreators.fetchAllPackagesFailure(error))
   }
 }

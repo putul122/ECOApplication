@@ -6,15 +6,13 @@ import { actions as sagaActions } from '../../redux/sagas/'
 export function mapStateToProps (state, props) {
   return {
     authenticateUser: state.basicReducer.authenticateUser,
-    packages: state.basicReducer.packages,
-    slaPackages: state.basicReducer.slaPackages
+    packages: state.basicReducer.packages
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch
 export const propsMapping: Callbacks = {
   fetchUserAuthentication: sagaActions.basicActions.fetchUserAuthentication,
-  fetchPackage: sagaActions.basicActions.fetchPackage,
-  fetchSLAPackage: sagaActions.basicActions.fetchSLAPackage
+  fetchAllPackages: sagaActions.basicActions.fetchAllPackages
 }
 
 // If you want to use the function mapping
@@ -29,8 +27,7 @@ export default compose(
   lifecycle({
     componentWillMount: function () {
       console.log('wiil mount', this.props)
-      this.props.fetchPackage && this.props.fetchPackage()
-      this.props.fetchSLAPackage && this.props.fetchSLAPackage()
+      this.props.fetchAllPackages && this.props.fetchAllPackages()
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
     },
     componentDidMount: function () {},
@@ -42,9 +39,6 @@ export default compose(
       }
       if (nextProps.packages && nextProps.packages !== this.props.packages) {
         localStorage.setItem('packages', JSON.stringify(nextProps.packages))
-      }
-      if (nextProps.slaPackages && nextProps.slaPackages !== this.props.slaPackages) {
-        localStorage.setItem('slaPackages', JSON.stringify(nextProps.slaPackages))
       }
     }
   })

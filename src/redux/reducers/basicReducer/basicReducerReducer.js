@@ -2,7 +2,7 @@ import { createAction, handleActions } from 'redux-actions'
 import {
   FETCH_CLIENT_ACCESS_TOKEN_SUCCESS,
   FETCH_USER_AUTHENTICATION_SUCCESS,
-  FETCH_PACKAGE_SUCCESS,
+  FETCH_ALL_PACKAGES_SUCCESS,
   UPDATE_NOTIFICATION_VIEW_STATUS_SUCCESS,
   FETCH_SLA_PACKAGE_SUCCESS
 } from '../../sagas/basic/basicSaga'
@@ -45,7 +45,7 @@ export const actions = {
   TOGGLE_FLIPIN_X,
   UPDATE_NOTIFICATION_VIEW_STATUS_SUCCESS,
   RESET_NOTIFICATION_RESPONSE,
-  FETCH_PACKAGE_SUCCESS
+  FETCH_ALL_PACKAGES_SUCCESS
 }
 
 export const actionCreators = {
@@ -167,7 +167,7 @@ export default handleActions(
     [RESET_NOTIFICATION_RESPONSE]: (state, action) => ({ ...state,
       updateNotificationViewStatusResponse: ''
     }),
-    [FETCH_PACKAGE_SUCCESS]: (state, action) => ({ ...state,
+    [FETCH_ALL_PACKAGES_SUCCESS]: (state, action) => ({ ...state,
       packages: action.payload
     }),
     [FETCH_SLA_PACKAGE_SUCCESS]: (state, action) => ({ ...state,

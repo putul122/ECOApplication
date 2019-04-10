@@ -168,9 +168,12 @@ export default function PerspectiveHierarchy (props) {
     // props.setAddSettings(addSettings)
     console.log('open modal', data, level)
     if (level === 'ParentNode') {
-      let appPackage = JSON.parse(localStorage.getItem('slaPackages'))
-      let perspectives = appPackage.resources[0].perspectives
+      let packages = JSON.parse(localStorage.getItem('packages'))
+      let perspectives = _.result(_.find(packages.resources, function (obj) {
+        return obj.key === 'ECO_SLA'
+      }), 'perspectives')
       perspectiveId = props.match.params.id
+      console.log('perspectives', packages, perspectives, perspectiveId)
       if (operationType === 'Add') {
         viewKey = _.result(_.find(perspectives, function (obj) {
           return (obj.perspective === parseInt(perspectiveId) && obj.role_key === 'Create')
