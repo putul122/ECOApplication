@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 // import styles from './changePasswordComponent.scss'
 
 export default function ForgotPassword (props) {
-  console.log('respose data', props.forgotpasswordresponse)
+  // console.log('respose data', props.forgotpasswordresponse)
 // let FullNameBox
 //   let apiCalling = props.loginProcess
 //   let loggedInMessageResponse = function (message) {
@@ -34,6 +34,10 @@ export default function ForgotPassword (props) {
     }
     // props.setLoginProcessStatus(true)
     props.changePassword(payload)
+  }
+  let handelClick = function (event) {
+    localStorage.setItem('forget', false)
+    props.toggleFlipInX('m-login--signin')
   }
 //   // let closeMessage = function () {
 //   //   messageBlock = ''
@@ -77,8 +81,12 @@ export default function ForgotPassword (props) {
               <a href='' id='m_login_forget_password' className='m-link'>Forgot Password ?</a>
             </div> */}
           </div>
-          <div className='m-login__form-action'>
-            <button className='btn btn-outline-info m-btn--pill' onClick={handleSubmitemail}>Change Password</button>
+          {/* <div className='m-login__form-action'>
+            <button className='buttonbg___qErwQ ' onClick={handleSubmitemail}>Change Password</button>
+          </div> */}
+          <div className='m-login__form-action evenlySpacing'>
+            <button className='btn m-btn--pill btn-outline-info btn-md' onClick={handleSubmitemail}>Change Password</button>
+            <button id='m_login_signup_cancel' onClick={handelClick} className='btn m-btn--pill btn-outline-info btn-md'>Cancel</button>
           </div>
         </div>
       </div>
@@ -87,8 +95,9 @@ export default function ForgotPassword (props) {
 }
 
 ForgotPassword.propTypes = {
-  client_id: PropTypes.any,
-  client_secret: PropTypes.any,
-  forgotpasswordresponse: PropTypes.any,
-  changePassword: PropTypes.func
+  toggleFlipInX: PropTypes.func
+  // client_id: PropTypes.any,
+  // client_secret: PropTypes.any,
+  // forgotpasswordresponse: PropTypes.any,
+  // changePassword: PropTypes.func
 }

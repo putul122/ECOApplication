@@ -2,6 +2,7 @@ import { connect } from 'react-redux'
 import { compose, lifecycle } from 'recompose'
 import Users from '../../components/users/usersComponent'
 import { actions as sagaActions } from '../../redux/sagas/'
+import { actionCreators as basicActionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
 
 // Global State
 export function mapStateToProps (state, props) {
@@ -28,7 +29,8 @@ export const propsMapping: Callbacks = {
   openInviteUser: sagaActions.userActions.openInviteUser,
   closeInviteUser: sagaActions.userActions.closeInviteUser,
   deleteUser: sagaActions.userActions.deleteUser,
-  createUser: sagaActions.userActions.addUser
+  createUser: sagaActions.userActions.addUser,
+  setBreadcrumb: basicActionCreators.setBreadcrumb
 }
 
 // eslint-disable-next-line
@@ -70,6 +72,28 @@ const UsersContainer = compose(
     },
     componentDidMount: function () {
       this.props.fetchUsers()
+    },
+    componentWillReceiveProps: function (nextProps) {
+      let breadcrumb = {
+        title: 'Users',
+        items: [
+          {
+            name: 'Home',
+            href: '/home',
+            separator: false
+          },
+          {
+            separator: true
+          },
+          {
+            name: 'Users',
+            href: '/users',
+            separator: false
+          }
+        ]
+      }
+      console.log('breadcrumb', breadcrumb)
+      this.props.setBreadcrumb && this.props.setBreadcrumb(breadcrumb)
     }
   })
 )(Users)
