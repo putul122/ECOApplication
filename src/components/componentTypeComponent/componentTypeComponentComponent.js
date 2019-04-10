@@ -1277,7 +1277,7 @@ export default function ComponentTypeComponent (props) {
                     </div>
                     <div className={'row'} style={{'marginTop': '20px'}}>
                       <div className='m--space-10' />
-                      <div className='accordion m-accordion m-accordion--bordered' id='m_accordion_2' role='tablist' aria-multiselectable='true'>
+                      <div className='accordion m-accordion m-accordion--bordered' id='m_accordion_2' style={{width: '100%'}} role='tablist' aria-multiselectable='true'>
                         {parentComponentRelationshipList}
                         {outgoingComponentRelationshipList}
                         {incomingComponentRelationshipList}
