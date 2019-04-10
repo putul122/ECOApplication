@@ -463,7 +463,7 @@ export default function ApplicationDetail (props) {
                   {/* showing dropdown */}
                   {/* <div className={`col-sm-12 col-md-6 text-right`}> */}
                   <div className='showing-div showspace spaceMargin'>
-                    <div className='dropup dropup-showing'>
+                    <div className='dropdown dropup-showing'>
                       <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{props.perPage}<span className='caret' /></button>
                       <ul className='dropdown-menu menu'>
                         <li><a href='javascript:void(0)' onClick={() => handleChange(10)}>10</a></li>

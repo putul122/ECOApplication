@@ -520,7 +520,7 @@ class Users extends Component {
                         <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing}`}>
                           {/* showing dropdown */}
                           <div className='showing-div showspace spaceMargin '>
-                            <div className='dropup dropup-showing'>
+                            <div className='dropdown dropup-showing'>
                               <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{this.state.pageSize}<span className='caret' /></button>
                               <ul className='dropdown-menu menu'>
                                 <li><a href='javascript:void(0)' onClick={() => this.showingPage(1)}>10</a></li>
