@@ -24,6 +24,7 @@ const SET_ADD_REDIRECT_FLAG = 'BasicReducer/SET_ADD_REDIRECT_FLAG'
 const SET_NOTIFICATION_FLAG = 'BasicReducer/SET_NOTIFICATION_FLAG'
 const TOGGLE_FLIPIN_X = 'BasicReducer/TOGGLE_FLIPIN_X'
 const RESET_NOTIFICATION_RESPONSE = 'BasicReducer/RESET_NOTIFICATION_RESPONSE'
+const SET_SELECTED_PACKAGE_NAME = 'BasicReducer/SET_SELECTED_PACKAGE_NAME'
 
 export const actions = {
   INCREMENT,
@@ -45,7 +46,8 @@ export const actions = {
   TOGGLE_FLIPIN_X,
   UPDATE_NOTIFICATION_VIEW_STATUS_SUCCESS,
   RESET_NOTIFICATION_RESPONSE,
-  FETCH_ALL_PACKAGES_SUCCESS
+  FETCH_ALL_PACKAGES_SUCCESS,
+  SET_SELECTED_PACKAGE_NAME
 }
 
 export const actionCreators = {
@@ -65,7 +67,8 @@ export const actionCreators = {
   setAddRedirectFlag: createAction(SET_ADD_REDIRECT_FLAG),
   setNotificationFlag: createAction(SET_NOTIFICATION_FLAG),
   toggleFlipInX: createAction(TOGGLE_FLIPIN_X),
-  resetNotificationResponse: createAction(RESET_NOTIFICATION_RESPONSE)
+  resetNotificationResponse: createAction(RESET_NOTIFICATION_RESPONSE),
+  setSelectedPackageName: createAction(SET_SELECTED_PACKAGE_NAME)
 }
 
 export const initialState = {
@@ -90,7 +93,8 @@ export const initialState = {
   flipInX: 'm-login--signin',
   updateNotificationViewStatusResponse: '',
   packages: '',
-  slaPackages: ''
+  slaPackages: '',
+  selectedPackageName: ''
 }
 
 export default handleActions(
@@ -172,6 +176,9 @@ export default handleActions(
     }),
     [FETCH_SLA_PACKAGE_SUCCESS]: (state, action) => ({ ...state,
       slaPackages: action.payload
+    }),
+    [SET_SELECTED_PACKAGE_NAME]: (state, action) => ({ ...state,
+      selectedPackageName: action.payload
     })
   },
   initialState

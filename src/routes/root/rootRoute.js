@@ -128,6 +128,22 @@ export default class Root extends Component {
                 .default
             )
             break
+          case 'data':
+            if (module.hot) {
+              const sdpr = '../dataPage/dataPageRoute'
+              module.hot.accept(
+                sdpr,
+                () => {
+                  require(sdpr).default; // eslint-disable-line
+                  this.forceUpdate()
+                }
+              )
+            }
+            resolve(
+              require('../dataPage/dataPageRoute')
+                .default
+            )
+            break
           case 'roles':
             if (module.hot) {
               module.hot.accept('../rolesPage/rolesPageRoute', () => {
@@ -313,6 +329,11 @@ export default class Root extends Component {
               exact
               path='/select-module/:dashboardKey'
               component={(props) => this.loadView('serviceDashboard', props)}
+            />
+            <Route
+              exact
+              path='/data'
+              component={(props) => this.loadView('data', props)}
             />
             <Route
               exact

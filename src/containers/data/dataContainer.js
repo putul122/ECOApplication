@@ -1,13 +1,13 @@
 import { connect } from 'react-redux'
 import { compose, lifecycle } from 'recompose'
-import ServiceDashboard from '../../components/serviceDashboard/serviceDashboardComponent'
+import Data from '../../components/data/dataComponent'
 import { actions as sagaActions } from '../../redux/sagas/'
-import _ from 'lodash'
+// import _ from 'lodash'
 // Global State
 export function mapStateToProps (state, props) {
   return {
     authenticateUser: state.basicReducer.authenticateUser,
-    dashboardPerspectives: state.serviceDashboardReducer.dashboardPerspectives
+    dashboardPerspectives: state.dataReducer.dashboardPerspectives
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch
@@ -30,12 +30,12 @@ export default compose(
       // eslint-disable-next-line
       mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
-      let dashboardKey = this.props.match.params.dashboardKey
-      let packages = JSON.parse(localStorage.getItem('packages'))
-      let selectedPackage = _.find(packages.resources, function (obj) {
-        return obj.key === dashboardKey
-      })
-      localStorage.setItem('selectedPackage', JSON.stringify(selectedPackage))
+      let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
+    //   let dashboardKey = selectedPackage.key
+    //   let packages = JSON.parse(localStorage.getItem('packages'))
+    //   let perspectives = _.result(_.find(packages.resources, function (obj) {
+    //     return obj.key === dashboardKey
+    //   }), 'perspectives')
       let perspectives = selectedPackage.perspectives
       let count = 0
       let payload = {}
@@ -63,4 +63,4 @@ export default compose(
       }
     }
   })
-)(ServiceDashboard)
+)(Data)

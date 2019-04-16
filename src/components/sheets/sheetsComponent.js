@@ -58,34 +58,36 @@ export default function Sheets (props) {
       if (modelPrespective.parts) {
         modelPrespective.parts.forEach(function (partData, ix) {
           let value = ''
-          if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
-            value = partData.value
-          } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null) { // Connection Property
-            if (partData.value) {
-              let targetComponents = []
-              partData.value.forEach(function (data, index) {
-                targetComponents.push(data.target_component.name)
-              })
-              value = targetComponents.toString()
+          if (labelParts[ix].constraint_perspective === null) {
+            if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
+              value = partData.value
+            } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null) { // Connection Property
+              if (partData.value) {
+                let targetComponents = []
+                partData.value.forEach(function (data, index) {
+                  targetComponents.push(data.target_component.name)
+                })
+                value = targetComponents.toString()
+              } else {
+                value = partData.value || ''
+              }
+            } else if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
+              value = partData.value !== null ? partData.value.int_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+              value = partData.value !== null ? partData.value.float_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+              value = partData.value !== null ? partData.value.text_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+              value = partData.value !== null ? partData.value.date_time_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+              value = partData.value !== null ? partData.value.boolean_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'List') {
+              value = partData.value !== null ? partData.value.value_set_value : ''
             } else {
-              value = partData.value || ''
+              value = partData.value !== null ? partData.value.other_value : ''
             }
-          } else if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
-            value = partData.value !== null ? partData.value.int_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
-            value = partData.value !== null ? partData.value.float_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'Text') {
-            value = partData.value !== null ? partData.value.text_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
-            value = partData.value !== null ? partData.value.date_time_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-            value = partData.value !== null ? partData.value.boolean_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'List') {
-            value = partData.value !== null ? partData.value.value_set_value : ''
-          } else {
-            value = partData.value !== null ? partData.value.other_value : ''
+            obj[labelParts[ix].name.toLowerCase().trim().replace(/ /g, '_')] = value
           }
-          obj[labelParts[ix].name.toLowerCase().trim().replace(/ /g, '_')] = value
         })
         obj['subject_id'] = modelPrespective.subject_id
         data.push(obj)
@@ -107,34 +109,36 @@ export default function Sheets (props) {
       if (modelPrespective.parts) {
         modelPrespective.parts.forEach(function (partData, ix) {
           let value = ''
-          if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
-            value = partData.value
-          } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null) { // Connection Property
-            if (partData.value) {
-              let targetComponents = []
-              partData.value.forEach(function (data, index) {
-                targetComponents.push(data.target_component.name)
-              })
-              value = targetComponents.toString()
+          if (labelParts[ix].constraint_perspective === null) {
+            if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
+              value = partData.value
+            } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null) { // Connection Property
+              if (partData.value) {
+                let targetComponents = []
+                partData.value.forEach(function (data, index) {
+                  targetComponents.push(data.target_component.name)
+                })
+                value = targetComponents.toString()
+              } else {
+                value = partData.value || ''
+              }
+            } else if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
+              value = partData.value !== null ? partData.value.int_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+              value = partData.value !== null ? partData.value.float_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+              value = partData.value !== null ? partData.value.text_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+              value = partData.value !== null ? partData.value.date_time_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+              value = partData.value !== null ? partData.value.boolean_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'List') {
+              value = partData.value !== null ? partData.value.value_set_value : ''
             } else {
-              value = partData.value || ''
+              value = partData.value !== null ? partData.value.other_value : ''
             }
-          } else if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
-            value = partData.value !== null ? partData.value.int_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
-            value = partData.value !== null ? partData.value.float_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'Text') {
-            value = partData.value !== null ? partData.value.text_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
-            value = partData.value !== null ? partData.value.date_time_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-            value = partData.value !== null ? partData.value.boolean_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'List') {
-            value = partData.value !== null ? partData.value.value_set_value : ''
-          } else {
-            value = partData.value !== null ? partData.value.other_value : ''
+            obj[labelParts[ix].name.toLowerCase().trim().replace(/ /g, '_')] = value
           }
-          obj[labelParts[ix].name.toLowerCase().trim().replace(/ /g, '_')] = value
         })
         obj['subject_id'] = modelPrespective.subject_id
         data.push(obj)
@@ -451,50 +455,54 @@ export default function Sheets (props) {
   }, 500)
   if (props.metaModelPerspective && props.metaModelPerspective !== '' && props.metaModelPerspective.error_code === null) {
     if (props.metaModelPerspective.resources[0].parts.length > 0) {
-      tableHeader = props.metaModelPerspective.resources[0].parts.map(function (data, index) {
-        labels.push(data.name)
-        return (<th key={index} className='table-th pres-th'><p>{data.name}</p></th>)
+      props.metaModelPerspective.resources[0].parts.forEach(function (data, index) {
+        if (data.constraint_perspective === null) {
+          labels.push(data.name)
+          tableHeader.push(<th key={index} className='table-th pres-th'><p>{data.name}</p></th>)
+        }
       })
     }
   }
   let listModelPrespectives = function () {
     if (props.modelPrespectives !== '') {
       let labelParts = props.metaModelPerspective.resources[0].parts
-      if (props.modelPrespectives.length > 0) {
+      if (props.modelPrespectives.length > 1) {
         modelPrespectivesList = props.modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
           let childList = []
           if (data.parts) {
             data.parts.forEach(function (partData, ix) {
               let value
               // console.log('partData', partData, labelParts, ix)
-              if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
-                value = partData ? partData.value : ''
-              } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null) { // Connection Property
-                if (partData.value) {
-                  let targetComponents = []
-                  partData.value.forEach(function (data, index) {
-                    targetComponents.push(data.target_component.name)
-                  })
-                  value = targetComponents.toString()
+              if (labelParts[ix].constraint_perspective === null) {
+                if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
+                  value = partData ? partData.value : ''
+                } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null) { // Connection Property
+                  if (partData.value) {
+                    let targetComponents = []
+                    partData.value.forEach(function (data, index) {
+                      targetComponents.push(data.target_component.name)
+                    })
+                    value = targetComponents.toString()
+                  } else {
+                    value = partData.value || ''
+                  }
+                } else if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
+                  value = partData.value !== null ? partData.value.int_value : ''
+                } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+                  value = partData.value !== null ? partData.value.float_value : ''
+                } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+                  value = partData.value !== null ? partData.value.text_value : ''
+                } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+                  value = partData.value !== null ? partData.value.date_time_value : ''
+                } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+                  value = partData.value !== null ? partData.value.boolean_value : ''
+                } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                  value = partData.value !== null ? partData.value.value_set_value : ''
                 } else {
-                  value = partData.value || ''
+                  value = partData.value !== null ? partData.value.other_value : ''
                 }
-              } else if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
-                value = partData.value !== null ? partData.value.int_value : ''
-              } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
-                value = partData.value !== null ? partData.value.float_value : ''
-              } else if (labelParts[ix].type_property.property_type.key === 'Text') {
-                value = partData.value !== null ? partData.value.text_value : ''
-              } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
-                value = partData.value !== null ? partData.value.date_time_value : ''
-              } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-                value = partData.value !== null ? partData.value.boolean_value : ''
-              } else if (labelParts[ix].type_property.property_type.key === 'List') {
-                value = partData.value !== null ? partData.value.value_set_value : ''
-              } else {
-                value = partData.value !== null ? partData.value.other_value : ''
+                childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
               }
-              childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
             })
           }
           return (<tr className='table-tr' key={index}>{childList}</tr>)
