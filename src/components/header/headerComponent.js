@@ -34,6 +34,7 @@ export default function HeaderComponent (props) {
   let isLoginSlideOpen = props.isLoginSlideOpen
   let loginSlideClass = 'm-dropdown--close'
   let notificationStyle = {}
+  let selectedPackageName = props.selectedPackageName || ''
   if (props.notificationFlag) {
     notificationStyle = notificationAlert
   } else {
@@ -108,8 +109,8 @@ export default function HeaderComponent (props) {
     selectModuleOptions = allPackage.resources.map(function (data, index) {
       return (
         <li m-menu-submenu-toggle='click' aria-haspopup='true'>
-          <a href={window.location.origin + '/select-module/' + data.key} className='m-menu__link m-menu__toggle' title={data.name} >
-            <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary' style={{border: 'none', width: '100%'}}>{data.key}</span>
+          <a href={window.location.origin + '/select-module/' + data.key} className='m-menu__link m-menu__toggle' title={data.description} >
+            <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary' style={{border: 'none', width: '100%'}}>{data.name}</span>
           </a>
           <div className={styles.divider} />
         </li>
@@ -156,7 +157,7 @@ export default function HeaderComponent (props) {
               <div className='m-header__title' style={mHeaderStyle}>
                 {/* <h3 className='m-header__title-text' style={{'padding': '0 10px 0 30px', 'marginTop': '25px'}}>Select Module</h3> */}
                 <div className={styles.tooltip}>
-                  <a onClick={(event) => { console.log('clicked') }} href='javascript:void(0);' ><h3 className='m-header__title-text' style={{'padding': '0 10px 0 30px', 'marginTop': '25px', color: 'black'}}>Select Module</h3></a>
+                  <a onClick={(event) => { console.log('clicked') }} href='javascript:void(0);' ><h3 className='m-header__title-text' style={{'padding': '0 10px 0 30px', 'marginTop': '25px', color: 'black'}}>Select Module: <span>{selectedPackageName}</span></h3></a>
                   <div className={styles.tooltiptext}>
                     <ul>
                       {selectModuleOptions}
@@ -268,5 +269,6 @@ HeaderComponent.propTypes = {
   updateNotificationViewStatus: PropTypes.func,
   isQuickSlideOpen: PropTypes.any,
   isLoginSlideOpen: PropTypes.any,
-  notificationFlag: PropTypes.any
+  notificationFlag: PropTypes.any,
+  selectedPackageName: PropTypes.any
 }

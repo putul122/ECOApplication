@@ -11,6 +11,7 @@ export function mapStateToProps (state, props) {
     isQuickSlideOpen: state.basicReducer.isQuickSlideOpen,
     isLoginSlideOpen: state.basicReducer.isLoginSlideOpen,
     notificationFlag: state.basicReducer.notificationFlag,
+    selectedPackageName: state.basicReducer.selectedPackageName,
     updateNotificationViewStatusResponse: state.basicReducer.updateNotificationViewStatusResponse
   }
 }
@@ -21,6 +22,7 @@ export const propsMapping: Callbacks = {
     setLoginslideFlag: actionCreators.setLoginslideFlag,
     setNotificationFlag: actionCreators.setNotificationFlag,
     resetNotificationResponse: actionCreators.resetNotificationResponse,
+    setSelectedPackageName: actionCreators.setSelectedPackageName,
     updateNotificationViewStatus: sagaActions.basicActions.updateNotificationViewStatus
 }
 
@@ -33,7 +35,10 @@ export const propsMapping: Callbacks = {
 export default compose(
   connect(mapStateToProps, propsMapping),
   lifecycle({
-    componentDidMount: function () {},
+    componentDidMount: function () {
+      let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
+      this.props.setSelectedPackageName(selectedPackage.name || '')
+    },
     componentWillReceiveProps (nextProps) {
       if (nextProps.isQuickSlideOpen && nextProps.isQuickSlideOpen !== this.props.isQuickSlideOpen) {
         if (nextProps.isQuickSlideOpen) {

@@ -43,7 +43,7 @@ class LeftNavigation extends React.Component {
               </a>
             </li>
             <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
-              <a className='m-menu__link' href='/component_types'>
+              <a className='m-menu__link' href='/data'>
                 <i className='m-menu__link-icon flaticon-squares' style={{'font-size': '25px'}} />
                 <span className={styles.navtext}>
                   Data
