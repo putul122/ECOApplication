@@ -25,6 +25,7 @@ const SET_NOTIFICATION_FLAG = 'BasicReducer/SET_NOTIFICATION_FLAG'
 const TOGGLE_FLIPIN_X = 'BasicReducer/TOGGLE_FLIPIN_X'
 const RESET_NOTIFICATION_RESPONSE = 'BasicReducer/RESET_NOTIFICATION_RESPONSE'
 const SET_SELECTED_PACKAGE_NAME = 'BasicReducer/SET_SELECTED_PACKAGE_NAME'
+const SET_ALL_PACKAGE = 'BasicReducer/SET_ALL_PACKAGE'
 
 export const actions = {
   INCREMENT,
@@ -47,7 +48,8 @@ export const actions = {
   UPDATE_NOTIFICATION_VIEW_STATUS_SUCCESS,
   RESET_NOTIFICATION_RESPONSE,
   FETCH_ALL_PACKAGES_SUCCESS,
-  SET_SELECTED_PACKAGE_NAME
+  SET_SELECTED_PACKAGE_NAME,
+  SET_ALL_PACKAGE
 }
 
 export const actionCreators = {
@@ -68,7 +70,8 @@ export const actionCreators = {
   setNotificationFlag: createAction(SET_NOTIFICATION_FLAG),
   toggleFlipInX: createAction(TOGGLE_FLIPIN_X),
   resetNotificationResponse: createAction(RESET_NOTIFICATION_RESPONSE),
-  setSelectedPackageName: createAction(SET_SELECTED_PACKAGE_NAME)
+  setSelectedPackageName: createAction(SET_SELECTED_PACKAGE_NAME),
+  setAllPackage: createAction(SET_ALL_PACKAGE)
 }
 
 export const initialState = {
@@ -179,6 +182,9 @@ export default handleActions(
     }),
     [SET_SELECTED_PACKAGE_NAME]: (state, action) => ({ ...state,
       selectedPackageName: action.payload
+    }),
+    [SET_ALL_PACKAGE]: (state, action) => ({ ...state,
+      packages: action.payload
     })
   },
   initialState

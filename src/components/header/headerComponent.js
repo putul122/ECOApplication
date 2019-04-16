@@ -94,6 +94,8 @@ export default function HeaderComponent (props) {
     localStorage.removeItem('isLoggedin')
     localStorage.removeItem('showToasterSuccess')
     localStorage.removeItem('userAccessToken')
+    localStorage.removeItem('packages')
+    localStorage.removeItem('selectedPackage')
     props.setLoginslideFlag(false)
     props.history.push('/')
   }
@@ -103,10 +105,9 @@ export default function HeaderComponent (props) {
     loginSlideClass = 'm-dropdown--close'
     props.setLoginslideFlag(false)
   }
-  let allPackage = JSON.parse(localStorage.getItem('packages'))
   let selectModuleOptions = ''
-  if (allPackage && allPackage.error_code === null && allPackage.resources) {
-    selectModuleOptions = allPackage.resources.map(function (data, index) {
+  if (props.packages && props.packages.error_code === null && props.packages.resources) {
+    selectModuleOptions = props.packages.resources.map(function (data, index) {
       return (
         <li m-menu-submenu-toggle='click' aria-haspopup='true'>
           <a href={window.location.origin + '/select-module/' + data.key} className='m-menu__link m-menu__toggle' title={data.description} >
@@ -270,5 +271,6 @@ HeaderComponent.propTypes = {
   isQuickSlideOpen: PropTypes.any,
   isLoginSlideOpen: PropTypes.any,
   notificationFlag: PropTypes.any,
-  selectedPackageName: PropTypes.any
+  selectedPackageName: PropTypes.any,
+  packages: PropTypes.any
 }

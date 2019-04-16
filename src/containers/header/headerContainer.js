@@ -12,6 +12,7 @@ export function mapStateToProps (state, props) {
     isLoginSlideOpen: state.basicReducer.isLoginSlideOpen,
     notificationFlag: state.basicReducer.notificationFlag,
     selectedPackageName: state.basicReducer.selectedPackageName,
+    packages: state.basicReducer.packages,
     updateNotificationViewStatusResponse: state.basicReducer.updateNotificationViewStatusResponse
   }
 }
@@ -23,6 +24,7 @@ export const propsMapping: Callbacks = {
     setNotificationFlag: actionCreators.setNotificationFlag,
     resetNotificationResponse: actionCreators.resetNotificationResponse,
     setSelectedPackageName: actionCreators.setSelectedPackageName,
+    setAllPackage: actionCreators.setAllPackage,
     updateNotificationViewStatus: sagaActions.basicActions.updateNotificationViewStatus
 }
 
@@ -37,7 +39,13 @@ export default compose(
   lifecycle({
     componentDidMount: function () {
       let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
-      this.props.setSelectedPackageName(selectedPackage.name || '')
+      let allPackage = JSON.parse(localStorage.getItem('packages'))
+      if (selectedPackage) {
+        this.props.setSelectedPackageName(selectedPackage.name || '')
+      }
+      if (allPackage) {
+        this.props.setAllPackage(allPackage)
+      }
     },
     componentWillReceiveProps (nextProps) {
       if (nextProps.isQuickSlideOpen && nextProps.isQuickSlideOpen !== this.props.isQuickSlideOpen) {
