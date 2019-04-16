@@ -98,6 +98,14 @@ class LeftNavigation extends React.Component {
                 </span>
               </a>
             </li>
+            <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
+              <a className='m-menu__link' href='/perspectives'>
+                <i className='m-menu__link-icon flaticon-cogwheel-1' style={{'font-size': '25px'}} />
+                <span className={styles.navtext}>
+                  Perspectives
+                </span>
+              </a>
+            </li>
           </ul>
         </nav>
       </div>
