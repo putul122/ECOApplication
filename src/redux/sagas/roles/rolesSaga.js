@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const FETCH_ROLES = 'saga/roles/FETCH_ROLES'
@@ -39,24 +39,13 @@ export const actionCreators = {
 }
 
 export default function * watchRoles () {
-  //  takeLatest(ROLES, roles)
-   yield [
+  yield [
     takeLatest(FETCH_ROLES, getRoles),
-    // takeLatest(FETCH_PROJECTS_SUMMARY, getProjectsSummary),
-    // takeLatest(FETCH_PROJECT_BY_ID, getProjectById),
-    // takeLatest(FETCH_PROJECT_ENTITLEMENTS, getProjectEntitlements),
-    // takeLatest(FETCH_PROJECT_PROPERTIES, getProjectProperties),
-    // takeLatest(UPDATE_PROJECT_PROPERTIES, updateProjectProperties),
-    // takeLatest(UPDATE_PROJECT, updateProjectData),
-    // takeLatest(FETCH_COMPONENT_TYPE_COMPONENTS, getComponentTypeComponents),
-    // takeLatest(ADD_PROJECT_ENTITLEMENTS, addProjectEntitlements),
-    // takeLatest(UPDATE_PROJECT_ENTITLEMENTS, updateProjectEntitlements),
-    // takeLatest(DELETE_PROJECT_ENTITLEMENTS, deleteProjectEntitlements),
     takeLatest(UPDATE_ROLE, updateRole),
     takeLatest(DELETE_ROLE, deleteRole),
     takeLatest(CREATE_ROLES, createRoles),
     takeLatest(FETCH_ROLE_BY_ID, getRoleById)
-]
+  ]
 }
 
 export function * getRoles (action) {
@@ -65,11 +54,25 @@ export function * getRoles (action) {
     const roles = yield call(
       axios.get,
       api.getRoles,
-      {params: action.payload}
+      {params: action.payload},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchRolesSuccess(roles.data))
   } catch (error) {
-    yield put(actionCreators.fetchRolesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchRolesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchRolesFailure(error))
+    }
   }
 }
 
@@ -79,11 +82,25 @@ export function * createRoles (action) {
     const role = yield call(
       axios.post,
       api.createRole,
-      action.payload
+      action.payload,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.createRolesSuccess(role.data))
   } catch (error) {
-    yield put(actionCreators.createRolesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.createRolesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.createRolesFailure(error))
+    }
   }
 }
 
@@ -92,11 +109,25 @@ export function * deleteRole (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const roleDelete = yield call(
       axios.delete,
-      api.deleteRole(action.payload.role_id)
-     )
+      api.deleteRole(action.payload.role_id),
+      {'timeout': timeOut.duration}
+    )
     yield put(actionCreators.deleteRoleSuccess(roleDelete.data))
   } catch (error) {
-    yield put(actionCreators.deleteRoleFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.deleteRoleSuccess(errorObj))
+    } else {
+      yield put(actionCreators.deleteRoleFailure(error))
+    }
   }
 }
 
@@ -106,11 +137,25 @@ export function * updateRole (action) {
     const role = yield call(
       axios.patch,
       api.updateRole(action.payload.role_id),
-      action.payload.data
+      action.payload.data,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.updateRoleSuccess(role.data))
   } catch (error) {
-    yield put(actionCreators.updateRoleFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateRoleSuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateRoleFailure(error))
+    }
   }
 }
 
@@ -120,10 +165,24 @@ export function * getRoleById (action) {
     const role = yield call(
       axios.get,
       api.getRole(action.payload.role_id),
-      action.payload.data
+      action.payload.data,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchRoleByIdSuccess(role.data))
   } catch (error) {
-    yield put(actionCreators.fetchRoleByIdFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchRoleByIdSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchRoleByIdFailure(error))
+    }
   }
 }

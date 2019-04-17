@@ -154,6 +154,9 @@ export default function PerspectiveHierarchy (props) {
     props.setPerPage(parseInt(event.target.value))
   }
   let openModal = function (data, level, operationType) {
+    console.log('data', data)
+    console.log('level', level)
+    console.log('operationType', operationType)
     let addSettings = {...props.addSettings}
     let perspectiveId = ''
     let viewKey = ''
@@ -218,12 +221,19 @@ export default function PerspectiveHierarchy (props) {
             viewKey = rolePerspectives.Update.part_perspective_view_key
           }
           payload.id = perspectiveId
-          payload.viewKey = {'view_key': viewKey}
+          payload.viewKey = {}
+          payload.viewKey.view_key = viewKey
+          if (data.parentReference) {
+            payload.viewKey.parent_reference = data.parentReference
+          }
           props.fetchCrudMetaModelPrespective && props.fetchCrudMetaModelPrespective(payload)
           if (operationType === 'Edit') {
             let paydata = {}
             paydata['meta_model_perspective_id'] = perspectiveId
             paydata['view_key'] = viewKey
+            if (data.parentReference) {
+              paydata['parent_reference'] = data.parentReference
+            }
             let modelPerspectivePayload = {}
             modelPerspectivePayload.id = data.editSubjectId
             modelPerspectivePayload.data = paydata
@@ -318,9 +328,9 @@ export default function PerspectiveHierarchy (props) {
       } else {
         if (data) {
           let connections = []
-          let obj = {}
-          obj.target_id = data.id
-          connections.push(obj)
+          let obj1 = {}
+          obj1.target_id = data.id
+          connections.push(obj1)
           obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
         } else {
           obj.value.parts[connectionData.data[index].partIndex] = {}
@@ -381,7 +391,7 @@ export default function PerspectiveHierarchy (props) {
         if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
           obj.op = 'replace'
           valueType = partData.standard_property
-          obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
+          obj.path = '/parts/' + index + '/' + valueType
           if (partData.standard_property === 'name') {
             obj.value = props.addSettings.name
           }
@@ -445,7 +455,7 @@ export default function PerspectiveHierarchy (props) {
               obj.op = 'remove'
               obj.value = value
               valueType = 'value/-'
-              obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
+              obj.path = '/parts/' + index + '/' + valueType
               patchPayload.push(obj)
               console.log('connectionId obj', connectionIdArray, obj)
             }
@@ -465,7 +475,7 @@ export default function PerspectiveHierarchy (props) {
               obj.op = 'add'
               obj.value = connections
               valueType = 'value/-'
-              obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
+              obj.path = '/parts/' + index + '/' + valueType
               patchPayload.push(obj)
               console.log('add obj', obj)
             }
@@ -502,24 +512,37 @@ export default function PerspectiveHierarchy (props) {
               valueType = `other_value`
               obj.value = customerProperty.type_property.other_value
             }
-            obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
+            obj.path = '/parts/' + index + '/' + valueType
             patchPayload.push(obj)
           }
         }
       })
     }
+    let selectedData = addSettings.selectedData
     let payload = {}
+    payload.id = data.subject_id
     payload.queryString = {}
     payload.queryString.meta_model_perspective_id = props.crudMetaModelPerspective.resources[0].id
     payload.queryString.apply_changes = true
     if (addSettings.initiatedFrom === 'ChildrenNode') {
       payload.queryString.parent_reference = addSettings.selectedData.parentReference
+      let viewKey = null
+      if (selectedData.rolePerspectives) {
+        if (selectedData.rolePerspectives.Update) {
+          viewKey = selectedData.rolePerspectives.Update.part_perspective_view_key
+        }
+      }
+      if (viewKey) {
+        payload.queryString.view_key = viewKey
+      }
+    } else {
+      payload.queryString.view_key = addSettings.viewKey
     }
-    payload.data = {}
-    payload.data[props.crudMetaModelPerspective.resources[0].id] = patchPayload
+    payload.data = patchPayload
     // console.log('payload', payload)
     // console.log('updateComponentModelPrespectives', props.updateComponentModelPrespectives)
-    props.updateComponentModelPrespectives(payload)
+    // props.updateComponentModelPrespectives(payload)
+    props.updateNestedModelPrespectives(payload)
   }
   let removeComponent = function (event) {
     event.preventDefault()

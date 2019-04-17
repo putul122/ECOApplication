@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const FETCH_ACCOUNT_ARTEFACTS = 'saga/createDiscussion/FETCH_ACCOUNT_ARTEFACTS'
@@ -40,11 +40,25 @@ export function * getAccountArtefacts (action) {
     const viewAccountArtefact = yield call(
       axios.get,
       api.getAccountArtefacts,
-      {params: action.payload}
-     )
+      {params: action.payload},
+      {'timeout': timeOut.duration}
+    )
     yield put(actionCreators.fetchAccountArtefactsSuccess(viewAccountArtefact.data))
   } catch (error) {
-    yield put(actionCreators.fetchAccountArtefactsFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchAccountArtefactsSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchAccountArtefactsFailure(error))
+    }
   }
 }
 
@@ -54,11 +68,25 @@ export function * getModelArtefacts (action) {
     const viewModelArtefact = yield call(
       axios.get,
       api.getModelArtefacts,
-      {params: action.payload}
-     )
+      {params: action.payload},
+      {'timeout': timeOut.duration}
+    )
     yield put(actionCreators.fetchModelArtefactsSuccess(viewModelArtefact.data))
   } catch (error) {
-    yield put(actionCreators.fetchModelArtefactsFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchModelArtefactsSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchModelArtefactsFailure(error))
+    }
   }
 }
 
@@ -67,13 +95,25 @@ export function * createComponentDiscussion (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const createDiscussion = yield call(
       axios.post,
-      // api.addComponent,
       api.createDiscussion(action.payload),
-      // {params: action.payload.component_type}
-      action.payload
+      action.payload,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.createComponentDiscussionSuccess(createDiscussion.data))
   } catch (error) {
-    yield put(actionCreators.createComponentDiscussionFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.createComponentDiscussionSuccess(errorObj))
+    } else {
+      yield put(actionCreators.createComponentDiscussionFailure(error))
+    }
   }
 }

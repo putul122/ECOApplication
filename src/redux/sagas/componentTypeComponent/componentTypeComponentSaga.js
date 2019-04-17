@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const FETCH_COMPONENT_TYPE_COMPONENT = 'saga/componentTypeComponent/FETCH_COMPONENT_TYPE_COMPONENT'
@@ -109,12 +109,25 @@ export function * getComponentTypeComponent (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const componentTypes = yield call(
       axios.get,
-      api.getComponent(action.payload)
-      // {params: action.payload}
+      api.getComponent(action.payload),
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchComponentTypeComponentSuccess(componentTypes.data))
   } catch (error) {
-    yield put(actionCreators.fetchComponentTypeComponentFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchComponentTypeComponentSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchComponentTypeComponentFailure(error))
+    }
   }
 }
 
@@ -124,11 +137,25 @@ export function * getComponents (action) {
     const components = yield call(
       axios.get,
       api.getComponents,
-      {params: action.payload}
+      {params: action.payload},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchComponentsSuccess(components.data))
   } catch (error) {
-    yield put(actionCreators.fetchComponentsFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchComponentsSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchComponentsFailure(error))
+    }
   }
 }
 
@@ -137,12 +164,25 @@ export function * getComponentTypeComponentProperties (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const componentTypes = yield call(
       axios.get,
-      api.getComponentProperty(action.payload)
-      // {params: action.payload}
+      api.getComponentProperty(action.payload),
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchcomponentTypeComponentPropertiesSuccess(componentTypes.data))
   } catch (error) {
-    yield put(actionCreators.fetchcomponentTypeComponentPropertiesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchcomponentTypeComponentPropertiesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchcomponentTypeComponentPropertiesFailure(error))
+    }
   }
 }
 
@@ -151,12 +191,25 @@ export function * getComponentTypeComponentRelationships (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const componentTypes = yield call(
       axios.get,
-      api.getComponentRelationships(action.payload)
-      // {params: action.payload}
+      api.getComponentRelationships(action.payload),
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchcomponentTypeComponentRelationshipsSuccess(componentTypes.data))
   } catch (error) {
-    yield put(actionCreators.fetchcomponentTypeComponentRelationshipsFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchcomponentTypeComponentRelationshipsSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchcomponentTypeComponentRelationshipsFailure(error))
+    }
   }
 }
 
@@ -165,12 +218,25 @@ export function * getComponentConstraints (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const componentTypes = yield call(
       axios.get,
-      api.getComponentConstraints(action.payload)
-      // {params: action.payload}
+      api.getComponentConstraints(action.payload),
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchComponentConstraintsSuccess(componentTypes.data))
   } catch (error) {
-    yield put(actionCreators.fetchComponentConstraintsFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchComponentConstraintsSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchComponentConstraintsFailure(error))
+    }
   }
 }
 
@@ -179,12 +245,25 @@ export function * getComponentTypeComponents (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const componentTypes = yield call(
       axios.get,
-      api.getComponentTypeComponents(action.payload.componentTypeId)
-      // {params: action.payload}
+      api.getComponentTypeComponents(action.payload.componentTypeId),
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchComponentTypeComponentsSuccess(componentTypes.data))
   } catch (error) {
-    yield put(actionCreators.fetchComponentTypeComponentsFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchComponentTypeComponentsSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchComponentTypeComponentsFailure(error))
+    }
   }
 }
 
@@ -194,12 +273,25 @@ export function * updateComponentTypeComponentRelationships (action) {
     const componentTypes = yield call(
       axios.patch,
       api.updateComponentRelationships(action.payload),
-      action.payload.relationship
-      // {params: action.payload}
+      action.payload.relationship,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.updateComponentTypeComponentRelationshipsSuccess(componentTypes.data))
   } catch (error) {
-    yield put(actionCreators.updateComponentTypeComponentRelationshipsFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateComponentTypeComponentRelationshipsSuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateComponentTypeComponentRelationshipsFailure(error))
+    }
   }
 }
 
@@ -209,12 +301,25 @@ export function * updateComponentTypeComponentProperties (action) {
     const componentTypes = yield call(
       axios.patch,
       api.updateComponentProperties(action.payload),
-      action.payload.property
-      // {params: action.payload}
+      action.payload.property,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.updateComponentTypeComponentPropertiesSuccess(componentTypes.data))
   } catch (error) {
-    yield put(actionCreators.updateComponentTypeComponentPropertiesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateComponentTypeComponentPropertiesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateComponentTypeComponentPropertiesFailure(error))
+    }
   }
 }
 
@@ -224,12 +329,25 @@ export function * updateComponentTypeComponentData (action) {
     const componentTypes = yield call(
       axios.patch,
       api.updateComponent(action.payload),
-      action.payload.component
-      // {params: action.payload}
+      action.payload.component,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.updateComponentTypeComponentSuccess(componentTypes.data))
   } catch (error) {
-    yield put(actionCreators.updateComponentTypeComponentFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateComponentTypeComponentSuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateComponentTypeComponentFailure(error))
+    }
   }
 }
 
@@ -238,13 +356,25 @@ export function * deleteComponentTypeComponent (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const deleteComponent = yield call(
       axios.delete,
-      api.deleteComponent(action.payload.id)
-      // action.payload
-     )
-     console.log(deleteComponent)
+      api.deleteComponent(action.payload.id),
+      {'timeout': timeOut.duration}
+    )
     yield put(actionCreators.deletecomponentTypeComponentSuccess(deleteComponent.data))
   } catch (error) {
-    yield put(actionCreators.deletecomponentTypeComponentFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.deletecomponentTypeComponentSuccess(errorObj))
+    } else {
+      yield put(actionCreators.deletecomponentTypeComponentFailure(error))
+    }
   }
 }
 
@@ -253,12 +383,25 @@ export function * getRelationshipProperty (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const viewRelationship = yield call(
       axios.get,
-      api.viewComponentRelationship(action.payload)
-      // action.payload
-     )
+      api.viewComponentRelationship(action.payload),
+      {'timeout': timeOut.duration}
+    )
     yield put(actionCreators.viewRelationshipPropertySuccess(viewRelationship.data))
   } catch (error) {
-    yield put(actionCreators.viewRelationshipPropertyFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.viewRelationshipPropertySuccess(errorObj))
+    } else {
+      yield put(actionCreators.viewRelationshipPropertyFailure(error))
+    }
   }
 }
 
@@ -268,11 +411,25 @@ export function * updateRelationshipProperty (action) {
     const updateRelationship = yield call(
       axios.patch,
       api.viewComponentRelationship(action.payload),
-      action.payload.payloadData
-     )
+      action.payload.payloadData,
+      {'timeout': timeOut.duration}
+    )
     yield put(actionCreators.updateRelationshipPropertySuccess(updateRelationship.data))
   } catch (error) {
-    yield put(actionCreators.updateRelationshipPropertyFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateRelationshipPropertySuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateRelationshipPropertyFailure(error))
+    }
   }
 }
 
@@ -282,10 +439,24 @@ export function * deleteComponentRelationship (action) {
     const deleteRelationship = yield call(
       axios.delete,
       api.deleteRelationship(action.payload),
-      {params: action.payload.deletePayload}
-      )
+      {params: action.payload.deletePayload},
+      {'timeout': timeOut.duration}
+    )
     yield put(actionCreators.deleteComponentRelationshipSuccess(deleteRelationship.data))
   } catch (error) {
-    yield put(actionCreators.deleteComponentRelationshipFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.deleteComponentRelationshipSuccess(errorObj))
+    } else {
+      yield put(actionCreators.deleteComponentRelationshipFailure(error))
+    }
   }
 }

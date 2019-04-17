@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const ACTIVITY_MESSAGE = 'saga/Login/ACTIVITY_MESSAGE'
@@ -23,10 +23,24 @@ export function * activityMessage (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const activityMessage = yield call(
       axios.get,
-      api.getActivityMessage()
+      api.getActivityMessage(),
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.activityMessageSuccess(activityMessage.data))
   } catch (error) {
-    yield put(actionCreators.activityMessageFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.activityMessageSuccess(errorObj))
+    } else {
+      yield put(actionCreators.activityMessageFailure(error))
+    }
   }
 }
