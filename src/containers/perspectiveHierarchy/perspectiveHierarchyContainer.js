@@ -47,6 +47,7 @@ export const propsMapping: Callbacks = {
   updateComponentModelPrespectives: sagaActions.modelActions.updateComponentModelPrespectives,
   fetchNestedModelPrespectives: sagaActions.serviceActions.fetchNestedModelPrespectives,
   fetchCrudModelPrespectives: sagaActions.serviceActions.fetchCrudModelPrespectives,
+  updateNestedModelPrespectives: sagaActions.serviceActions.updateNestedModelPrespectives,
   setExpandSettings: actionCreators.setExpandSettings,
   setHeaderData: actionCreators.setHeaderData
 }

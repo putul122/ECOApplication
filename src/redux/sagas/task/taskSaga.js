@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const FETCH_TEMPLATES = 'saga/tasks/FETCH_TEMPLATES'
@@ -54,11 +54,25 @@ export function * getTemplates (action) {
     const templates = yield call(
       axios.get,
       api.getReviewTemplates,
-      {params: action.payload}
+      {params: action.payload},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchTemplatesSuccess(templates.data))
   } catch (error) {
-    yield put(actionCreators.fetchTemplatesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchTemplatesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchTemplatesFailure(error))
+    }
   }
 }
 
@@ -68,11 +82,25 @@ export function * getTemplatesSummary (action) {
       const templatesSummary = yield call(
         axios.get,
         api.getTemplatesSummary,
-        {params: action.payload}
+        {params: action.payload},
+        {'timeout': timeOut.duration}
       )
       yield put(actionCreators.fetchTemplatesSummarySuccess(templatesSummary.data))
     } catch (error) {
-      yield put(actionCreators.fetchTemplatesSummaryFailure(error))
+      if (error.code === 'ECONNABORTED') {
+        let errorObj = {
+          'count': 0,
+          'error_code': error.code,
+          'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+          'error_source': '',
+          'links': [],
+          'resources': [],
+          'result_code': null
+        }
+        yield put(actionCreators.fetchTemplatesSummarySuccess(errorObj))
+      } else {
+        yield put(actionCreators.fetchTemplatesSummaryFailure(error))
+      }
     }
   }
 
@@ -82,11 +110,25 @@ export function * getTemplateById (action) {
     const template = yield call(
       axios.get,
       api.getReviewTemplate,
-      {params: action.payload}
+      {params: action.payload},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchTemplateByIdSuccess(template.data))
   } catch (error) {
-    yield put(actionCreators.fetchTemplateByIdFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchTemplateByIdSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchTemplateByIdFailure(error))
+    }
   }
 }
 export function * createTemplates (action) {
@@ -95,11 +137,25 @@ export function * createTemplates (action) {
     const template = yield call(
       axios.post,
       api.createReviewTemplate,
-      action.payload
+      action.payload,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.createTemplatesSuccess(template.data))
   } catch (error) {
-    yield put(actionCreators.createTemplatesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.createTemplatesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.createTemplatesFailure(error))
+    }
   }
 }
 export function * updateTemplate (action) {
@@ -108,10 +164,24 @@ export function * updateTemplate (action) {
     const template = yield call(
       axios.patch,
       api.updateReviewTemplate,
-      action.payload
+      action.payload,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.updateTemplatesSuccess(template.data))
   } catch (error) {
-    yield put(actionCreators.updateTemplatesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateTemplatesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateTemplatesFailure(error))
+    }
   }
 }

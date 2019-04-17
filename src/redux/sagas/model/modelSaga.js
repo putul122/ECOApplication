@@ -2,7 +2,7 @@ import axios from 'axios'
 // import httpAdapter from 'axios/lib/adapters/http'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 // const OUTPUT = 'output.json'
 // const output = fs.createWriteStream(OUTPUT)
 // Saga action strings
@@ -84,13 +84,26 @@ export function * updateComponentModelPrespectives (action) {
     const modelPrespective = yield call(
       axios.patch,
       api.getModelPerspectives,
-      // api.updateModelPerspectives(action.payload.metaModelPerspectiveId),
       action.payload.data,
-      {params: action.payload.queryString}
+      {params: action.payload.queryString},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.updateComponentModelPrespectivesSuccess(modelPrespective.data))
   } catch (error) {
-    yield put(actionCreators.updateComponentModelPrespectivesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateComponentModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateComponentModelPrespectivesFailure(error))
+    }
   }
 }
 
@@ -99,13 +112,25 @@ export function * deleteComponentModelPerspectives (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const deleteModelPerspective = yield call(
       axios.delete,
-      api.deleteComponent(action.payload.id)
-      // action.payload
-     )
-     console.log(deleteModelPerspective)
+      api.deleteComponent(action.payload.id),
+      {'timeout': timeOut.duration}
+    )
     yield put(actionCreators.deleteComponentModelPerspectivesSuccess(deleteModelPerspective.data))
   } catch (error) {
-    yield put(actionCreators.deleteComponentModelPerspectivesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.deleteComponentModelPerspectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.deleteComponentModelPerspectivesFailure(error))
+    }
   }
 }
 
@@ -115,11 +140,25 @@ export function * getMetaModelPrespective (action) {
     const metaModelPrespective = yield call(
       axios.get,
       api.getMetaModelPerspective(action.payload.id),
-      {params: action.payload.viewKey}
+      {params: action.payload.viewKey},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchMetaModelPrespectiveSuccess(metaModelPrespective.data))
   } catch (error) {
-    yield put(actionCreators.fetchMetaModelPrespectiveFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchMetaModelPrespectiveSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchMetaModelPrespectiveFailure(error))
+    }
   }
 }
 
@@ -130,26 +169,52 @@ export function * getModelPerspectives (action) {
     const modelPrespectives = yield call(
       axios.get,
       api.getModelPerspectives,
-      {params: action.payload}
+      {params: action.payload},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchModelPrespectivesSuccess(modelPrespectives.data))
   } catch (error) {
-    yield put(actionCreators.fetchModelPrespectivesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchModelPrespectivesFailure(error))
+    }
   }
 }
 
 export function * getComponentModelPerspectives (action) {
-  console.log('action', action)
   try {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
     const componentModelPrespectives = yield call(
       axios.get,
-      api.getComponentModelPerspectives(action.payload)
+      api.getComponentModelPerspectives(action.payload),
+      {'timeout': timeOut.duration}
     )
-    console.log('componentModelPrespectives', componentModelPrespectives)
     yield put(actionCreators.fetchComponentModelPrespectivesSuccess(componentModelPrespectives.data))
   } catch (error) {
-    yield put(actionCreators.fetchComponentModelPrespectivesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchComponentModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchComponentModelPrespectivesFailure(error))
+    }
   }
 }
 
@@ -159,13 +224,26 @@ export function * updateModelPrespectives (action) {
     const modelPrespectives = yield call(
       axios.patch,
       api.getModelPerspectives,
-      // api.updateModelPerspectives(action.payload.metaModelPerspectiveId),
       action.payload.data,
-      {params: action.payload.queryString}
+      {params: action.payload.queryString},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.updateModelPrespectivesSuccess(modelPrespectives.data))
   } catch (error) {
-    yield put(actionCreators.updateModelPrespectivesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateModelPrespectivesFailure(error))
+    }
   }
 }
 
@@ -176,12 +254,25 @@ export function * getAllModelPerspectives (action) {
     const modelPrespectives = yield call(
       axios.get,
       api.getAllModelPerspectives(action.payload),
-      // {params: action.payload},
-      {'responseType': 'blob'}
+      {'responseType': 'blob'},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchAllModelPrespectivesSuccess(modelPrespectives.data))
   } catch (error) {
-    yield put(actionCreators.fetchAllModelPrespectivesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchAllModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchAllModelPrespectivesFailure(error))
+    }
   }
 }
 
@@ -196,12 +287,25 @@ export function * updateAllModelPerspectives (action) {
       action.payload.formData,
       {'headers': {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      }}
+      }},
+      {'timeout': timeOut.duration}
     )
-    console.log('modelPrespectives', modelPrespectives)
     yield put(actionCreators.updateAllModelPrespectivesSuccess(modelPrespectives.data))
   } catch (error) {
-    yield put(actionCreators.updateAllModelPrespectivesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateAllModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateAllModelPrespectivesFailure(error))
+    }
   }
 }
 
@@ -211,10 +315,24 @@ export function * getMetaModelPrespectives (action) {
     const metaModelPrespectives = yield call(
       axios.get,
       api.getMetaModelPerspectives,
-      {params: action.payload}
+      {params: action.payload},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchMetaModelPrespectivesSuccess(metaModelPrespectives.data))
   } catch (error) {
-    yield put(actionCreators.fetchMetaModelPrespectivesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchMetaModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchMetaModelPrespectivesFailure(error))
+    }
   }
 }

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const CREATE_USER = 'saga/signUp/CREATE_USER'
@@ -24,10 +24,24 @@ export function * createUser (action) {
     const registerUser = yield call(
       axios.post,
       api.createUser,
-      action.payload
+      action.payload,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.createUserSuccess(registerUser.data))
   } catch (error) {
-    yield put(actionCreators.createUserFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.createUserSuccess(errorObj))
+    } else {
+      yield put(actionCreators.createUserFailure(error))
+    }
   }
 }

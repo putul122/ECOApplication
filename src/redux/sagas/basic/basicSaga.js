@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const FETCH_CLIENT_ACCESS_TOKEN = 'saga/Basic/FETCH_CLIENT_ACCESS_TOKEN'
@@ -67,11 +67,25 @@ export function * getClientAccessToken (action) {
     const clientAccessToken = yield call(
       axios.post,
       api.clientAccessToken,
-      action.payload
+      action.payload,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchClientAccessTokenSuccess(clientAccessToken.data))
   } catch (error) {
-    yield put(actionCreators.fetchClientAccessTokenFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchClientAccessTokenSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchClientAccessTokenFailure(error))
+    }
   }
 }
 
@@ -80,11 +94,25 @@ export function * getUserAuthentication (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
     const userAuthentication = yield call(
       axios.get,
-      api.authenticateUser
+      api.authenticateUser,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchUserAuthenticationSuccess(userAuthentication.data))
   } catch (error) {
-    yield put(actionCreators.fetchUserAuthenticationFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchUserAuthenticationSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchUserAuthenticationFailure(error))
+    }
   }
 }
 
@@ -93,11 +121,25 @@ export function * updateNotificationViewStatus (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
     const updateNotificationViewStatus = yield call(
       axios.patch,
-      api.updateNotificationViewStatus
+      api.updateNotificationViewStatus,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.updateNotificationViewStatusSuccess(updateNotificationViewStatus.data))
   } catch (error) {
-    yield put(actionCreators.updateNotificationViewStatusFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateNotificationViewStatusSuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateNotificationViewStatusFailure(error))
+    }
   }
 }
 
@@ -106,11 +148,25 @@ export function * getRoles (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const roles = yield call(
       axios.get,
-      api.getRoles
+      api.getRoles,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchRolesSuccess(roles.data))
   } catch (error) {
-    yield put(actionCreators.fetchRolesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchRolesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchRolesFailure(error))
+    }
   }
 }
 
@@ -119,11 +175,25 @@ export function * getPackage (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
     const packages = yield call(
       axios.get,
-      api.getPackage
+      api.getPackage,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchPackageSuccess(packages.data))
   } catch (error) {
-    yield put(actionCreators.fetchPackageFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchPackageSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchPackageFailure(error))
+    }
   }
 }
 
@@ -132,11 +202,25 @@ export function * getSLAPackage (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
     const packages = yield call(
       axios.get,
-      api.getSLAPackage
+      api.getSLAPackage,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchSLAPackageSuccess(packages.data))
   } catch (error) {
-    yield put(actionCreators.fetchSLAPackageFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchSLAPackageSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchSLAPackageFailure(error))
+    }
   }
 }
 
@@ -145,10 +229,29 @@ export function * getAllPackages (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
     const packages = yield call(
       axios.get,
-      api.getAllPackages
+      api.getAllPackages,
+      {'timeout': timeOut.duration}
     )
+    // const packages1 = yield call(
+    //   axios.get,
+    //   {'timeout': 4000}
+    // )
+    // console.log('packages1', packages1)
     yield put(actionCreators.fetchAllPackagesSuccess(packages.data))
   } catch (error) {
-    yield put(actionCreators.fetchAllPackagesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchAllPackagesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchAllPackagesFailure(error))
+    }
   }
 }

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const FETCH_DROPDOWN_DATA = 'saga/service/FETCH_DROPDOWN_DATA'
@@ -16,6 +16,9 @@ export const FETCH_CRUD_META_MODEL_PRESPECTIVE_FAILURE = 'saga/service/FETCH_CRU
 export const FETCH_CRUD_MODEL_PRESPECTIVES = 'saga/service/FETCH_CRUD_MODEL_PRESPECTIVES'
 export const FETCH_CRUD_MODEL_PRESPECTIVES_SUCCESS = 'saga/service/FETCH_CRUD_MODEL_PRESPECTIVES_SUCCESS'
 export const FETCH_CRUD_MODEL_PRESPECTIVES_FAILURE = 'saga/service/FETCH_CRUD_MODEL_PRESPECTIVES_FAILURE'
+export const UPDATE_NESTED_MODEL_PRESPECTIVES = 'saga/service/UPDATE_NESTED_MODEL_PRESPECTIVES'
+export const UPDATE_NESTED_MODEL_PRESPECTIVES_SUCCESS = 'saga/service/UPDATE_NESTED_MODEL_PRESPECTIVES_SUCCESS'
+export const UPDATE_NESTED_MODEL_PRESPECTIVES_FAILURE = 'saga/service/UPDATE_NESTED_MODEL_PRESPECTIVES_FAILURE'
 
 export const actionCreators = {
   fetchDropdownData: createAction(FETCH_DROPDOWN_DATA),
@@ -29,7 +32,10 @@ export const actionCreators = {
   fetchCrudMetaModelPrespectiveFailure: createAction(FETCH_CRUD_META_MODEL_PRESPECTIVE_FAILURE),
   fetchCrudModelPrespectives: createAction(FETCH_CRUD_MODEL_PRESPECTIVES),
   fetchCrudModelPrespectivesSuccess: createAction(FETCH_CRUD_MODEL_PRESPECTIVES_SUCCESS),
-  fetchCrudModelPrespectivesFailure: createAction(FETCH_CRUD_MODEL_PRESPECTIVES_FAILURE)
+  fetchCrudModelPrespectivesFailure: createAction(FETCH_CRUD_MODEL_PRESPECTIVES_FAILURE),
+  updateNestedModelPrespectives: createAction(UPDATE_NESTED_MODEL_PRESPECTIVES),
+  updateNestedModelPrespectivesSuccess: createAction(UPDATE_NESTED_MODEL_PRESPECTIVES_SUCCESS),
+  updateNestedModelPrespectivesFailure: createAction(UPDATE_NESTED_MODEL_PRESPECTIVES_FAILURE)
 }
 
 export default function * watchServices () {
@@ -37,8 +43,38 @@ export default function * watchServices () {
     takeLatest(FETCH_DROPDOWN_DATA, getDropdownData),
     takeLatest(FETCH_NESTED_MODEL_PRESPECTIVES, getNestedModelPrespectives),
     takeLatest(FETCH_CRUD_META_MODEL_PRESPECTIVE, getMetaModelPrespective),
-    takeLatest(FETCH_CRUD_MODEL_PRESPECTIVES, getCrudModelPrespectives)
+    takeLatest(FETCH_CRUD_MODEL_PRESPECTIVES, getCrudModelPrespectives),
+    takeLatest(UPDATE_NESTED_MODEL_PRESPECTIVES, updateNestedModelPrespectives)
   ]
+}
+
+export function * updateNestedModelPrespectives (action) {
+  try {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
+    const modelPrespectives = yield call(
+      axios.patch,
+      api.getModelPerspective(action.payload.id),
+      action.payload.data,
+      {params: action.payload.queryString},
+      {'timeout': timeOut.duration}
+    )
+    yield put(actionCreators.updateNestedModelPrespectivesSuccess(modelPrespectives.data))
+  } catch (error) {
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.updateNestedModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.updateNestedModelPrespectivesFailure(error))
+    }
+  }
 }
 
 export function * getCrudModelPrespectives (action) {
@@ -48,11 +84,25 @@ export function * getCrudModelPrespectives (action) {
     const modelPrespectives = yield call(
       axios.get,
       api.getModelPerspective(action.payload.id),
-      {params: action.payload.data}
+      {params: action.payload.data},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchCrudModelPrespectivesSuccess(modelPrespectives.data))
   } catch (error) {
-    yield put(actionCreators.fetchCrudModelPrespectivesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchCrudModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchCrudModelPrespectivesFailure(error))
+    }
   }
 }
 
@@ -62,11 +112,25 @@ export function * getMetaModelPrespective (action) {
     const metaModelPrespective = yield call(
       axios.get,
       api.getMetaModelPerspective(action.payload.id),
-      {params: action.payload.viewKey}
+      {params: action.payload.viewKey},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchCrudMetaModelPrespectiveSuccess(metaModelPrespective.data))
   } catch (error) {
-    yield put(actionCreators.fetchCrudMetaModelPrespectiveFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchCrudMetaModelPrespectiveSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchCrudMetaModelPrespectiveFailure(error))
+    }
   }
 }
 
@@ -75,11 +139,25 @@ export function * getDropdownData (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const dropdownData = yield call(
       axios.get,
-      api.getComponentTypeComponents(action.payload)
+      api.getComponentTypeComponents(action.payload),
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchDropdownDataSuccess(dropdownData.data))
   } catch (error) {
-    yield put(actionCreators.fetchDropdownDataFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchDropdownDataSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchDropdownDataFailure(error))
+    }
   }
 }
 
@@ -90,10 +168,24 @@ export function * getNestedModelPrespectives (action) {
     const modelPrespectives = yield call(
       axios.get,
       api.getModelPerspectives,
-      {params: action.payload}
+      {params: action.payload},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchNestedModelPrespectivesSuccess(modelPrespectives.data))
   } catch (error) {
-    yield put(actionCreators.fetchNestedModelPrespectivesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchNestedModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchNestedModelPrespectivesFailure(error))
+    }
   }
 }

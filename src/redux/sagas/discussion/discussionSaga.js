@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const FETCH_DISCUSSIONS = 'saga/Discussion/FETCH_DISCUSSIONS'
@@ -61,11 +61,25 @@ export function * getDiscussions (action) {
     const discussions = yield call(
       axios.get,
       api.getDiscussions,
-      {params: action.payload}
+      {params: action.payload},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchDiscussionsSuccess(discussions.data))
   } catch (error) {
-    yield put(actionCreators.fetchDiscussionsFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchDiscussionsSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchDiscussionsFailure(error))
+    }
   }
 }
 
@@ -74,11 +88,25 @@ export function * getDiscussionMessages (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
     const discussionMessages = yield call(
       axios.get,
-      api.getDiscussionMessages(action.payload.id)
+      api.getDiscussionMessages(action.payload.id),
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchDiscussionMessagesSuccess(discussionMessages.data))
   } catch (error) {
-    yield put(actionCreators.fetchDiscussionMessagesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchDiscussionMessagesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchDiscussionMessagesFailure(error))
+    }
   }
 }
 
@@ -88,11 +116,25 @@ export function * replyDiscussionMessages (action) {
     const discussionMessages = yield call(
       axios.post,
       api.getDiscussionMessages(action.payload.id),
-      action.payload.data
+      action.payload.data,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.replyDiscussionMessagesSuccess(discussionMessages.data))
   } catch (error) {
-    yield put(actionCreators.replyDiscussionMessagesFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.replyDiscussionMessagesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.replyDiscussionMessagesFailure(error))
+    }
   }
 }
 
@@ -102,11 +144,25 @@ export function * getAccountArtefacts (action) {
     const viewAccountArtefact = yield call(
       axios.get,
       api.getAccountArtefacts,
-      {params: action.payload}
-     )
+      {params: action.payload},
+      {'timeout': timeOut.duration}
+    )
     yield put(actionCreators.fetchAccountArtefactsSuccess(viewAccountArtefact.data))
   } catch (error) {
-    yield put(actionCreators.fetchAccountArtefactsFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchAccountArtefactsSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchAccountArtefactsFailure(error))
+    }
   }
 }
 
@@ -116,11 +172,25 @@ export function * getModelArtefacts (action) {
     const viewModelArtefact = yield call(
       axios.get,
       api.getModelArtefacts,
-      {params: action.payload}
-     )
+      {params: action.payload},
+      {'timeout': timeOut.duration}
+    )
     yield put(actionCreators.fetchModelArtefactsSuccess(viewModelArtefact.data))
   } catch (error) {
-    yield put(actionCreators.fetchModelArtefactsFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchModelArtefactsSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchModelArtefactsFailure(error))
+    }
   }
 }
 
@@ -130,10 +200,24 @@ export function * createDiscussion (action) {
     const createDiscussion = yield call(
       axios.post,
       api.createDiscussion,
-      action.payload
+      action.payload,
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.createDiscussionSuccess(createDiscussion.data))
   } catch (error) {
-    yield put(actionCreators.createDiscussionFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.createDiscussionSuccess(errorObj))
+    } else {
+      yield put(actionCreators.createDiscussionFailure(error))
+    }
   }
 }

@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const FETCH_COMPONENT = 'saga/componentType/FETCH_COMPONENT'
@@ -33,11 +33,25 @@ export function * getComponents (action) {
     const componentTypes = yield call(
       axios.get,
       api.getComponentTypes,
-      {params: action.payload}
+      {params: action.payload},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.fetchComponentSuccess(componentTypes.data))
   } catch (error) {
-    yield put(actionCreators.fetchComponentFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchComponentSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchComponentFailure(error))
+    }
   }
 }
 
@@ -47,10 +61,24 @@ export function * searchComponents (action) {
     const componentTypes = yield call(
       axios.get,
       api.getComponentTypes,
-      {params: action.payload}
+      {params: action.payload},
+      {'timeout': timeOut.duration}
     )
     yield put(actionCreators.searchComponentSuccess(componentTypes.data))
   } catch (error) {
-    yield put(actionCreators.searchomponentFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.searchComponentSuccess(errorObj))
+    } else {
+      yield put(actionCreators.searchomponentFailure(error))
+    }
   }
 }

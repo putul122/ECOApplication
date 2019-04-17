@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { takeLatest, call, put } from 'redux-saga/effects'
 import { createAction } from 'redux-actions'
-import api from '../../../constants'
+import api, { timeOut } from '../../../constants'
 
 // Saga action strings
 export const FETCH_REGISTER_PROCESS = 'saga/RegisterProcess/FETCH_REGISTER_PROCESS'
@@ -23,11 +23,24 @@ export function * getRegisterProcess (action) {
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
     const registerProcess = yield call(
       axios.get,
-      api.registerProcess
+      api.registerProcess,
+      {'timeout': timeOut.duration}
     )
-    console.log('register Process response', registerProcess)
     yield put(actionCreators.fetchRegisterProcessSuccess(registerProcess.data))
   } catch (error) {
-    yield put(actionCreators.fetchRegisterProcessFailure(error))
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchRegisterProcessSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchRegisterProcessFailure(error))
+    }
   }
 }
