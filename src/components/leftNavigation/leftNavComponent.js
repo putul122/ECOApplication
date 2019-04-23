@@ -74,14 +74,14 @@ class LeftNavigation extends React.Component {
                 </span>
               </a>
             </li>
-            <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
+            {/* <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
               <a className='m-menu__link' href='/users'>
                 <i className='m-menu__link-icon flaticon-user ' style={{'font-size': '25px'}} />
                 <span className={styles.navtext}>
                   Users
                 </span>
               </a>
-            </li>
+            </li> */}
             <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
               <a className='m-menu__link' href='/roles'>
                 <i className='m-menu__link-icon flaticon-interface-8' style={{'font-size': '25px'}} />
@@ -103,6 +103,14 @@ class LeftNavigation extends React.Component {
                 <i className='m-menu__link-icon flaticon-cogwheel-1' style={{'font-size': '25px'}} />
                 <span className={styles.navtext}>
                   Perspectives
+                </span>
+              </a>
+            </li>
+            <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
+              <a className='m-menu__link' href='/packages'>
+                <i className='m-menu__link-icon flaticon-menu' style={{'font-size': '25px'}} />
+                <span className={styles.navtext}>
+                  Packages
                 </span>
               </a>
             </li>

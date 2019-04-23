@@ -190,7 +190,14 @@ const api = {
   iconURL: 'https://ecoconductor-dev-api-resources.azurewebsites.net/icons/',
   getPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SM',
   getSLAPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SLA',
-  getMetaModelPerspectivesListing: 'https://model-eco-dev.ecoconductor.com/meta_model_perspectives'
+  getMetaModelPerspectivesListing: 'https://model-eco-dev.ecoconductor.com/meta_model_perspectives',
+  getConnectionTypes: 'https://ecoconductor-dev-api-model.azurewebsites.net/connection_types',
+  createPerspective: 'https://ecoconductor-dev-api-model.azurewebsites.net/meta_model_perspectives',
+  createPackage: 'https://ecoconductor-dev-api-model.azurewebsites.net/model_packages',
+  getModelPackages: 'https://ecoconductor-dev-api-model.azurewebsites.net/model_packages',
+  deletePackage: function (packageId) {
+    return 'https://ecoconductor-dev-api-model.azurewebsites.net/model_packages/' + packageId
+  }
 }
 
 export default api

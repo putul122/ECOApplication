@@ -1,19 +1,19 @@
 import React from 'react'
 import _ from 'lodash'
 import debounce from 'lodash/debounce'
-import Select from 'react-select'
+// import Select from 'react-select'
 import ReactModal from 'react-modal'
 import PropTypes from 'prop-types'
-import styles from './perspectivesListingComponent.scss'
+import styles from './packagesComponent.scss'
 // ReactModal.setAppElement('#root')
 
-export default function PerspectivesList (props) {
-  console.log('props', props.crude, props.perspectivesListing, props.selectedComponentType, props.setPerspectivesActionSettings, props.isCrudSelected)
-  console.log(props.crudeSettings)
+export default function PackageList (props) {
+  console.log(props.crude, props.isCrudSelected)
+  console.log(props.setPackagesActionSettings)
   // console.log(props.createRolesResponse, props.createRoles)
   // console.log(props.deleteRoleResponse, props.deleteRole)
   let searchTextBox
-  let perspectivesList = ''
+  let packageList = ''
   let totalNoPages
   let perPage = props.perPage
   let currentPage = props.currentPage
@@ -22,49 +22,17 @@ export default function PerspectivesList (props) {
   let pageArray = []
   let listPage = []
   let paginationLimit = 6
-  let componentTypesOptions = []
-  let connectionTypesOptions = []
-  let totalPerspectives
+  let totalPackages
   let createCrud
-  let newPerspectiveName
-  let newPerspectiveDescription
-  // let selectedCrud = []
+  let newPackageName
+  let newPackageDescription
+  let newPackageKey
   console.log(createCrud)
   console.log(nextClass, previousClass)
-
-//   let createRole = function (event) {
-//     event.preventDefault()
-//     let payload = {
-//       'name': newRoleName.value
-//       }
-//     props.createRoles(payload)
-//     let rolesActionSettings = {...props.rolesActionSettings, 'isAddModalOpen': false}
-//     props.setRolesActionSettings(rolesActionSettings)
-//   }
-if (props.componentTypes && props.componentTypes !== '') {
-  componentTypesOptions = props.componentTypes.resources.map(function (data, index) {
-   data.label = data.name
-   data.type = 'NEW'
-   return data
-  })
-}
-if (props.connectionTypes && props.connectionTypes !== '') {
-  connectionTypesOptions = props.connectionTypes.resources.map(function (data, index) {
-   data.label = data.name
-   data.type = 'NEW'
-   return data
-  })
-}
-let onRadioChange = function (value) {
-  let isTypesSelected = value
-  console.log(value)
-  props.setTypesFlag(isTypesSelected)
-}
 
 let handleCrudCheck = function (event, type) {
   console.log('event cancel', event.target)
   let isCrudSelected = {...props.isCrudSelected}
-  let crude = {...props.crude}
   console.log('before check', isCrudSelected)
   if (type === 'Create') {
     isCrudSelected.Create = event.target.checked
@@ -76,12 +44,13 @@ let handleCrudCheck = function (event, type) {
     isCrudSelected.Read = event.target.checked
   }
   props.setCrudeValuesflag(isCrudSelected)
-  props.setCrudeValues(crude)
-  console.log(crude)
   console.log(isCrudSelected)
 }
 
-let addPerspective = function () {
+// let deletePackage = function () {
+// }
+
+let addPackage = function () {
   let isCrudSelected = {...props.isCrudSelected}
   console.log(isCrudSelected)
   let crudelist = []
@@ -103,18 +72,13 @@ let addPerspective = function () {
     })
   }
   let payload = {
-    'name': newPerspectiveName.value,
-    'description': newPerspectiveDescription.value,
-    'component_type': {
-      'id': props.selectedComponentType.id
-    },
-    'connection_type': {
-      'id': props.selectedConnectionType.id
-    },
+    'name': newPackageName.value,
+    'description': newPackageDescription.value,
+    'key': newPackageKey.value,
     'crude': sum
   }
-  props.createPerspective(payload)
-  closeAddPerspectivesModal()
+  props.createPackage(payload)
+  closeAddPackagesModal()
  }
   // console.log('props', props.setModalOpenStatus)
   let handleBlurdropdownChange = function (event) {
@@ -125,25 +89,24 @@ let addPerspective = function () {
     props.setPerPage(parseInt(event.target.value))
   }
 
-  if (props.perspectivesListing && props.perspectivesListing !== '') {
-    perspectivesList = props.perspectivesListing.resources.map(function (data, index) {
+  if (props.packagesListing && props.packagesListing !== '') {
+    packageList = props.packagesListing.resources.map(function (data, index) {
       return (
         <tr key={index}>
           <td>{data.name}</td>
           <td>{data.description}</td>
-          <td>{data.component_type.name}</td>
           <td>
             <div className='m-btn-group m-btn-group--pill btn-group' role='group' aria-label='First group'>
-              <button type='button' className='m-btn btn btn-info' onClick={(event) => { event.preventDefault(); openEditPerspectivesModal() }}><i className='fa flaticon-edit-1' /></button>
-              <button type='button' className='m-btn btn btn-danger' onClick={(event) => { event.preventDefault(); openDeletePerspectivesModal() }}><i className='fa flaticon-delete-1' /></button>
+              <button type='button' className='m-btn btn btn-info' onClick={(event) => { event.preventDefault(); openEditPackagesModal() }}><i className='fa flaticon-edit-1' /></button>
+              <button type='button' className='m-btn btn btn-danger' onClick={(event) => { event.preventDefault(); openDeletePackagesModal() }}><i className='fa flaticon-delete-1' /></button>
             </div>
           </td>
         </tr>
       )
     })
 
-    totalPerspectives = props.perspectivesListing.total_count
-    totalNoPages = Math.ceil(totalPerspectives / perPage)
+    totalPackages = props.packagesListing.count
+    totalNoPages = Math.ceil(totalPackages / perPage)
 
     if (currentPage === 1) {
       previousClass = 'm-datatable__pager-link--disabled'
@@ -177,7 +140,7 @@ let addPerspective = function () {
       'page': currentPage
     }
     // if (searchTextBox.value.length > 2 || searchTextBox.value.length === 0) {
-      props.fetchPerspectivesListing(payload)
+      props.fetchPackagesListing(payload)
       // eslint-disable-next-line
       mApp && mApp.block('#entitlementList', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       // props.setComponentTypeLoading(true)
@@ -198,7 +161,7 @@ let addPerspective = function () {
         'page_size': props.perPage,
         'page': currentPage - 1
       }
-      props.fetchPerspectivesListing(payload)
+      props.fetchPackagesListing(payload)
       // eslint-disable-next-line
       mApp && mApp.block('#entitlementList', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       props.setCurrentPage(currentPage - 1)
@@ -220,7 +183,7 @@ let addPerspective = function () {
         'page': currentPage + 1
       }
       // entitlementsList = ''
-      props.fetchPerspectivesListing(payload)
+      props.fetchPackagesListing(payload)
       // eslint-disable-next-line
       mApp && mApp.block('#entitlementList', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       props.setCurrentPage(currentPage + 1)
@@ -243,7 +206,7 @@ let addPerspective = function () {
       'page_size': props.perPage,
       'page': page
     }
-    props.fetchPerspectivesListing(payload)
+    props.fetchPackagesListing(payload)
     // eslint-disable-next-line
     mApp && mApp.block('#entitlementList', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     props.setCurrentPage(page)
@@ -253,52 +216,31 @@ let addPerspective = function () {
       if (found.length > 0) { return group }
     })
   }
-let openAddPerspectivesModal = function () {
-  let perspectivesActionSettings = {...props.perspectivesActionSettings, 'isAddPerspectivesModalOpen': true}
-  props.setPerspectivesActionSettings(perspectivesActionSettings)
+let openAddPackagesModal = function () {
+  let packagesActionSettings = {...props.packagesActionSettings, 'isAddPackagesModalOpen': true}
+  props.setPackagesActionSettings(packagesActionSettings)
 }
-let openDeletePerspectivesModal = function () {
-  let perspectivesActionSettings = {...props.perspectivesActionSettings, 'isDeletePerspectivesModalOpen': true}
-  props.setPerspectivesActionSettings(perspectivesActionSettings)
+let openDeletePackagesModal = function () {
+  let packagesActionSettings = {...props.packagesActionSettings, 'isDeletePackagesModalOpen': true}
+  props.setPackagesActionSettings(packagesActionSettings)
 }
-let openEditPerspectivesModal = function () {
-  let perspectivesActionSettings = {...props.perspectivesActionSettings, 'isEditPerspectivesModalOpen': true}
-  props.setPerspectivesActionSettings(perspectivesActionSettings)
+let openEditPackagesModal = function () {
+  let packagesActionSettings = {...props.packagesActionSettings, 'isEditPackagesModalOpen': true}
+  props.setPackagesActionSettings(packagesActionSettings)
 }
-let closeAddPerspectivesModal = function () {
-  let perspectivesActionSettings = {...props.perspectivesActionSettings, 'isAddPerspectivesModalOpen': false}
-  props.setPerspectivesActionSettings(perspectivesActionSettings)
+let closeAddPackagesModal = function () {
+  let packagesActionSettings = {...props.packagesActionSettings, 'isAddPackagesModalOpen': false}
+  props.setPackagesActionSettings(packagesActionSettings)
 }
-let closeDeletePerspectivesModal = function () {
-  let perspectivesActionSettings = {...props.perspectivesActionSettings, 'isDeletePerspectivesModalOpen': false}
-  props.setPerspectivesActionSettings(perspectivesActionSettings)
+let closeDeletePackagesModal = function () {
+  let packagesActionSettings = {...props.packagesActionSettings, 'isDeletePackagesModalOpen': false}
+  props.setPackagesActionSettings(packagesActionSettings)
 }
-let closeEditPerspectivesModal = function () {
-  let perspectivesActionSettings = {...props.perspectivesActionSettings, 'isEditPerspectivesModalOpen': false}
-  props.setPerspectivesActionSettings(perspectivesActionSettings)
+let closeEditPackagesModal = function () {
+  let packagesActionSettings = {...props.packagesActionSettings, 'isEditPackagesModalOpen': false}
+  props.setPackagesActionSettings(packagesActionSettings)
 }
-let handleComponentTypeSelect = function (newValue: any, actionMeta: any) {
-  console.log('cat select', newValue)
-  if (actionMeta.action === 'select-option') {
-    let selectedComponentType = newValue
-    props.setSelectedComponentTypes(selectedComponentType)
-  }
-  if (actionMeta.action === 'clear') {
-    let selectedComponentType = null
-    props.setSelectedComponentTypes(selectedComponentType)
-  }
-}
-let handleConnectionTypeSelect = function (newValue: any, actionMeta: any) {
-  console.log('cat select', newValue)
-  if (actionMeta.action === 'select-option') {
-    let selectedConnectionType = newValue
-    props.setSelectedConnectionTypes(selectedConnectionType)
-  }
-  if (actionMeta.action === 'clear') {
-    let selectedConnectionType = null
-    props.setSelectedConnectionTypes(selectedConnectionType)
-  }
-}
+
 // let deleteRoleModal = function (data) {
 //   console.log('abc', data)
 //   let rolesActionSettings = {...props.rolesActionSettings, 'isDeleteModalOpen': true, 'deleteRoleData': data}
@@ -336,7 +278,7 @@ return (
                       <div className='col-md-10' />
                       <div className='col-md-2 float-right'>
                         <span className='pull-right'>
-                          <a href='javascript:void(0);' data-skin='light' data-toggle='m-tooltip' data-placement='top' data-original-title='Add Project' onClick={(e) => { e.preventDefault(); openAddPerspectivesModal() }} className='btn btn-info m-btn m-btn--icon btn-sm m-btn--icon-only  m-btn--pill m-btn--air'>
+                          <a href='javascript:void(0);' data-skin='light' data-toggle='m-tooltip' data-placement='top' data-original-title='Add Package' onClick={(e) => { e.preventDefault(); openAddPackagesModal() }} className='btn btn-info m-btn m-btn--icon btn-sm m-btn--icon-only  m-btn--pill m-btn--air'>
                             <i className='fa flaticon-plus fa-2x' />
                           </a>&nbsp;&nbsp;
                         </span>
@@ -381,12 +323,11 @@ return (
                           <tr role='row'>
                             <th className='' style={{width: '180.25px'}}><h5>Name</h5></th>
                             <th className='' style={{width: '180.25px'}}><h5>Description</h5></th>
-                            <th className='' style={{width: '180.25px'}}><h5>Element Type</h5></th>
                             <th className='' style={{width: '21.25px'}}><h5>Action</h5></th>
                           </tr>
                         </thead>
                         <tbody>
-                          {perspectivesList}
+                          {packageList}
                         </tbody>
                       </table>
                     </div>
@@ -421,8 +362,8 @@ return (
       </div>
     </div>
     <div>
-      <ReactModal isOpen={props.perspectivesActionSettings.isAddPerspectivesModalOpen}
-        onRequestClose={closeAddPerspectivesModal}
+      <ReactModal isOpen={props.packagesActionSettings.isAddPackagesModalOpen}
+        onRequestClose={closeAddPackagesModal}
         className='modal-dialog modal-lg'
         style={{'content': {'top': '20%'}}}
         >
@@ -430,8 +371,8 @@ return (
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
-                <h4 className='modal-title' id='exampleModalLabel'>Add Perspective</h4>
-                <button type='button' onClick={closeAddPerspectivesModal} className='close' data-dismiss='modal' aria-label='Close'>
+                <h4 className='modal-title' id='exampleModalLabel'>Add Package</h4>
+                <button type='button' onClick={closeAddPackagesModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
@@ -440,60 +381,21 @@ return (
                   <div className='form-group m-form__group row'>
                     <label htmlFor='example-input' className='col-3 col-form-label'>Name</label>
                     <div className='col-8'>
-                      <input className='form-control m-input' placeholder='Enter Name' ref={input => (newPerspectiveName = input)} id='example-email-input' autoComplete='off' />
+                      <input className='form-control m-input' placeholder='Enter Name' ref={input => (newPackageName = input)} id='example-email-input' autoComplete='off' />
                     </div>
                   </div>
                   <div className='form-group m-form__group row'>
-                    <label htmlFor='example-input' className='col-3 col-form-label'>Description</label>
+                    <label htmlFor='example-input' ref={input => (newPackageDescription = input)} className='col-3 col-form-label'>Description</label>
                     <div className='col-8'>
-                      <textarea className='form-control m-input' ref={input => (newPerspectiveDescription = input)} placeholder='Enter Description' />
+                      <textarea className='form-control m-input' placeholder='Enter Description' />
                     </div>
                   </div>
                   <div className='form-group m-form__group row'>
-                    <label htmlFor='example-email-input' className='col-3 col-form-label'>Select</label>
-                    <div className='col-9 float-right col-form-label'>
-                      <div className='m-radio-inline'>
-                        <label htmlFor='example-email-input' className=''>
-                          <input type='radio' name='example_8' value='ComponentType' checked={props.isTypesSelected === 'ComponentType'} onChange={(e) => onRadioChange('ComponentType')} /><span style={{'marginLeft': '10px'}}>Component Type</span>
-                          <span />
-                        </label>&nbsp;
-                        <label htmlFor='example-email-input' className=''>
-                          <input type='radio' name='example_8' value='ConnectionType' checked={props.isTypesSelected === 'ConnectionType'} onChange={(e) => onRadioChange('ConnectionType')} /><span style={{'marginLeft': '10px'}}>Connection Type</span>
-                          <span />
-                        </label>
-                      </div>
+                    <label htmlFor='example-input' ref={input => (newPackageKey = input)} className='col-3 col-form-label'>Key</label>
+                    <div className='col-8'>
+                      <input className='form-control m-input' placeholder='Enter Name' id='example-email-input' autoComplete='off' />
                     </div>
                   </div>
-                  {props.isTypesSelected === 'ComponentType' && (<div className='form-group m-form__group row'>
-                    <label htmlFor='example-email-input' className='col-3 col-form-label'>Component Type</label>
-                    <div className='col-8'>
-                      <Select
-                        // className='col-7 input-sm m-input'
-                        placeholder='Select Type'
-                        isClearable
-                        defaultValue={props.selectedComponentType}
-                        onChange={handleComponentTypeSelect}
-                        isSearchable={false}
-                        name={''}
-                        options={componentTypesOptions}
-                      />
-                    </div>
-                  </div>)}
-                  {props.isTypesSelected === 'ConnectionType' && (<div className='form-group m-form__group row'>
-                    <label htmlFor='example-email-input' className='col-3 col-form-label'>Connection Type</label>
-                    <div className='col-8'>
-                      <Select
-                        // className='col-7 input-sm m-input'
-                        placeholder='Select Type'
-                        isClearable
-                        defaultValue={props.selectedConnectionType}
-                        onChange={handleConnectionTypeSelect}
-                        isSearchable={false}
-                        name={''}
-                        options={connectionTypesOptions}
-                      />
-                    </div>
-                  </div>)}
                   <div className='form-group m-form__group row'>
                     <label htmlFor='example-email-input' className='col-3 col-form-label'>CRUDE</label>
                     <div className='col-9 float-right col-form-label'>
@@ -520,15 +422,15 @@ return (
                 </div>
               </div>
               <div className='modal-footer'>
-                <button type='button' onClick={closeAddPerspectivesModal} className='btn btn-outline-danger btn-sm'>Cancel</button>
-                <button className='btn btn-outline-info btn-sm' onClick={addPerspective} >Add Perspectives</button>
+                <button type='button' onClick={closeAddPackagesModal} className='btn btn-outline-danger btn-sm'>Cancel</button>
+                <button className='btn btn-outline-info btn-sm' onClick={addPackage} >Add Packages</button>
               </div>
             </div>
           </div>
         </div>
       </ReactModal>
-      <ReactModal isOpen={props.perspectivesActionSettings.isDeletePerspectivesModalOpen}
-        onRequestClose={closeDeletePerspectivesModal}
+      <ReactModal isOpen={props.packagesActionSettings.isDeletePackagesModalOpen}
+        onRequestClose={closeDeletePackagesModal}
         className='modal-dialog'
         style={{'content': {'top': '20%'}}}
         >
@@ -536,8 +438,8 @@ return (
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
-                <h4 className='modal-title' id='exampleModalLabel'>Delete Perspectives</h4>
-                <button type='button' onClick={closeDeletePerspectivesModal} className='close' data-dismiss='modal' aria-label='Close'>
+                <h4 className='modal-title' id='exampleModalLabel'>Delete Package</h4>
+                <button type='button' onClick={closeDeletePackagesModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
@@ -546,15 +448,15 @@ return (
                 {/* <p>{props.rolesActionSettings.deleteRoleData.name} </p> */}
               </div>
               <div className='modal-footer'>
-                <button type='button' onClick={closeDeletePerspectivesModal} id='m_login_signup' className={'btn btn-sm btn-outline-info'}>Cancel</button>
+                <button type='button' onClick={closeDeletePackagesModal} id='m_login_signup' className={'btn btn-sm btn-outline-info'}>Cancel</button>
                 <button type='button' className={'btn btn-sm btn-outline-info'} onClick={''}>Delete</button>
               </div>
             </div>
           </div>
         </div>
       </ReactModal>
-      <ReactModal isOpen={props.perspectivesActionSettings.isEditPerspectivesModalOpen}
-        onRequestClose={closeEditPerspectivesModal}
+      <ReactModal isOpen={props.packagesActionSettings.isEditPackagesModalOpen}
+        onRequestClose={closeEditPackagesModal}
         className='modal-dialog modal-lg'
         style={{'content': {'top': '20%'}}}
         >
@@ -562,8 +464,8 @@ return (
           <div className=''>
             <div className='modal-content' style={{'height': '400px'}}>
               <div className='modal-header'>
-                <h4 className='modal-title' id='exampleModalLabel'>Edit Perspective</h4>
-                <button type='button' onClick={closeEditPerspectivesModal} className='close' data-dismiss='modal' aria-label='Close'>
+                <h4 className='modal-title' id='exampleModalLabel'>Edit Package</h4>
+                <button type='button' onClick={closeEditPackagesModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
@@ -584,8 +486,8 @@ return (
                 </div>
               </div>
               <div className='modal-footer'>
-                <button type='button' onClick={closeEditPerspectivesModal} className='btn btn-outline-danger btn-sm'>Cancel</button>
-                <button className='btn btn-outline-info btn-sm' onClick={''} >Add Perspectives</button>
+                <button type='button' onClick={closeEditPackagesModal} className='btn btn-outline-danger btn-sm'>Cancel</button>
+                <button className='btn btn-outline-info btn-sm' onClick={''} >Add Package</button>
               </div>
             </div>
           </div>
@@ -597,20 +499,12 @@ return (
   </div>
       )
   }
-  PerspectivesList.propTypes = {
-    setPerspectivesActionSettings: PropTypes.func,
-    perspectivesActionSettings: PropTypes.any,
-    perspectivesListing: PropTypes.any,
+  PackageList.propTypes = {
+    setPackagesActionSettings: PropTypes.func,
+    packagesActionSettings: PropTypes.any,
+    packagesListing: PropTypes.any,
     currentPage: PropTypes.any,
     perPage: PropTypes.any,
-    componentTypes: PropTypes.any,
-    connectionTypes: PropTypes.any,
-    isTypesSelected: PropTypes.any,
-    selectedComponentType: PropTypes.any,
-    selectedConnectionType: PropTypes.any,
-    crudeSettings: PropTypes.any,
     crude: PropTypes.any,
     isCrudSelected: PropTypes.any
-    // roles: PropTypes.any,
-
   }

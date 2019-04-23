@@ -240,6 +240,20 @@ export default class Root extends Component {
               require('../perspectivesListingPage/perspectivesListingPageRoute').default
             )
           break
+          case 'packages':
+          if (module.hot) {
+            module.hot.accept(
+              '../packagesPage/packagesPageRoute',
+              () => {
+                require("../packagesPage/packagesPageRoute").default; // eslint-disable-line
+                this.forceUpdate()
+              }
+            )
+          }
+          resolve(
+            require('../packagesPage/packagesPageRoute').default
+          )
+          break
           case 'invite_user':
             if (module.hot) {
               module.hot.accept(
@@ -383,6 +397,7 @@ export default class Root extends Component {
             <Route exact path='/roles' component={(props) => this.loadView('roles', props)} />
             <Route exact path='/edit-roles/:id' component={(props) => this.loadView('editRoles', props)} />
             <Route exact path='/perspectives' component={(props) => this.loadView('perspectivesListing', props)} />
+            <Route exact path='/packages' component={(props) => this.loadView('packages', props)} />
           </Switch>
         </BrowserRouter>
       </AppWrapper>

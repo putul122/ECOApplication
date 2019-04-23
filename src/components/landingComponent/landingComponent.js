@@ -47,6 +47,7 @@ export default class Landing extends React.Component {
                     <div className='m-login__form-action'>
                       <button onClick={this.handelClick} type='button' id='m_login_signup' className='btn btn-outline-info m-btn--pill'>Get An Account</button>
                     </div>
+                    <div style={{'textAlign': 'center'}}><p style={{'color': 'red'}}>Beta Version, data will be public</p></div>
                   </div>
                 </div>
                 <div className='m-login__border'><div /></div>

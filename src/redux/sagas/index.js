@@ -13,6 +13,7 @@ import watchComponentModalView, {actionCreators as componentModalViewActions} fr
 import watchServices, {actionCreators as serviceActions} from './service/serviceSaga'
 import watchRoles, {actionCreators as rolesActions} from './roles/rolesSaga'
 import watchPerspectivesListing, {actionCreators as perspectivesListingActions} from './perspectivesListing/perspectivesListingSaga'
+import watchPackagesListing, {actionCreators as packagesListingActions} from './packages/packagesSaga'
 
 export const actions = {
   basicActions,
@@ -29,7 +30,8 @@ export const actions = {
   modelActions,
   componentModalViewActions,
   serviceActions,
-  perspectivesListingActions
+  perspectivesListingActions,
+  packagesListingActions
 }
 export default function * rootSaga () {
   yield [
@@ -47,6 +49,7 @@ export default function * rootSaga () {
     watchComponentModalView(),
     watchServices(),
     watchRoles(),
-    watchPerspectivesListing()
+    watchPerspectivesListing(),
+    watchPackagesListing()
   ]
 }

@@ -1,28 +1,24 @@
 import { connect } from 'react-redux'
 import { compose, lifecycle } from 'recompose'
-import PerspectivesListing from '../../components/perspectivesListing/perspectivesListingComponent'
+import Packages from '../../components/packages/packagesComponent'
 import { actions as sagaActions } from '../../redux/sagas/'
-import { actionCreators } from '../../redux/reducers/perspectivesListingReducer/perspectivesListingReducerReducer'
+import { actionCreators } from '../../redux/reducers/packagesReducer/packagesReducerReducer'
 import { actionCreators as basicActionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
 // import { actionCreators as newDiscussionActionCreators } from '../../redux/reducers/newDiscussionReducer/newDiscussionReducerReducer'
 // Global State
 export function mapStateToProps (state, props) {
   return {
     authenticateUser: state.basicReducer.authenticateUser,
-    perspectivesActionSettings: state.perspectivesListingReducer.perspectivesActionSettings,
-    perspectivesListing: state.perspectivesListingReducer.perspectivesListing,
-    currentPage: state.perspectivesListingReducer.currentPage,
-    perPage: state.perspectivesListingReducer.perPage,
-    resetResponse: state.perspectivesListingReducer.resetResponse,
-    componentTypes: state.perspectivesListingReducer.componentTypes,
-    connectionTypes: state.perspectivesListingReducer.connectionTypes,
-    perspective: state.perspectivesListingReducer.perspective,
-    crude: state.perspectivesListingReducer.crude,
-    isTypesSelected: state.perspectivesListingReducer.isTypesSelected,
-    isCrudSelected: state.perspectivesListingReducer.isCrudSelected,
-    selectedComponentType: state.perspectivesListingReducer.selectedComponentType,
-    selectedConnectionType: state.perspectivesListingReducer.selectedConnectionType,
-    crudeSettings: state.perspectivesListingReducer.crudeSettings
+    packagesActionSettings: state.packagesListingReducer.packagesActionSettings,
+    packagesListing: state.packagesListingReducer.packagesListing,
+    currentPage: state.packagesListingReducer.currentPage,
+    perPage: state.packagesListingReducer.perPage,
+    resetResponse: state.packagesListingReducer.resetResponse,
+    package: state.packagesListingReducer.package,
+    deletePackageResponse: state.packagesListingReducer.deletePackageResponse,
+    crude: state.packagesListingReducer.crude,
+    isCrudSelected: state.packagesListingReducer.isCrudSelected
+    // crudeSettings: state.perspectivesListingReducer.crudeSettings
     // createRolesResponse: state.rolesReducer.createRolesResponse,
     // deleteRoleResponse: state.rolesReducer.deleteRoleResponse
    }
@@ -30,20 +26,15 @@ export function mapStateToProps (state, props) {
 // In Object form, each funciton is automatically wrapped in a dispatch
 export const propsMapping: Callbacks = {
   fetchUserAuthentication: sagaActions.basicActions.fetchUserAuthentication,
-  setPerspectivesActionSettings: actionCreators.setPerspectivesActionSettings,
-  fetchPerspectivesListing: sagaActions.perspectivesListingActions.fetchPerspectivesListing,
-  fetchComponentTypes: sagaActions.perspectivesListingActions.fetchComponentTypes,
-  fetchConnectionTypes: sagaActions.perspectivesListingActions.fetchConnectionTypes,
-  createPerspective: sagaActions.perspectivesListingActions.createPerspective,
+  setPackagesActionSettings: actionCreators.setPackagesActionSettings,
+  fetchPackagesListing: sagaActions.packagesListingActions.fetchPackagesListing,
+  createPackage: sagaActions.packagesListingActions.createPackage,
+  deletePackage: sagaActions.packagesListingActions.deletePackage,
   setCurrentPage: actionCreators.setCurrentPage,
   setPerPage: actionCreators.setPerPage,
   setTypesFlag: actionCreators.setTypesFlag,
-  setCrudeValues: actionCreators.setCrudeValues,
   setCrudeValuesflag: actionCreators.setCrudeValuesflag,
   setBreadcrumb: basicActionCreators.setBreadcrumb,
-  setSelectedComponentTypes: actionCreators.setSelectedComponentTypes,
-  setSelectedConnectionTypes: actionCreators.setSelectedConnectionTypes,
-  setCrudeSettings: actionCreators.setCrudeSettings,
   resetResponse: actionCreators.resetResponse
 }
 
@@ -77,7 +68,7 @@ export default compose(
   lifecycle({
     componentWillMount: function () {
       let breadcrumb = {
-        title: 'Perspectives',
+        title: 'Packages',
         items: [
           {
             name: 'Home',
@@ -88,7 +79,7 @@ export default compose(
             separator: true
           },
           {
-            name: 'Perspectives',
+            name: 'Packages',
             href: '/roles',
             separator: false
           }
@@ -107,9 +98,7 @@ export default compose(
         'page': 1
       }
       console.log('paylod', payload)
-      this.props.fetchPerspectivesListing && this.props.fetchPerspectivesListing(payload)
-      this.props.fetchComponentTypes && this.props.fetchComponentTypes(payload)
-      this.props.fetchConnectionTypes && this.props.fetchConnectionTypes(payload)
+      this.props.fetchPackagesListing && this.props.fetchPackagesListing(payload)
     },
     componentDidMount: function () {
       // eslint-disable-next-line
@@ -122,18 +111,18 @@ export default compose(
         'page': 1
       }
       console.log('demo', nextProps)
-      if (nextProps.perspectivesListing && nextProps.perspectivesListing !== this.props.perspectivesListing) {
+      if (nextProps.packagesListing && nextProps.packagesListing !== this.props.packagesListing) {
         // eslint-disable-next-line
         mApp && mApp.unblock('#entitlementList')
       }
-      if (nextProps.perspective && nextProps.perspective !== '') {
-        if (nextProps.perspective.error_code === null) {
+      if (nextProps.package && nextProps.package !== '') {
+        if (nextProps.package.error_code === null) {
           // eslint-disable-next-line
-          toastr.success('We\'ve added the ' +  nextProps.perspective.resources[0].name  +  'role to your model' , 'Nice!')
-          this.props.fetchPerspectivesListing && this.props.fetchPerspectivesListing(payload)
+          toastr.success('We\'ve added the ' +  nextProps.package.resources[0].name  +  ' to your model' , 'Nice!')
+          this.props.fetchPackagesListing && this.props.fetchPackagesListing(payload)
         } else {
           // eslint-disable-next-line
-          toastr.error(nextProps.perspective.error_message, nextProps.perspective.error_code)
+          toastr.error(nextProps.package.error_message, nextProps.package.error_code)
         }
         this.props.resetResponse()
       }
@@ -163,4 +152,4 @@ export default compose(
       }
     }
   })
-)(PerspectivesListing)
+)(Packages)
