@@ -158,6 +158,7 @@ export default function PerspectiveHierarchy (props) {
     console.log('level', level)
     console.log('operationType', operationType)
     let addSettings = {...props.addSettings}
+    addSettings.isNexusPoint = false
     let perspectiveId = ''
     let viewKey = ''
     if (operationType === 'Add') {
@@ -588,6 +589,7 @@ export default function PerspectiveHierarchy (props) {
             selectedObject.containerPerspectiveViewKey = childLabelParts[cix].container_perspective_view_key
             selectedObject.rolePerspectives = childLabelParts[cix].role_perspectives
             selectedObject.subjectId = subjectId
+            // selectedObject.groupWithPrevious = labelData.group_with_previous
           }
           // if (childLabelParts[cix].role_perspectives === null) {
           //   faClass = ''
@@ -640,7 +642,7 @@ export default function PerspectiveHierarchy (props) {
           }
         } else if (labelData.standard_property === null && labelData.type_property === null) { // Connection Property
           // console.log('partData', partData, labelParts[ix], ix)
-          if (labelData.constraint_perspective) {
+          if (labelData.constraint_perspective && !labelData.group_with_previous) {
             // selectedObject.parentReference = childPartData.value.parent_reference
             childValue = labelData.constraint_perspective.name
             // selectedObject.metaModelPerspectives = childLabelParts[cix].constraint_perspective

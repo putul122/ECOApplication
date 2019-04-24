@@ -75,6 +75,7 @@ export const initialState = {
     isDeleteModalOpen: false,
     isModalOpen: false,
     isEditModalOpen: false,
+    isNexusPoint: false,
     name: '',
     description: '',
     selectedCategory: null,

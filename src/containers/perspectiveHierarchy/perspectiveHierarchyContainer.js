@@ -199,6 +199,7 @@ export default compose(
       }
       if (nextProps.crudMetaModelPerspective && nextProps.crudMetaModelPerspective !== '' && nextProps.availableAction.toProcess) {
         if (nextProps.crudMetaModelPerspective.resources[0].crude) {
+          let addSettings = JSON.parse(JSON.stringify(nextProps.addSettings))
           let availableAction = {...nextProps.availableAction}
           let crude = nextProps.crude
           let mask = nextProps.crudMetaModelPerspective.resources[0].crude
@@ -236,6 +237,10 @@ export default compose(
               obj.min = data.constraint.min
               cData.push(obj)
               connectionData.selectedValues.push(null)
+              if (data.group_with_previous) {
+                addSettings.isNexusPoint = true
+                nextProps.setAddSettings(addSettings)
+              }
             }
             if (data.standard_property !== null && data.type_property === null) {
               data.partIndex = index
@@ -399,9 +404,11 @@ export default compose(
               if (data.parts.length > 0) {
                 data.parts.forEach(function (partData, idx) {
                   if (partData.constraint_perspective !== null) {
-                    metaModelPerspective.push(partData.constraint_perspective)
-                    processedIndex.push(index)
-                    toProcess = true
+                    if (!partData.group_with_previous) {
+                      metaModelPerspective.push(partData.constraint_perspective)
+                      processedIndex.push(index)
+                      toProcess = true
+                    }
                   }
                 })
               }
