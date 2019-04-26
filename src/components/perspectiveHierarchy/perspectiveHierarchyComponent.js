@@ -18,9 +18,12 @@ let comparer = function (otherArray) {
 const customStylescrud = { content: { top: '10%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function PerspectiveHierarchy (props) {
   console.log('props ==========================', props)
+  let defaultStyle = {'content': {'top': '20%'}}
   let perspectiveName = ''
   let standardPropertyList = ''
   let connectionSelectBoxList = ''
+  let groupConnectionSelectBoxList = ''
+  let selectedKPIList = ''
   let businessPropertyList = ''
   let searchTextBox
   let perPage = props.perPage
@@ -158,6 +161,9 @@ export default function PerspectiveHierarchy (props) {
     console.log('level', level)
     console.log('operationType', operationType)
     let addSettings = {...props.addSettings}
+    addSettings.isNexusPoint = false
+    addSettings.groupCollection = []
+    addSettings.groupedPairedList = []
     let perspectiveId = ''
     let viewKey = ''
     if (operationType === 'Add') {
@@ -266,15 +272,18 @@ export default function PerspectiveHierarchy (props) {
     addSettings.viewKey = viewKey
     props.setAddSettings(addSettings)
   }
-  let openDeleteModal = function (data, level) {
+  let openDeleteModal = function (data, level, initiatedFrom) {
     console.log('delete', data, level)
     let addSettings = {...props.addSettings}
-    if (level === null || level === 0) {
-      addSettings.isDeleteModalOpen = true
-    } else {
-      addSettings.isDeleteModalOpen = false
-    }
+    addSettings.isDeleteModalOpen = true
+    // if (level === null || level === 0) {
+    //   addSettings.isDeleteModalOpen = true
+    // } else {
+    //   addSettings.isDeleteModalOpen = false
+    // }
     addSettings.deleteObject = data
+    addSettings.deleteOperationLevel = level
+    addSettings.initiatedFrom = initiatedFrom
     props.setAddSettings(addSettings)
   }
   let closeModal = function () {
@@ -299,6 +308,104 @@ export default function PerspectiveHierarchy (props) {
     let addSettings = JSON.parse(JSON.stringify(props.addSettings))
     addSettings.description = event.target.value
     props.setAddSettings(addSettings)
+  }
+  let createNexusComponent = function (event) {
+    event.preventDefault()
+    // eslint-disable-next-line
+    mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+    let addSettings = JSON.parse(JSON.stringify(props.addSettings))
+    let patchPayload = []
+    let obj = {}
+    obj.op = 'add'
+    obj.path = '/-'
+    obj.value = {}
+    obj.value.parts = []
+    let connectionData = JSON.parse(JSON.stringify(props.connectionData))
+    let groupedPairedList = props.addSettings.groupedPairedList
+    connectionData.selectedValues.forEach(function (data, index) {
+      if (Array.isArray(data)) {
+        if (data.length > 0) {
+          let connections = []
+          data.forEach(function (selectedValue, ix) {
+            let obj = {}
+            obj.target_id = selectedValue.id
+            connections.push(obj)
+          })
+          let extraArray = []
+          extraArray.push(connections)
+          obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
+        } else {
+          // obj.value.parts[connectionData.data[index].partIndex] = {}
+        }
+      } else {
+        if (data) {
+          let connections = []
+          let obj1 = {}
+          obj1.target_id = data.id
+          connections.push(obj1)
+          let extraArray = []
+          extraArray.push(connections)
+          obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
+        } else {
+          // obj.value.parts[connectionData.data[index].partIndex] = {}
+        }
+      }
+    })
+    if (groupedPairedList.length > 0) {
+      let groupedValues = []
+      groupedPairedList.forEach(function (data, index) {
+        let values = []
+        if (data[0]) {
+          let cObj = {}
+          cObj.target_id = data[0].id
+          values.push(cObj)
+        }
+        if (data[1]) {
+          let cObj = {}
+          cObj.target_id = data[1].id
+          values.push(cObj)
+        }
+        groupedValues.push(values)
+      })
+      obj.value.parts.push({'value': groupedValues})
+    }
+    // connectionData.standardProperty.forEach(function (data, index) {
+    //   if (data.standard_property === 'name') {
+    //     obj.value.parts[data.partIndex] = {'value': addSettings.name}
+    //   } else if (data.standard_property === 'description') {
+    //     obj.value.parts[data.partIndex] = {'value': addSettings.description}
+    //   }
+    // })
+    // connectionData.customerProperty.forEach(function (data, index) {
+    //   if (data.type_property.property_type.key === 'Boolean') {
+    //     obj.value.parts[data.partIndex] = {value: {'boolean_value': data.type_property.boolean_value}}
+    //   } else if (data.type_property.property_type.key === 'Integer') {
+    //     obj.value.parts[data.partIndex] = {value: {'int_value': data.type_property.int_value}}
+    //   } else if (data.type_property.property_type.key === 'Decimal') {
+    //     obj.value.parts[data.partIndex] = {value: {'float_value': data.type_property.float_value}}
+    //   } else if (data.type_property.property_type.key === 'DateTime') {
+    //     obj.value.parts[data.partIndex] = {value: {'date_time_value': data.type_property.date_time_value}}
+    //   } else if (data.type_property.property_type.key === 'Text') {
+    //     obj.value.parts[data.partIndex] = {value: {'text_value': data.type_property.text_value}}
+    //   } else if (data.type_property.property_type.key === 'List') {
+    //     obj.value.parts[data.partIndex] = {value: {'value_set_value_id': data.type_property.value_set_value ? data.type_property.value_set_value.id : null}}
+    //   } else {
+    //     obj.value.parts[data.partIndex] = {value: {'other_value': data.type_property.other_value}}
+    //   }
+    // })
+    patchPayload.push(obj)
+    let payload = {}
+    payload.queryString = {}
+    payload.queryString.meta_model_perspective_id = props.addSettings.perspectiveId
+    payload.queryString.view_key = props.addSettings.viewKey
+    payload.queryString.apply_changes = true
+    if (addSettings.initiatedFrom === 'ChildrenNode') {
+      payload.queryString.parent_reference = addSettings.selectedData.parentReference
+    }
+    payload.data = {}
+    payload.data[props.addSettings.perspectiveId] = patchPayload
+    console.log('payload', payload)
+    props.updateModelPrespectives(payload)
   }
   let createComponent = function (event) {
     event.preventDefault()
@@ -374,6 +481,91 @@ export default function PerspectiveHierarchy (props) {
     payload.data[props.addSettings.perspectiveId] = patchPayload
     console.log('payload', payload)
     props.updateModelPrespectives(payload)
+  }
+  let updateNexusComponent = function (event) {
+    event.preventDefault()
+    // eslint-disable-next-line
+    mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+    let addSettings = JSON.parse(JSON.stringify(props.addSettings))
+    let updateObject = props.addSettings.updateObject
+    let patchPayload = []
+    let obj = {}
+    obj.op = 'replace'
+    obj.path = `/${updateObject.subject_id}/`
+    obj.value = {}
+    obj.value.parts = []
+    let connectionData = JSON.parse(JSON.stringify(props.connectionData))
+    let groupedPairedList = props.addSettings.groupedPairedList
+    connectionData.selectedValues.forEach(function (data, index) {
+      if (Array.isArray(data)) {
+        if (data.length > 0) {
+          let connections = []
+          data.forEach(function (selectedValue, ix) {
+            let obj = {}
+            obj.target_id = selectedValue.id
+            connections.push(obj)
+          })
+          let extraArray = []
+          extraArray.push(connections)
+          obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
+        } else {
+          // obj.value.parts[connectionData.data[index].partIndex] = {}
+        }
+      } else {
+        if (data) {
+          let connections = []
+          let obj1 = {}
+          obj1.target_id = data.id
+          connections.push(obj1)
+          let extraArray = []
+          extraArray.push(connections)
+          obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
+        } else {
+          // obj.value.parts[connectionData.data[index].partIndex] = {}
+        }
+      }
+    })
+    if (groupedPairedList.length > 0) {
+      let groupedValues = []
+      groupedPairedList.forEach(function (data, index) {
+        let values = []
+        if (data[0]) {
+          let cObj = {}
+          cObj.target_id = data[0].id
+          values.push(cObj)
+        }
+        if (data[1]) {
+          let cObj = {}
+          cObj.target_id = data[1].id
+          values.push(cObj)
+        }
+        groupedValues.push(values)
+      })
+      obj.value.parts.push({'value': groupedValues})
+    }
+    patchPayload.push(obj)
+    let selectedData = addSettings.selectedData
+    let payload = {}
+    payload.id = updateObject.subject_id
+    payload.queryString = {}
+    payload.queryString.meta_model_perspective_id = props.crudMetaModelPerspective.resources[0].id
+    payload.queryString.apply_changes = true
+    if (addSettings.initiatedFrom === 'ChildrenNode') {
+      payload.queryString.parent_reference = addSettings.selectedData.parentReference
+      let viewKey = null
+      if (selectedData.rolePerspectives) {
+        if (selectedData.rolePerspectives.Update) {
+          viewKey = selectedData.rolePerspectives.Update.part_perspective_view_key
+        }
+      }
+      if (viewKey) {
+        payload.queryString.view_key = viewKey
+      }
+    } else {
+      payload.queryString.view_key = addSettings.viewKey
+    }
+    payload.data = patchPayload
+    props.updateNestedModelPrespectives(payload)
   }
   let updateComponent = function (event) {
     event.preventDefault()
@@ -546,14 +738,52 @@ export default function PerspectiveHierarchy (props) {
   }
   let removeComponent = function (event) {
     event.preventDefault()
-    let addSettings = {...props.addSettings}
-    if (addSettings.deleteObject) {
-      let payload = {
-        'id': addSettings.deleteObject.subjectId
+    let removeObject = {}
+    removeObject.op = 'remove'
+    removeObject.path = `/${props.addSettings.deleteObject.subjectId}/`
+    let payload = {}
+    payload.id = props.addSettings.deleteObject.subjectId
+    payload.queryString = {}
+    if (props.addSettings.initiatedFrom === 'ParentNode') {
+      let packages = JSON.parse(localStorage.getItem('packages'))
+      let perspectives = _.result(_.find(packages.resources, function (obj) {
+        return obj.key === 'ECO_SLA'
+      }), 'perspectives')
+      let perspectiveId = props.match.params.id
+      let viewKey = null
+      viewKey = _.result(_.find(perspectives, function (obj) {
+        return (obj.perspective === parseInt(perspectiveId) && obj.role_key === 'Delete')
+      }), 'view_key')
+      payload.queryString.meta_model_perspective_id = perspectiveId
+      payload.queryString.view_key = viewKey
+      payload.queryString.apply_changes = true
+      payload.data = {}
+      let patchData = []
+      patchData.push(removeObject)
+      payload.data[perspectiveId] = patchData
+      console.log('remove payload data', payload)
+      props.removeModelPrespectives(payload)
+    } else if (props.addSettings.initiatedFrom === 'ChildrenNode') {
+      if (props.addSettings.deleteOperationLevel !== null) {
+        let selectedObject = props.expandSettings.selectedObject[props.addSettings.deleteOperationLevel] || null
+        // get perspective id and view key for delete operation
+        if (selectedObject) {
+          let rolePerspectives = selectedObject.rolePerspectives
+          let perspectiveId = rolePerspectives.Delete.part_perspective_id
+          let viewKey = rolePerspectives.Delete.part_perspective_view_key
+          payload.queryString.meta_model_perspective_id = perspectiveId
+          payload.queryString.view_key = viewKey
+          payload.queryString.apply_changes = true
+          payload.queryString.parent_reference = selectedObject.parentReference
+          payload.data = {}
+          let patchData = []
+          patchData.push(removeObject)
+          payload.data[perspectiveId] = patchData
+          console.log('remove payload data', payload)
+          props.removeModelPrespectives(payload)
+        }
       }
-      props.deleteComponentModelPerspectives(payload)
     }
-    closeModal()
   }
   let buildRow = function (childData, currentLevel, subjectId) {
     let childLabelParts = props.expandSettings.metaModelPerspectives[currentLevel].parts
@@ -588,6 +818,7 @@ export default function PerspectiveHierarchy (props) {
             selectedObject.containerPerspectiveViewKey = childLabelParts[cix].container_perspective_view_key
             selectedObject.rolePerspectives = childLabelParts[cix].role_perspectives
             selectedObject.subjectId = subjectId
+            // selectedObject.groupWithPrevious = labelData.group_with_previous
           }
           // if (childLabelParts[cix].role_perspectives === null) {
           //   faClass = ''
@@ -627,7 +858,7 @@ export default function PerspectiveHierarchy (props) {
                   list.push(<button type='button' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} className='m-btn btn btn-info'><i className='fa flaticon-edit-1' /></button>)
                 }
                 if (availableAction.Delete) {
-                  list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, currentLevel) }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
+                  list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, currentLevel, 'ChildrenNode') }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
                 }
               }
             }
@@ -640,7 +871,7 @@ export default function PerspectiveHierarchy (props) {
           }
         } else if (labelData.standard_property === null && labelData.type_property === null) { // Connection Property
           // console.log('partData', partData, labelParts[ix], ix)
-          if (labelData.constraint_perspective) {
+          if (labelData.constraint_perspective && !labelData.group_with_previous) {
             // selectedObject.parentReference = childPartData.value.parent_reference
             childValue = labelData.constraint_perspective.name
             // selectedObject.metaModelPerspectives = childLabelParts[cix].constraint_perspective
@@ -853,7 +1084,7 @@ export default function PerspectiveHierarchy (props) {
                         list.push(<button type='button' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} className='m-btn btn btn-info'><i className='fa flaticon-edit-1' /></button>)
                       }
                       if (availableAction.Delete) {
-                        list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null) }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
+                        list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
                       }
                       rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
                         <div className='btn-group-sm m-btn-group--pill btn-group' role='group' aria-label='First group'>
@@ -1037,50 +1268,181 @@ export default function PerspectiveHierarchy (props) {
       }
     }
   }
+  let removeGroupedList = function (data, index) {
+    let addSettings = JSON.parse(JSON.stringify(props.addSettings))
+    let groupedPairedList = addSettings.groupedPairedList
+    if (data.type === 'OLD') {
+      // set remove payload
+    }
+    groupedPairedList.splice(index, 1)
+    addSettings.groupedPairedList = groupedPairedList
+    props.setAddSettings(addSettings)
+  }
+  let addGroupData = function () {
+    let connectionData = JSON.parse(JSON.stringify(props.connectionData))
+    let addSettings = JSON.parse(JSON.stringify(props.addSettings))
+    let allConnectionData = connectionData.data
+    let groupCollection = addSettings.groupCollection
+    let groupedPairedList = addSettings.groupedPairedList
+    let groupedPairedObject = {}
+    if (allConnectionData.length > 0) {
+      allConnectionData.forEach(function (data, index) {
+        if (groupCollection.includes(data.name)) {
+          console.log('groupCollection', groupCollection)
+          console.log('groupCollection data', data)
+          let groupIndex = groupCollection.indexOf(data.name)
+          console.log('groupIndex', groupIndex)
+          let selectedValues = connectionData.selectedValues[index]
+          groupedPairedObject[groupIndex] = selectedValues
+          connectionData.selectedValues[index] = null
+          console.log('groupedPairedObject', groupedPairedObject)
+          console.log('selectedValues', selectedValues)
+        }
+      })
+      groupedPairedObject['type'] = 'NEW'
+      groupedPairedList.push(groupedPairedObject)
+      addSettings.groupedPairedList = groupedPairedList
+      // if (groupedPairedObject.length > 0) {
+      //   groupedPairedObject['type'] = 'NEW'
+      //   console.log('groupedPairedObject if', groupedPairedObject)
+      //   groupedPairedList.push(groupedPairedObject)
+      //   addSettings.groupedPairedList = groupedPairedList
+      // } else {
+      //   console.log('groupedPairedObject else', groupedPairedObject)
+      // }
+      props.setConnectionData(connectionData)
+      props.setAddSettings(addSettings)
+    }
+  }
   if (props.connectionData !== '' && props.connectionData.operation.isComplete) {
     // eslint-disable-next-line
     mApp && mApp.unblockPage()
     let connectionData = {...props.connectionData}
+    // let addSettings = {...props.addSettings}
     console.log('props', props.connectionData)
-    connectionSelectBoxList = connectionData.data.map(function (data, index) {
-      let selectOptions = connectionData.selectOption[index].map(function (component, id) {
-        component.value = component.id
-        component.label = component.name
-        return component
+    if (!props.addSettings.isNexusPoint) {
+      connectionSelectBoxList = connectionData.data.map(function (data, index) {
+        let selectOptions = connectionData.selectOption[index].map(function (component, id) {
+          component.value = component.id
+          component.label = component.name
+          return component
+        })
+        return (
+          <div className='form-group row'>
+            <div className='m-form__group col-12' style={{'display': 'flex'}} >
+              <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+              <div className='col-9'>
+                <Select
+                  className='input-sm m-input'
+                  placeholder={'Select ' + data.name}
+                  isMulti={data.max !== 1}
+                  isClearable
+                  value={connectionData.selectedValues[index]}
+                  onChange={handleSelectChange(index)}
+                  options={selectOptions}
+                />
+              </div>
+            </div>
+          </div>
+        )
       })
-      return (<div className='form-group row'>
-        <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-        <div className='col-8'>
-          <Select
-            className='input-sm m-input'
-            placeholder={'Select ' + data.name}
-            isMulti={data.max !== 1}
-            isClearable
-            value={connectionData.selectedValues[index]}
-            onChange={handleSelectChange(index)}
-            options={selectOptions}
-          />
-        </div>
-      </div>)
-    })
-    console.log('connectionSelectBoxList', connectionSelectBoxList)
+      console.log('connectionSelectBoxList', connectionSelectBoxList)
+    } else {
+      let groupCollection = props.addSettings.groupCollection
+      connectionSelectBoxList = []
+      groupConnectionSelectBoxList = []
+      connectionData.data.forEach(function (data, index) {
+        let selectOptions = connectionData.selectOption[index].map(function (component, id) {
+          component.value = component.id
+          component.label = component.name
+          return component
+        })
+        if (groupCollection.includes(data.name)) {
+          // grouped collection list
+          groupConnectionSelectBoxList.push(
+            <div className='m-form__group col-5' style={{'display': 'flex'}} >
+              <div className='col-5'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+              <div className='col-7'>
+                <Select
+                  className='input-sm m-input'
+                  placeholder={'Select ' + data.name}
+                  // isMulti={data.max !== 1}
+                  isClearable
+                  value={connectionData.selectedValues[index]}
+                  onChange={handleSelectChange(index)}
+                  options={selectOptions}
+                />
+              </div>
+            </div>
+          )
+        } else {
+          connectionSelectBoxList.push(
+            <div className='form-group row'>
+              <div className='m-form__group col-12' style={{'display': 'flex'}} >
+                <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+                <div className='col-9'>
+                  <Select
+                    className='input-sm m-input'
+                    placeholder={'Select ' + data.name}
+                    isMulti={data.max !== 1}
+                    isClearable
+                    value={connectionData.selectedValues[index]}
+                    onChange={handleSelectChange(index)}
+                    options={selectOptions}
+                  />
+                </div>
+              </div>
+            </div>
+          )
+        }
+      })
+      if (groupConnectionSelectBoxList.length > 0) {
+        groupConnectionSelectBoxList.push(
+          <div className='m-form__group col-1'>
+            <button type='button' className='btn btn-outline-info btn-sm' onClick={addGroupData} >Add</button>
+          </div>
+        )
+      } else {
+        groupConnectionSelectBoxList = ''
+      }
+      if (props.addSettings.groupedPairedList) {
+        selectedKPIList = []
+        props.addSettings.groupedPairedList.forEach(function (data, index) {
+          let childBlock = []
+          if (data[0]) {
+            childBlock.push(<span className='m-list-search__result-item-text '><a href='' >{data[0].name}</a></span>)
+          }
+          if (data[1]) {
+            childBlock.push(<span className='m-list-search__result-item-text '><a href='' >{data[1].name}</a></span>)
+          }
+          selectedKPIList.push(<span className='m-list-search__result-item' >
+            {childBlock}
+            <button type='button' onClick={(event) => removeGroupedList(data, index)} className='btn btn-outline-danger btn-sm pull-right'>Remove</button>
+          </span>)
+        })
+      }
+    }
     standardPropertyList = connectionData.standardProperty.map(function (data, index) {
       if (data.standard_property === 'name') {
         return (
-          <div className='form-group m-form__group row'>
-            <label htmlFor='example-input' className='col-2 col-form-label'>Name</label>
-            <div className='col-8'>
-              <input className='form-control m-input' value={props.addSettings.name} onChange={editName} placeholder='Enter Name' id='example-email-input' autoComplete='off' />
+          <div className='form-group row'>
+            <div className='m-form__group col-12' style={{'display': 'flex'}}>
+              <label htmlFor='example-input' className='col-2 col-form-label'>Name</label>
+              <div className='col-9'>
+                <input className='form-control m-input' value={props.addSettings.name} onChange={editName} placeholder='Enter Name' id='example-email-input' autoComplete='off' />
+              </div>
             </div>
           </div>
         )
       }
       if (data.standard_property === 'description') {
         return (
-          <div className='form-group m-form__group row'>
-            <label htmlFor='example-input' className='col-2 col-form-label'>Description</label>
-            <div className='col-8'>
-              <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
+          <div className='form-group row'>
+            <div className='m-form__group col-12' style={{'display': 'flex'}}>
+              <label htmlFor='example-input' className='col-2 col-form-label'>Description</label>
+              <div className='col-9'>
+                <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
+              </div>
             </div>
           </div>
         )
@@ -1093,7 +1455,7 @@ export default function PerspectiveHierarchy (props) {
         value = data.type_property.int_value
         return (<div className='form-group row'>
           <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
+          <div className='col-9 form-group m-form__group has-info'>
             <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
             {false && (<div className='form-control-feedback'>should be Number</div>)}
           </div>
@@ -1102,7 +1464,7 @@ export default function PerspectiveHierarchy (props) {
         value = data.type_property.float_value
         return (<div className='form-group row'>
           <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
+          <div className='col-9 form-group m-form__group has-info'>
             <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
             {false && (<div className='form-control-feedback'>should be Number</div>)}
           </div>
@@ -1111,7 +1473,7 @@ export default function PerspectiveHierarchy (props) {
         value = data.type_property.date_time_value ? moment(data.type_property.date_time_value).format('DD MMM YYYY') : null
         return (<div className='form-group row'>
           <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
+          <div className='col-9 form-group m-form__group has-info'>
             <DatePicker
               className='input-sm form-control m-input'
               selected={data.type_property.date_time_value}
@@ -1126,7 +1488,7 @@ export default function PerspectiveHierarchy (props) {
         value = data.type_property.text_value
         return (<div className='form-group row'>
           <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
+          <div className='col-9 form-group m-form__group has-info'>
             <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
             {false && (<div className='form-control-feedback'>should be Text</div>)}
           </div>
@@ -1146,7 +1508,7 @@ export default function PerspectiveHierarchy (props) {
         return (<div className='form-group row'>
           <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
           <Select
-            className='col-8 input-sm m-input'
+            className='col-9 input-sm m-input'
             placeholder='Select Options'
             isClearable
             defaultValue={dvalue}
@@ -1160,7 +1522,7 @@ export default function PerspectiveHierarchy (props) {
         value = data.type_property.other_value
         return (<div className='form-group row'>
           <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
+          <div className='col-9 form-group m-form__group has-info'>
             <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
             {true && (<div className='form-control-feedback'>should be Text</div>)}
           </div>
@@ -1198,6 +1560,29 @@ export default function PerspectiveHierarchy (props) {
             return (<li className='m-list-search__result-item' key={index}>{data.message}</li>)
           } else {
             if (props.addSettings.updateResponse.length === 1) {
+              return (<li className='m-list-search__result-item' key={99}>{'No data has been added.'}</li>)
+            }
+          }
+        } else {
+          return (<li className='m-list-search__result-item' key={index}>{'Error Code: ' + data.error_code + 'Message: ' + data.error_message}</li>)
+        }
+      })
+    } else {
+      messageList = []
+      messageList.push((
+        <li className='m-list-search__result-item' key={0}>{'No data has been added.'}</li>
+      ))
+    }
+  }
+  if (props.addSettings.deleteResponse !== null) {
+    defaultStyle = customStylescrud
+    if (props.addSettings.deleteResponse.length > 0) {
+      messageList = props.addSettings.deleteResponse.map(function (data, index) {
+        if (data.error_code === null) {
+          if (data.message != null) {
+            return (<li className='m-list-search__result-item' key={index}>{data.message}</li>)
+          } else {
+            if (props.addSettings.deleteResponse.length === 1) {
               return (<li className='m-list-search__result-item' key={99}>{'No data has been added.'}</li>)
             }
           }
@@ -1321,20 +1706,28 @@ return (
                       {/* <input className='form-control m-input' type='email' placeholder='Enter User Name' ref={input => (userName = input)} id='example-userName-input' /> */}
                     </div>
                   </div>
-                  {/* <div className='form-group m-form__group row'>
-                    <label htmlFor='example-input' className='col-2 col-form-label'>Name</label>
-                    <div className='col-8'>
-                      <input className='form-control m-input' value={props.addSettings.name} onChange={editName} placeholder='Enter Name' id='example-email-input' autoComplete='off' />
-                    </div>
-                  </div>
-                  <div className='form-group m-form__group row'>
-                    <label htmlFor='example-input' className='col-2 col-form-label'>Description</label>
-                    <div className='col-8'>
-                      <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
-                    </div>
-                  </div> */}
                   {standardPropertyList}
+                  {/* {businessPropertyList} */}
                   {connectionSelectBoxList}
+                  <div className='form-group row'>
+                    {groupConnectionSelectBoxList}
+                  </div>
+                  {props.addSettings.isNexusPoint && (<div className='m-section m-section--last'>
+                    <div className='m-section__content'>
+                      <div className='m-demo'>
+                        <div className='m-demo__preview'>
+                          <div className='m-list-search'>
+                            <div className='m-list-search__results'>
+                              <span className='m-list-search__result-category m-list-search__result-category--first'>
+                                          Select KPI(s)
+                                      </span>
+                              {selectedKPIList}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>)}
                 </div>)}
                 {props.addSettings.createResponse !== null && (<div className='m-list-search__results'>
                   {messageList}
@@ -1342,7 +1735,8 @@ return (
               </div>
               <div className='modal-footer'>
                 <button type='button' onClick={closeModal} className='btn btn-outline-danger btn-sm'>Close</button>
-                {props.addSettings.createResponse === null && (<button className='btn btn-outline-info btn-sm' onClick={createComponent} >Add</button>)}
+                {props.addSettings.createResponse === null && !props.addSettings.isNexusPoint && (<button className='btn btn-outline-info btn-sm' onClick={createComponent} >Add</button>)}
+                {props.addSettings.createResponse === null && props.addSettings.isNexusPoint && (<button className='btn btn-outline-info btn-sm' onClick={createNexusComponent} >Add</button>)}
               </div>
             </div>
           </div>
@@ -1372,20 +1766,27 @@ return (
                       {/* <input className='form-control m-input' type='email' placeholder='Enter User Name' ref={input => (userName = input)} id='example-userName-input' /> */}
                     </div>
                   </div>
-                  {/* <div className='form-group m-form__group row'>
-                    <label htmlFor='example-input' className='col-2 col-form-label'>Name</label>
-                    <div className='col-8'>
-                      <input className='form-control m-input' value={props.addSettings.name} onChange={editName} placeholder='Enter Name' id='example-email-input' autoComplete='off' />
-                    </div>
-                  </div>
-                  <div className='form-group m-form__group row'>
-                    <label htmlFor='example-input' className='col-2 col-form-label'>Description</label>
-                    <div className='col-8'>
-                      <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
-                    </div>
-                </div> */}
                   {standardPropertyList}
                   {connectionSelectBoxList}
+                  <div className='form-group row'>
+                    {groupConnectionSelectBoxList}
+                  </div>
+                  {props.addSettings.isNexusPoint && (<div className='m-section m-section--last'>
+                    <div className='m-section__content'>
+                      <div className='m-demo'>
+                        <div className='m-demo__preview'>
+                          <div className='m-list-search'>
+                            <div className='m-list-search__results'>
+                              <span className='m-list-search__result-category m-list-search__result-category--first'>
+                                          Select KPI(s)
+                                      </span>
+                              {selectedKPIList}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>)}
                 </div>)}
                 {props.addSettings.updateResponse !== null && (<div className='m-list-search__results'>
                   {messageList}
@@ -1393,7 +1794,8 @@ return (
               </div>
               <div className='modal-footer'>
                 <button type='button' onClick={closeModal} className='btn btn-outline-danger btn-sm'>Close</button>
-                {props.addSettings.updateResponse === null && (<button className='btn btn-outline-info btn-sm' onClick={updateComponent} >Update</button>)}
+                {props.addSettings.updateResponse === null && !props.addSettings.isNexusPoint && (<button className='btn btn-outline-info btn-sm' onClick={updateComponent} >Update</button>)}
+                {props.addSettings.updateResponse === null && props.addSettings.isNexusPoint && (<button className='btn btn-outline-info btn-sm' onClick={updateNexusComponent} >Update</button>)}
               </div>
             </div>
           </div>
@@ -1402,24 +1804,28 @@ return (
       <ReactModal isOpen={props.addSettings.isDeleteModalOpen}
         onRequestClose={closeModal}
         className='modal-dialog '
-        style={{'content': {'top': '20%'}}} >
+        style={defaultStyle} >
         <div className={styles.modalwidth}>
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
-                <h4 className='modal-title' id='exampleModalLabel'>Delete {deletePerspectiveName}</h4>
+                {props.addSettings.deleteResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Delete {deletePerspectiveName}</h4>)}
+                {props.addSettings.deleteResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Delete Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
-              <div className='modal-body'>
+              {props.addSettings.deleteResponse === null && (<div className='modal-body'>
                 <div>
                   <h6>Confirm deletion of {deletePerspectiveName}</h6>
                 </div>
-              </div>
+              </div>)}
+              {props.addSettings.deleteResponse !== null && (<div className='modal-body' style={{'height': 'calc(70vh - 30px)', 'overflow': 'auto'}} >
+                {messageList}
+              </div>)}
               <div className='modal-footer'>
                 <button type='button' onClick={closeModal} id='m_login_signup' className='btn btn-outline-info btn-sm'>Close</button>
-                <button type='button' id='m_login_signup' className='btn btn-outline-info btn-sm' onClick={removeComponent}>Confirm</button>
+                {props.addSettings.deleteResponse === null && (<button type='button' id='m_login_signup' className='btn btn-outline-info btn-sm' onClick={removeComponent}>Confirm</button>)}
               </div>
             </div>
           </div>

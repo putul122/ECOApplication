@@ -2,8 +2,8 @@ import {createAction, handleActions} from 'redux-actions'
 import {
     FETCH_MODEL_PRESPECTIVES_SUCCESS,
     FETCH_META_MODEL_PRESPECTIVE_SUCCESS,
-    UPDATE_MODEL_PRESPECTIVES_SUCCESS,
-    DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS
+    UPDATE_MODEL_PRESPECTIVES_SUCCESS
+    // DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS
     // UPDATE_COMPONENT_MODEL_PRESPECTIVES_SUCCESS
 } from '../../sagas/model/modelSaga'
 // import {DELETE_COMPONENT_TYPE_COMPONENT_SUCCESS} from '../../sagas/componentTypeComponent/componentTypeComponentSaga'
@@ -13,7 +13,8 @@ import {
   FETCH_NESTED_MODEL_PRESPECTIVES_SUCCESS,
   FETCH_CRUD_META_MODEL_PRESPECTIVE_SUCCESS,
   FETCH_CRUD_MODEL_PRESPECTIVES_SUCCESS,
-  UPDATE_NESTED_MODEL_PRESPECTIVES_SUCCESS
+  UPDATE_NESTED_MODEL_PRESPECTIVES_SUCCESS,
+  REMOVE_MODEL_PRESPECTIVES_SUCCESS
 } from '../../sagas/service/serviceSaga'
 // Name Spaced Action Types
 const SET_ADD_SETTINGS = 'perspectivesHierarchyReducer/SET_ADD_SETTINGS'
@@ -35,7 +36,7 @@ export const actions = {
   SET_PER_PAGE,
   UPDATE_MODEL_PRESPECTIVES_SUCCESS,
   RESET_RESPONSE,
-  DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS,
+  // DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS,
   // UPDATE_COMPONENT_MODEL_PRESPECTIVES_SUCCESS,
   UPDATE_NESTED_MODEL_PRESPECTIVES_SUCCESS,
   SET_CONNECTION_DATA,
@@ -75,14 +76,20 @@ export const initialState = {
     isDeleteModalOpen: false,
     isModalOpen: false,
     isEditModalOpen: false,
+    isNexusPoint: false,
+    groupCollection: [],
+    groupedPairedList: [],
+    groupedPairedTitle: '',
     name: '',
     description: '',
     selectedCategory: null,
     selectedOwner: null,
     deleteObject: null,
+    deleteOperationLevel: null,
     updateObject: null,
     createResponse: null,
     updateResponse: null,
+    deleteResponse: null,
     selectedData: null,
     perspectiveId: null,
     viewKey: null,
@@ -155,7 +162,7 @@ export default handleActions(
       ...state,
       updateComponentResponse: action.payload
     }),
-    [DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS]: (state, action) => ({
+    [REMOVE_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
       ...state,
       deleteComponentResponse: action.payload
     }),
