@@ -19,6 +19,9 @@ export const FETCH_CRUD_MODEL_PRESPECTIVES_FAILURE = 'saga/service/FETCH_CRUD_MO
 export const UPDATE_NESTED_MODEL_PRESPECTIVES = 'saga/service/UPDATE_NESTED_MODEL_PRESPECTIVES'
 export const UPDATE_NESTED_MODEL_PRESPECTIVES_SUCCESS = 'saga/service/UPDATE_NESTED_MODEL_PRESPECTIVES_SUCCESS'
 export const UPDATE_NESTED_MODEL_PRESPECTIVES_FAILURE = 'saga/service/UPDATE_NESTED_MODEL_PRESPECTIVES_FAILURE'
+export const REMOVE_MODEL_PRESPECTIVES = 'saga/service/REMOVE_MODEL_PRESPECTIVES'
+export const REMOVE_MODEL_PRESPECTIVES_SUCCESS = 'saga/service/REMOVE_MODEL_PRESPECTIVES_SUCCESS'
+export const REMOVE_MODEL_PRESPECTIVES_FAILURE = 'saga/service/REMOVE_MODEL_PRESPECTIVES_FAILURE'
 
 export const actionCreators = {
   fetchDropdownData: createAction(FETCH_DROPDOWN_DATA),
@@ -35,7 +38,10 @@ export const actionCreators = {
   fetchCrudModelPrespectivesFailure: createAction(FETCH_CRUD_MODEL_PRESPECTIVES_FAILURE),
   updateNestedModelPrespectives: createAction(UPDATE_NESTED_MODEL_PRESPECTIVES),
   updateNestedModelPrespectivesSuccess: createAction(UPDATE_NESTED_MODEL_PRESPECTIVES_SUCCESS),
-  updateNestedModelPrespectivesFailure: createAction(UPDATE_NESTED_MODEL_PRESPECTIVES_FAILURE)
+  updateNestedModelPrespectivesFailure: createAction(UPDATE_NESTED_MODEL_PRESPECTIVES_FAILURE),
+  removeModelPrespectives: createAction(REMOVE_MODEL_PRESPECTIVES),
+  removeModelPrespectivesSuccess: createAction(REMOVE_MODEL_PRESPECTIVES_SUCCESS),
+  removeModelPrespectivesFailure: createAction(REMOVE_MODEL_PRESPECTIVES_FAILURE)
 }
 
 export default function * watchServices () {
@@ -44,8 +50,38 @@ export default function * watchServices () {
     takeLatest(FETCH_NESTED_MODEL_PRESPECTIVES, getNestedModelPrespectives),
     takeLatest(FETCH_CRUD_META_MODEL_PRESPECTIVE, getMetaModelPrespective),
     takeLatest(FETCH_CRUD_MODEL_PRESPECTIVES, getCrudModelPrespectives),
-    takeLatest(UPDATE_NESTED_MODEL_PRESPECTIVES, updateNestedModelPrespectives)
+    takeLatest(UPDATE_NESTED_MODEL_PRESPECTIVES, updateNestedModelPrespectives),
+    takeLatest(REMOVE_MODEL_PRESPECTIVES, removeModelPrespectives)
   ]
+}
+
+export function * removeModelPrespectives (action) {
+  try {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + (localStorage.getItem('userAccessToken') ? localStorage.getItem('userAccessToken') : '')
+    const modelPrespectives = yield call(
+      axios.patch,
+      api.getModelPerspectives,
+      action.payload.data,
+      {params: action.payload.queryString},
+      {'timeout': timeOut.duration}
+    )
+    yield put(actionCreators.removeModelPrespectivesSuccess(modelPrespectives.data))
+  } catch (error) {
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.removeModelPrespectivesSuccess(errorObj))
+    } else {
+      yield put(actionCreators.removeModelPrespectivesFailure(error))
+    }
+  }
 }
 
 export function * updateNestedModelPrespectives (action) {

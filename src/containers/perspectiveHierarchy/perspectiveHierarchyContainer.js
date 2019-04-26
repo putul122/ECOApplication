@@ -48,6 +48,7 @@ export const propsMapping: Callbacks = {
   fetchNestedModelPrespectives: sagaActions.serviceActions.fetchNestedModelPrespectives,
   fetchCrudModelPrespectives: sagaActions.serviceActions.fetchCrudModelPrespectives,
   updateNestedModelPrespectives: sagaActions.serviceActions.updateNestedModelPrespectives,
+  removeModelPrespectives: sagaActions.serviceActions.removeModelPrespectives,
   setExpandSettings: actionCreators.setExpandSettings,
   setHeaderData: actionCreators.setHeaderData
 }
@@ -115,58 +116,136 @@ export default compose(
         if (nextProps.crudModelPerspectives.error_code === null) {
           console.log('crudModelPerspectives', nextProps.crudModelPerspectives)
           let addSettings = JSON.parse(JSON.stringify(nextProps.addSettings))
+          let groupedPairedList = nextProps.addSettings.groupedPairedList
           let labelParts = nextProps.crudMetaModelPerspective.resources[0].parts
           let data = nextProps.crudModelPerspectives.resources[0]
           let selectedValues = []
           let setCustomerProperty = []
-          if (data.parts) {
-            labelParts.forEach(function (partData, ix) {
-              console.log(partData, data.parts[ix])
-              if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
-                if (partData.standard_property === 'name') {
-                  addSettings.name = data.parts[ix].value
+          if (!addSettings.isNexusPoint) {
+            if (data.parts) {
+              labelParts.forEach(function (partData, ix) {
+                console.log(partData, data.parts[ix])
+                if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+                  if (partData.standard_property === 'name') {
+                    addSettings.name = data.parts[ix].value
+                  }
+                  if (partData.standard_property === 'description') {
+                    addSettings.description = data.parts[ix].value
+                  }
+                } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
+                  if (data.parts[ix].value.length > 0) {
+                    // todo write code for multiple component
+                    let eachSelectedValues = []
+                    data.parts[ix].value.forEach(function (value, ix) {
+                      let targetComponent = value.target_component
+                      targetComponent.label = targetComponent.name
+                      targetComponent.value = targetComponent.id
+                      eachSelectedValues.push(targetComponent)
+                    })
+                    selectedValues.push(eachSelectedValues)
+                  } else {
+                    selectedValues.push(null)
+                  }
+                } else if (partData.standard_property === null && partData.type_property !== null) { // Customer Property
+                  let value = null
+                  if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.int_value : ''
+                  } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.float_value : ''
+                  } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.text_value : ''
+                  } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.date_time_value : ''
+                  } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.boolean_value : ''
+                  } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
+                  } else {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
+                  }
+                  setCustomerProperty.push(value)
                 }
-                if (partData.standard_property === 'description') {
-                  addSettings.description = data.parts[ix].value
+              })
+            }
+          } else {
+            if (data.parts) {
+              let groupCollection = addSettings.groupCollection
+              labelParts.forEach(function (partData, ix) {
+                console.log(partData, data.parts[ix])
+                if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+                  if (partData.standard_property === 'name') {
+                    addSettings.name = data.parts[ix].value
+                  }
+                  if (partData.standard_property === 'description') {
+                    addSettings.description = data.parts[ix].value
+                  }
+                } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
+                  if (groupCollection.includes(partData.name)) {
+                    // todo generate paired list
+                    if (data.parts[ix] && data.parts[ix].value.parts.length > 0) {
+                      data.parts[ix].value.parts.forEach(function (valuePartData, ix) {
+                        if (valuePartData.value.length > 0) {
+                          let groupedPairedObject = {}
+                          valuePartData.value.forEach(function (pairObject, pairIndex) {
+                            groupedPairedObject[pairIndex] = pairObject
+                            if (pairIndex + 1 === valuePartData.value.length) {
+                              groupedPairedObject['type'] = 'OLD'
+                              groupedPairedList.push(groupedPairedObject)
+                              groupedPairedObject = {}
+                              console.log('groupedPairedList', groupedPairedList)
+                            }
+                          })
+                        }
+                      })
+                    }
+                  } else {
+                    if (data.parts[ix] && data.parts[ix].value.parts.length > 0) {
+                      // todo write code for multiple component
+                      console.log('data.parts[ix] not group connection', data.parts[ix])
+                      // eslint-disable-next-line
+                      // debugger
+                      let eachSelectedValues = []
+                      data.parts[ix].value.parts.forEach(function (valuePartData, ix) {
+                        if (valuePartData.value.length > 0) {
+                          valuePartData.value.forEach(function (pairObject, pairIndex) {
+                            let targetComponent = pairObject
+                            targetComponent.label = targetComponent.name
+                            targetComponent.value = targetComponent.id
+                            eachSelectedValues.push(targetComponent)
+                          })
+                        }
+                      })
+                      selectedValues.push(eachSelectedValues)
+                    } else {
+                      selectedValues.push(null)
+                    }
+                  }
+                } else if (partData.standard_property === null && partData.type_property !== null) { // Customer Property
+                  let value = null
+                  if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.int_value : ''
+                  } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.float_value : ''
+                  } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.text_value : ''
+                  } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.date_time_value : ''
+                  } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.boolean_value : ''
+                  } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
+                  } else {
+                    value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
+                  }
+                  setCustomerProperty.push(value)
                 }
-              } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
-                if (data.parts[ix].value.length > 0) {
-                  // todo write code for multiple component
-                  let eachSelectedValues = []
-                  data.parts[ix].value.forEach(function (value, ix) {
-                    let targetComponent = value.target_component
-                    targetComponent.label = targetComponent.name
-                    targetComponent.value = targetComponent.id
-                    eachSelectedValues.push(targetComponent)
-                  })
-                  selectedValues.push(eachSelectedValues)
-                } else {
-                  selectedValues.push(null)
-                }
-              } else if (partData.standard_property === null && partData.type_property !== null) { // Customer Property
-                let value = null
-                if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
-                  value = data.parts[ix].value !== null ? data.parts[ix].value.int_value : ''
-                } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
-                  value = data.parts[ix].value !== null ? data.parts[ix].value.float_value : ''
-                } else if (labelParts[ix].type_property.property_type.key === 'Text') {
-                  value = data.parts[ix].value !== null ? data.parts[ix].value.text_value : ''
-                } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
-                  value = data.parts[ix].value !== null ? data.parts[ix].value.date_time_value : ''
-                } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-                  value = data.parts[ix].value !== null ? data.parts[ix].value.boolean_value : ''
-                } else if (labelParts[ix].type_property.property_type.key === 'List') {
-                  value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
-                } else {
-                  value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
-                }
-                setCustomerProperty.push(value)
-              }
-            })
+              })
+            }
           }
           addSettings.isEditModalOpen = true
           addSettings.updateObject = data
           addSettings.updateResponse = null
+          addSettings.groupedPairedList = groupedPairedList
           nextProps.setAddSettings(addSettings)
           let connectionData = {...nextProps.connectionData}
           let existingCustomerProperty = connectionData.customerProperty.map(function (data, index) {
@@ -238,7 +317,11 @@ export default compose(
               cData.push(obj)
               connectionData.selectedValues.push(null)
               if (data.group_with_previous) {
+                let groupCollection = []
+                groupCollection.push(labelParts[index - 1].name)
+                groupCollection.push(data.name)
                 addSettings.isNexusPoint = true
+                addSettings.groupCollection = groupCollection
                 nextProps.setAddSettings(addSettings)
               }
             }
@@ -298,6 +381,8 @@ export default compose(
           payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
           payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
           payload['parent_reference'] = addSettings.selectedData.parentReference
+          payload['container_meta_model_perspective_id'] = addSettings.selectedData.containerPerspectiveId
+          payload['container_view_key'] = addSettings.selectedData.containerPerspectiveViewKey
           this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
         }
         nextProps.resetResponse()
@@ -319,25 +404,33 @@ export default compose(
           payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
           payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
           payload['parent_reference'] = addSettings.selectedData.parentReference
+          payload['container_meta_model_perspective_id'] = addSettings.selectedData.containerPerspectiveId
+          payload['container_view_key'] = addSettings.selectedData.containerPerspectiveViewKey
           this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
         }
         nextProps.resetResponse()
       }
       if (nextProps.deleteComponentResponse && nextProps.deleteComponentResponse !== '') {
-        if (nextProps.deleteComponentResponse.error_code === null) {
-          // eslint-disable-next-line
-          toastr.success('The ' + nextProps.deleteComponentResponse.resources[0].name + ' was successfully deleted', 'Zapped!')
-          let payload = {}
+        let addSettings = {...nextProps.addSettings}
+        addSettings.deleteResponse = nextProps.deleteComponentResponse
+        nextProps.setAddSettings(addSettings)
+        let payload = {}
+        // eslint-disable-next-line
+        mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+        if (addSettings.initiatedFrom === 'ParentNode') {
           payload['meta_model_perspective_id[0]'] = this.props.match.params.id
           payload['view_key[0]'] = this.props.match.params.viewKey
           this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
-          // eslint-disable-next-line
-          mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
         } else {
-          // eslint-disable-next-line
-          toastr.error(nextProps.deleteComponentResponse.error_message, nextProps.deleteComponentResponse.error_code)
+          let selectedObject = this.props.expandSettings.selectedObject[addSettings.deleteOperationLevel] || null
+          payload['meta_model_perspective_id'] = selectedObject.rolePerspectives.Delete.part_perspective_id
+          payload['view_key'] = selectedObject.rolePerspectives.Delete.part_perspective_view_key
+          payload['parent_reference'] = selectedObject.rolePerspectives.parentReference
+          // payload['container_meta_model_perspective_id'] = addSettings.selectedData.containerPerspectiveId
+          // payload['container_view_key'] = addSettings.selectedData.containerPerspectiveViewKey
+          this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
         }
-        this.props.resetResponse()
+        nextProps.resetResponse()
       }
       if (nextProps.connectionData !== '' && nextProps.connectionData.operation.toCallApi && !nextProps.connectionData.operation.isComplete) {
         console.log('nextProps.connectionData', nextProps.connectionData)

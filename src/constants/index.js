@@ -196,5 +196,5 @@ const api = {
 export default api
 
 export const timeOut = {
-  'duration': 4000
+  'duration': 14000
 }
