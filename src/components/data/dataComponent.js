@@ -25,7 +25,11 @@ export default function Data (props) {
         if (dashboardKey === 'ECO_SM') {
           listLink = '/perspectives/' + List.perspective + '/' + List.view_key
         } else if (dashboardKey === 'ECO_SLA') {
-          listLink = '/perspective_hierarchy/' + List.perspective + '/' + List.view_key
+          if (List.view_key === 'ContractsList') {
+            listLink = '/perspective_hierarchy/' + List.perspective + '/' + List.view_key
+          } else if (List.view_key === 'Exclusions_List') {
+            listLink = '/perspective_exclusion/' + List.perspective + '/' + List.view_key
+          }
         }
       }
       console.log('List', List)

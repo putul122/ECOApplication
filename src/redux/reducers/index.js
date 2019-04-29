@@ -23,6 +23,7 @@ import perspectiveHierarchyReducer from './perspectiveHierarchy/perspectiveHiera
 import rolesReducer from './rolesReducer/rolesReducerReducer'
 import editRolesReducer from './editRolesReducer/editRolesReducerReducer'
 import dataReducer from './data/dataReducer'
+import perspectiveExclusionReducer from './perspectiveExclusion/perspectiveExclusionReducer'
 
 export default combineReducers({
     basicReducer,
@@ -48,5 +49,6 @@ export default combineReducers({
     rolesReducer,
     editRolesReducer,
     perspectiveHierarchyReducer,
-    dataReducer
+    dataReducer,
+    perspectiveExclusionReducer
 })

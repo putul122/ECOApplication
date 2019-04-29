@@ -341,7 +341,6 @@ export default compose(
           nextProps.setConnectionData(connectionData)
           availableAction['toProcess'] = false
           nextProps.setAvailableAction(availableAction)
-          console.log(nextProps)
         }
       }
       if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcessMetaModel) {
