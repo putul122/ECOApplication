@@ -855,10 +855,10 @@ export default function PerspectiveHierarchy (props) {
             if (showChildExpandIcon) {
               if (faClass !== '') {
                 if (availableAction.Update) {
-                  list.push(<button type='button' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} className='m-btn btn btn-info'><i className='fa flaticon-edit-1' /></button>)
+                  list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} > <img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
                 }
                 if (availableAction.Delete) {
-                  list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, currentLevel, 'ChildrenNode') }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
+                  list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, currentLevel, 'ChildrenNode') }} > <img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
                 }
               }
             }
@@ -1081,15 +1081,13 @@ export default function PerspectiveHierarchy (props) {
                       let availableAction = {...props.availableAction}
                       let list = []
                       if (availableAction.Update) {
-                        list.push(<button type='button' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} className='m-btn btn btn-info'><i className='fa flaticon-edit-1' /></button>)
+                        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} ><img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
                       }
                       if (availableAction.Delete) {
-                        list.push(<button type='button' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} className='m-btn btn btn-danger'><i className='fa flaticon-delete-1' /></button>)
+                        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} ><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
                       }
                       rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
-                        <div className='btn-group-sm m-btn-group--pill btn-group' role='group' aria-label='First group'>
-                          {list}
-                        </div>
+                        {list}
                       </td>)
                     }
                   } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property

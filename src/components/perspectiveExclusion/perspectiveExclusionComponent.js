@@ -35,37 +35,37 @@ export default function PerspectiveExclusion (props) {
   let messageList = ''
   let serviceName = props.addSettings.deleteObject ? props.addSettings.deleteObject.subject_name : ''
   console.log('perspectives props', props, searchTextBox, styles)
-  let editProperty = function (index, value) {
+  let editProperty = function (index, value, parentIndex) {
     let connectionData = {...props.connectionData}
     let customerProperty = connectionData.customerProperty
-    let propertyType = customerProperty[index].type_property.property_type
+    let propertyType = customerProperty[parentIndex][index].type_property.property_type
     if (propertyType.key === 'Boolean') {
-      customerProperty[index].type_property.boolean_value = value
+      customerProperty[parentIndex][index].type_property.boolean_value = value
     } else if (propertyType.key === 'Integer') {
-      customerProperty[index].type_property.int_value = value
+      customerProperty[parentIndex][index].type_property.int_value = value
     } else if (propertyType.key === 'Decimal') {
-      customerProperty[index].type_property.float_value = value
+      customerProperty[parentIndex][index].type_property.float_value = value
     } else if (propertyType.key === 'DateTime') {
-      customerProperty[index].type_property.date_time_value = value.format('DD MMM YYYY')
+      customerProperty[parentIndex][index].type_property.date_time_value = value.format('DD MMM YYYY')
     } else if (propertyType.key === 'Text') {
-      customerProperty[index].type_property.text_value = value
+      customerProperty[parentIndex][index].type_property.text_value = value
     } else {
-      customerProperty[index].type_property.other_value = value
+      customerProperty[parentIndex][index].type_property.other_value = value
     }
     connectionData.customerProperty = customerProperty
     props.setConnectionData(connectionData)
   }
-  let handlePropertySelect = function (index) {
+  let handlePropertySelect = function (index, parentIndex) {
     return function (newValue: any, actionMeta: any) {
       console.log('newValue', newValue)
       console.log('actionMeta', actionMeta)
       let connectionData = JSON.parse(JSON.stringify(props.connectionData))
       let customerProperty = connectionData.customerProperty
       if (actionMeta.action === 'select-option') {
-        customerProperty[index].type_property.value_set_value = newValue
+        customerProperty[parentIndex][index].type_property.value_set_value = newValue
       }
       if (actionMeta.action === 'clear') {
-        customerProperty[index].type_property.value_set_value = newValue
+        customerProperty[parentIndex][index].type_property.value_set_value = newValue
       }
       connectionData.customerProperty = customerProperty
       props.setConnectionData(connectionData)
@@ -162,31 +162,37 @@ export default function PerspectiveExclusion (props) {
     addSettings.name = ''
     addSettings.description = ''
     props.setAddSettings(addSettings)
-    let connectionData = {...props.connectionData}
-    let selectedValues = []
-    connectionData.selectedValues.forEach(function (data) {
-      selectedValues.push(null)
+    let connectionData = JSON.parse(JSON.stringify(props.connectionData))
+    props.connectionData.data.forEach(function (conObject, parentIndex) {
+      let selectedValues = []
+      connectionData.selectedValues[parentIndex].forEach(function (data) {
+        selectedValues.push(null)
+      })
+      connectionData.selectedValues[parentIndex] = selectedValues
     })
-    let resetCustomerProperty = connectionData.customerProperty.map(function (data, index) {
-      if (data.type_property.property_type.key === 'Boolean') {
-        data.type_property.boolean_value = null
-      } else if (data.type_property.property_type.key === 'Integer') {
-        data.type_property.int_value = null
-      } else if (data.type_property.property_type.key === 'Decimal') {
-        data.type_property.float_value = null
-      } else if (data.type_property.property_type.key === 'DateTime') {
-        data.type_property.date_time_value = null
-      } else if (data.type_property.property_type.key === 'Text') {
-        data.type_property.text_value = null
-      } else if (data.type_property.property_type.key === 'List') {
-        data.type_property.value_set_value = null
-      } else {
-        data.type_property.other_value = null
+    props.connectionData.customerProperty.forEach(function (propertyObject, parentIndex) {
+      if (propertyObject) {
+        let resetCustomerProperty = propertyObject.map(function (data, index) {
+          if (data.type_property.property_type.key === 'Boolean') {
+            data.type_property.boolean_value = null
+          } else if (data.type_property.property_type.key === 'Integer') {
+            data.type_property.int_value = null
+          } else if (data.type_property.property_type.key === 'Decimal') {
+            data.type_property.float_value = null
+          } else if (data.type_property.property_type.key === 'DateTime') {
+            data.type_property.date_time_value = null
+          } else if (data.type_property.property_type.key === 'Text') {
+            data.type_property.text_value = null
+          } else if (data.type_property.property_type.key === 'List') {
+            data.type_property.value_set_value = null
+          } else {
+            data.type_property.other_value = null
+          }
+          return data
+        })
+        connectionData.customerProperty[parentIndex] = resetCustomerProperty
       }
-      return data
     })
-    connectionData.selectedValues = selectedValues
-    connectionData.customerProperty = resetCustomerProperty
     props.setConnectionData(connectionData)
   }
   let openDeleteModal = function (data) {
@@ -456,6 +462,25 @@ export default function PerspectiveExclusion (props) {
     }
     closeModal()
   }
+  if (!props.headerData.toProcess) {
+    if (props.headerData.metaModelPerspective.length > 0) {
+      tableHeader = []
+      props.headerData.headerColumn.forEach(function (data, index) {
+        labels.push(data)
+        tableHeader.push(<th key={index + 'col' + index} className=''><h5>{data}</h5></th>)
+        // data.parts.forEach(function (partData, idx) {
+        //   if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+        //     if (partData.standard_property === 'name') {
+        //       tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
+        //     }
+        //   } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
+        //     tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
+        //   }
+        // })
+      })
+    }
+    tableHeader.push(<th key={'last'} className='table-th pres-th'><p>Action</p></th>)
+  }
   let listModelPrespectives = function () {
     console.log('list modal pers', props)
     if (props.modelPrespectives !== '') {
@@ -471,48 +496,55 @@ export default function PerspectiveExclusion (props) {
       //   }
       // }
       console.log('list props', props)
-      if (props.modelPrespectives.length > 1) {
+      if (props.modelPrespectives.length > 0) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
-        modelPrespectives.splice(-1, 1)
-        if (modelPrespectives.length > 1) {
+        // modelPrespectives.splice(-1, 1)
+        if (modelPrespectives.length > 0) {
           modelPrespectivesList = modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
             if (data.error_code === null) {
               let childList = []
+              console.log('data', data)
               if (data.parts) {
                 data.parts.forEach(function (partData, ix) {
                   console.log('partData', partData)
                   let value
-                  if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
-                    value = partData ? partData.value : ''
-                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
-                    if (partData.value) {
-                      let targetComponents = []
-                      partData.value.forEach(function (data, index) {
-                        targetComponents.push(data.target_component.name)
-                      })
-                      value = targetComponents.toString()
-                    } else {
-                      value = partData.value || ''
-                    }
-                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property !== null) { // below are Customer Property
-                    if (labelParts[ix].type_property.property_type.key === 'Integer') {
-                      value = partData.value !== null ? partData.value.int_value : ''
-                    } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
-                      value = partData.value !== null ? partData.value.float_value : ''
-                    } else if (labelParts[ix].type_property.property_type.key === 'Text') {
-                      value = partData.value !== null ? partData.value.text_value : ''
-                    } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
-                      value = partData.value !== null ? partData.value.date_time_value : ''
-                    } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-                      value = partData.value !== null ? partData.value.boolean_value : ''
-                    } else if (labelParts[ix].type_property.property_type.key === 'List') {
-                      value = partData.value !== null ? (partData.value.value_set_value ? partData.value.value_set_value.name : '') : ''
-                    } else {
-                      value = partData.value !== null ? partData.value.other_value : ''
-                    }
+                  if (labelParts[ix] && labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
+                    value = partData.value ? partData.value : ''
+                    console.log('value', value)
+                    console.log('value index', ix)
+                    console.log('labelParts[ix]', labelParts[ix])
+                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
+                    console.log('childList', childList)
                   }
-                  childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
+                  // else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
+                  //   if (partData.value) {
+                  //     let targetComponents = []
+                  //     partData.value.forEach(function (data, index) {
+                  //       targetComponents.push(data.target_component.name)
+                  //     })
+                  //     value = targetComponents.toString()
+                  //   } else {
+                  //     value = partData.value || ''
+                  //   }
+                  // } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property !== null) { // below are Customer Property
+                  //   if (labelParts[ix].type_property.property_type.key === 'Integer') {
+                  //     value = partData.value !== null ? partData.value.int_value : ''
+                  //   } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+                  //     value = partData.value !== null ? partData.value.float_value : ''
+                  //   } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+                  //     value = partData.value !== null ? partData.value.text_value : ''
+                  //   } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+                  //     value = partData.value !== null ? partData.value.date_time_value : ''
+                  //   } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+                  //     value = partData.value !== null ? partData.value.boolean_value : ''
+                  //   } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                  //     value = partData.value !== null ? (partData.value.value_set_value ? partData.value.value_set_value.name : '') : ''
+                  //   } else {
+                  //     value = partData.value !== null ? partData.value.other_value : ''
+                  //   }
+                  // }
                 })
+
                 let availableAction = {...props.availableAction}
                 let list = []
                 if (availableAction.Update) {
@@ -614,16 +646,16 @@ export default function PerspectiveExclusion (props) {
     }
     handleListAndPagination(page)
   }
-  if (props.metaModelPerspective && props.metaModelPerspective !== '' && props.metaModelPerspective.error_code === null) {
-    if (props.metaModelPerspective.resources[0].parts.length > 0) {
-      tableHeader = props.metaModelPerspective.resources[0].parts.map(function (data, index) {
-        labels.push(data.name)
-        return (<th key={index} className='table-th pres-th'><p>{data.name}</p></th>)
-      })
-    }
-    tableHeader.push(<th key={'last'} className='table-th pres-th'><p>Action</p></th>)
-  }
-  let handleSelectChange = function (index) {
+  // if (props.metaModelPerspective && props.metaModelPerspective !== '' && props.metaModelPerspective.error_code === null) {
+  //   if (props.metaModelPerspective.resources[0].parts.length > 0) {
+  //     tableHeader = props.metaModelPerspective.resources[0].parts.map(function (data, index) {
+  //       labels.push(data.name)
+  //       return (<th key={index} className='table-th pres-th'><p>{data.name}</p></th>)
+  //     })
+  //   }
+  //   tableHeader.push(<th key={'last'} className='table-th pres-th'><p>Action</p></th>)
+  // }
+  let handleSelectChange = function (index, parentIndex) {
     return function (newValue: any, actionMeta: any) {
       console.log('newValue', newValue)
       console.log('actionMeta', actionMeta)
@@ -631,12 +663,12 @@ export default function PerspectiveExclusion (props) {
       let connectionData = {...props.connectionData}
       let selectedValues = connectionData.selectedValues
       if (actionMeta.action === 'select-option' || actionMeta.action === 'remove-value') {
-        selectedValues[index] = newValue
+        selectedValues[parentIndex][index] = newValue
         connectionData.selectedValues = selectedValues
         props.setConnectionData(connectionData)
       }
       if (actionMeta.action === 'clear') {
-        selectedValues[index] = null
+        selectedValues[parentIndex][index] = null
         connectionData.selectedValues = selectedValues
         props.setConnectionData(connectionData)
       }
@@ -646,116 +678,133 @@ export default function PerspectiveExclusion (props) {
     // eslint-disable-next-line
     mApp && mApp.unblockPage()
     let connectionData = {...props.connectionData}
-    connectionSelectBoxList = connectionData.data.map(function (data, index) {
-      let selectOptions = connectionData.selectOption[index].map(function (component, id) {
-        component.value = component.id
-        component.label = component.name
-        return component
-      })
-      return (<div className='form-group row'>
-        <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-        <div className='col-8'>
-          <Select
-            className='input-sm m-input'
-            placeholder={'Select ' + data.name}
-            isMulti={data.max !== 1}
-            isClearable
-            value={connectionData.selectedValues[index]}
-            onChange={handleSelectChange(index)}
-            options={selectOptions}
-          />
-        </div>
-      </div>)
-    })
-    businessPropertyList = connectionData.customerProperty.map(function (data, index) {
-      let value = null
-      if (data.type_property.property_type.key === 'Integer') {
-        value = data.type_property.int_value
-        return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
-            <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {false && (<div className='form-control-feedback'>should be Number</div>)}
-          </div>
-        </div>)
-      } else if (data.type_property.property_type.key === 'Decimal') {
-        value = data.type_property.float_value
-        return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
-            <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {false && (<div className='form-control-feedback'>should be Number</div>)}
-          </div>
-        </div>)
-      } else if (data.type_property.property_type.key === 'DateTime') {
-        value = data.type_property.date_time_value ? moment(data.type_property.date_time_value).format('DD MMM YYYY') : ''
-        return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
-            <DatePicker
-              className='input-sm form-control m-input'
-              selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
-              dateFormat='DD MMM YYYY'
-              onSelect={(date) => { editProperty(index, date) }}
+    connectionSelectBoxList = []
+    console.log('connectionData', connectionData)
+    connectionData.data.forEach(function (connectionProperty, parentIndex) {
+      console.log('connectionProperty', connectionProperty)
+      if (connectionProperty && connectionProperty.length > 0) {
+        connectionProperty.forEach(function (data, index) {
+          let selectOptions = connectionData.selectOption[parentIndex][index].map(function (component, id) {
+            component.value = component.id
+            component.label = component.name
+            return component
+          })
+          connectionSelectBoxList.push(<div className='form-group row'>
+            <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-8'>
+              <Select
+                className='input-sm m-input'
+                placeholder={'Select ' + data.name}
+                isMulti={data.max !== 1}
+                isClearable
+                value={connectionData.selectedValues[parentIndex][index]}
+                onChange={handleSelectChange(index, parentIndex)}
+                options={selectOptions}
               />
-            {/* <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editTextProperty(index, childIndex, event.target.value) }} placeholder='Enter Here' /> */}
-            {false && (<div className='form-control-feedback'>should be Date</div>)}
-          </div>
-        </div>)
-      } else if (data.type_property.property_type.key === 'Text') {
-        value = data.type_property.text_value
-        return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
-            <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {false && (<div className='form-control-feedback'>should be Text</div>)}
-          </div>
-        </div>)
-    } else if (data.type_property.property_type.key === 'Boolean') {
-        value = data.type_property.text_value
-        return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
-            <input onChange={(event) => { editProperty(index, event.target.checked) }} type='checkbox' style={{cursor: 'pointer'}} />
-            {false && (<div className='form-control-feedback'>should be Text</div>)}
-          </div>
-        </div>)
-      } else if (data.type_property.property_type.key === 'List') {
-        let propertyOption = data.type_property.value_set.values.map((option, opIndex) => {
-          option.label = option.name
-          option.value = option.id
-          return option
+            </div>
+          </div>)
         })
-        let dvalue = data.type_property.value_set_value
-        if (data.type_property.value_set_value !== null) {
-          dvalue.label = data.type_property.value_set_value.name
-          dvalue.value = data.type_property.value_set_value.id
-        }
-        value = data.type_property.value_set_value ? data.type_property.value_set_value.name : null
-        return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <Select
-            className='col-8 input-sm m-input'
-            placeholder='Select Options'
-            isClearable
-            defaultValue={dvalue}
-            onChange={handlePropertySelect(index)}
-            isSearchable={false}
-            name={'selectProperty'}
-            options={propertyOption}
-            />
-        </div>)
-      } else {
-        value = data.type_property.other_value
-        return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-8 form-group m-form__group has-info'>
-            <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {false && (<div className='form-control-feedback'>should be Text</div>)}
-          </div>
-        </div>)
       }
     })
+    console.log('connectionSelectBoxList', connectionSelectBoxList)
+    businessPropertyList = []
+    connectionData.customerProperty.forEach(function (customerProperty, parentIndex) {
+      if (customerProperty && customerProperty.length > 0) {
+        customerProperty.forEach(function (data, index) {
+          let value = null
+          if (data.type_property.property_type.key === 'Integer') {
+            value = data.type_property.int_value
+            businessPropertyList.push(<div className='form-group row'>
+              <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+              <div className='col-8 form-group m-form__group has-info'>
+                <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value, parentIndex) }} placeholder='Enter Here' />
+                {false && (<div className='form-control-feedback'>should be Number</div>)}
+              </div>
+            </div>)
+          } else if (data.type_property.property_type.key === 'Decimal') {
+            value = data.type_property.float_value
+            businessPropertyList.push(<div className='form-group row'>
+              <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+              <div className='col-8 form-group m-form__group has-info'>
+                <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+                {false && (<div className='form-control-feedback'>should be Number</div>)}
+              </div>
+            </div>)
+          } else if (data.type_property.property_type.key === 'DateTime') {
+            value = data.type_property.date_time_value ? moment(data.type_property.date_time_value).format('DD MMM YYYY') : ''
+            businessPropertyList.push(<div className='form-group row'>
+              <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+              <div className='col-8 form-group m-form__group has-info'>
+                <DatePicker
+                  className='input-sm form-control m-input'
+                  selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
+                  dateFormat='DD MMM YYYY'
+                  onSelect={(date) => { editProperty(index, date) }}
+                  />
+                {/* <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editTextProperty(index, childIndex, event.target.value) }} placeholder='Enter Here' /> */}
+                {false && (<div className='form-control-feedback'>should be Date</div>)}
+              </div>
+            </div>)
+          } else if (data.type_property.property_type.key === 'Text') {
+            value = data.type_property.text_value
+            businessPropertyList.push(<div className='form-group row'>
+              <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+              <div className='col-8 form-group m-form__group has-info'>
+                <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+                {false && (<div className='form-control-feedback'>should be Text</div>)}
+              </div>
+            </div>)
+        } else if (data.type_property.property_type.key === 'Boolean') {
+            value = data.type_property.text_value
+            businessPropertyList.push(<div className='form-group row'>
+              <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+              <div className='col-8 form-group m-form__group has-info'>
+                <input onChange={(event) => { editProperty(index, event.target.checked) }} type='checkbox' style={{cursor: 'pointer'}} />
+                {false && (<div className='form-control-feedback'>should be Text</div>)}
+              </div>
+            </div>)
+          } else if (data.type_property.property_type.key === 'List') {
+            let propertyOption = data.type_property.value_set.values.map((option, opIndex) => {
+              option.label = option.name
+              option.value = option.id
+              return option
+            })
+            let dvalue = data.type_property.value_set_value
+            if (data.type_property.value_set_value !== null) {
+              dvalue.label = data.type_property.value_set_value.name
+              dvalue.value = data.type_property.value_set_value.id
+            }
+            value = data.type_property.value_set_value ? data.type_property.value_set_value.name : null
+            businessPropertyList.push(<div className='form-group row'>
+              <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+              <Select
+                className='col-8 input-sm m-input'
+                placeholder='Select Options'
+                isClearable
+                defaultValue={dvalue}
+                onChange={handlePropertySelect(index, parentIndex)}
+                isSearchable={false}
+                name={'selectProperty'}
+                options={propertyOption}
+                />
+            </div>)
+          } else {
+            value = data.type_property.other_value
+            businessPropertyList.push(<div className='form-group row'>
+              <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+              <div className='col-8 form-group m-form__group has-info'>
+                <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+                {false && (<div className='form-control-feedback'>should be Text</div>)}
+              </div>
+            </div>)
+          }
+        })
+      }
+    })
+    console.log('businessPropertyList', businessPropertyList)
+    if (businessPropertyList.length === 0) {
+      businessPropertyList = ''
+    }
   }
   if (props.addSettings.createResponse !== null) {
     if (props.addSettings.createResponse.length > 0) {
@@ -1102,5 +1151,6 @@ return (
     perPage: PropTypes.any,
     // crude: PropTypes.any,
     availableAction: PropTypes.any,
-    connectionData: PropTypes.any
+    connectionData: PropTypes.any,
+    headerData: PropTypes.any
   }

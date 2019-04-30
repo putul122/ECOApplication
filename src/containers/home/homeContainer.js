@@ -1,6 +1,7 @@
 import { connect } from 'react-redux'
 import { compose, lifecycle } from 'recompose'
 import Home from '../../components/home/homeComponent'
+import _ from 'lodash'
 import { actions as sagaActions } from '../../redux/sagas/'
 // Global State
 export function mapStateToProps (state, props) {
@@ -60,7 +61,15 @@ export default compose(
           localStorage.setItem('packages', JSON.stringify(nextProps.packages))
           let packages = nextProps.packages.resources
           if (packages.length > 0) {
-            let defaultSelectedPackage = packages[0]
+            let defaultPackage = _.find(packages, function (obj) {
+              return obj.key === 'ECO_DEFAULT'
+            })
+            let defaultSelectedPackage = null
+            if (defaultPackage) {
+              defaultSelectedPackage = defaultPackage
+            } else {
+              defaultSelectedPackage = packages[0]
+            }
             localStorage.setItem('selectedPackage', JSON.stringify(defaultSelectedPackage))
           }
         } else {

@@ -89,7 +89,8 @@ export const initialState = {
     metaModelPerspective: [],
     toProcess: false,
     processedIndex: [],
-    headerColumn: []
+    headerColumn: [],
+    toBuildConnectionData: false
   }
 }
 
