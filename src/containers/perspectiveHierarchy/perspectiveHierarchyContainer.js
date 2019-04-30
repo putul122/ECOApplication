@@ -341,7 +341,6 @@ export default compose(
           nextProps.setConnectionData(connectionData)
           availableAction['toProcess'] = false
           nextProps.setAvailableAction(availableAction)
-          console.log(nextProps)
         }
       }
       if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcessMetaModel) {
@@ -378,12 +377,25 @@ export default compose(
           payload['view_key[0]'] = this.props.match.params.viewKey
           this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
         } else {
-          payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
-          payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
-          payload['parent_reference'] = addSettings.selectedData.parentReference
-          payload['container_meta_model_perspective_id'] = addSettings.selectedData.containerPerspectiveId
-          payload['container_view_key'] = addSettings.selectedData.containerPerspectiveViewKey
-          this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
+          let selectedObject = this.props.expandSettings.selectedObject[this.props.expandSettings.level] || null
+          if (selectedObject) {
+            if (selectedObject.expandFlag) {
+              payload['meta_model_perspective_id'] = selectedObject.metaModelPerspectives.id
+              payload['view_key'] = selectedObject.metaModelPerspectives.view_key
+              payload['parent_reference'] = selectedObject.parentReference
+              if (selectedObject.containerPerspectiveId) {
+                payload['container_meta_model_perspective_id'] = selectedObject.containerPerspectiveId
+                payload['container_view_key'] = selectedObject.containerPerspectiveViewKey
+              }
+              this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
+            }
+          }
+          // payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
+          // payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
+          // payload['parent_reference'] = addSettings.selectedData.parentReference
+          // payload['container_meta_model_perspective_id'] = addSettings.selectedData.containerPerspectiveId
+          // payload['container_view_key'] = addSettings.selectedData.containerPerspectiveViewKey
+          // this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
         }
         nextProps.resetResponse()
       }
@@ -407,8 +419,10 @@ export default compose(
               payload['meta_model_perspective_id'] = selectedObject.metaModelPerspectives.id
               payload['view_key'] = selectedObject.metaModelPerspectives.view_key
               payload['parent_reference'] = selectedObject.parentReference
-              payload['container_meta_model_perspective_id'] = selectedObject.containerPerspectiveId
-              payload['container_view_key'] = selectedObject.containerPerspectiveViewKey
+              if (selectedObject.containerPerspectiveId) {
+                payload['container_meta_model_perspective_id'] = selectedObject.containerPerspectiveId
+                payload['container_view_key'] = selectedObject.containerPerspectiveViewKey
+              }
               this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
             }
           }
@@ -433,13 +447,26 @@ export default compose(
           payload['view_key[0]'] = this.props.match.params.viewKey
           this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
         } else {
-          let selectedObject = this.props.expandSettings.selectedObject[addSettings.deleteOperationLevel] || null
-          payload['meta_model_perspective_id'] = selectedObject.rolePerspectives.Delete.part_perspective_id
-          payload['view_key'] = selectedObject.rolePerspectives.Delete.part_perspective_view_key
-          payload['parent_reference'] = selectedObject.rolePerspectives.parentReference
+          let selectedObject = this.props.expandSettings.selectedObject[this.props.expandSettings.level] || null
+          if (selectedObject) {
+            if (selectedObject.expandFlag) {
+              payload['meta_model_perspective_id'] = selectedObject.metaModelPerspectives.id
+              payload['view_key'] = selectedObject.metaModelPerspectives.view_key
+              payload['parent_reference'] = selectedObject.parentReference
+              if (selectedObject.containerPerspectiveId) {
+                payload['container_meta_model_perspective_id'] = selectedObject.containerPerspectiveId
+                payload['container_view_key'] = selectedObject.containerPerspectiveViewKey
+              }
+              this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
+            }
+          }
+          // let selectedObject = this.props.expandSettings.selectedObject[addSettings.deleteOperationLevel] || null
+          // payload['meta_model_perspective_id'] = selectedObject.rolePerspectives.Delete.part_perspective_id
+          // payload['view_key'] = selectedObject.rolePerspectives.Delete.part_perspective_view_key
+          // payload['parent_reference'] = selectedObject.rolePerspectives.parentReference
           // payload['container_meta_model_perspective_id'] = addSettings.selectedData.containerPerspectiveId
           // payload['container_view_key'] = addSettings.selectedData.containerPerspectiveViewKey
-          this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
+          // this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
         }
         nextProps.resetResponse()
       }

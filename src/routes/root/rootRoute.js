@@ -242,6 +242,15 @@ export default class Root extends Component {
             }
             resolve(require('../perspectiveHierarchyPage/perspectiveHierarchyPageRoute').default)
           break
+          case 'perspectiveExclusion':
+            if (module.hot) {
+                    module.hot.accept('../perspectiveExclusionPage/perspectiveExclusionPageRoute', () => {
+                require('../perspectiveExclusionPage/perspectiveExclusionPageRoute').default // eslint-disable-line
+                        this.forceUpdate()
+                    })
+            }
+            resolve(require('../perspectiveExclusionPage/perspectiveExclusionPageRoute').default)
+          break
           case 'invite_user':
             if (module.hot) {
               module.hot.accept(
@@ -381,6 +390,11 @@ export default class Root extends Component {
               exact
               path='/perspective_hierarchy/:id/:viewKey'
               component={(props) => this.loadView('perspectiveHierarchy', props)}
+            />
+            <Route
+              exact
+              path='/perspective_exclusion/:id/:viewKey'
+              component={(props) => this.loadView('perspectiveExclusion', props)}
             />
             <Route
               exact

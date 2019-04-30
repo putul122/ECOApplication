@@ -4,12 +4,14 @@ import _ from 'lodash'
 // import TreeMap from '../treeMap/treeMapComponent'
 export default function ServiceDashboard (props) {
   let dashboardPerspectiveList = ''
+  let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
   let dashboardKey = props.match.params.dashboardKey
   if (props.dashboardPerspectives && props.dashboardPerspectives !== '') {
-    let packages = JSON.parse(localStorage.getItem('packages'))
-    let perspectives = _.result(_.find(packages.resources, function (obj) {
-      return obj.key === dashboardKey
-    }), 'perspectives')
+    // let packages = JSON.parse(localStorage.getItem('packages'))
+    // let perspectives = _.result(_.find(packages.resources, function (obj) {
+    //   return obj.key === dashboardKey
+    // }), 'perspectives')
+    let perspectives = selectedPackage.perspectives
     dashboardPerspectiveList = props.dashboardPerspectives.map(function (data, index) {
       let subjectName = data.subject_name
       let parts = data.parts
@@ -23,7 +25,11 @@ export default function ServiceDashboard (props) {
         if (dashboardKey === 'ECO_SM') {
           listLink = '/perspectives/' + List.perspective + '/' + List.view_key
         } else if (dashboardKey === 'ECO_SLA') {
-          listLink = '/perspective_hierarchy/' + List.perspective + '/' + List.view_key
+          if (List.view_key === 'ContractsList') {
+            listLink = '/perspective_hierarchy/' + List.perspective + '/' + List.view_key
+          } else if (List.view_key === 'Exclusions_List') {
+            listLink = '/perspective_exclusion/' + List.perspective + '/' + List.view_key
+          }
         }
       }
       console.log('List', List)

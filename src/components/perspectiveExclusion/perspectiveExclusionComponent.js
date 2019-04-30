@@ -5,7 +5,7 @@ import Select from 'react-select'
 import moment from 'moment'
 import DatePicker from 'react-datepicker'
 import PropTypes from 'prop-types'
-import styles from './perspectivesComponent.scss'
+import styles from './perspectiveExclusionComponent.scss'
 import 'react-datepicker/dist/react-datepicker.css'
 ReactModal.setAppElement('#root')
 let comparer = function (otherArray) {
@@ -16,7 +16,7 @@ let comparer = function (otherArray) {
   }
 }
 const customStylescrud = { content: { top: '15%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
-export default function Perspectives (props) {
+export default function PerspectiveExclusion (props) {
   let connectionSelectBoxList = ''
   let businessPropertyList = ''
   let searchTextBox
@@ -119,7 +119,7 @@ export default function Perspectives (props) {
           } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
             value = data.parts[ix].value !== null ? data.parts[ix].value.date_time_value : ''
           } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-            value = data.parts[ix].value !== null ? data.parts[ix].value.boolean_value : ''
+            value = data.parts[ix].value !== null || data.parts[ix].value !== ''
           } else if (labelParts[ix].type_property.property_type.key === 'List') {
             value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
           } else {
@@ -236,7 +236,7 @@ export default function Perspectives (props) {
           data.forEach(function (selectedValue, ix) {
             let connectionObject = {}
             connectionObject.target_id = selectedValue.id
-            connections.push(connectionObject)
+            connections.push(obj)
           })
           obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
         } else {
@@ -272,9 +272,20 @@ export default function Perspectives (props) {
       }
     })
     patchPayload.push(obj)
+    let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
+    let dashboardKey = selectedPackage.key
+    let perspectives = selectedPackage.perspectives
+    let perspectiveId = parseInt(props.metaModelPerspective.resources[0].id)
+    let perspectiveViewKey = ''
+    if (dashboardKey === 'ECO_SLA') {
+    perspectiveViewKey = _.result(_.find(perspectives, function (obj) {
+        return (obj.perspective === perspectiveId && obj.role_key === 'Create')
+    }), 'view_key')
+    }
     let payload = {}
     payload.queryString = {}
-    payload.queryString.meta_model_perspective_id = props.metaModelPerspective.resources[0].id
+    payload.queryString.meta_model_perspective_id = perspectiveId
+    payload.queryString.view_key = perspectiveViewKey
     payload.queryString.apply_changes = true
     payload.data = {}
     payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
@@ -469,10 +480,11 @@ export default function Perspectives (props) {
               let childList = []
               if (data.parts) {
                 data.parts.forEach(function (partData, ix) {
+                  console.log('partData', partData)
                   let value
                   if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
                     value = partData ? partData.value : ''
-                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null) { // Connection Property
+                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
                     if (partData.value) {
                       let targetComponents = []
                       partData.value.forEach(function (data, index) {
@@ -482,20 +494,22 @@ export default function Perspectives (props) {
                     } else {
                       value = partData.value || ''
                     }
-                  } else if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
-                    value = partData.value !== null ? partData.value.int_value : ''
-                  } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
-                    value = partData.value !== null ? partData.value.float_value : ''
-                  } else if (labelParts[ix].type_property.property_type.key === 'Text') {
-                    value = partData.value !== null ? partData.value.text_value : ''
-                  } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
-                    value = partData.value !== null ? partData.value.date_time_value : ''
-                  } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-                    value = partData.value !== null ? partData.value.boolean_value : ''
-                  } else if (labelParts[ix].type_property.property_type.key === 'List') {
-                    value = partData.value !== null ? (partData.value.value_set_value ? partData.value.value_set_value.name : '') : ''
-                  } else {
-                    value = partData.value !== null ? partData.value.other_value : ''
+                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property !== null) { // below are Customer Property
+                    if (labelParts[ix].type_property.property_type.key === 'Integer') {
+                      value = partData.value !== null ? partData.value.int_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+                      value = partData.value !== null ? partData.value.float_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+                      value = partData.value !== null ? partData.value.text_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+                      value = partData.value !== null ? partData.value.date_time_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+                      value = partData.value !== null ? partData.value.boolean_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                      value = partData.value !== null ? (partData.value.value_set_value ? partData.value.value_set_value.name : '') : ''
+                    } else {
+                      value = partData.value !== null ? partData.value.other_value : ''
+                    }
                   }
                   childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
                 })
@@ -697,6 +711,15 @@ export default function Perspectives (props) {
             {false && (<div className='form-control-feedback'>should be Text</div>)}
           </div>
         </div>)
+    } else if (data.type_property.property_type.key === 'Boolean') {
+        value = data.type_property.text_value
+        return (<div className='form-group row'>
+          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+          <div className='col-8 form-group m-form__group has-info'>
+            <input onChange={(event) => { editProperty(index, event.target.checked) }} type='checkbox' style={{cursor: 'pointer'}} />
+            {false && (<div className='form-control-feedback'>should be Text</div>)}
+          </div>
+        </div>)
       } else if (data.type_property.property_type.key === 'List') {
         let propertyOption = data.type_property.value_set.values.map((option, opIndex) => {
           option.label = option.name
@@ -728,7 +751,7 @@ export default function Perspectives (props) {
           <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
           <div className='col-8 form-group m-form__group has-info'>
             <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {true && (<div className='form-control-feedback'>should be Text</div>)}
+            {false && (<div className='form-control-feedback'>should be Text</div>)}
           </div>
         </div>)
       }
@@ -947,7 +970,7 @@ return (
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
-                {props.addSettings.createResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Add Perspective</h4>)}
+                {props.addSettings.createResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Add Exclusion</h4>)}
                 {props.addSettings.createResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Create Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
@@ -1071,7 +1094,7 @@ return (
   </div>
       )
   }
-  Perspectives.propTypes = {
+  PerspectiveExclusion.propTypes = {
     addSettings: PropTypes.any,
     modelPrespectives: PropTypes.any,
     metaModelPerspective: PropTypes.any,
