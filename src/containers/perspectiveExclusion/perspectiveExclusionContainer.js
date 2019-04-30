@@ -134,6 +134,85 @@ export default compose(
         }
         nextProps.setAvailableAction(availableAction)
       }
+      if (nextProps.headerData.toBuildConnectionData) {
+        console.log('process header meta model', nextProps.metaModelPerspective)
+        if (nextProps.headerData.metaModelPerspective.length > 0) {
+          let connectionData = {}
+          connectionData.standardProperty = []
+          connectionData.customerProperty = []
+          connectionData.operation = []
+          connectionData.selectedValues = []
+          connectionData.data = []
+          connectionData.selectOption = []
+          connectionData.operation = {
+            toCallApi: true,
+            isComplete: false,
+            processIndex: [],
+            parentIndex: 0
+          }
+          nextProps.headerData.metaModelPerspective.forEach(function (metaModelPerspective, metaIndex) {
+            console.log('metaModelPerspective', metaModelPerspective)
+            // if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcess) {
+              // if (nextProps.metaModelPerspective.resources[0].crude) {
+                // let addSettings = JSON.parse(JSON.stringify(nextProps.addSettings))
+                let availableAction = {...nextProps.availableAction}
+                let crude = nextProps.crude
+                let mask = metaModelPerspective.crude
+                let labelParts = metaModelPerspective.parts
+                console.log('labelParts', labelParts)
+                connectionData.selectedValues[metaIndex] = []
+                let cData = []
+                connectionData.standardProperty[metaIndex] = []
+                connectionData.customerProperty[metaIndex] = []
+                connectionData.operation.processIndex[metaIndex] = 0
+                for (let option in crude) {
+                  if (crude.hasOwnProperty(option)) {
+                    if (mask & crude[option]) {
+                      availableAction[option] = true
+                    }
+                  }
+                }
+                labelParts.forEach(function (data, index) {
+                  console.log('data labels', data)
+                  if (data.standard_property === null && data.type_property === null && data.constraint_perspective === null) {
+                    let obj = {}
+                    obj.name = data.name
+                    if (data.constraint_inverted) {
+                      obj.componentId = data.constraint.component_type.id
+                    } else {
+                      obj.componentId = data.constraint.target_component_type.id
+                    }
+                    obj.data = null
+                    obj.processed = false
+                    obj.partIndex = index
+                    obj.max = data.constraint.max
+                    obj.min = data.constraint.min
+                    cData.push(obj)
+                    connectionData.selectedValues[metaIndex].push(null)
+                  }
+                  if (data.standard_property !== null && data.type_property === null) {
+                    data.partIndex = index
+                    connectionData.standardProperty[metaIndex].push(data)
+                  }
+                  if (data.standard_property === null && data.type_property !== null) {
+                    data.partIndex = index
+                    connectionData.customerProperty[metaIndex].push(data)
+                  }
+                })
+                connectionData.data[metaIndex] = cData
+                connectionData.selectOption[metaIndex] = []
+                console.log('set connection ', connectionData)
+                nextProps.setConnectionData(connectionData)
+                // availableAction['toProcess'] = false
+                nextProps.setAvailableAction(availableAction)
+              // }
+            // }
+          })
+          let headerData = JSON.parse(JSON.stringify(nextProps.headerData))
+          headerData.toBuildConnectionData = false
+          this.props.setHeaderData(headerData)
+        }
+      }
       if (nextProps.headerData.toProcess) {
         console.log('to prosess header data', nextProps.headerData)
         let headerData = JSON.parse(JSON.stringify(nextProps.headerData))
@@ -181,68 +260,69 @@ export default compose(
             })
           }
           headerData.headerColumn = headerColumn
+          headerData.toBuildConnectionData = true
         }
         this.props.setHeaderData(headerData)
       }
-    //   if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcess) {
-    //     if (nextProps.metaModelPerspective.resources[0].crude) {
-    //       let addSettings = JSON.parse(JSON.stringify(nextProps.addSettings))
-    //       let availableAction = {...nextProps.availableAction}
-    //       let crude = nextProps.crude
-    //       let mask = nextProps.metaModelPerspective.resources[0].crude
-    //       let labelParts = nextProps.metaModelPerspective.resources[0].parts
-    //       let connectionData = {}
-    //       connectionData.operation = {
-    //         toCallApi: true,
-    //         isComplete: false,
-    //         processIndex: 0
-    //       }
-    //       connectionData.selectedValues = []
-    //       let cData = []
-    //       let standardProperty = []
-    //       let customerProperty = []
-    //       for (let option in crude) {
-    //         if (crude.hasOwnProperty(option)) {
-    //           if (mask & crude[option]) {
-    //             availableAction[option] = true
-    //           }
-    //         }
-    //       }
-    //       labelParts.forEach(function (data, index) {
-    //         if (data.standard_property === null && data.type_property === null) {
-    //           let obj = {}
-    //           obj.name = data.name
-    //           if (data.constraint_inverted) {
-    //             obj.componentId = data.constraint.component_type.id
-    //           } else {
-    //             obj.componentId = data.constraint.target_component_type.id
-    //           }
-    //           obj.data = null
-    //           obj.processed = false
-    //           obj.partIndex = index
-    //           obj.max = data.constraint.max
-    //           obj.min = data.constraint.min
-    //           cData.push(obj)
-    //           connectionData.selectedValues.push(null)
-    //         }
-    //         if (data.standard_property !== null && data.type_property === null) {
-    //           data.partIndex = index
-    //           standardProperty.push(data)
-    //         }
-    //         if (data.standard_property === null && data.type_property !== null) {
-    //           data.partIndex = index
-    //           customerProperty.push(data)
-    //         }
-    //       })
-    //       connectionData.data = cData
-    //       connectionData.customerProperty = customerProperty
-    //       connectionData.standardProperty = standardProperty
-    //       connectionData.selectOption = []
-    //       nextProps.setConnectionData(connectionData)
-    //       availableAction['toProcess'] = false
-    //       nextProps.setAvailableAction(availableAction)
-    //     }
-    //   }
+      // if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcess) {
+      //   if (nextProps.metaModelPerspective.resources[0].crude) {
+      //     let addSettings = JSON.parse(JSON.stringify(nextProps.addSettings))
+      //     let availableAction = {...nextProps.availableAction}
+      //     let crude = nextProps.crude
+      //     let mask = nextProps.metaModelPerspective.resources[0].crude
+      //     let labelParts = nextProps.metaModelPerspective.resources[0].parts
+      //     let connectionData = {}
+      //     connectionData.operation = {
+      //       toCallApi: true,
+      //       isComplete: false,
+      //       processIndex: 0
+      //     }
+      //     connectionData.selectedValues = []
+      //     let cData = []
+      //     let standardProperty = []
+      //     let customerProperty = []
+      //     for (let option in crude) {
+      //       if (crude.hasOwnProperty(option)) {
+      //         if (mask & crude[option]) {
+      //           availableAction[option] = true
+      //         }
+      //       }
+      //     }
+      //     labelParts.forEach(function (data, index) {
+      //       if (data.standard_property === null && data.type_property === null) {
+      //         let obj = {}
+      //         obj.name = data.name
+      //         if (data.constraint_inverted) {
+      //           obj.componentId = data.constraint.component_type.id
+      //         } else {
+      //           obj.componentId = data.constraint.target_component_type.id
+      //         }
+      //         obj.data = null
+      //         obj.processed = false
+      //         obj.partIndex = index
+      //         obj.max = data.constraint.max
+      //         obj.min = data.constraint.min
+      //         cData.push(obj)
+      //         connectionData.selectedValues.push(null)
+      //       }
+      //       if (data.standard_property !== null && data.type_property === null) {
+      //         data.partIndex = index
+      //         standardProperty.push(data)
+      //       }
+      //       if (data.standard_property === null && data.type_property !== null) {
+      //         data.partIndex = index
+      //         customerProperty.push(data)
+      //       }
+      //     })
+      //     connectionData.data = cData
+      //     connectionData.customerProperty = customerProperty
+      //     connectionData.standardProperty = standardProperty
+      //     connectionData.selectOption = []
+      //     nextProps.setConnectionData(connectionData)
+      //     availableAction['toProcess'] = false
+      //     nextProps.setAvailableAction(availableAction)
+      //   }
+      // }
       if (nextProps.createComponentResponse && nextProps.createComponentResponse !== '') {
         let addSettings = {...nextProps.addSettings}
         addSettings.name = ''
@@ -286,24 +366,29 @@ export default compose(
       if (nextProps.connectionData !== '' && nextProps.connectionData.operation.toCallApi && !nextProps.connectionData.operation.isComplete) {
         console.log('nextProps.connectionData', nextProps.connectionData)
         let connectionData = {...nextProps.connectionData}
-        let processIndex = nextProps.connectionData.operation.processIndex
-        let totalLength = nextProps.connectionData.data.length
+        let parentIndex = nextProps.connectionData.operation.parentIndex
+        let processIndex = nextProps.connectionData.operation.processIndex[parentIndex]
+        let totalLength = nextProps.connectionData.data[parentIndex].length
         if (processIndex < totalLength) {
-          let processData = nextProps.connectionData.data[processIndex]
+          let processData = nextProps.connectionData.data[parentIndex][processIndex]
           nextProps.fetchDropdownData && nextProps.fetchDropdownData(processData.componentId)
-          connectionData.operation.processIndex = processIndex + 1
+          connectionData.operation.processIndex[parentIndex] = processIndex + 1
           connectionData.operation.toCallApi = false
         }
         if (processIndex === totalLength) {
+          connectionData.operation.parentIndex += 1
+        }
+        let totalMetaModelConnection = connectionData.data.length
+        if (processIndex === totalLength && (parentIndex + 1) === totalMetaModelConnection) {
           connectionData.operation.isComplete = true
         }
         nextProps.setConnectionData(connectionData)
       }
       if (nextProps.dropdownData !== '') {
-        console.log('nextProps.dropdownData', nextProps.dropdownData)
         if (nextProps.dropdownData.error_code === null) {
           let connectionData = {...nextProps.connectionData}
-          connectionData.selectOption.push(nextProps.dropdownData.resources)
+          let parentIndex = connectionData.operation.parentIndex
+          connectionData.selectOption[parentIndex].push(nextProps.dropdownData.resources)
           connectionData.operation.toCallApi = true
           nextProps.setConnectionData(connectionData)
         } else {
