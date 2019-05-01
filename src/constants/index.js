@@ -10,8 +10,24 @@ const api = {
     'https://ecoconductor-dev-api-account.azurewebsites.net/user_access_token',
   registerProcess:
     'https://ecoconductor-dev-api-notification.azurewebsites.net/processes',
+  metaModelPerpestives:
+    'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/15?view_key=ContractsList_DashboardFilter',
+  modelperspectives:
+    'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=15&view_key[0]=ContractsList_DashboardFilter',
   getUser: function (userId) {
     return 'https://account-eco-dev.ecoconductor.com/users/' + userId
+  },
+  getDropDownItemsDep: function (userId) {
+    return 'https://ecoconductor-dev-api-model.azurewebsites.net/component_types/' + userId + '/components'
+  },
+  getDropDownItemsSer: function (userId) {
+    return 'https://ecoconductor-dev-api-model.azurewebsites.net/component_types/' + userId + '/components'
+  },
+  getDropDownItemsSup: function (userId) {
+    return 'https://ecoconductor-dev-api-model.azurewebsites.net/component_types/' + userId + '/components'
+  },
+  getDropDownItemsKpi: function (userId) {
+    return 'https://ecoconductor-dev-api-model.azurewebsites.net/component_types/' + userId + '/components'
   },
   deleteUser: function (userId) {
     return 'https://account-eco-dev.ecoconductor.com/users/' + userId

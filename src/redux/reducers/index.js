@@ -13,6 +13,7 @@ import tasksReducer from './tasksReducer/tasksReducerReducer'
 import explorerReducer from './explorerReducer/explorerReducerReducer'
 import usersReducer from './usersReducer/usersReducerReducer'
 import sheetsReducer from './sheetsReducer/sheetsReducerReducer'
+import slaReducer from './slaDashboardReducer/slaDashboardReducerReducer'
 import changePasswordReducer from './changePasswordReducer/changePasswordReducerReducer'
 import componentModalViewReducer from './componentModalViewReducer/componentModalViewReducerReducer'
 import dataModelReducer from './dataModelReducer/dataModelReducerReducer'
@@ -49,6 +50,7 @@ export default combineReducers({
     rolesReducer,
     editRolesReducer,
     perspectiveHierarchyReducer,
+    slaReducer,
     dataReducer,
     perspectiveExclusionReducer
 })
