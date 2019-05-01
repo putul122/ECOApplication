@@ -76,7 +76,7 @@ export default compose(
   lifecycle({
     componentWillMount: function () {
       // eslint-disable-next-line
-      // mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+      mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
       let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
       let dashboardKey = selectedPackage.key
@@ -109,8 +109,6 @@ export default compose(
         }
       }
       if (nextProps.modelPrespectives && nextProps.modelPrespectives !== '') {
-        // eslint-disable-next-line
-        mApp && mApp.unblockPage()
         let availableAction = nextProps.availableAction
         availableAction['toProcessModelPerspectives'] = false
         nextProps.setAvailableAction(availableAction)
@@ -435,6 +433,8 @@ export default compose(
           connectionData.backupSelectOption = selectOption
           connectionData.operation.isComplete = true
           nextProps.setConnectionData(connectionData)
+          // eslint-disable-next-line
+          mApp && mApp.unblockPage()
         }
         // if (nextProps.dropdownData.error_code === null) {
         //   let connectionData = {...nextProps.connectionData}
