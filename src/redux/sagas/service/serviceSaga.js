@@ -22,6 +22,9 @@ export const UPDATE_NESTED_MODEL_PRESPECTIVES_FAILURE = 'saga/service/UPDATE_NES
 export const REMOVE_MODEL_PRESPECTIVES = 'saga/service/REMOVE_MODEL_PRESPECTIVES'
 export const REMOVE_MODEL_PRESPECTIVES_SUCCESS = 'saga/service/REMOVE_MODEL_PRESPECTIVES_SUCCESS'
 export const REMOVE_MODEL_PRESPECTIVES_FAILURE = 'saga/service/REMOVE_MODEL_PRESPECTIVES_FAILURE'
+export const FETCH_ALL_DROPDOWN_DATA = 'saga/service/FETCH_ALL_DROPDOWN_DATA'
+export const FETCH_ALL_DROPDOWN_DATA_SUCCESS = 'saga/service/FETCH_ALL_DROPDOWN_DATA_SUCCESS'
+export const FETCH_ALL_DROPDOWN_DATA_FAILURE = 'saga/service/FETCH_ALL_DROPDOWN_DATA_FAILURE'
 
 export const actionCreators = {
   fetchDropdownData: createAction(FETCH_DROPDOWN_DATA),
@@ -41,7 +44,10 @@ export const actionCreators = {
   updateNestedModelPrespectivesFailure: createAction(UPDATE_NESTED_MODEL_PRESPECTIVES_FAILURE),
   removeModelPrespectives: createAction(REMOVE_MODEL_PRESPECTIVES),
   removeModelPrespectivesSuccess: createAction(REMOVE_MODEL_PRESPECTIVES_SUCCESS),
-  removeModelPrespectivesFailure: createAction(REMOVE_MODEL_PRESPECTIVES_FAILURE)
+  removeModelPrespectivesFailure: createAction(REMOVE_MODEL_PRESPECTIVES_FAILURE),
+  fetchAllDropdownData: createAction(FETCH_ALL_DROPDOWN_DATA),
+  fetchAllDropdownDataSuccess: createAction(FETCH_ALL_DROPDOWN_DATA_SUCCESS),
+  fetchAllDropdownDataFailure: createAction(FETCH_ALL_DROPDOWN_DATA_FAILURE)
 }
 
 export default function * watchServices () {
@@ -51,8 +57,37 @@ export default function * watchServices () {
     takeLatest(FETCH_CRUD_META_MODEL_PRESPECTIVE, getMetaModelPrespective),
     takeLatest(FETCH_CRUD_MODEL_PRESPECTIVES, getCrudModelPrespectives),
     takeLatest(UPDATE_NESTED_MODEL_PRESPECTIVES, updateNestedModelPrespectives),
-    takeLatest(REMOVE_MODEL_PRESPECTIVES, removeModelPrespectives)
+    takeLatest(REMOVE_MODEL_PRESPECTIVES, removeModelPrespectives),
+    takeLatest(FETCH_ALL_DROPDOWN_DATA, getAllDropdownData)
   ]
+}
+
+export function * getAllDropdownData (action) {
+  try {
+    axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('userAccessToken')
+    const dropdownData = yield call(
+      axios.get,
+      api.getModelPerspectives,
+      {params: action.payload},
+      {'timeout': timeOut.duration}
+    )
+    yield put(actionCreators.fetchAllDropdownDataSuccess(dropdownData.data))
+  } catch (error) {
+    if (error.code === 'ECONNABORTED') {
+      let errorObj = {
+        'count': 0,
+        'error_code': error.code,
+        'error_message': 'Server didnot respond in ' + error.config.timeout + 'ms while calling API ' + error.config.url,
+        'error_source': '',
+        'links': [],
+        'resources': [],
+        'result_code': null
+      }
+      yield put(actionCreators.fetchAllDropdownDataSuccess(errorObj))
+    } else {
+      yield put(actionCreators.fetchAllDropdownDataFailure(error))
+    }
+  }
 }
 
 export function * removeModelPrespectives (action) {
