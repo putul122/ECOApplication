@@ -1095,7 +1095,7 @@ return (
                       <textarea className='form-control m-input' value={props.addSettings.description} onChange={editDescription} placeholder='Enter Description' />
                     </div>
                   </div>
-                  {businessPropertyList}
+                  {'businessPropertyList'}
                   {connectionSelectBoxList}
                 </div>)}
                 {props.addSettings.createResponse !== null && (<div className='m-list-search__results'>
