@@ -8,7 +8,7 @@ import {
 } from '../../sagas/model/modelSaga'
 // import {DELETE_COMPONENT_TYPE_COMPONENT_SUCCESS} from '../../sagas/componentTypeComponent/componentTypeComponentSaga'
 // import {ADD_COMPONENT_COMPONENT_SUCCESS} from '../../sagas/applicationDetail/applicationDetailSaga'
-import {FETCH_DROPDOWN_DATA_SUCCESS} from '../../sagas/service/serviceSaga'
+import {FETCH_ALL_DROPDOWN_DATA_SUCCESS} from '../../sagas/service/serviceSaga'
 // Name Spaced Action Types
 const SET_ADD_SETTINGS = 'perspectiveExclusionReducer/SET_ADD_SETTINGS'
 const SET_CURRENT_PAGE = 'perspectiveExclusionReducer/SET_CURRENT_PAGE'
@@ -30,7 +30,7 @@ export const actions = {
   DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS,
   UPDATE_COMPONENT_MODEL_PRESPECTIVES_SUCCESS,
   SET_CONNECTION_DATA,
-  FETCH_DROPDOWN_DATA_SUCCESS,
+  FETCH_ALL_DROPDOWN_DATA_SUCCESS,
   SET_HEADER_DATA
 }
 
@@ -144,7 +144,7 @@ export default handleActions(
       ...state,
       connectionData: action.payload
     }),
-    [FETCH_DROPDOWN_DATA_SUCCESS]: (state, action) => ({
+    [FETCH_ALL_DROPDOWN_DATA_SUCCESS]: (state, action) => ({
       ...state,
       dropdownData: action.payload
     }),

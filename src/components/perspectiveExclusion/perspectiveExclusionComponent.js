@@ -223,8 +223,6 @@ export default function PerspectiveExclusion (props) {
   }
   let createComponent = function (event) {
     event.preventDefault()
-    // eslint-disable-next-line
-    mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     let addSettings = JSON.parse(JSON.stringify(props.addSettings))
     let patchPayload = []
     let obj = {}
@@ -235,32 +233,33 @@ export default function PerspectiveExclusion (props) {
     obj.value.parts[0] = {'value': addSettings.name}
     obj.value.parts[1] = {'value': addSettings.description}
     let connectionData = {...props.connectionData}
-    connectionData.selectedValues.forEach(function (data, index) {
-      if (Array.isArray(data)) {
-        if (data.length > 0) {
-          let connections = []
-          data.forEach(function (selectedValue, ix) {
-            let connectionObject = {}
-            connectionObject.target_id = selectedValue.id
-            connections.push(obj)
-          })
-          obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
-        } else {
-          obj.value.parts[connectionData.data[index].partIndex] = {}
-        }
-      } else {
-        if (data) {
-          let connections = []
-          let connectionObject = {}
-          connectionObject.target_id = data.id
-          connections.push(connectionObject)
-          obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
-        } else {
-          obj.value.parts[connectionData.data[index].partIndex] = {}
-        }
-      }
-    })
-    connectionData.customerProperty.forEach(function (data, index) {
+    // connectionData.selectedValues.forEach(function (data, index) {
+    //   if (Array.isArray(data)) {
+    //     if (data.length > 0) {
+    //       let connections = []
+    //       data.forEach(function (selectedValue, ix) {
+    //         let connectionObject = {}
+    //         connectionObject.target_id = selectedValue.id
+    //         connections.push(obj)
+    //       })
+    //       obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
+    //     } else {
+    //       obj.value.parts[connectionData.data[index].partIndex] = {}
+    //     }
+    //   } else {
+    //     if (data) {
+    //       let connections = []
+    //       let connectionObject = {}
+    //       connectionObject.target_id = data.id
+    //       connections.push(connectionObject)
+    //       obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
+    //     } else {
+    //       obj.value.parts[connectionData.data[index].partIndex] = {}
+    //     }
+    //   }
+    // })
+    let lastCustomerIndex = 0
+    connectionData.customerProperty[0].forEach(function (data, index) {
       if (data.type_property.property_type.key === 'Boolean') {
         obj.value.parts[data.partIndex] = {value: {'boolean_value': data.type_property.boolean_value}}
       } else if (data.type_property.property_type.key === 'Integer') {
@@ -276,27 +275,43 @@ export default function PerspectiveExclusion (props) {
       } else {
         obj.value.parts[data.partIndex] = {value: {'other_value': data.type_property.other_value}}
       }
+      lastCustomerIndex = data.partIndex
     })
-    patchPayload.push(obj)
-    let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
-    let dashboardKey = selectedPackage.key
-    let perspectives = selectedPackage.perspectives
-    let perspectiveId = parseInt(props.metaModelPerspective.resources[0].id)
-    let perspectiveViewKey = ''
-    if (dashboardKey === 'ECO_SLA') {
-    perspectiveViewKey = _.result(_.find(perspectives, function (obj) {
-        return (obj.perspective === perspectiveId && obj.role_key === 'Create')
-    }), 'view_key')
+    console.log('obj', obj, lastCustomerIndex)
+    let allMetricPointSet = false
+    allMetricPointSet = connectionData.selectedValues[1].every(function (selecteOption) {
+      return (selecteOption !== null || selecteOption.length > 0)
+    })
+    if (allMetricPointSet) {
+      // eslint-disable-next-line
+      mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+      let metricPointArray = []
+      metricPointArray.push(connectionData.selectedValues[1][0].subjectId)
+      console.log('metricPointArray', metricPointArray, obj)
+      obj.value.parts[lastCustomerIndex + 1] = {target_ids: metricPointArray}
+      patchPayload.push(obj)
+      let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
+      let dashboardKey = selectedPackage.key
+      let perspectives = selectedPackage.perspectives
+      let perspectiveId = parseInt(props.metaModelPerspective.resources[0].id)
+      let perspectiveViewKey = ''
+      if (dashboardKey === 'ECO_SLA') {
+      perspectiveViewKey = _.result(_.find(perspectives, function (obj) {
+          return (obj.perspective === perspectiveId && obj.role_key === 'Create')
+      }), 'view_key')
+      }
+      let payload = {}
+      payload.queryString = {}
+      payload.queryString.meta_model_perspective_id = perspectiveId
+      payload.queryString.view_key = perspectiveViewKey
+      payload.queryString.apply_changes = true
+      payload.data = {}
+      payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
+      console.log('payload', payload)
+      props.updateModelPrespectives(payload)
+    } else {
+      alert('All metric point not set')
     }
-    let payload = {}
-    payload.queryString = {}
-    payload.queryString.meta_model_perspective_id = perspectiveId
-    payload.queryString.view_key = perspectiveViewKey
-    payload.queryString.apply_changes = true
-    payload.data = {}
-    payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
-    console.log('payload', payload)
-    props.updateModelPrespectives(payload)
   }
   let updateComponent = function (event) {
     event.preventDefault()
@@ -500,8 +515,9 @@ export default function PerspectiveExclusion (props) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
         // modelPrespectives.splice(-1, 1)
         if (modelPrespectives.length > 0) {
-          modelPrespectivesList = modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
-            if (data.error_code === null) {
+          modelPrespectivesList = []
+          modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).forEach(function (data, index) {
+            if (data.error_code === null && data.parts !== null) {
               let childList = []
               console.log('data', data)
               if (data.parts) {
@@ -513,7 +529,7 @@ export default function PerspectiveExclusion (props) {
                     console.log('value', value)
                     console.log('value index', ix)
                     console.log('labelParts[ix]', labelParts[ix])
-                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
+                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{JSON.stringify(value)}</td>)
                     console.log('childList', childList)
                   }
                   // else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
@@ -555,7 +571,7 @@ export default function PerspectiveExclusion (props) {
                 }
                 childList.push(<td className='table-td pres-th' key={'last' + index}>{list}</td>)
               }
-              return (<tr className='table-tr' key={index}>{childList}</tr>)
+              modelPrespectivesList.push(<tr className='table-tr' key={index}>{childList}</tr>)
             }
           })
           // props.setConnectionData(connectionData)
@@ -660,16 +676,50 @@ export default function PerspectiveExclusion (props) {
       console.log('newValue', newValue)
       console.log('actionMeta', actionMeta)
       console.log('index', index)
-      let connectionData = {...props.connectionData}
+      let connectionData = JSON.parse(JSON.stringify(props.connectionData))
       let selectedValues = connectionData.selectedValues
       if (actionMeta.action === 'select-option' || actionMeta.action === 'remove-value') {
         selectedValues[parentIndex][index] = newValue
         connectionData.selectedValues = selectedValues
+        // props.setConnectionData(connectionData)
+        let subjectId = newValue.subjectId
+        let selectOption = connectionData.selectOption
+        let backupSelectOption = connectionData.backupSelectOption
+        console.log('selectOption', selectOption, subjectId)
+        let selectOptionLength = selectOption[parentIndex].length
+        for (let i = index + 1; i < selectOptionLength; i++) {
+          console.log('slect option exist')
+          if (selectOption[parentIndex][i]) {
+            let filterObject = _.find(backupSelectOption[parentIndex][i], function (obj) {
+              return obj.subjectId === subjectId
+            })
+            let filterArray = []
+            filterArray.push(filterObject)
+            console.log('filterArray', filterArray)
+            selectOption[parentIndex][i] = filterArray
+            selectedValues[parentIndex][i] = []
+          }
+        }
+        connectionData.selectOption = selectOption
         props.setConnectionData(connectionData)
       }
       if (actionMeta.action === 'clear') {
         selectedValues[parentIndex][index] = null
         connectionData.selectedValues = selectedValues
+        // props.setConnectionData(connectionData)
+        let selectOption = connectionData.selectOption
+        let backupSelectOption = connectionData.backupSelectOption
+        console.log('selectOption', selectOption)
+        let selectOptionLength = selectOption[parentIndex].length
+        for (let i = index + 1; i < selectOptionLength; i++) {
+          console.log('slect option exist')
+          if (selectOption[parentIndex][i]) {
+            let restoreList = backupSelectOption[parentIndex][i]
+            selectOption[parentIndex][i] = restoreList
+            selectedValues[parentIndex][i] = []
+          }
+        }
+        connectionData.selectOption = selectOption
         props.setConnectionData(connectionData)
       }
     }
@@ -677,11 +727,12 @@ export default function PerspectiveExclusion (props) {
   if (props.connectionData !== '' && props.connectionData.operation.isComplete) {
     // eslint-disable-next-line
     mApp && mApp.unblockPage()
+    console.log('connection props', props)
     let connectionData = {...props.connectionData}
     connectionSelectBoxList = []
     console.log('connectionData', connectionData)
     connectionData.data.forEach(function (connectionProperty, parentIndex) {
-      console.log('connectionProperty', connectionProperty)
+      console.log('connectionProperty', connectionProperty, parentIndex)
       if (connectionProperty && connectionProperty.length > 0) {
         connectionProperty.forEach(function (data, index) {
           let selectOptions = connectionData.selectOption[parentIndex][index].map(function (component, id) {
@@ -695,7 +746,7 @@ export default function PerspectiveExclusion (props) {
               <Select
                 className='input-sm m-input'
                 placeholder={'Select ' + data.name}
-                isMulti={data.max !== 1}
+                // isMulti={data.max !== 1}
                 isClearable
                 value={connectionData.selectedValues[parentIndex][index]}
                 onChange={handleSelectChange(index, parentIndex)}
@@ -726,7 +777,7 @@ export default function PerspectiveExclusion (props) {
             businessPropertyList.push(<div className='form-group row'>
               <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
               <div className='col-8 form-group m-form__group has-info'>
-                <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+                <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value, parentIndex) }} placeholder='Enter Here' />
                 {false && (<div className='form-control-feedback'>should be Number</div>)}
               </div>
             </div>)
@@ -739,7 +790,7 @@ export default function PerspectiveExclusion (props) {
                   className='input-sm form-control m-input'
                   selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
                   dateFormat='DD MMM YYYY'
-                  onSelect={(date) => { editProperty(index, date) }}
+                  onSelect={(date) => { editProperty(index, date, parentIndex) }}
                   />
                 {/* <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editTextProperty(index, childIndex, event.target.value) }} placeholder='Enter Here' /> */}
                 {false && (<div className='form-control-feedback'>should be Date</div>)}
@@ -750,7 +801,7 @@ export default function PerspectiveExclusion (props) {
             businessPropertyList.push(<div className='form-group row'>
               <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
               <div className='col-8 form-group m-form__group has-info'>
-                <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+                <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value, parentIndex) }} placeholder='Enter Here' />
                 {false && (<div className='form-control-feedback'>should be Text</div>)}
               </div>
             </div>)
@@ -759,7 +810,7 @@ export default function PerspectiveExclusion (props) {
             businessPropertyList.push(<div className='form-group row'>
               <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
               <div className='col-8 form-group m-form__group has-info'>
-                <input onChange={(event) => { editProperty(index, event.target.checked) }} type='checkbox' style={{cursor: 'pointer'}} />
+                <input onChange={(event) => { editProperty(index, event.target.checked, parentIndex) }} type='checkbox' style={{cursor: 'pointer'}} />
                 {false && (<div className='form-control-feedback'>should be Text</div>)}
               </div>
             </div>)
@@ -793,7 +844,7 @@ export default function PerspectiveExclusion (props) {
             businessPropertyList.push(<div className='form-group row'>
               <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
               <div className='col-8 form-group m-form__group has-info'>
-                <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+                <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value, parentIndex) }} placeholder='Enter Here' />
                 {false && (<div className='form-control-feedback'>should be Text</div>)}
               </div>
             </div>)
@@ -855,7 +906,7 @@ export default function PerspectiveExclusion (props) {
   const endValueOfRange = (currentPage * perPage) <= (modelPrespectivesList.length) ? (currentPage * perPage) : (modelPrespectivesList.length)
 
   var activeClass = ''
-  console.log('qq', modelPrespectivesList.length)
+  console.log('qq', modelPrespectivesList)
 return (
   <div>
     <div id='entitlementList'>
@@ -1126,7 +1177,7 @@ return (
               </div>
               <div className='modal-body'>
                 <div>
-                  <h6>Confirm deletion of Service {serviceName}</h6>
+                  <h6>Confirm deletion of Exclusion {serviceName}</h6>
                 </div>
               </div>
               <div className='modal-footer'>
