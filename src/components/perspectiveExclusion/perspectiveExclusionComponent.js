@@ -26,7 +26,6 @@ export default function PerspectiveExclusion (props) {
   let previousClass = ''
   let pageArray = []
   let listPage = []
-  // let pageSize = 10
   let paginationLimit = 6
   let modelPrespectivesList = ''
   let totalPages
@@ -727,7 +726,6 @@ export default function PerspectiveExclusion (props) {
   if (props.connectionData !== '' && props.connectionData.operation.isComplete) {
     // eslint-disable-next-line
     mApp && mApp.unblockPage()
-    console.log('connection props', props)
     let connectionData = {...props.connectionData}
     connectionSelectBoxList = []
     console.log('connectionData', connectionData)
@@ -748,6 +746,7 @@ export default function PerspectiveExclusion (props) {
                 placeholder={'Select ' + data.name}
                 // isMulti={data.max !== 1}
                 isClearable
+                isSearchable
                 value={connectionData.selectedValues[parentIndex][index]}
                 onChange={handleSelectChange(index, parentIndex)}
                 options={selectOptions}
