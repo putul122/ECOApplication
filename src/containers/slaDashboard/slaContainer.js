@@ -82,7 +82,6 @@ const SlaDashboardContainer = compose(
           }
         ]
       }
-      console.log('breadcrumb', breadcrumb)
       this.props.setBreadcrumb && this.props.setBreadcrumb(breadcrumb)
     }
   })
