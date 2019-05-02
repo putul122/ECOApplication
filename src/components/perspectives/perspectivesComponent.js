@@ -55,6 +55,7 @@ export default function Perspectives (props) {
         let payload = {}
         payload.data = list
         payload.copyData = props.copyModelPrespectives
+        console.log('search payload', payload)
         props.setModalPerspectivesData(payload)
       }
       // eslint-disable-next-line
@@ -494,12 +495,12 @@ export default function Perspectives (props) {
       //   }
       // }
       console.log('list props', props)
-      if (props.modelPrespectives.length > 1) {
+      if (props.modelPrespectives.length > 0) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
-        modelPrespectives.splice(-1, 1)
-        if (modelPrespectives.length > 1) {
+        // modelPrespectives.splice(-1, 1)
+        if (modelPrespectives.length > 0) {
           modelPrespectivesList = modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
-            if (data.error_code === null) {
+            if (data.error_code === null && data.parts !== null) {
               let childList = []
               if (data.parts) {
                 data.parts.forEach(function (partData, ix) {

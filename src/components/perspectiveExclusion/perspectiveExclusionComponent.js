@@ -521,7 +521,7 @@ export default function PerspectiveExclusion (props) {
                     } else {
                       value = partData.value !== null ? partData.value.other_value : ''
                     }
-                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
+                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{JSON.stringify(value)}</td>)
                   }
                 })
 
@@ -870,7 +870,6 @@ export default function PerspectiveExclusion (props) {
   const endValueOfRange = (currentPage * perPage) <= (modelPrespectivesList.length) ? (currentPage * perPage) : (modelPrespectivesList.length)
 
   var activeClass = ''
-  console.log('qq', modelPrespectivesList)
 return (
   <div>
     <div id='entitlementList'>
