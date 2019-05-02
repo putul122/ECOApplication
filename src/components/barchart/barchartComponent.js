@@ -10,13 +10,13 @@ export default class Barchart extends PureComponent {
   render () {
     const data = [
       {
-        name: 'JAN', Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[0][0].children[0].value.count : 0, Non_Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[0][0].children[1].value.count : 0, amt: 2400
+        name: 'FEB', Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[0][0].children[0].value.count : 0, Non_Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[0][0].children[1].value.count : 0, amt: 2400
       },
       {
-        name: 'FEB', Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[1][0].children[0].value.count : 0, Non_Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[1][0].children[1].value.count : 0, amt: 2210
+        name: 'MAR', Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[1][0].children[0].value.count : 0, Non_Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[1][0].children[1].value.count : 0, amt: 2210
       },
       {
-        name: 'MAR', Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[2][0].children[0].value.count : 0, Non_Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[2][0].children[1].value.count : 0, amt: 2290
+        name: 'APR', Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[2][0].children[0].value.count : 0, Non_Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[2][0].children[1].value.count : 0, amt: 2290
       }
     ]
     return (

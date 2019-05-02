@@ -11,6 +11,7 @@ import Barchart from '../barchart/barchartComponent'
 import { SlaDashboardJson } from './SlaDashboard'
 import { SlaDashboardpenaltyJson } from './sla-dashboard-penalty.js'
 import { SlaDashboardPieChartJson } from './sla-dashboard-compliance-pie-chart.js'
+import { HuaweiSlaDashboardPieChartJson } from './sla-dashboard-huawei-compliance-pie-chart.js'
 import { SlaDashboardBarChartJson } from './sla-dashboard-compliance-bar-chart.js'
 const { RangePicker } = DatePicker
 
@@ -23,11 +24,13 @@ class SlaDashboard extends React.Component {
       dupActualSlaDashboardData: [],
       SlaDashboardpenaltyJson: SlaDashboardpenaltyJson,
       SlaDashboardPieChartJson: SlaDashboardPieChartJson,
+      HuaweiSlaDashboardPieChartJson: HuaweiSlaDashboardPieChartJson,
       SlaDashboardBarChartJson: SlaDashboardBarChartJson,
       ActualContractArr: [],
       UniqueArr: [],
       startDate: '',
       endDate: '',
+      prevDropdownName: '',
       department: 'Select',
       departmentFilter: [],
       supplier: 'Select',
@@ -490,26 +493,32 @@ class SlaDashboard extends React.Component {
     this.contractValue(value, 'kpi')
   }
   contractValue = (value, name) => {
-    if (this.state.ActualContractArr.length) {
+    let arrayToBeFiltered = this.state.ActualContractArr
+
+    if (this.state.prevDropdownName === name) {
+      arrayToBeFiltered = this.state.dupActualSlaDashboardData
+    }
+
+    if (arrayToBeFiltered.length) {
       var arr = []
       if (name === 'department') {
-        arr = this.state.ActualContractArr.filter((data, i) => {
+        arr = arrayToBeFiltered.filter((data, i) => {
           return (value === data.department && this.state.supplier === data.supplier && this.state.service === data.service && this.state.kpi === data.kpi) || (value === data.department && this.state.supplier === data.supplier && this.state.service === data.service) || (value === data.department && this.state.kpi === data.kpi && this.state.supplier === data.supplier) || (value === data.department && this.state.kpi === data.kpi && this.state.service === data.service) || (value === data.department && this.state.kpi === data.kpi) || (value === data.department && this.state.service === data.service) || (value === data.department && this.state.supplier === data.supplier) || (value === data.department)
         })
       } else if (name === 'supplier') {
-        arr = this.state.ActualContractArr.filter((data, i) => {
+        arr = arrayToBeFiltered.filter((data, i) => {
           return (value === data.supplier && this.state.department === data.department && this.state.service === data.service && this.state.kpi === data.kpi) || (value === data.supplier && this.state.department === data.department && this.state.service === data.service) || (value === data.supplier && this.state.kpi === data.kpi && this.state.department === data.department) || (value === data.supplier && this.state.kpi === data.kpi && this.state.service === data.service) || (value === data.supplier && this.state.kpi === data.kpi) || (value === data.supplier && this.state.service === data.service) || (value === data.supplier && this.state.department === data.department) || (value === data.supplier)
         })
       } else if (name === 'service') {
-        arr = this.state.ActualContractArr.filter((data, i) => {
+        arr = arrayToBeFiltered.filter((data, i) => {
           return (value === data.service && this.state.supplier === data.supplier && this.state.department === data.department && this.state.kpi === data.kpi) || (value === data.service && this.state.supplier === data.supplier && this.state.department === data.department) || (value === data.service && this.state.kpi === data.kpi && this.state.supplier === data.supplier) || (value === data.service && this.state.kpi === data.kpi && this.state.department === data.department) || (value === data.service && this.state.kpi === data.kpi) || (value === data.service && this.state.department === data.department) || (value === data.service && this.state.supplier === data.supplier) || (value === data.service)
         })
       } else if (name === 'kpi') {
-        arr = this.state.ActualContractArr.filter((data, i) => {
+        arr = arrayToBeFiltered.filter((data, i) => {
           return (value === data.kpi && this.state.supplier === data.supplier && this.state.service === data.service && this.state.department === data.department) || (value === data.kpi && this.state.supplier === data.supplier && this.state.service === data.service) || (value === data.kpi && this.state.department === data.department && this.state.supplier === data.supplier) || (value === data.kpi && this.state.department === data.department && this.state.service === data.service) || (value === data.kpi && this.state.department === data.department) || (value === data.kpi && this.state.service === data.service) || (value === data.kpi && this.state.supplier === data.supplier) || (value === data.kpi)
         })
       }
-      this.setState({ActualContractArr: arr})
+      this.setState({ActualContractArr: arr, prevDropdownName: name})
       this.ActualContracts(arr)
     }
   }
@@ -796,7 +805,7 @@ class SlaDashboard extends React.Component {
                               <span>Compliance</span>
                             </div>
                             <div className={styles.Mainchart}>
-                              <PieChart valueOne={this.state.SlaDashboardPieChartJson[0].parts[0].value[0].value.count} valueTwo={this.state.SlaDashboardPieChartJson[0].parts[0].value[1].value.count} />
+                              <PieChart valueOne={this.state.supplier === 'Huawei' ? this.state.HuaweiSlaDashboardPieChartJson[0].parts[0].value[0].value.count : this.state.SlaDashboardPieChartJson[0].parts[0].value[0].value.count} valueTwo={this.state.supplier === 'Huawei' ? this.state.HuaweiSlaDashboardPieChartJson[0].parts[0].value[1].value.count : this.state.SlaDashboardPieChartJson[0].parts[0].value[1].value.count} />
                             </div>
                           </div>
                         </div>
@@ -807,7 +816,7 @@ class SlaDashboard extends React.Component {
                             </div>
                             <div className={styles.Mainchart}>
                               <Avatar className={styles.avatarTwo} size='large'>
-                                {this.state.SlaDashboardpenaltyJson[0].parts[0].value[0].value.sum}
+                                { this.state.supplier === 'Huawei' ? 0.97 : 1.125 }
                               </Avatar>
                             </div>
                           </div>
