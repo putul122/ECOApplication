@@ -4,7 +4,7 @@ export const SlaDashboardBarChartJson = [{
 	'subject_id': 0,
 	'parts': [{
 		'value': [{
-				'key': '2019-01-01',
+				'key': '2019-02-01',
 				'children': [{
 						'key': 'Ericsson',
 						'children': [{
@@ -23,16 +23,17 @@ export const SlaDashboardBarChartJson = [{
 					},
 					{
 						'key': 'Huawei',
-						'children': [{
+						'children': [
+							{
 								'key': 'Compliant',
 								'value': {
-									'count': 25
+									'count': 65
 								}
 							},
 							{
 								'key': 'Not Compliant',
 								'value': {
-									'count': 45
+									'count': 103
 								}
 							}
 						]
@@ -40,7 +41,7 @@ export const SlaDashboardBarChartJson = [{
 				]
 			},
 			{
-				'key': '2019-02-01',
+				'key': '2019-03-01',
 				'children': [{
 						'key': 'Ericsson',
 						'children': [{
@@ -59,16 +60,17 @@ export const SlaDashboardBarChartJson = [{
 					},
 					{
 						'key': 'Huawei',
-						'children': [{
+						'children': [
+							{
 								'key': 'Compliant',
 								'value': {
-									'count': 12
+									'count': 50
 								}
 							},
 							{
 								'key': 'Not Compliant',
 								'value': {
-									'count': 54
+									'count': 143
 								}
 							}
 						]
@@ -76,7 +78,7 @@ export const SlaDashboardBarChartJson = [{
 				]
 			},
 			{
-				'key': '2019-03-01',
+				'key': '2019-04-01',
 				'children': [{
 						'key': 'Ericsson',
 						'children': [{
@@ -95,16 +97,17 @@ export const SlaDashboardBarChartJson = [{
 					},
 					{
 						'key': 'Huawei',
-						'children': [{
+						'children': [
+							{
 								'key': 'Compliant',
 								'value': {
-									'count': 43
+									'count': 28
 								}
 							},
 							{
 								'key': 'Not Compliant',
 								'value': {
-									'count': 31
+									'count': 168
 								}
 							}
 						]
