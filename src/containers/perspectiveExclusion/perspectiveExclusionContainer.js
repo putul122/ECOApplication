@@ -11,6 +11,8 @@ export function mapStateToProps (state, props) {
   return {
     authenticateUser: state.basicReducer.authenticateUser,
     modelPrespectives: state.perspectiveExclusionReducer.modelPrespectives,
+    metaModelPerspectiveData: state.perspectiveExclusionReducer.metaModelPerspectiveData,
+    metaModelPerspectiveList: state.perspectiveExclusionReducer.metaModelPerspectiveList,
     metaModelPerspective: state.perspectiveExclusionReducer.metaModelPerspective,
     currentPage: state.perspectiveExclusionReducer.currentPage,
     perPage: state.perspectiveExclusionReducer.perPage,
@@ -43,7 +45,8 @@ export const propsMapping: Callbacks = {
   setConnectionData: actionCreators.setConnectionData,
   updateModelPrespectives: sagaActions.modelActions.updateModelPrespectives,
   updateComponentModelPrespectives: sagaActions.modelActions.updateComponentModelPrespectives,
-  setHeaderData: actionCreators.setHeaderData
+  setHeaderData: actionCreators.setHeaderData,
+  setMetaModelPerspectiveData: actionCreators.setMetaModelPerspectiveData
 }
 
 // If you want to use the function mapping
@@ -106,6 +109,31 @@ export default compose(
       if (nextProps.authenticateUser && nextProps.authenticateUser.resources) {
         if (!nextProps.authenticateUser.resources[0].result) {
           this.props.history.push('/')
+        }
+      }
+      if (nextProps.metaModelPerspectiveData && nextProps.metaModelPerspectiveData !== '') {
+        this.props.resetResponse()
+        if (nextProps.metaModelPerspectiveData.error_code === null) {
+          if (nextProps.metaModelPerspectiveData.resources[0].view_key === 'Exclusions_Add') {
+            let payload = {}
+            payload.metaModelPerspective = nextProps.metaModelPerspectiveData
+            payload.metaModelPerspectiveList = this.props.metaModelPerspectiveList
+            payload.toProcessMetaModel = true
+            nextProps.setMetaModelPerspectiveData(payload)
+            let metaModelPrespectivePayload = {}
+            metaModelPrespectivePayload.id = parseInt(this.props.match.params.id)
+            metaModelPrespectivePayload.viewKey = {view_key: this.props.match.params.viewKey}
+            this.props.fetchMetaModelPrespective && this.props.fetchMetaModelPrespective(metaModelPrespectivePayload)
+          } else if (nextProps.metaModelPerspectiveData.resources[0].view_key === 'Exclusions_List') {
+            let payload = {}
+            payload.metaModelPerspective = this.props.metaModelPerspective
+            payload.metaModelPerspectiveList = nextProps.metaModelPerspectiveData
+            payload.toProcessMetaModel = false
+            nextProps.setMetaModelPerspectiveData(payload)
+          }
+        } else {
+          // eslint-disable-next-line
+          toastr.error(nextProps.metaModelPerspectiveData.error_message, nextProps.metaModelPerspectiveData.error_code)
         }
       }
       if (nextProps.modelPrespectives && nextProps.modelPrespectives !== '') {

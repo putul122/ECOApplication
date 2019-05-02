@@ -17,6 +17,7 @@ const SET_PER_PAGE = 'perspectiveExclusionReducer/SET_PER_PAGE'
 const RESET_RESPONSE = 'perspectiveExclusionReducer/RESET_RESPONSE'
 const SET_CONNECTION_DATA = 'perspectiveExclusionReducer/SET_CONNECTION_DATA'
 const SET_HEADER_DATA = 'perspectiveExclusionReducer/SET_HEADER_DATA'
+const SET_META_MODEL_PERSPECTIVE_DATA = 'perspectiveExclusionReducer/SET_META_MODEL_PERSPECTIVE_DATA'
 
 export const actions = {
   FETCH_MODEL_PRESPECTIVES_SUCCESS,
@@ -31,7 +32,8 @@ export const actions = {
   UPDATE_COMPONENT_MODEL_PRESPECTIVES_SUCCESS,
   SET_CONNECTION_DATA,
   FETCH_ALL_DROPDOWN_DATA_SUCCESS,
-  SET_HEADER_DATA
+  SET_HEADER_DATA,
+  SET_META_MODEL_PERSPECTIVE_DATA
 }
 
 export const actionCreators = {
@@ -41,12 +43,15 @@ export const actionCreators = {
   setPerPage: createAction(SET_PER_PAGE),
   resetResponse: createAction(RESET_RESPONSE),
   setConnectionData: createAction(SET_CONNECTION_DATA),
-  setHeaderData: createAction(SET_HEADER_DATA)
+  setHeaderData: createAction(SET_HEADER_DATA),
+  setMetaModelPerspectiveData: createAction(SET_META_MODEL_PERSPECTIVE_DATA)
 }
 
 export const initialState = {
   modelPrespectives: '',
   metaModelPerspective: '',
+  metaModelPerspectiveData: '',
+  metaModelPerspectiveList: '',
   currentPage: 1,
   perPage: 10,
   crude: {
@@ -102,8 +107,8 @@ export default handleActions(
     }),
     [FETCH_META_MODEL_PRESPECTIVE_SUCCESS]: (state, action) => ({
       ...state,
-      metaModelPerspective: action.payload,
-      availableAction: {...state.availableAction, 'toProcessMetaModel': true}
+      metaModelPerspectiveData: action.payload
+      // availableAction: {...state.availableAction, 'toProcessMetaModel': true}
     }),
     [SET_ADD_SETTINGS]: (state, action) => ({
       ...state,
@@ -138,7 +143,8 @@ export default handleActions(
       createComponentResponse: '',
       updateComponentResponse: '',
       deleteComponentResponse: '',
-      dropdownData: ''
+      dropdownData: '',
+      metaModelPerspectiveData: ''
     }),
     [SET_CONNECTION_DATA]: (state, action) => ({
       ...state,
@@ -151,6 +157,12 @@ export default handleActions(
     [SET_HEADER_DATA]: (state, action) => ({
       ...state,
       headerData: action.payload
+    }),
+    [SET_META_MODEL_PERSPECTIVE_DATA]: (state, action) => ({
+      ...state,
+      metaModelPerspective: action.payload.metaModelPerspective,
+      metaModelPerspectiveList: action.payload.metaModelPerspectiveList,
+      availableAction: {...state.availableAction, 'toProcessMetaModel': action.payload.toProcessMetaModel}
     })
   },
   initialState
