@@ -14,6 +14,10 @@ const api = {
     'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/15?view_key=ContractsList_DashboardFilter',
   modelperspectives:
     'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=15&view_key[0]=ContractsList_DashboardFilter',
+  penaltymetaModelPerpestives:
+    'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/15?view_key=ContractsList_PenaltyDashboard',
+  penaltymodelperspectives:
+    'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=15&view_key[0]=ContractsList_PenaltyDashboard',
   getUser: function (userId) {
     return 'https://account-eco-dev.ecoconductor.com/users/' + userId
   },
