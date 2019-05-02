@@ -26,7 +26,6 @@ export default function PerspectiveExclusion (props) {
   let previousClass = ''
   let pageArray = []
   let listPage = []
-  // let pageSize = 10
   let paginationLimit = 6
   let modelPrespectivesList = ''
   let totalPages
@@ -223,8 +222,6 @@ export default function PerspectiveExclusion (props) {
   }
   let createComponent = function (event) {
     event.preventDefault()
-    // eslint-disable-next-line
-    mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     let addSettings = JSON.parse(JSON.stringify(props.addSettings))
     let patchPayload = []
     let obj = {}
@@ -235,32 +232,8 @@ export default function PerspectiveExclusion (props) {
     obj.value.parts[0] = {'value': addSettings.name}
     obj.value.parts[1] = {'value': addSettings.description}
     let connectionData = {...props.connectionData}
-    connectionData.selectedValues.forEach(function (data, index) {
-      if (Array.isArray(data)) {
-        if (data.length > 0) {
-          let connections = []
-          data.forEach(function (selectedValue, ix) {
-            let connectionObject = {}
-            connectionObject.target_id = selectedValue.id
-            connections.push(obj)
-          })
-          obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
-        } else {
-          obj.value.parts[connectionData.data[index].partIndex] = {}
-        }
-      } else {
-        if (data) {
-          let connections = []
-          let connectionObject = {}
-          connectionObject.target_id = data.id
-          connections.push(connectionObject)
-          obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
-        } else {
-          obj.value.parts[connectionData.data[index].partIndex] = {}
-        }
-      }
-    })
-    connectionData.customerProperty.forEach(function (data, index) {
+    let lastCustomerIndex = 0
+    connectionData.customerProperty[0].forEach(function (data, index) {
       if (data.type_property.property_type.key === 'Boolean') {
         obj.value.parts[data.partIndex] = {value: {'boolean_value': data.type_property.boolean_value}}
       } else if (data.type_property.property_type.key === 'Integer') {
@@ -276,27 +249,43 @@ export default function PerspectiveExclusion (props) {
       } else {
         obj.value.parts[data.partIndex] = {value: {'other_value': data.type_property.other_value}}
       }
+      lastCustomerIndex = data.partIndex
     })
-    patchPayload.push(obj)
-    let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
-    let dashboardKey = selectedPackage.key
-    let perspectives = selectedPackage.perspectives
-    let perspectiveId = parseInt(props.metaModelPerspective.resources[0].id)
-    let perspectiveViewKey = ''
-    if (dashboardKey === 'ECO_SLA') {
-    perspectiveViewKey = _.result(_.find(perspectives, function (obj) {
-        return (obj.perspective === perspectiveId && obj.role_key === 'Create')
-    }), 'view_key')
+    console.log('obj', obj, lastCustomerIndex)
+    let allMetricPointSet = false
+    allMetricPointSet = connectionData.selectedValues[1].every(function (selecteOption) {
+      return (selecteOption !== null || selecteOption.length > 0)
+    })
+    if (allMetricPointSet) {
+      // eslint-disable-next-line
+      mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+      let metricObject = {'target_id': connectionData.selectedValues[1][0].subjectId}
+      let metricPointArray = []
+      metricPointArray.push(metricObject)
+      obj.value.parts[lastCustomerIndex + 1] = {'value': metricPointArray}
+      patchPayload.push(obj)
+      let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
+      let dashboardKey = selectedPackage.key
+      let perspectives = selectedPackage.perspectives
+      let perspectiveId = parseInt(props.metaModelPerspective.resources[0].id)
+      let perspectiveViewKey = ''
+      if (dashboardKey === 'ECO_SLA') {
+      perspectiveViewKey = _.result(_.find(perspectives, function (obj) {
+          return (obj.perspective === perspectiveId && obj.role_key === 'Create')
+      }), 'view_key')
+      }
+      let payload = {}
+      payload.queryString = {}
+      payload.queryString.meta_model_perspective_id = perspectiveId
+      payload.queryString.view_key = perspectiveViewKey
+      payload.queryString.apply_changes = true
+      payload.data = {}
+      payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
+      console.log('payload', payload)
+      props.updateModelPrespectives(payload)
+    } else {
+      alert('All metric point not set')
     }
-    let payload = {}
-    payload.queryString = {}
-    payload.queryString.meta_model_perspective_id = perspectiveId
-    payload.queryString.view_key = perspectiveViewKey
-    payload.queryString.apply_changes = true
-    payload.data = {}
-    payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
-    console.log('payload', payload)
-    props.updateModelPrespectives(payload)
   }
   let updateComponent = function (event) {
     event.preventDefault()
@@ -462,29 +451,22 @@ export default function PerspectiveExclusion (props) {
     }
     closeModal()
   }
-  if (!props.headerData.toProcess) {
-    if (props.headerData.metaModelPerspective.length > 0) {
+  if (props.metaModelPerspectiveList !== '') {
+    if (props.metaModelPerspectiveList.resources[0].parts.length > 0) {
       tableHeader = []
-      props.headerData.headerColumn.forEach(function (data, index) {
-        labels.push(data)
-        tableHeader.push(<th key={index + 'col' + index} className=''><h5>{data}</h5></th>)
-        // data.parts.forEach(function (partData, idx) {
-        //   if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
-        //     if (partData.standard_property === 'name') {
-        //       tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
-        //     }
-        //   } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
-        //     tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
-        //   }
-        // })
+      props.metaModelPerspectiveList.resources[0].parts.forEach(function (data, index) {
+        if (data.standard_property !== null || data.type_property !== null) {
+          labels.push(data.name)
+          tableHeader.push(<th key={index + 'col' + index} className=''><h5>{data.name}</h5></th>)
+        }
       })
+      tableHeader.push(<th key={'last'} className='table-th pres-th'><p>Action</p></th>)
     }
-    tableHeader.push(<th key={'last'} className='table-th pres-th'><p>Action</p></th>)
   }
   let listModelPrespectives = function () {
     console.log('list modal pers', props)
-    if (props.modelPrespectives !== '') {
-      let labelParts = props.metaModelPerspective.resources[0].parts
+    if (props.modelPrespectives !== '' && props.metaModelPerspectiveList !== '') {
+      let labelParts = props.metaModelPerspectiveList.resources[0].parts
       // let crude = props.crude
       // let mask = props.metaModelPerspective.resources[0].crude
       // let crud = []
@@ -499,9 +481,11 @@ export default function PerspectiveExclusion (props) {
       if (props.modelPrespectives.length > 0) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
         // modelPrespectives.splice(-1, 1)
+        console.log('modelPrespectives -----.', modelPrespectives)
         if (modelPrespectives.length > 0) {
-          modelPrespectivesList = modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).map(function (data, index) {
-            if (data.error_code === null) {
+          modelPrespectivesList = []
+          modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).forEach(function (data, index) {
+            if (data.error_code === null && data.parts !== null) {
               let childList = []
               console.log('data', data)
               if (data.parts) {
@@ -510,39 +494,35 @@ export default function PerspectiveExclusion (props) {
                   let value
                   if (labelParts[ix] && labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
                     value = partData.value ? partData.value : ''
-                    console.log('value', value)
-                    console.log('value index', ix)
-                    console.log('labelParts[ix]', labelParts[ix])
                     childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
-                    console.log('childList', childList)
+                  } else if (labelParts[ix] && labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
+                    if (partData.value) {
+                      let targetComponents = []
+                      partData.value.forEach(function (data, index) {
+                        targetComponents.push(data.target_component.name)
+                      })
+                      value = targetComponents.toString()
+                    } else {
+                      value = partData.value || ''
+                    }
+                  } else if (labelParts[ix] && labelParts[ix].standard_property === null && labelParts[ix].type_property !== null) { // below are Customer Property
+                    if (labelParts[ix].type_property.property_type.key === 'Integer') {
+                      value = partData.value !== null ? partData.value.int_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+                      value = partData.value !== null ? partData.value.float_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+                      value = partData.value !== null ? partData.value.text_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+                      value = partData.value !== null ? partData.value.date_time_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+                      value = partData.value !== null ? partData.value.boolean_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                      value = partData.value !== null ? (partData.value.value_set_value ? partData.value.value_set_value.name : '') : ''
+                    } else {
+                      value = partData.value !== null ? partData.value.other_value : ''
+                    }
+                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
                   }
-                  // else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
-                  //   if (partData.value) {
-                  //     let targetComponents = []
-                  //     partData.value.forEach(function (data, index) {
-                  //       targetComponents.push(data.target_component.name)
-                  //     })
-                  //     value = targetComponents.toString()
-                  //   } else {
-                  //     value = partData.value || ''
-                  //   }
-                  // } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property !== null) { // below are Customer Property
-                  //   if (labelParts[ix].type_property.property_type.key === 'Integer') {
-                  //     value = partData.value !== null ? partData.value.int_value : ''
-                  //   } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
-                  //     value = partData.value !== null ? partData.value.float_value : ''
-                  //   } else if (labelParts[ix].type_property.property_type.key === 'Text') {
-                  //     value = partData.value !== null ? partData.value.text_value : ''
-                  //   } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
-                  //     value = partData.value !== null ? partData.value.date_time_value : ''
-                  //   } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-                  //     value = partData.value !== null ? partData.value.boolean_value : ''
-                  //   } else if (labelParts[ix].type_property.property_type.key === 'List') {
-                  //     value = partData.value !== null ? (partData.value.value_set_value ? partData.value.value_set_value.name : '') : ''
-                  //   } else {
-                  //     value = partData.value !== null ? partData.value.other_value : ''
-                  //   }
-                  // }
                 })
 
                 let availableAction = {...props.availableAction}
@@ -555,7 +535,7 @@ export default function PerspectiveExclusion (props) {
                 }
                 childList.push(<td className='table-td pres-th' key={'last' + index}>{list}</td>)
               }
-              return (<tr className='table-tr' key={index}>{childList}</tr>)
+              modelPrespectivesList.push(<tr className='table-tr' key={index}>{childList}</tr>)
             }
           })
           // props.setConnectionData(connectionData)
@@ -577,7 +557,7 @@ export default function PerspectiveExclusion (props) {
       }
     }
   }
-  if (props.modelPrespectives && props.modelPrespectives !== '') {
+  if (props.modelPrespectives && props.modelPrespectives !== '' && props.metaModelPerspectiveList !== '') {
     totalPages = Math.ceil((props.modelPrespectives.length - 1) / perPage)
     let i = 1
     while (i <= totalPages) {
@@ -660,16 +640,50 @@ export default function PerspectiveExclusion (props) {
       console.log('newValue', newValue)
       console.log('actionMeta', actionMeta)
       console.log('index', index)
-      let connectionData = {...props.connectionData}
+      let connectionData = JSON.parse(JSON.stringify(props.connectionData))
       let selectedValues = connectionData.selectedValues
       if (actionMeta.action === 'select-option' || actionMeta.action === 'remove-value') {
         selectedValues[parentIndex][index] = newValue
         connectionData.selectedValues = selectedValues
+        // props.setConnectionData(connectionData)
+        let subjectId = newValue.subjectId
+        let selectOption = connectionData.selectOption
+        let backupSelectOption = connectionData.backupSelectOption
+        console.log('selectOption', selectOption, subjectId)
+        let selectOptionLength = selectOption[parentIndex].length
+        for (let i = index + 1; i < selectOptionLength; i++) {
+          console.log('slect option exist')
+          if (selectOption[parentIndex][i]) {
+            let filterObject = _.find(backupSelectOption[parentIndex][i], function (obj) {
+              return obj.subjectId === subjectId
+            })
+            let filterArray = []
+            filterArray.push(filterObject)
+            console.log('filterArray', filterArray)
+            selectOption[parentIndex][i] = filterArray
+            selectedValues[parentIndex][i] = []
+          }
+        }
+        connectionData.selectOption = selectOption
         props.setConnectionData(connectionData)
       }
       if (actionMeta.action === 'clear') {
         selectedValues[parentIndex][index] = null
         connectionData.selectedValues = selectedValues
+        // props.setConnectionData(connectionData)
+        let selectOption = connectionData.selectOption
+        let backupSelectOption = connectionData.backupSelectOption
+        console.log('selectOption', selectOption)
+        let selectOptionLength = selectOption[parentIndex].length
+        for (let i = index + 1; i < selectOptionLength; i++) {
+          console.log('slect option exist')
+          if (selectOption[parentIndex][i]) {
+            let restoreList = backupSelectOption[parentIndex][i]
+            selectOption[parentIndex][i] = restoreList
+            selectedValues[parentIndex][i] = []
+          }
+        }
+        connectionData.selectOption = selectOption
         props.setConnectionData(connectionData)
       }
     }
@@ -681,7 +695,7 @@ export default function PerspectiveExclusion (props) {
     connectionSelectBoxList = []
     console.log('connectionData', connectionData)
     connectionData.data.forEach(function (connectionProperty, parentIndex) {
-      console.log('connectionProperty', connectionProperty)
+      console.log('connectionProperty', connectionProperty, parentIndex)
       if (connectionProperty && connectionProperty.length > 0) {
         connectionProperty.forEach(function (data, index) {
           let selectOptions = connectionData.selectOption[parentIndex][index].map(function (component, id) {
@@ -695,8 +709,9 @@ export default function PerspectiveExclusion (props) {
               <Select
                 className='input-sm m-input'
                 placeholder={'Select ' + data.name}
-                isMulti={data.max !== 1}
+                // isMulti={data.max !== 1}
                 isClearable
+                isSearchable
                 value={connectionData.selectedValues[parentIndex][index]}
                 onChange={handleSelectChange(index, parentIndex)}
                 options={selectOptions}
@@ -726,7 +741,7 @@ export default function PerspectiveExclusion (props) {
             businessPropertyList.push(<div className='form-group row'>
               <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
               <div className='col-8 form-group m-form__group has-info'>
-                <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+                <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value, parentIndex) }} placeholder='Enter Here' />
                 {false && (<div className='form-control-feedback'>should be Number</div>)}
               </div>
             </div>)
@@ -739,7 +754,7 @@ export default function PerspectiveExclusion (props) {
                   className='input-sm form-control m-input'
                   selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
                   dateFormat='DD MMM YYYY'
-                  onSelect={(date) => { editProperty(index, date) }}
+                  onSelect={(date) => { editProperty(index, date, parentIndex) }}
                   />
                 {/* <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editTextProperty(index, childIndex, event.target.value) }} placeholder='Enter Here' /> */}
                 {false && (<div className='form-control-feedback'>should be Date</div>)}
@@ -750,7 +765,7 @@ export default function PerspectiveExclusion (props) {
             businessPropertyList.push(<div className='form-group row'>
               <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
               <div className='col-8 form-group m-form__group has-info'>
-                <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+                <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value, parentIndex) }} placeholder='Enter Here' />
                 {false && (<div className='form-control-feedback'>should be Text</div>)}
               </div>
             </div>)
@@ -759,7 +774,7 @@ export default function PerspectiveExclusion (props) {
             businessPropertyList.push(<div className='form-group row'>
               <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
               <div className='col-8 form-group m-form__group has-info'>
-                <input onChange={(event) => { editProperty(index, event.target.checked) }} type='checkbox' style={{cursor: 'pointer'}} />
+                <input onChange={(event) => { editProperty(index, event.target.checked, parentIndex) }} type='checkbox' style={{cursor: 'pointer'}} />
                 {false && (<div className='form-control-feedback'>should be Text</div>)}
               </div>
             </div>)
@@ -793,7 +808,7 @@ export default function PerspectiveExclusion (props) {
             businessPropertyList.push(<div className='form-group row'>
               <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
               <div className='col-8 form-group m-form__group has-info'>
-                <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+                <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value, parentIndex) }} placeholder='Enter Here' />
                 {false && (<div className='form-control-feedback'>should be Text</div>)}
               </div>
             </div>)
@@ -855,7 +870,7 @@ export default function PerspectiveExclusion (props) {
   const endValueOfRange = (currentPage * perPage) <= (modelPrespectivesList.length) ? (currentPage * perPage) : (modelPrespectivesList.length)
 
   var activeClass = ''
-  console.log('qq', modelPrespectivesList.length)
+  console.log('qq', modelPrespectivesList)
 return (
   <div>
     <div id='entitlementList'>
@@ -1126,7 +1141,7 @@ return (
               </div>
               <div className='modal-body'>
                 <div>
-                  <h6>Confirm deletion of Service {serviceName}</h6>
+                  <h6>Confirm deletion of Exclusion {serviceName}</h6>
                 </div>
               </div>
               <div className='modal-footer'>
@@ -1146,11 +1161,11 @@ return (
   PerspectiveExclusion.propTypes = {
     addSettings: PropTypes.any,
     modelPrespectives: PropTypes.any,
-    metaModelPerspective: PropTypes.any,
+    // metaModelPerspective: PropTypes.any,
     currentPage: PropTypes.any,
     perPage: PropTypes.any,
-    // crude: PropTypes.any,
+    metaModelPerspectiveList: PropTypes.any,
     availableAction: PropTypes.any,
-    connectionData: PropTypes.any,
-    headerData: PropTypes.any
+    connectionData: PropTypes.any
+    // headerData: PropTypes.any
   }

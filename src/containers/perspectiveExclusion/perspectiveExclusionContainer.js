@@ -11,6 +11,8 @@ export function mapStateToProps (state, props) {
   return {
     authenticateUser: state.basicReducer.authenticateUser,
     modelPrespectives: state.perspectiveExclusionReducer.modelPrespectives,
+    metaModelPerspectiveData: state.perspectiveExclusionReducer.metaModelPerspectiveData,
+    metaModelPerspectiveList: state.perspectiveExclusionReducer.metaModelPerspectiveList,
     metaModelPerspective: state.perspectiveExclusionReducer.metaModelPerspective,
     currentPage: state.perspectiveExclusionReducer.currentPage,
     perPage: state.perspectiveExclusionReducer.perPage,
@@ -32,6 +34,7 @@ export const propsMapping: Callbacks = {
   fetchModelPrespectives: sagaActions.modelActions.fetchModelPrespectives,
   fetchMetaModelPrespective: sagaActions.modelActions.fetchMetaModelPrespective,
   fetchDropdownData: sagaActions.serviceActions.fetchDropdownData,
+  fetchAllDropdownData: sagaActions.serviceActions.fetchAllDropdownData,
   setCurrentPage: actionCreators.setCurrentPage,
   setAddSettings: actionCreators.setAddSettings,
   setPerPage: actionCreators.setPerPage,
@@ -42,7 +45,8 @@ export const propsMapping: Callbacks = {
   setConnectionData: actionCreators.setConnectionData,
   updateModelPrespectives: sagaActions.modelActions.updateModelPrespectives,
   updateComponentModelPrespectives: sagaActions.modelActions.updateComponentModelPrespectives,
-  setHeaderData: actionCreators.setHeaderData
+  setHeaderData: actionCreators.setHeaderData,
+  setMetaModelPerspectiveData: actionCreators.setMetaModelPerspectiveData
 }
 
 // If you want to use the function mapping
@@ -75,7 +79,7 @@ export default compose(
   lifecycle({
     componentWillMount: function () {
       // eslint-disable-next-line
-      // mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+      mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
       let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
       let dashboardKey = selectedPackage.key
@@ -93,7 +97,7 @@ export default compose(
       this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
       let metaModelPrespectivePayload = {}
       metaModelPrespectivePayload.id = perspectiveId
-      metaModelPrespectivePayload.viewKey = {viewKey: perspectiveViewKey}
+      metaModelPrespectivePayload.viewKey = {view_key: perspectiveViewKey}
       this.props.fetchMetaModelPrespective && this.props.fetchMetaModelPrespective(metaModelPrespectivePayload)
     },
     componentDidMount: function () {
@@ -107,9 +111,32 @@ export default compose(
           this.props.history.push('/')
         }
       }
+      if (nextProps.metaModelPerspectiveData && nextProps.metaModelPerspectiveData !== '') {
+        this.props.resetResponse()
+        if (nextProps.metaModelPerspectiveData.error_code === null) {
+          if (nextProps.metaModelPerspectiveData.resources[0].view_key === 'Exclusions_Add') {
+            let payload = {}
+            payload.metaModelPerspective = nextProps.metaModelPerspectiveData
+            payload.metaModelPerspectiveList = this.props.metaModelPerspectiveList
+            payload.toProcessMetaModel = true
+            nextProps.setMetaModelPerspectiveData(payload)
+            let metaModelPrespectivePayload = {}
+            metaModelPrespectivePayload.id = parseInt(this.props.match.params.id)
+            metaModelPrespectivePayload.viewKey = {view_key: this.props.match.params.viewKey}
+            this.props.fetchMetaModelPrespective && this.props.fetchMetaModelPrespective(metaModelPrespectivePayload)
+          } else if (nextProps.metaModelPerspectiveData.resources[0].view_key === 'Exclusions_List') {
+            let payload = {}
+            payload.metaModelPerspective = this.props.metaModelPerspective
+            payload.metaModelPerspectiveList = nextProps.metaModelPerspectiveData
+            payload.toProcessMetaModel = false
+            nextProps.setMetaModelPerspectiveData(payload)
+          }
+        } else {
+          // eslint-disable-next-line
+          toastr.error(nextProps.metaModelPerspectiveData.error_message, nextProps.metaModelPerspectiveData.error_code)
+        }
+      }
       if (nextProps.modelPrespectives && nextProps.modelPrespectives !== '') {
-        // eslint-disable-next-line
-        mApp && mApp.unblockPage()
         let availableAction = nextProps.availableAction
         availableAction['toProcessModelPerspectives'] = false
         nextProps.setAvailableAction(availableAction)
@@ -363,38 +390,90 @@ export default compose(
         }
         this.props.resetResponse()
       }
-      if (nextProps.connectionData !== '' && nextProps.connectionData.operation.toCallApi && !nextProps.connectionData.operation.isComplete) {
+      if (nextProps.connectionData !== '' && nextProps.connectionData.operation.toCallApi) {
         console.log('nextProps.connectionData', nextProps.connectionData)
         let connectionData = {...nextProps.connectionData}
-        let parentIndex = nextProps.connectionData.operation.parentIndex
-        let processIndex = nextProps.connectionData.operation.processIndex[parentIndex]
-        let totalLength = nextProps.connectionData.data[parentIndex].length
-        if (processIndex < totalLength) {
-          let processData = nextProps.connectionData.data[parentIndex][processIndex]
-          nextProps.fetchDropdownData && nextProps.fetchDropdownData(processData.componentId)
-          connectionData.operation.processIndex[parentIndex] = processIndex + 1
-          connectionData.operation.toCallApi = false
-        }
-        if (processIndex === totalLength) {
-          connectionData.operation.parentIndex += 1
-        }
-        let totalMetaModelConnection = connectionData.data.length
-        if (processIndex === totalLength && (parentIndex + 1) === totalMetaModelConnection) {
-          connectionData.operation.isComplete = true
-        }
-        nextProps.setConnectionData(connectionData)
+        let headerData = {...nextProps.headerData}
+        // let parentIndex = nextProps.connectionData.operation.parentIndex
+        // let processIndex = nextProps.connectionData.operation.processIndex[parentIndex]
+        // let totalLength = nextProps.connectionData.data[parentIndex].length
+        // if (processIndex < totalLength) {
+        //   let processData = nextProps.connectionData.data[parentIndex][processIndex]
+        //   nextProps.fetchDropdownData && nextProps.fetchDropdownData(processData.componentId)
+        //   connectionData.operation.processIndex[parentIndex] = processIndex + 1
+        //   connectionData.operation.toCallApi = false
+        // }
+        // if (processIndex === totalLength) {
+        //   connectionData.operation.parentIndex += 1
+        // }
+        // let totalMetaModelConnection = connectionData.data.length
+        // if (processIndex === totalLength && (parentIndex + 1) === totalMetaModelConnection) {
+        //   connectionData.operation.isComplete = true
+        // }
+        headerData.metaModelPerspective.forEach(function (data, index) {
+          if (data.view_key === 'ExclusionsMetric_List') {
+            let payload = {}
+            payload['meta_model_perspective_id[0]'] = data.id
+            payload['view_key[0]'] = data.view_key
+            nextProps.fetchAllDropdownData && nextProps.fetchAllDropdownData(payload)
+            connectionData.operation.toCallApi = false
+            nextProps.setConnectionData(connectionData)
+          }
+        })
       }
       if (nextProps.dropdownData !== '') {
-        if (nextProps.dropdownData.error_code === null) {
+        if (nextProps.dropdownData.length > 0) {
+          let services = []
+          let kpi = []
+          let timeGranularity = []
+          nextProps.dropdownData.forEach(function (data, index) {
+            if (data.parts) {
+              data.parts.forEach(function (dataParts, partIndex) {
+                if (partIndex === 2) {
+                  let serviceData = dataParts.value[0].target_component
+                  serviceData.subjectId = data.subject_id
+                  serviceData.subjectName = data.subject_name
+                  services.push(serviceData)
+                }
+                if (partIndex === 3) {
+                  let kpiData = dataParts.value[0].target_component
+                  kpiData.subjectId = data.subject_id
+                  kpiData.subjectName = data.subject_name
+                  kpi.push(kpiData)
+                }
+                if (partIndex === 4) {
+                  let timeGranularityData = dataParts.value[0].target_component
+                  timeGranularityData.subjectId = data.subject_id
+                  timeGranularityData.subjectName = data.subject_name
+                  timeGranularity.push(timeGranularityData)
+                }
+              })
+            }
+          })
           let connectionData = {...nextProps.connectionData}
-          let parentIndex = connectionData.operation.parentIndex
-          connectionData.selectOption[parentIndex].push(nextProps.dropdownData.resources)
-          connectionData.operation.toCallApi = true
+          let selectOption = []
+          selectOption[0] = []
+          selectOption[1] = []
+          selectOption[1].push(services)
+          selectOption[1].push(kpi)
+          selectOption[1].push(timeGranularity)
+          connectionData.selectOption = selectOption
+          connectionData.backupSelectOption = selectOption
+          connectionData.operation.isComplete = true
           nextProps.setConnectionData(connectionData)
-        } else {
           // eslint-disable-next-line
-          toastr.error(nextProps.dropdownData.error_message, nextProps.dropdownData.error_code)
+          mApp && mApp.unblockPage()
         }
+        // if (nextProps.dropdownData.error_code === null) {
+        //   let connectionData = {...nextProps.connectionData}
+        //   let parentIndex = connectionData.operation.parentIndex
+        //   connectionData.selectOption[parentIndex].push(nextProps.dropdownData.resources)
+        //   connectionData.operation.toCallApi = true
+        //   nextProps.setConnectionData(connectionData)
+        // } else {
+        //   // eslint-disable-next-line
+        //   toastr.error(nextProps.dropdownData.error_message, nextProps.dropdownData.error_code)
+        // }
         this.props.resetResponse()
       }
     }
