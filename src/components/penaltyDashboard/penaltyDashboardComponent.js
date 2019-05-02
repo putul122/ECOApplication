@@ -1,6 +1,7 @@
 import React from 'react'
 import styles from './penaltyDashboardComponent.scss'
 import { DatePicker, Table } from 'antd'
+import PropTypes from 'prop-types'
 import 'antd/dist/antd.css'
 import './index.css'
 import _ from 'lodash'
@@ -13,7 +14,19 @@ class PenaltyDashboard extends React.Component {
     super()
     this.state = {
       PenaltyDashboardData: PenaltyDashboardJson,
+      ActualSlaDashboardData: [],
+      dupActualSlaDashboardData: [],
+      PenaltyApiData: [],
+      dupPenaltyApiData: [],
+      penaltyState: {
+        supplier: '',
+        service: '',
+        kpi: ''
+      },
+      NestedPenaltyApiData: [],
       UniqueArr: [],
+      startDate: '',
+      endDate: '',
       department: 'Select',
       departmentFilter: [],
       supplier: 'Select',
@@ -22,17 +35,18 @@ class PenaltyDashboard extends React.Component {
       serviceFilter: [],
       kpi: 'Select',
       apiData: [],
-      // searchTerm: '',
       pageSize: 10,
       currentPage: 1,
       previousClass: '',
       nextClass: '',
-      // invitedEmail: '',
       totalPages: 1
     }
   }
   componentWillMount () {
     this.unselectAll()
+    this.props.penaltyMetaModel()
+    this.props.penaltygetMDPerspectiveDATA()
+    this.props.getMDPerspectiveDATA()
   }
   componentDidMount () {
     var { apiData, PenaltyDashboardData } = this.state
@@ -47,19 +61,133 @@ class PenaltyDashboard extends React.Component {
     }
     this.setState({apiData})
   }
+  componentWillReceiveProps (nextProps) {
+    var ActuallArr1 = []
+    // var ActuallArr12 = []
+    for (var q = 0; q < nextProps.penaltymodelPerspectiveData.length - 1; q++) {
+      console.log('nextProps.penaltymodelPerspectiveData[q]', nextProps.penaltymodelPerspectiveData[q])
+      // if (nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value.length !== 0) {
+      //   for (var x = 0; x < nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value.length; x++) {
+      //     var obj2 = {
+      //       Target: nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value[x].values.Target.value ? nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value[x].timestamp : '',
+      //       Actual: nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value[x].values.Score.value ? nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value[x].values.Score.value : '',
+      //       expDate: nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value[x].timestamp ? nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value[x].timestamp : '',
+      //       Penalty: nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value[x].values.Penalty.value ? nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value[x].values.Penalty.value : '',
+      //       kpi: nextProps.penaltymodelPerspectiveData[q].parts[3].value.subject_part.value
+      //     }
+      //     console.log(obj2)
+      //     ActuallArr12.push(obj2)
+      //   }
+      // } else {
+      //   var obj3 = {}
+      //   ActuallArr12.push(obj3)
+      // }
+      if (nextProps.penaltymodelPerspectiveData[q].parts[4].value.subject_part.value.length) {
+        console.log('array')
+      }
+      var obj1 = {
+        supplier: nextProps.penaltymodelPerspectiveData[q].parts[1].value[0].target_component.name,
+        service: nextProps.penaltymodelPerspectiveData[q].parts[2].value.subject_part.value,
+        kpi: nextProps.penaltymodelPerspectiveData[q].parts[3].value.subject_part.value
+      }
+      ActuallArr1.push(obj1)
+    }
+    this.setState({PenaltyApiData: ActuallArr1, dupPenaltyApiData: ActuallArr1})
+    // filter and actual data
+    var ActuallArr = []
+    for (var i = 0; i < nextProps.modelPerspectiveData.length - 1; i++) {
+      var date
+      if (nextProps.modelPerspectiveData[i].parts[1].value !== null) {
+        var dates = new Date(nextProps.modelPerspectiveData[i].parts[1].value.date_time_value)
+        date = dates.toUTCString()
+      } else {
+        date = ''
+      }
+      var obj = {
+        department: nextProps.modelPerspectiveData[i].parts[3].value[0].target_component.name,
+        supplier: nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.name,
+        service: nextProps.modelPerspectiveData[i].parts[6].value.subject_part.value,
+        kpi: nextProps.modelPerspectiveData[i].parts[7].value.subject_part.value,
+        contracts: nextProps.modelPerspectiveData[i].parts[0].value !== null ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value.name : '',
+        expDate: date
+      }
+      ActuallArr.push(obj)
+    }
+    this.setState({ActualSlaDashboardData: ActuallArr, dupActualSlaDashboardData: ActuallArr})
+    var depFilter = []
+    var supFilter = []
+    var serFilter = []
+    var kpiFil = []
+    ActuallArr.map((data) => {
+      depFilter.push(data.department)
+      supFilter.push(data.supplier)
+      serFilter.push(data.service)
+      kpiFil.push(data.kpi)
+    })
+    this.setState({
+      UniqueArr: [...new Set(depFilter)],
+      departmentFilter: [...new Set(supFilter)],
+      supplierFilter: [...new Set(serFilter)],
+      serviceFilter: [...new Set(kpiFil)]
+    })
+    var drafts = 0
+    var agreed = 0
+    var active = 0
+    var expired = 0
+    for (var j = 0; j < ActuallArr.length; j++) {
+      if (ActuallArr[j].contracts === 'Draft') {
+        drafts = drafts + 1
+      } else if (ActuallArr[j].contracts === 'Agreed') {
+        agreed = agreed + 1
+      } else if (ActuallArr[j].contracts === 'Operational') {
+        active = active + 1
+      } else if (ActuallArr[j].contracts === 'Expired') {
+        expired = expired + 1
+      }
+    }
+    this.setState({
+      drafts,
+      agreed,
+      active,
+      expired
+    })
+  }
+  ActualContracts = (uniqueArray) => {
+    var drafts = 0
+    var agreed = 0
+    var active = 0
+    var expired = 0
+    for (var i = 0; i < uniqueArray.length; i++) {
+      if (uniqueArray[i].contracts === 'Draft') {
+        drafts = drafts + 1
+      } else if (uniqueArray[i].contracts === 'Agreed') {
+        agreed = agreed + 1
+      } else if (uniqueArray[i].contracts === 'Operational') {
+        active = active + 1
+      } else if (uniqueArray[i].contracts === 'Expired') {
+        expired = expired + 1
+      }
+    }
+    this.setState({
+      drafts,
+      agreed,
+      active,
+      expired
+    })
+  }
   unselectAll = () => {
-    var { PenaltyDashboardData } = this.state
-    var repeatedArr = PenaltyDashboardData.map((data) => {
-      return data.parts[2].value.subject_part.value
+    var { dupActualSlaDashboardData } = this.state
+    var repeatedArr = dupActualSlaDashboardData.map((data) => {
+      return data.department
     })
-    var repeatedArrdep = PenaltyDashboardData.map((data) => {
-      return data.parts[3].value.subject_part.value
+    var repeatedArrdep = dupActualSlaDashboardData.map((data) => {
+      return data.supplier
     })
-    var repeatedArrsupp = PenaltyDashboardData.map((data) => {
-      return data.parts[4].value.subject_part.value
+    var repeatedArrsupp = dupActualSlaDashboardData.map((data) => {
+      return data.service
     })
-    var repeatedArrser = PenaltyDashboardData.map((data) => {
-      return data.parts[5].value.subject_part.value
+    var repeatedArrser = dupActualSlaDashboardData.map((data) => {
+      return data.kpi
     })
     var UniqueArr = [...new Set(repeatedArr)]
     var departmentFilter = [...new Set(repeatedArrdep)]
@@ -67,36 +195,100 @@ class PenaltyDashboard extends React.Component {
     var serviceFilter = [...new Set(repeatedArrser)]
     // this.departmentDropDown(UniqueArr[0])
     this.setState({UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select'})
+    var drafts = 0
+    var agreed = 0
+    var active = 0
+    var expired = 0
+    for (var i = 0; i < this.state.ActualSlaDashboardData.length; i++) {
+      if (this.state.ActualSlaDashboardData[i].contracts === 'Draft') {
+        drafts = drafts + 1
+      } else if (this.state.ActualSlaDashboardData[i].contracts === 'Agreed') {
+        agreed = agreed + 1
+      } else if (this.state.ActualSlaDashboardData[i].contracts === 'Operational') {
+        active = active + 1
+      } else if (this.state.ActualSlaDashboardData[i].contracts === 'Expired') {
+        expired = expired + 1
+      }
+    }
+    this.setState({
+      drafts,
+      agreed,
+      active,
+      expired,
+      dupPenaltyApiData: this.state.PenaltyApiData
+    })
+  }
+  tableFilter = () => {
+    var arr = []
+    if (this.state.penaltyState.service !== '' && this.state.penaltyState.supplier !== '' && this.state.penaltyState.kpi !== '') {
+      arr = this.state.PenaltyApiData.filter((data, i) => {
+        return (this.state.penaltyState.service === data.service && this.state.penaltyState.supplier === data.supplier && this.state.penaltyState.kpi === data.kpi)
+      })
+      this.setState({dupPenaltyApiData: arr})
+    } else if (this.state.penaltyState.service !== '' && this.state.penaltyState.supplier !== '') {
+      arr = this.state.PenaltyApiData.filter((data, i) => {
+        return (this.state.penaltyState.service === data.service && this.state.penaltyState.supplier === data.supplier)
+      })
+      this.setState({dupPenaltyApiData: arr})
+    } else if (this.state.penaltyState.service !== '' && this.state.penaltyState.kpi !== '') {
+      arr = this.state.PenaltyApiData.filter((data, i) => {
+        return (this.state.penaltyState.service === data.service && this.state.penaltyState.kpi === data.kpi)
+      })
+      this.setState({dupPenaltyApiData: arr})
+    } else if (this.state.penaltyState.supplier !== '' && this.state.penaltyState.kpi !== '') {
+      arr = this.state.PenaltyApiData.filter((data, i) => {
+        return (this.state.penaltyState.supplier === data.supplier && this.state.penaltyState.kpi === data.kpi)
+      })
+      this.setState({dupPenaltyApiData: arr})
+    } else if (this.state.penaltyState.supplier !== '') {
+      arr = this.state.PenaltyApiData.filter((data, i) => {
+        return (this.state.penaltyState.supplier === data.supplier)
+      })
+      this.setState({dupPenaltyApiData: arr})
+    } else if (this.state.penaltyState.service !== '') {
+      arr = this.state.PenaltyApiData.filter((data, i) => {
+        return (this.state.penaltyState.service === data.service)
+      })
+      this.setState({dupPenaltyApiData: arr})
+    } else if (this.state.penaltyState.kpi !== '') {
+      arr = this.state.PenaltyApiData.filter((data, i) => {
+        return (this.state.penaltyState.kpi === data.kpi)
+      })
+      this.setState({dupPenaltyApiData: arr})
+    } else {
+      this.setState({dupPenaltyApiData: this.state.PenaltyApiData})
+    }
   }
   departmentDropDown = (value) => {
-    var { PenaltyDashboardData } = this.state
-    var array = PenaltyDashboardData.filter((data) => {
-      if (data.parts[2].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service) {
-        return (data.parts[2].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service)
-      } else if (data.parts[2].value.subject_part.value === value && data.parts[3].value.subject_part.value === this.state.supplier) {
-        return (data.parts[2].value.subject_part.value === value && data.parts[3].value.subject_part.value === this.state.supplier)
-      } else if (data.parts[2].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi) {
-        return (data.parts[2].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi)
-      } else if (data.parts[2].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[3].value.subject_part.value === this.state.supplier) {
-        return (data.parts[2].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[3].value.subject_part.value === this.state.supplier)
-      } else if (data.parts[2].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[5].value.subject_part.value === this.state.kpi) {
-        return (data.parts[2].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[5].value.subject_part.value === this.state.kpi)
-      } else if (data.parts[2].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi && data.parts[3].value.subject_part.value === this.state.supplier) {
-        return (data.parts[2].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi && data.parts[3].value.subject_part.value === this.state.supplier)
-      } else if (data.parts[2].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[3].value.subject_part.value === this.state.supplier && data.parts[5].value.subject_part.value === this.state.kpi) {
-        return (data.parts[2].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[3].value.subject_part.value === this.state.supplier && data.parts[5].value.subject_part.value === this.state.kpi)
-      } else if (data.parts[2].value.subject_part.value === value && this.state.supplier === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
-        return (data.parts[2].value.subject_part.value === value)
+    this.setState({department: value})
+    var { dupActualSlaDashboardData } = this.state
+    var array = dupActualSlaDashboardData.filter((data) => {
+      if (data.department === value && data.service === this.state.service) {
+        return (data.department === value && data.service === this.state.service)
+      } else if (data.department === value && data.supplier === this.state.supplier) {
+        return (data.department === value && data.supplier === this.state.supplier)
+      } else if (data.department === value && data.kpi === this.state.kpi) {
+        return (data.department === value && data.kpi === this.state.kpi)
+      } else if (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier) {
+        return (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier)
+      } else if (data.department === value && data.service === this.state.service && data.kpi === this.state.kpi) {
+        return (data.department === value && data.service === this.state.service && data.kpi === this.state.kpi)
+      } else if (data.department === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier) {
+        return (data.department === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier)
+      } else if (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier && data.kpi === this.state.kpi) {
+        return (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier && data.kpi === this.state.kpi)
+      } else if (data.department === value && this.state.supplier === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
+        return (data.department === value)
       }
     })
     var repeatedArr = array.map((data) => {
-      return data.parts[3].value.subject_part.value
+      return data.supplier
     })
     var repeatedArrser = array.map((data) => {
-      return data.parts[4].value.subject_part.value
+      return data.service
     })
     var repeatedArrkpi = array.map((data) => {
-      return data.parts[5].value.subject_part.value
+      return data.kpi
     })
     var UniqueArr = [...new Set(repeatedArr)]
     var UniqueArrser = [...new Set(repeatedArrser)]
@@ -104,111 +296,123 @@ class PenaltyDashboard extends React.Component {
     this.setState({department: value, departmentFilter: UniqueArr, supplierFilter: UniqueArrser, serviceFilter: UniqueArrkpi})
   }
   SupplierDropDown = (value) => {
-    var { PenaltyDashboardData } = this.state
-    var array = PenaltyDashboardData.filter((data) => {
-      if (data.parts[3].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department) {
-        return (data.parts[3].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department)
-      } else if (data.parts[3].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service) {
-        return (data.parts[3].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service)
-      } else if (data.parts[3].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi) {
-        return (data.parts[3].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi)
-      } else if (data.parts[3].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[4].value.subject_part.value === this.state.service) {
-        return (data.parts[3].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[4].value.subject_part.value === this.state.service)
-      } else if (data.parts[3].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[5].value.subject_part.value === this.state.kpi) {
-        return (data.parts[3].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[5].value.subject_part.value === this.state.kpi)
-      } else if (data.parts[3].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi && data.parts[4].value.subject_part.value === this.state.service) {
-        return (data.parts[3].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi && data.parts[4].value.subject_part.value === this.state.service)
-      } else if (data.parts[3].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[4].value.subject_part.value === this.state.service && data.parts[5].value.subject_part.value === this.state.kpi) {
-        return (data.parts[3].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[4].value.subject_part.value === this.state.service && data.parts[5].value.subject_part.value === this.state.kpi)
-      } else if (data.parts[3].value.subject_part.value === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
-        return (data.parts[3].value.subject_part.value === value)
+    var { penaltyState } = this.state
+    penaltyState.supplier = value
+    this.setState({supplier: value, penaltyState})
+    var { dupActualSlaDashboardData } = this.state
+    var array = dupActualSlaDashboardData.filter((data) => {
+      if (data.supplier === value && data.department === this.state.department) {
+        return (data.supplier === value && data.department === this.state.department)
+      } else if (data.supplier === value && data.service === this.state.service) {
+        return (data.supplier === value && data.service === this.state.service)
+      } else if (data.supplier === value && data.kpi === this.state.kpi) {
+        return (data.supplier === value && data.kpi === this.state.kpi)
+      } else if (data.supplier === value && data.department === this.state.department && data.service === this.state.service) {
+        return (data.supplier === value && data.department === this.state.department && data.service === this.state.service)
+      } else if (data.supplier === value && data.department === this.state.department && data.kpi === this.state.kpi) {
+        return (data.supplier === value && data.department === this.state.department && data.kpi === this.state.kpi)
+      } else if (data.supplier === value && data.kpi === this.state.kpi && data.service === this.state.service) {
+        return (data.supplier === value && data.kpi === this.state.kpi && data.service === this.state.service)
+      } else if (data.supplier === value && data.department === this.state.department && data.service === this.state.service && data.kpi === this.state.kpi) {
+        return (data.supplier === value && data.department === this.state.department && data.service === this.state.service && data.kpi === this.state.kpi)
+      } else if (data.supplier === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
+        return (data.supplier === value)
       }
     })
     var repeatedArrdep = array.map((data) => {
-      return data.parts[2].value.subject_part.value
+      return data.department
     })
     var repeatedArrser = array.map((data) => {
-      return data.parts[4].value.subject_part.value
+      return data.service
     })
     var repeatedArrkpi = array.map((data) => {
-      return data.parts[5].value.subject_part.value
+      return data.kpi
     })
     var UniqueArrDep = [...new Set(repeatedArrdep)]
     var UniqueArrser = [...new Set(repeatedArrser)]
     var UniqueArrkpi = [...new Set(repeatedArrkpi)]
     this.setState({supplier: value, supplierFilter: UniqueArrser, UniqueArr: UniqueArrDep, serviceFilter: UniqueArrkpi})
+    this.tableFilter()
   }
   serviceDropDown = (value) => {
-    var { PenaltyDashboardData } = this.state
-    var array = PenaltyDashboardData.filter((data) => {
-      if (data.parts[4].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department) {
-        return (data.parts[4].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department)
-      } else if (data.parts[4].value.subject_part.value === value && data.parts[3].value.subject_part.value === this.state.supplier) {
-        return (data.parts[4].value.subject_part.value === value && data.parts[3].value.subject_part.value === this.state.supplier)
-      } else if (data.parts[4].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi) {
-        return (data.parts[4].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi)
-      } else if (data.parts[4].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[3].value.subject_part.value === this.state.supplier) {
-        return (data.parts[4].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[3].value.subject_part.value === this.state.supplier)
-      } else if (data.parts[4].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[5].value.subject_part.value === this.state.kpi) {
-        return (data.parts[4].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[5].value.subject_part.value === this.state.kpi)
-      } else if (data.parts[4].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi && data.parts[3].value.subject_part.value === this.state.supplier) {
-        return (data.parts[4].value.subject_part.value === value && data.parts[5].value.subject_part.value === this.state.kpi && data.parts[3].value.subject_part.value === this.state.supplier)
-      } else if (data.parts[4].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[3].value.subject_part.value === this.state.supplier && data.parts[5].value.subject_part.value === this.state.kpi) {
-        return (data.parts[4].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[3].value.subject_part.value === this.state.supplier && data.parts[5].value.subject_part.value === this.state.kpi)
-      } else if (data.parts[4].value.subject_part.value === value && this.state.department === 'Select' && this.state.supplier === 'Select' && this.state.kpi === 'Select') {
-        return (data.parts[4].value.subject_part.value === value)
+    var { penaltyState } = this.state
+    penaltyState.service = value
+    this.setState({service: value, penaltyState})
+    var { dupActualSlaDashboardData } = this.state
+    var array = dupActualSlaDashboardData.filter((data) => {
+      if (data.service === value && data.department === this.state.department) {
+        return (data.service === value && data.department === this.state.department)
+      } else if (data.service === value && data.supplier === this.state.supplier) {
+        return (data.service === value && data.supplier === this.state.supplier)
+      } else if (data.service === value && data.kpi === this.state.kpi) {
+        return (data.service === value && data.kpi === this.state.kpi)
+      } else if (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier) {
+        return (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier)
+      } else if (data.service === value && data.department === this.state.department && data.kpi === this.state.kpi) {
+        return (data.service === value && data.department === this.state.department && data.kpi === this.state.kpi)
+      } else if (data.service === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier) {
+        return (data.service === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier)
+      } else if (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier && data.kpi === this.state.kpi) {
+        return (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier && data.kpi === this.state.kpi)
+      } else if (data.service === value && this.state.department === 'Select' && this.state.supplier === 'Select' && this.state.kpi === 'Select') {
+        return (data.service === value)
       }
     })
     var repeatedArr = array.map((data) => {
-      return data.parts[5].value.subject_part.value
+      return data.kpi
     })
     var repeatedArruni = array.map((data) => {
-      return data.parts[2].value.subject_part.value
+      return data.department
     })
     var repeatedArrsupp = array.map((data) => {
-      return data.parts[3].value.subject_part.value
+      return data.supplier
     })
     var UniqueArrkpi = [...new Set(repeatedArr)]
     var UniqueArruni = [...new Set(repeatedArruni)]
     var UniqueArrsupp = [...new Set(repeatedArrsupp)]
     this.setState({service: value, serviceFilter: UniqueArrkpi, UniqueArr: UniqueArruni, departmentFilter: UniqueArrsupp})
+    this.tableFilter()
   }
   kpiDropDown = (value) => {
-    var { PenaltyDashboardData } = this.state
-    var array = PenaltyDashboardData.filter((data) => {
-      if (data.parts[5].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service) {
-        return (data.parts[5].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service)
-      } else if (data.parts[5].value.subject_part.value === value && data.parts[3].value.subject_part.value === this.state.supplier) {
-        return (data.parts[5].value.subject_part.value === value && data.parts[3].value.subject_part.value === this.state.supplier)
-      } else if (data.parts[5].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department) {
-        return (data.parts[5].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department)
-      } else if (data.parts[5].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[3].value.subject_part.value === this.state.supplier) {
-        return (data.parts[5].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[3].value.subject_part.value === this.state.supplier)
-      } else if (data.parts[5].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[2].value.subject_part.value === this.state.department) {
-        return (data.parts[5].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[2].value.subject_part.value === this.state.department)
-      } else if (data.parts[5].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[3].value.subject_part.value === this.state.supplier) {
-        return (data.parts[5].value.subject_part.value === value && data.parts[2].value.subject_part.value === this.state.department && data.parts[3].value.subject_part.value === this.state.supplier)
-      } else if (data.parts[5].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[3].value.subject_part.value === this.state.supplier && data.parts[2].value.subject_part.value === this.state.department) {
-        return (data.parts[5].value.subject_part.value === value && data.parts[4].value.subject_part.value === this.state.service && data.parts[3].value.subject_part.value === this.state.supplier && data.parts[2].value.subject_part.value === this.state.department)
-      } else if (data.parts[5].value.subject_part.value === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.supplier === 'Select') {
-        return (data.parts[5].value.subject_part.value === value)
+    var { penaltyState } = this.state
+    penaltyState.kpi = value
+    this.setState({kpi: value, penaltyState})
+    var { dupActualSlaDashboardData } = this.state
+    var array = dupActualSlaDashboardData.filter((data) => {
+      if (data.kpi === value && data.service === this.state.service) {
+        return (data.kpi === value && data.service === this.state.service)
+      } else if (data.kpi === value && data.supplier === this.state.supplier) {
+        return (data.kpi === value && data.supplier === this.state.supplier)
+      } else if (data.kpi === value && data.department === this.state.department) {
+        return (data.kpi === value && data.department === this.state.department)
+      } else if (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier) {
+        return (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier)
+      } else if (data.kpi === value && data.service === this.state.service && data.department === this.state.department) {
+        return (data.kpi === value && data.service === this.state.service && data.department === this.state.department)
+      } else if (data.kpi === value && data.department === this.state.department && data.supplier === this.state.supplier) {
+        return (data.kpi === value && data.department === this.state.department && data.supplier === this.state.supplier)
+      } else if (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier && data.department === this.state.department) {
+        return (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier && data.department === this.state.department)
+      } else if (data.kpi === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.supplier === 'Select') {
+        return (data.kpi === value)
       }
     })
     var repeatedArrUni = array.map((data) => {
-      return data.parts[2].value.subject_part.value
+      return data.department
     })
     var repeatedArrdep = array.map((data) => {
-      return data.parts[3].value.subject_part.value
+      return data.supplier
     })
     var repeatedArrsupp = array.map((data) => {
-      return data.parts[4].value.subject_part.value
+      return data.service
     })
     var UniqueArruni = [...new Set(repeatedArrUni)]
     var UniqueArrdep = [...new Set(repeatedArrdep)]
     var UniqueArrsupp = [...new Set(repeatedArrsupp)]
     this.setState({kpi: value, UniqueArr: UniqueArruni, departmentFilter: UniqueArrdep, supplierFilter: UniqueArrsupp})
+    this.tableFilter()
   }
-  PenaltydropDown = (PenaltyDashboardData) => {
+  PenaltydropDown = (dupActualSlaDashboardData) => {
     return (
       <div className={styles.HeaderContainer}>
         {/* dropDown */}
@@ -226,7 +430,9 @@ class PenaltyDashboard extends React.Component {
                 this.state.UniqueArr.map((val, key) => {
                   return (
                     <li key={key}>
-                      <a href='javascript:void(0)' onClick={() => this.departmentDropDown(val)}>{val}</a>
+                      <a href='javascript:void(0)'
+                        onClick={() => this.departmentDropDown(val)}
+                      >{val}</a>
                     </li>
                   )
                 })
@@ -249,7 +455,12 @@ class PenaltyDashboard extends React.Component {
                 this.state.departmentFilter.map((val, key) => {
                   return (
                     <li key={key}>
-                      <a href='javascript:void(0)' onClick={() => this.SupplierDropDown(val)}>{val}</a>
+                      <a href='javascript:void(0)'
+                        onClick={() => {
+                            this.SupplierDropDown(val)
+                          }
+                        }
+                      >{val}</a>
                     </li>
                   )
                 })
@@ -272,7 +483,9 @@ class PenaltyDashboard extends React.Component {
                 this.state.supplierFilter.map((val, key) => {
                   return (
                     <li key={key}>
-                      <a href='javascript:void(0)' onClick={() => this.serviceDropDown(val)}>{val}</a>
+                      <a href='javascript:void(0)'
+                        onClick={() => this.serviceDropDown(val)}
+                      >{val}</a>
                     </li>
                   )
                 })
@@ -295,7 +508,9 @@ class PenaltyDashboard extends React.Component {
                 this.state.serviceFilter.map((val, key) => {
                   return (
                     <li key={key}>
-                      <a href='javascript:void(0)' onClick={() => this.kpiDropDown(val)}>{val}</a>
+                      <a href='javascript:void(0)'
+                        onClick={() => this.kpiDropDown(val)}
+                       >{val}</a>
                     </li>
                   )
                 })
@@ -317,6 +532,66 @@ class PenaltyDashboard extends React.Component {
       </div>
     )
   }
+  calendarValue = (value) => {
+    for (var i = 0; i < value.length; i++) {
+      if (i === 0) {
+        var a = new Date(value[i]._d)
+        var b = a.toUTCString()
+        this.setState({startDate: b})
+      } else if (i === 1) {
+        var aa = new Date(value[i]._d)
+        var bb = aa.toUTCString()
+        this.setState({endDate: bb})
+      }
+    }
+    if (value.length > 1) {
+      setTimeout(() => {
+        this.valueAccordingToCalendar()
+      }, 300)
+    } else {
+      var depFilter = []
+      var supFilter = []
+      var serFilter = []
+      var kpiFil = []
+      this.state.ActualSlaDashboardData.map((data) => {
+        depFilter.push(data.department)
+        supFilter.push(data.supplier)
+        serFilter.push(data.service)
+        kpiFil.push(data.kpi)
+      })
+      this.setState({
+        UniqueArr: [...new Set(depFilter)],
+        departmentFilter: [...new Set(supFilter)],
+        supplierFilter: [...new Set(serFilter)],
+        serviceFilter: [...new Set(kpiFil)]
+      })
+      this.setState({dupActualSlaDashboardData: this.state.ActualSlaDashboardData})
+    }
+  }
+  valueAccordingToCalendar = () => {
+    var { ActualSlaDashboardData } = this.state
+    console.log(ActualSlaDashboardData)
+    var dupActualSlaDashboardData = []
+    var sDate = new Date(this.state.startDate).getTime()
+    var eDate = new Date(this.state.endDate).getTime()
+    console.log(sDate)
+    console.log(eDate)
+    for (var i = 0; i < ActualSlaDashboardData.length; i++) {
+      var valDate = new Date(ActualSlaDashboardData[i].expDate).getTime()
+      if (valDate >= sDate && valDate <= eDate) {
+        dupActualSlaDashboardData.push(ActualSlaDashboardData[i])
+      }
+    }
+    console.log(dupActualSlaDashboardData)
+    this.setState({dupActualSlaDashboardData})
+    this.unselectAll()
+    this.setState({
+      drafts: 0,
+      agreed: 0,
+      active: 0,
+      expired: 0
+    })
+  }
   PenaltyCalender = () => {
     return (
       <div className={styles.HeaderContainer}>
@@ -329,6 +604,7 @@ class PenaltyDashboard extends React.Component {
             <RangePicker
               className='RangePicker'
               disabledDate={false}
+              onChange={(val) => this.calendarValue(val)}
               dateRender={(current) => {
                 const style = {}
                 if (current.date() === 1) {
@@ -375,6 +651,7 @@ class PenaltyDashboard extends React.Component {
     }
   }
   render () {
+    console.log(this.props, 'qqqqqqq')
     const {
       // searchTerm,
       previousClass,
@@ -384,7 +661,7 @@ class PenaltyDashboard extends React.Component {
       pageSize
     } = this.state
     const totalPages = Math.ceil(
-      this.state.PenaltyDashboardData.length / pageSize
+      this.state.PenaltyApiData.length / pageSize
     )
     let pageArray = []
     let paginationLimit = 6
@@ -410,7 +687,6 @@ class PenaltyDashboard extends React.Component {
     var activeClass = ''
 
     const expandedRowRender = (key) => {
-      console.log(key)
       const columns = [
         { title: 'Supplier', key: 'supplier' },
         { title: 'Service', dataIndex: 'service', key: 'service' },
@@ -434,18 +710,27 @@ class PenaltyDashboard extends React.Component {
         />
       )
     }
-    const NestedexpandedRowRender = (key) => {
+    const NestedexpandedRowRender = (index) => {
       const columns = [
         { title: 'Supplier', key: 'supplier' },
         { title: 'Service', key: 'service' },
         { title: 'KPI', dataIndex: 'kpi', key: 'kpi' },
-        { title: 'Target', key: 'Target' },
-        { title: 'Actual', key: 'Actual' },
-        { title: 'Penalty', key: 'Penalty' },
+        { title: 'Target', dataIndex: 'Target', key: 'Target' },
+        { title: 'Actual', dataIndex: 'Actual', key: 'Actual' },
+        { title: 'Penalty', dataIndex: 'Penalty', key: 'Penalty' },
         { title: 'Expired Date', dataIndex: 'expDate', key: 'expDate' }
       ]
+      console.log('----------', index)
       const Nesteddata = []
-      Nesteddata.push(key)
+      // for (var i = 0; i < this.state.PenaltyApiData[index].nestedData.length; i++) {
+      //   var obj = {}
+      //   obj = {
+      //     kpi: this.state.PenaltyApiData[i].kpi,
+      //     Target: this.state.PenaltyApiData[i].nestedData[0].timestamp
+      //   }
+      //   Nesteddata.push(obj)
+      // }
+      Nesteddata.push(index)
       return (
         <Table
           showHeader={false}
@@ -465,7 +750,6 @@ class PenaltyDashboard extends React.Component {
       { title: 'Penalty', key: 'Penalty' },
       { title: 'Expired Date', key: 'expDate' }
     ]
-    console.log('Penalty-dashboard', this.state.PenaltyDashboardData)
       return (
         <div className={styles.MainContainer}>
           {this.PenaltydropDown(this.state.PenaltyDashboardData)}
@@ -478,7 +762,7 @@ class PenaltyDashboard extends React.Component {
                   columns={columns}
                   expandIconAsCell={false}
                   expandedRowRender={expandedRowRender}
-                  dataSource={this.state.apiData}
+                  dataSource={this.state.dupPenaltyApiData}
                   pagination={false}
                   rowKey='Id'
                 />
@@ -640,5 +924,12 @@ class PenaltyDashboard extends React.Component {
       )
   }
 }
-
+PenaltyDashboard.propTypes = {
+  // penaltymetaData: PropTypes.any,
+  penaltyMetaModel: PropTypes.func,
+  penaltymodelPerspectiveData: PropTypes.any,
+  penaltygetMDPerspectiveDATA: PropTypes.func,
+  modelPerspectiveData: PropTypes.any,
+  getMDPerspectiveDATA: PropTypes.func
+}
 export default PenaltyDashboard

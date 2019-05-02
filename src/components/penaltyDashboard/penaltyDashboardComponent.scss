@@ -42,13 +42,16 @@
 }
 .dropDownBtn{
     padding: 7px 11px;
-    width:120px;
+    overflow: hidden;
+    // min-width:150px ;
+    // max-width: 230px;
+    width: 145px;
     margin-right: 10px;
-    // border:1px solid #5d77fc !important;
 }
 .dropList{
     width: 94%;
-    overflow-y: auto;
+    overflow-y: scroll;
+    max-height: 300px;
 }
 .RangePicker{
     width:500px !important;
@@ -229,7 +232,7 @@
     align-items: center;
 }
 .clearFilter{
-    width:350px;
+    width:250px;
     color: white !important;
     background-color: #fd397a !important;
 }

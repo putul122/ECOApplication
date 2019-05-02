@@ -1,7 +1,7 @@
 import React from 'react'
 import Header from '../../containers/header/headerContainer'
 import LeftNavigation from '../../components/leftNavigation/leftNavComponent'
-import PenaltyDashboard from '../../components/penaltyDashboard/penaltyDashboardComponent'
+import PenaltyDashboard from '../../containers/penaltyDashboard/penaltyContainer'
 import FooterComponent from '../../components/footer/footerComponent'
 
 class PenaltyDashboardRoute extends React.Component {

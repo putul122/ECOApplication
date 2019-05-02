@@ -24,6 +24,7 @@ import perspectiveHierarchyReducer from './perspectiveHierarchy/perspectiveHiera
 import rolesReducer from './rolesReducer/rolesReducerReducer'
 import editRolesReducer from './editRolesReducer/editRolesReducerReducer'
 import dataReducer from './data/dataReducer'
+import penaltyReducer from './penaltyDashboardReducer/penaltyDashboardReducerReducer'
 import perspectiveExclusionReducer from './perspectiveExclusion/perspectiveExclusionReducer'
 
 export default combineReducers({
@@ -52,5 +53,6 @@ export default combineReducers({
     perspectiveHierarchyReducer,
     slaReducer,
     dataReducer,
+    penaltyReducer,
     perspectiveExclusionReducer
 })
