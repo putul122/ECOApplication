@@ -9,7 +9,7 @@ export default function Home (props) {
     <div className=''>
       <div className='m-content col-xl-12'>
         <div style={style}>
-          <img alt='' src='/assets/ECO_Application.png' style={{'width': '100%'}} />
+          <img alt='' src='/assets/ecoConductor.png' style={{'width': '100%'}} />
         </div>
       </div>
     </div>
