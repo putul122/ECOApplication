@@ -1,6 +1,8 @@
 import React from 'react'
 import styles from './SlaDashboardComponent.scss'
 import { Avatar, DatePicker } from 'antd'
+import _ from 'lodash'
+
 import 'antd/dist/antd.css'
 import './index.css'
 import PropTypes from 'prop-types'
@@ -38,6 +40,8 @@ class SlaDashboard extends React.Component {
       active: 0,
       expired: 0,
       contractsArray: [],
+      uniqueContractsArrayCount: 0,
+      uniqueContractsArray: [],
       modelData: [],
       AdheresTo: [],
       loader: false,
@@ -62,11 +66,12 @@ class SlaDashboard extends React.Component {
       }]
     }
   }
-  componentDidMount () {
+  componentWillMount () {
     this.unselectAll()
     this.props.MetaModel()
     this.props.getMDPerspectiveDATA()
-
+  }
+  componentDidMount () {
     setTimeout(() => {
     //   if (this.state.departmentItems || this.state.supplierItems || this.state.serviceItems || this.state.kpiItems) {
       this.DepartmentId(this.state.DropDownArray[0].id)
@@ -104,7 +109,6 @@ class SlaDashboard extends React.Component {
   }
   componentWillReceiveProps (nextProps) {
     // New work
-
     var metaDataParts = nextProps.metaData.resources[0].parts
     var { DropDownArray } = this.state
     var actuallDropDownData = DropDownArray
@@ -199,6 +203,7 @@ class SlaDashboard extends React.Component {
         date = ''
       }
       var obj = {
+        subject_id: nextProps.modelPerspectiveData[i].subject_id,
         department: nextProps.modelPerspectiveData[i].parts[3].value[0].target_component.name,
         supplier: nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.name,
         service: nextProps.modelPerspectiveData[i].parts[6].value.subject_part.value,
@@ -206,10 +211,10 @@ class SlaDashboard extends React.Component {
         contracts: nextProps.modelPerspectiveData[i].parts[0].value !== null ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value.name : '',
         expDate: date
       }
-      console.log(obj)
       ActuallArr.push(obj)
     }
-    this.setState({ActualSlaDashboardData: ActuallArr, dupActualSlaDashboardData: ActuallArr})
+
+    this.setState({ActualSlaDashboardData: ActuallArr, dupActualSlaDashboardData: ActuallArr, ActualContractArr: ActuallArr})
     var depFilter = []
     var supFilter = []
     var serFilter = []
@@ -226,18 +231,21 @@ class SlaDashboard extends React.Component {
       supplierFilter: [...new Set(serFilter)],
       serviceFilter: [...new Set(kpiFil)]
     })
+    const { uniqueContractsArray, uniqueContractsArrayCount } = this.createUniqueContractsArray(ActuallArr)
+
     var drafts = 0
     var agreed = 0
     var active = 0
     var expired = 0
-    for (var j = 0; j < ActuallArr.length; j++) {
-      if (ActuallArr[j].contracts === 'Draft') {
+
+    for (var j = 0; j < uniqueContractsArrayCount; j++) {
+      if (uniqueContractsArray[j].contracts === 'Draft') {
         drafts = drafts + 1
-      } else if (ActuallArr[j].contracts === 'Agreed') {
+      } else if (uniqueContractsArray[j].contracts === 'Agreed') {
         agreed = agreed + 1
-      } else if (ActuallArr[j].contracts === 'Operational') {
+      } else if (uniqueContractsArray[j].contracts === 'Operational') {
         active = active + 1
-      } else if (ActuallArr[j].contracts === 'Expired') {
+      } else if (uniqueContractsArray[j].contracts === 'Expired') {
         expired = expired + 1
       }
     }
@@ -257,19 +265,21 @@ class SlaDashboard extends React.Component {
     })
     this.Contracts(uniqueArray)
   }
-  ActualContracts = (uniqueArray) => {
+  ActualContracts = (arr) => {
+    const { uniqueContractsArray, uniqueContractsArrayCount } = this.createUniqueContractsArray(arr)
+
     var drafts = 0
     var agreed = 0
     var active = 0
     var expired = 0
-    for (var i = 0; i < uniqueArray.length; i++) {
-      if (uniqueArray[i].contracts === 'Draft') {
+    for (var i = 0; i < uniqueContractsArrayCount; i++) {
+      if (uniqueContractsArray[i].contracts === 'Draft') {
         drafts = drafts + 1
-      } else if (uniqueArray[i].contracts === 'Agreed') {
+      } else if (uniqueContractsArray[i].contracts === 'Agreed') {
         agreed = agreed + 1
-      } else if (uniqueArray[i].contracts === 'Operational') {
+      } else if (uniqueContractsArray[i].contracts === 'Operational') {
         active = active + 1
-      } else if (uniqueArray[i].contracts === 'Expired') {
+      } else if (uniqueContractsArray[i].contracts === 'Expired') {
         expired = expired + 1
       }
     }
@@ -279,6 +289,13 @@ class SlaDashboard extends React.Component {
       active,
       expired
     })
+  }
+
+  createUniqueContractsArray = contractsArray => {
+    const uniqueContractsArray = _.uniqBy(contractsArray, 'subject_id')
+    const uniqueContractsArrayCount = uniqueContractsArray.length
+    this.setState({ uniqueContractsArray, uniqueContractsArrayCount })
+    return { uniqueContractsArray, uniqueContractsArrayCount }
   }
   unselectAll = () => {
     var { dupActualSlaDashboardData } = this.state
@@ -294,24 +311,28 @@ class SlaDashboard extends React.Component {
     var repeatedArrser = dupActualSlaDashboardData.map((data) => {
       return data.kpi
     })
+    const { uniqueContractsArray, uniqueContractsArrayCount } = this.createUniqueContractsArray(dupActualSlaDashboardData)
+
     var UniqueArr = [...new Set(repeatedArr)]
     var departmentFilter = [...new Set(repeatedArrdep)]
     var supplierFilter = [...new Set(repeatedArrsupp)]
     var serviceFilter = [...new Set(repeatedArrser)]
     // this.departmentDropDown(UniqueArr[0])
-    this.setState({UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select'})
+    this.setState({ActualContractArr: dupActualSlaDashboardData, UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select'})
+
     var drafts = 0
     var agreed = 0
     var active = 0
     var expired = 0
-    for (var i = 0; i < this.state.ActualSlaDashboardData.length; i++) {
-      if (this.state.ActualSlaDashboardData[i].contracts === 'Draft') {
+
+    for (var i = 0; i < uniqueContractsArrayCount; i++) {
+      if (uniqueContractsArray[i].contracts === 'Draft') {
         drafts = drafts + 1
-      } else if (this.state.ActualSlaDashboardData[i].contracts === 'Agreed') {
+      } else if (uniqueContractsArray[i].contracts === 'Agreed') {
         agreed = agreed + 1
-      } else if (this.state.ActualSlaDashboardData[i].contracts === 'Operational') {
+      } else if (uniqueContractsArray[i].contracts === 'Operational') {
         active = active + 1
-      } else if (this.state.ActualSlaDashboardData[i].contracts === 'Expired') {
+      } else if (uniqueContractsArray[i].contracts === 'Expired') {
         expired = expired + 1
       }
     }
@@ -325,23 +346,21 @@ class SlaDashboard extends React.Component {
   departmentDropDown = (value) => {
     this.setState({department: value})
     var { dupActualSlaDashboardData } = this.state
-    var array = dupActualSlaDashboardData.filter((data) => {
-      if (data.department === value && data.service === this.state.service) {
-        return (data.department === value && data.service === this.state.service)
-      } else if (data.department === value && data.supplier === this.state.supplier) {
-        return (data.department === value && data.supplier === this.state.supplier)
-      } else if (data.department === value && data.kpi === this.state.kpi) {
-        return (data.department === value && data.kpi === this.state.kpi)
-      } else if (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier) {
-        return (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier)
-      } else if (data.department === value && data.service === this.state.service && data.kpi === this.state.kpi) {
-        return (data.department === value && data.service === this.state.service && data.kpi === this.state.kpi)
+    var array = dupActualSlaDashboardData.filter(data => {
+      if (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier && data.kpi === this.state.kpi) {
+        return (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier && data.kpi === this.state.kpi)
       } else if (data.department === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier) {
         return (data.department === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier)
-      } else if (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier && data.kpi === this.state.kpi) {
-        return (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier && data.kpi === this.state.kpi)
-      } else if (data.department === value && this.state.supplier === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
-        return (data.department === value)
+      } else if (data.department === value && data.service === this.state.service && data.kpi === this.state.kpi) {
+        return (data.department === value && data.service === this.state.service && data.kpi === this.state.kpi)
+      } else if (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier) {
+        return (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier)
+      } else if (data.department === value && data.kpi === this.state.kpi) {
+        return (data.department === value && data.kpi === this.state.kpi)
+      } else if (data.department === value && data.supplier === this.state.supplier) {
+        return (data.department === value && data.supplier === this.state.supplier)
+      } else if (data.department === value && data.service === this.state.service) {
+        return (data.department === value && data.service === this.state.service)
       }
     })
     var repeatedArr = array.map((data) => {
@@ -363,22 +382,22 @@ class SlaDashboard extends React.Component {
     this.setState({supplier: value})
     var { dupActualSlaDashboardData } = this.state
     var array = dupActualSlaDashboardData.filter((data) => {
-      if (data.supplier === value && data.department === this.state.department) {
-        return (data.supplier === value && data.department === this.state.department)
-      } else if (data.supplier === value && data.service === this.state.service) {
-        return (data.supplier === value && data.service === this.state.service)
-      } else if (data.supplier === value && data.kpi === this.state.kpi) {
-        return (data.supplier === value && data.kpi === this.state.kpi)
-      } else if (data.supplier === value && data.department === this.state.department && data.service === this.state.service) {
-        return (data.supplier === value && data.department === this.state.department && data.service === this.state.service)
-      } else if (data.supplier === value && data.department === this.state.department && data.kpi === this.state.kpi) {
-        return (data.supplier === value && data.department === this.state.department && data.kpi === this.state.kpi)
-      } else if (data.supplier === value && data.kpi === this.state.kpi && data.service === this.state.service) {
-        return (data.supplier === value && data.kpi === this.state.kpi && data.service === this.state.service)
+      if (data.supplier === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
+        return (data.supplier === value)
       } else if (data.supplier === value && data.department === this.state.department && data.service === this.state.service && data.kpi === this.state.kpi) {
         return (data.supplier === value && data.department === this.state.department && data.service === this.state.service && data.kpi === this.state.kpi)
-      } else if (data.supplier === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
-        return (data.supplier === value)
+      } else if (data.supplier === value && data.kpi === this.state.kpi && data.service === this.state.service) {
+        return (data.supplier === value && data.kpi === this.state.kpi && data.service === this.state.service)
+      } else if (data.supplier === value && data.department === this.state.department && data.kpi === this.state.kpi) {
+        return (data.supplier === value && data.department === this.state.department && data.kpi === this.state.kpi)
+      } else if (data.supplier === value && data.department === this.state.department && data.service === this.state.service) {
+        return (data.supplier === value && data.department === this.state.department && data.service === this.state.service)
+      } else if (data.supplier === value && data.kpi === this.state.kpi) {
+        return (data.supplier === value && data.kpi === this.state.kpi)
+      } else if (data.supplier === value && data.service === this.state.service) {
+        return (data.supplier === value && data.service === this.state.service)
+      } else if (data.supplier === value && data.department === this.state.department) {
+        return (data.supplier === value && data.department === this.state.department)
       }
     })
     var repeatedArrdep = array.map((data) => {
@@ -400,22 +419,22 @@ class SlaDashboard extends React.Component {
     this.setState({service: value})
     var { dupActualSlaDashboardData } = this.state
     var array = dupActualSlaDashboardData.filter((data) => {
-      if (data.service === value && data.department === this.state.department) {
-        return (data.service === value && data.department === this.state.department)
-      } else if (data.service === value && data.supplier === this.state.supplier) {
-        return (data.service === value && data.supplier === this.state.supplier)
-      } else if (data.service === value && data.kpi === this.state.kpi) {
-        return (data.service === value && data.kpi === this.state.kpi)
-      } else if (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier) {
-        return (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier)
-      } else if (data.service === value && data.department === this.state.department && data.kpi === this.state.kpi) {
-        return (data.service === value && data.department === this.state.department && data.kpi === this.state.kpi)
-      } else if (data.service === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier) {
-        return (data.service === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier)
+      if (data.service === value && this.state.department === 'Select' && this.state.supplier === 'Select' && this.state.kpi === 'Select') {
+        return (data.service === value)
       } else if (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier && data.kpi === this.state.kpi) {
         return (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier && data.kpi === this.state.kpi)
-      } else if (data.service === value && this.state.department === 'Select' && this.state.supplier === 'Select' && this.state.kpi === 'Select') {
-        return (data.service === value)
+      } else if (data.service === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier) {
+        return (data.service === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier)
+      } else if (data.service === value && data.department === this.state.department && data.kpi === this.state.kpi) {
+        return (data.service === value && data.department === this.state.department && data.kpi === this.state.kpi)
+      } else if (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier) {
+        return (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier)
+      } else if (data.service === value && data.kpi === this.state.kpi) {
+        return (data.service === value && data.kpi === this.state.kpi)
+      } else if (data.service === value && data.supplier === this.state.supplier) {
+        return (data.service === value && data.supplier === this.state.supplier)
+      } else if (data.service === value && data.department === this.state.department) {
+        return (data.service === value && data.department === this.state.department)
       }
     })
     var repeatedArr = array.map((data) => {
@@ -437,22 +456,22 @@ class SlaDashboard extends React.Component {
     this.setState({kpi: value})
     var { dupActualSlaDashboardData } = this.state
     var array = dupActualSlaDashboardData.filter((data) => {
-      if (data.kpi === value && data.service === this.state.service) {
-        return (data.kpi === value && data.service === this.state.service)
-      } else if (data.kpi === value && data.supplier === this.state.supplier) {
-        return (data.kpi === value && data.supplier === this.state.supplier)
-      } else if (data.kpi === value && data.department === this.state.department) {
-        return (data.kpi === value && data.department === this.state.department)
-      } else if (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier) {
-        return (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier)
-      } else if (data.kpi === value && data.service === this.state.service && data.department === this.state.department) {
-        return (data.kpi === value && data.service === this.state.service && data.department === this.state.department)
-      } else if (data.kpi === value && data.department === this.state.department && data.supplier === this.state.supplier) {
-        return (data.kpi === value && data.department === this.state.department && data.supplier === this.state.supplier)
+      if (data.kpi === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.supplier === 'Select') {
+        return (data.kpi === value)
       } else if (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier && data.department === this.state.department) {
         return (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier && data.department === this.state.department)
-      } else if (data.kpi === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.supplier === 'Select') {
-        return (data.kpi === value)
+      } else if (data.kpi === value && data.department === this.state.department && data.supplier === this.state.supplier) {
+        return (data.kpi === value && data.department === this.state.department && data.supplier === this.state.supplier)
+      } else if (data.kpi === value && data.service === this.state.service && data.department === this.state.department) {
+        return (data.kpi === value && data.service === this.state.service && data.department === this.state.department)
+      } else if (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier) {
+        return (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier)
+      } else if (data.kpi === value && data.department === this.state.department) {
+        return (data.kpi === value && data.department === this.state.department)
+      } else if (data.kpi === value && data.supplier === this.state.supplier) {
+        return (data.kpi === value && data.supplier === this.state.supplier)
+      } else if (data.kpi === value && data.service === this.state.service) {
+        return (data.kpi === value && data.service === this.state.service)
       }
     })
     var repeatedArrUni = array.map((data) => {
@@ -471,28 +490,27 @@ class SlaDashboard extends React.Component {
     this.contractValue(value, 'kpi')
   }
   contractValue = (value, name) => {
-    if (this.state.dupActualSlaDashboardData.length) {
+    if (this.state.ActualContractArr.length) {
       var arr = []
       if (name === 'department') {
-        arr = this.state.dupActualSlaDashboardData.filter((data, i) => {
+        arr = this.state.ActualContractArr.filter((data, i) => {
           return (value === data.department && this.state.supplier === data.supplier && this.state.service === data.service && this.state.kpi === data.kpi) || (value === data.department && this.state.supplier === data.supplier && this.state.service === data.service) || (value === data.department && this.state.kpi === data.kpi && this.state.supplier === data.supplier) || (value === data.department && this.state.kpi === data.kpi && this.state.service === data.service) || (value === data.department && this.state.kpi === data.kpi) || (value === data.department && this.state.service === data.service) || (value === data.department && this.state.supplier === data.supplier) || (value === data.department)
         })
       } else if (name === 'supplier') {
-        arr = this.state.dupActualSlaDashboardData.filter((data, i) => {
+        arr = this.state.ActualContractArr.filter((data, i) => {
           return (value === data.supplier && this.state.department === data.department && this.state.service === data.service && this.state.kpi === data.kpi) || (value === data.supplier && this.state.department === data.department && this.state.service === data.service) || (value === data.supplier && this.state.kpi === data.kpi && this.state.department === data.department) || (value === data.supplier && this.state.kpi === data.kpi && this.state.service === data.service) || (value === data.supplier && this.state.kpi === data.kpi) || (value === data.supplier && this.state.service === data.service) || (value === data.supplier && this.state.department === data.department) || (value === data.supplier)
         })
       } else if (name === 'service') {
-        arr = this.state.dupActualSlaDashboardData.filter((data, i) => {
+        arr = this.state.ActualContractArr.filter((data, i) => {
           return (value === data.service && this.state.supplier === data.supplier && this.state.department === data.department && this.state.kpi === data.kpi) || (value === data.service && this.state.supplier === data.supplier && this.state.department === data.department) || (value === data.service && this.state.kpi === data.kpi && this.state.supplier === data.supplier) || (value === data.service && this.state.kpi === data.kpi && this.state.department === data.department) || (value === data.service && this.state.kpi === data.kpi) || (value === data.service && this.state.department === data.department) || (value === data.service && this.state.supplier === data.supplier) || (value === data.service)
         })
       } else if (name === 'kpi') {
-        arr = this.state.dupActualSlaDashboardData.filter((data, i) => {
+        arr = this.state.ActualContractArr.filter((data, i) => {
           return (value === data.kpi && this.state.supplier === data.supplier && this.state.service === data.service && this.state.department === data.department) || (value === data.kpi && this.state.supplier === data.supplier && this.state.service === data.service) || (value === data.kpi && this.state.department === data.department && this.state.supplier === data.supplier) || (value === data.kpi && this.state.department === data.department && this.state.service === data.service) || (value === data.kpi && this.state.department === data.department) || (value === data.kpi && this.state.service === data.service) || (value === data.kpi && this.state.supplier === data.supplier) || (value === data.kpi)
         })
       }
       this.setState({ActualContractArr: arr})
       this.ActualContracts(arr)
-      console.log(arr)
     }
   }
   SladropDown = (dupActualSlaDashboardData) => {
@@ -654,19 +672,15 @@ class SlaDashboard extends React.Component {
   }
   valueAccordingToCalendar = () => {
     var { ActualSlaDashboardData } = this.state
-    console.log(ActualSlaDashboardData)
     var dupActualSlaDashboardData = []
     var sDate = new Date(this.state.startDate).getTime()
     var eDate = new Date(this.state.endDate).getTime()
-    console.log(sDate)
-    console.log(eDate)
     for (var i = 0; i < ActualSlaDashboardData.length; i++) {
       var valDate = new Date(ActualSlaDashboardData[i].expDate).getTime()
       if (valDate >= sDate && valDate <= eDate) {
         dupActualSlaDashboardData.push(ActualSlaDashboardData[i])
       }
     }
-    console.log(dupActualSlaDashboardData)
     this.setState({dupActualSlaDashboardData})
     this.unselectAll()
     this.setState({
@@ -752,7 +766,6 @@ class SlaDashboard extends React.Component {
     this.setState({BarChartValue})
   }
   render () {
-    console.log('render')
       return (
         <div>
           { this.state.loader
@@ -766,7 +779,7 @@ class SlaDashboard extends React.Component {
                       <div className={styles.contractText}>
                         <a href='javascript:void(0)' className={styles.Text}>
                           Contracts <Avatar className={styles.avatarOne} style={{backgroundColor: 'lightgreen'}} size='medium'>
-                            {this.state.drafts + this.state.agreed + this.state.active + this.state.expired}
+                            {this.state.uniqueContractsArrayCount}
                           </Avatar>
                         </a>
                       </div>
@@ -787,7 +800,7 @@ class SlaDashboard extends React.Component {
                             </div>
                           </div>
                         </div>
-                        <div className={styles.penaltyChart}>
+                        <div className={styles.btnprops} onClick={() => this.props.history.push('penalty-dashboard')}role='button' tabIndex={0} onKeyDown={() => this.props.history.push('penalty-dashboard')}>
                           <div className={styles.chart}>
                             <div className={styles.chartText}>
                               <span>Penalty</span>
@@ -808,13 +821,6 @@ class SlaDashboard extends React.Component {
                         </div>
                       </div>
                     </div>
-                  </div>
-                  <div className={styles.rightContainer}>
-                    <div className={styles.headerText}>
-                        DOLA
-                    </div>
-                    {this.cardContent('12/04/2019', 'Huawei', 'Supervision', '2')}
-                    {this.cardContent('12/04/2019', 'Huawei', '2G Availability', '3')}
                   </div>
                 </div>
               </div>
@@ -838,6 +844,7 @@ SlaDashboard.propTypes = {
   dropDownItemsSerData: PropTypes.any,
   getDropDownItemSer: PropTypes.func,
   dropDownItemsKpiData: PropTypes.any,
-  getDropDownItemKpi: PropTypes.func
+  getDropDownItemKpi: PropTypes.func,
+  history: PropTypes.any
 }
 export default SlaDashboard

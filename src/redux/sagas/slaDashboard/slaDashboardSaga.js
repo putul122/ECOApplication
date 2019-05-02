@@ -75,7 +75,6 @@ export function * getMetaModelData (action) {
 
 export function * getModelPerspective (action) {
   try {
-    console.log('getMDPerspectiveDATA')
     axios.defaults.headers.common['Authorization'] =
     'Bearer ' + localStorage.getItem('userAccessToken')
     const ModelPerpestives = yield call(

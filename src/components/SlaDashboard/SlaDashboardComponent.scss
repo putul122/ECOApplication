@@ -199,6 +199,15 @@
     justify-content: center;
     align-items: center;
 }
+.btnprops{
+    flex:1;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    outline:none !important;
+    border:none !important;
+}
 .chart{
     width:90%;
     height: 90%;
