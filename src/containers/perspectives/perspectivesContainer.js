@@ -10,6 +10,8 @@ export function mapStateToProps (state, props) {
   return {
     authenticateUser: state.basicReducer.authenticateUser,
     modelPrespectives: state.perspectivesReducer.modelPrespectives,
+    copyModelPrespectives: state.perspectivesReducer.copyModelPrespectives,
+    modelPrespectiveData: state.perspectivesReducer.modelPrespectiveData,
     metaModelPerspective: state.perspectivesReducer.metaModelPerspective,
     currentPage: state.perspectivesReducer.currentPage,
     perPage: state.perspectivesReducer.perPage,
@@ -38,6 +40,7 @@ export const propsMapping: Callbacks = {
   addComponentComponent: sagaActions.applicationDetailActions.addComponentComponent,
   deleteComponentModelPerspectives: sagaActions.modelActions.deleteComponentModelPerspectives,
   setConnectionData: actionCreators.setConnectionData,
+  setModalPerspectivesData: actionCreators.setModalPerspectivesData,
   updateModelPrespectives: sagaActions.modelActions.updateModelPrespectives,
   updateComponentModelPrespectives: sagaActions.modelActions.updateComponentModelPrespectives
 }
@@ -94,9 +97,18 @@ export default compose(
           this.props.history.push('/')
         }
       }
-      if (nextProps.modelPrespectives && nextProps.modelPrespectives !== '') {
+      if (nextProps.modelPrespectiveData && nextProps.modelPrespectiveData !== '') {
         // eslint-disable-next-line
         // mApp && mApp.unblockPage()
+        this.props.resetResponse()
+        let payload = {}
+        payload.data = nextProps.modelPrespectiveData
+        payload.copyData = nextProps.modelPrespectiveData
+        // eslint-disable-next-line
+        mApp && mApp.unblockPage()
+        // eslint-disable-next-line
+        mApp && mApp.unblock('#ModelPerspectiveList')
+        nextProps.setModalPerspectivesData(payload)
       }
       if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcess) {
         if (nextProps.metaModelPerspective.resources[0].crude) {

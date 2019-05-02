@@ -1,5 +1,6 @@
 import React from 'react'
 import _ from 'lodash'
+import debounce from 'lodash/debounce'
 import ReactModal from 'react-modal'
 import Select from 'react-select'
 import moment from 'moment'
@@ -17,6 +18,7 @@ let comparer = function (otherArray) {
 }
 const customStylescrud = { content: { top: '15%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function Perspectives (props) {
+  let copyModelPrespectives = props.copyModelPrespectives
   let connectionSelectBoxList = ''
   let businessPropertyList = ''
   let searchTextBox
@@ -34,7 +36,39 @@ export default function Perspectives (props) {
   let labels = []
   let messageList = ''
   let serviceName = props.addSettings.deleteObject ? props.addSettings.deleteObject.subject_name : ''
-  console.log('perspectives props', props, searchTextBox, styles)
+  console.log('perspectives props', props, styles)
+  let handleInputChange = debounce((e) => {
+    console.log(searchTextBox, copyModelPrespectives)
+    // eslint-disable-next-line
+    mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+    let searchText = searchTextBox ? searchTextBox.value : ''
+    let originalData = copyModelPrespectives
+    if (searchText.trim() !== '') {
+      if (originalData !== '') {
+        let list = _.filter(originalData, function (data, index) {
+          if (data.parts) {
+            if ((data.parts[0].value.toLowerCase()).match(searchText.toLowerCase())) {
+              return data
+            }
+          }
+        })
+        let payload = {}
+        payload.data = list
+        payload.copyData = props.copyModelPrespectives
+        props.setModalPerspectivesData(payload)
+      }
+      // eslint-disable-next-line
+      mApp && mApp.unblockPage()
+    } else {
+      let payload = {}
+      payload.data = props.copyModelPrespectives
+      payload.copyData = props.copyModelPrespectives
+      props.setModalPerspectivesData(payload)
+      // eslint-disable-next-line
+      mApp && mApp.unblockPage()
+    }
+    props.setCurrentPage(1)
+  }, 500)
   let editProperty = function (index, value) {
     let connectionData = {...props.connectionData}
     let customerProperty = connectionData.customerProperty
@@ -808,7 +842,7 @@ return (
                           <div className='dataTables_length pull-left' id='m_table_1_length' style={{'display': 'flex'}}>
                             <div style={{'display': 'flex', 'width': '350px'}}>
                               <div className='m-input-icon m-input-icon--left'>
-                                <input type='text' className='form-control m-input' placeholder='Search...' id='generalSearch' ref={input => (searchTextBox = input)} onKeyUp={''} />
+                                <input type='text' className='form-control m-input' placeholder='Search...' id='generalSearch' ref={input => (searchTextBox = input)} onKeyUp={handleInputChange} />
                                 <span className='m-input-icon__icon m-input-icon__icon--left'>
                                   <span>
                                     <i className='la la-search' />
@@ -832,7 +866,7 @@ return (
                         </div> */}
                       </div>
                     </div>
-                    <div className='dataTables_scrollBody' style={{position: 'relative', overflow: 'auto', width: '100%', 'maxHeight': '100vh'}}>
+                    <div id='ModelPerspectiveList' className='dataTables_scrollBody' style={{position: 'relative', overflow: 'auto', width: '100%', 'maxHeight': '100vh'}}>
                       <table className='table-pres m-portlet table table-striped- table-bordered table-hover table-checkable dataTable no-footer' id='m_table_1' aria-describedby='m_table_1_info' role='grid'>
                         <thead className='table-head pres-th'>
                           <tr role='row' className='table-head-row'>
@@ -1077,7 +1111,7 @@ return (
     metaModelPerspective: PropTypes.any,
     currentPage: PropTypes.any,
     perPage: PropTypes.any,
-    // crude: PropTypes.any,
+    copyModelPrespectives: PropTypes.any,
     availableAction: PropTypes.any,
     connectionData: PropTypes.any
   }

@@ -232,31 +232,6 @@ export default function PerspectiveExclusion (props) {
     obj.value.parts[0] = {'value': addSettings.name}
     obj.value.parts[1] = {'value': addSettings.description}
     let connectionData = {...props.connectionData}
-    // connectionData.selectedValues.forEach(function (data, index) {
-    //   if (Array.isArray(data)) {
-    //     if (data.length > 0) {
-    //       let connections = []
-    //       data.forEach(function (selectedValue, ix) {
-    //         let connectionObject = {}
-    //         connectionObject.target_id = selectedValue.id
-    //         connections.push(obj)
-    //       })
-    //       obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
-    //     } else {
-    //       obj.value.parts[connectionData.data[index].partIndex] = {}
-    //     }
-    //   } else {
-    //     if (data) {
-    //       let connections = []
-    //       let connectionObject = {}
-    //       connectionObject.target_id = data.id
-    //       connections.push(connectionObject)
-    //       obj.value.parts[connectionData.data[index].partIndex] = {'value': connections}
-    //     } else {
-    //       obj.value.parts[connectionData.data[index].partIndex] = {}
-    //     }
-    //   }
-    // })
     let lastCustomerIndex = 0
     connectionData.customerProperty[0].forEach(function (data, index) {
       if (data.type_property.property_type.key === 'Boolean') {
@@ -284,10 +259,10 @@ export default function PerspectiveExclusion (props) {
     if (allMetricPointSet) {
       // eslint-disable-next-line
       mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+      let metricObject = {'target_id': connectionData.selectedValues[1][0].subjectId}
       let metricPointArray = []
-      metricPointArray.push(connectionData.selectedValues[1][0].subjectId)
-      console.log('metricPointArray', metricPointArray, obj)
-      obj.value.parts[lastCustomerIndex + 1] = {target_ids: metricPointArray}
+      metricPointArray.push(metricObject)
+      obj.value.parts[lastCustomerIndex + 1] = {'value': metricPointArray}
       patchPayload.push(obj)
       let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
       let dashboardKey = selectedPackage.key
@@ -476,29 +451,22 @@ export default function PerspectiveExclusion (props) {
     }
     closeModal()
   }
-  if (!props.headerData.toProcess) {
-    if (props.headerData.metaModelPerspective.length > 0) {
+  if (props.metaModelPerspectiveList !== '') {
+    if (props.metaModelPerspectiveList.resources[0].parts.length > 0) {
       tableHeader = []
-      props.headerData.headerColumn.forEach(function (data, index) {
-        labels.push(data)
-        tableHeader.push(<th key={index + 'col' + index} className=''><h5>{data}</h5></th>)
-        // data.parts.forEach(function (partData, idx) {
-        //   if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
-        //     if (partData.standard_property === 'name') {
-        //       tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
-        //     }
-        //   } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
-        //     tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
-        //   }
-        // })
+      props.metaModelPerspectiveList.resources[0].parts.forEach(function (data, index) {
+        if (data.standard_property !== null || data.type_property !== null) {
+          labels.push(data.name)
+          tableHeader.push(<th key={index + 'col' + index} className=''><h5>{data.name}</h5></th>)
+        }
       })
+      tableHeader.push(<th key={'last'} className='table-th pres-th'><p>Action</p></th>)
     }
-    tableHeader.push(<th key={'last'} className='table-th pres-th'><p>Action</p></th>)
   }
   let listModelPrespectives = function () {
     console.log('list modal pers', props)
-    if (props.modelPrespectives !== '') {
-      let labelParts = props.metaModelPerspective.resources[0].parts
+    if (props.modelPrespectives !== '' && props.metaModelPerspectiveList !== '') {
+      let labelParts = props.metaModelPerspectiveList.resources[0].parts
       // let crude = props.crude
       // let mask = props.metaModelPerspective.resources[0].crude
       // let crud = []
@@ -513,6 +481,7 @@ export default function PerspectiveExclusion (props) {
       if (props.modelPrespectives.length > 0) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
         // modelPrespectives.splice(-1, 1)
+        console.log('modelPrespectives -----.', modelPrespectives)
         if (modelPrespectives.length > 0) {
           modelPrespectivesList = []
           modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).forEach(function (data, index) {
@@ -525,39 +494,35 @@ export default function PerspectiveExclusion (props) {
                   let value
                   if (labelParts[ix] && labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
                     value = partData.value ? partData.value : ''
-                    console.log('value', value)
-                    console.log('value index', ix)
-                    console.log('labelParts[ix]', labelParts[ix])
-                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{JSON.stringify(value)}</td>)
-                    console.log('childList', childList)
+                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
+                  } else if (labelParts[ix] && labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
+                    if (partData.value) {
+                      let targetComponents = []
+                      partData.value.forEach(function (data, index) {
+                        targetComponents.push(data.target_component.name)
+                      })
+                      value = targetComponents.toString()
+                    } else {
+                      value = partData.value || ''
+                    }
+                  } else if (labelParts[ix] && labelParts[ix].standard_property === null && labelParts[ix].type_property !== null) { // below are Customer Property
+                    if (labelParts[ix].type_property.property_type.key === 'Integer') {
+                      value = partData.value !== null ? partData.value.int_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+                      value = partData.value !== null ? partData.value.float_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+                      value = partData.value !== null ? partData.value.text_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+                      value = partData.value !== null ? partData.value.date_time_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+                      value = partData.value !== null ? partData.value.boolean_value : ''
+                    } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                      value = partData.value !== null ? (partData.value.value_set_value ? partData.value.value_set_value.name : '') : ''
+                    } else {
+                      value = partData.value !== null ? partData.value.other_value : ''
+                    }
+                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
                   }
-                  // else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
-                  //   if (partData.value) {
-                  //     let targetComponents = []
-                  //     partData.value.forEach(function (data, index) {
-                  //       targetComponents.push(data.target_component.name)
-                  //     })
-                  //     value = targetComponents.toString()
-                  //   } else {
-                  //     value = partData.value || ''
-                  //   }
-                  // } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property !== null) { // below are Customer Property
-                  //   if (labelParts[ix].type_property.property_type.key === 'Integer') {
-                  //     value = partData.value !== null ? partData.value.int_value : ''
-                  //   } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
-                  //     value = partData.value !== null ? partData.value.float_value : ''
-                  //   } else if (labelParts[ix].type_property.property_type.key === 'Text') {
-                  //     value = partData.value !== null ? partData.value.text_value : ''
-                  //   } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
-                  //     value = partData.value !== null ? partData.value.date_time_value : ''
-                  //   } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-                  //     value = partData.value !== null ? partData.value.boolean_value : ''
-                  //   } else if (labelParts[ix].type_property.property_type.key === 'List') {
-                  //     value = partData.value !== null ? (partData.value.value_set_value ? partData.value.value_set_value.name : '') : ''
-                  //   } else {
-                  //     value = partData.value !== null ? partData.value.other_value : ''
-                  //   }
-                  // }
                 })
 
                 let availableAction = {...props.availableAction}
@@ -592,7 +557,7 @@ export default function PerspectiveExclusion (props) {
       }
     }
   }
-  if (props.modelPrespectives && props.modelPrespectives !== '') {
+  if (props.modelPrespectives && props.modelPrespectives !== '' && props.metaModelPerspectiveList !== '') {
     totalPages = Math.ceil((props.modelPrespectives.length - 1) / perPage)
     let i = 1
     while (i <= totalPages) {
@@ -1196,11 +1161,11 @@ return (
   PerspectiveExclusion.propTypes = {
     addSettings: PropTypes.any,
     modelPrespectives: PropTypes.any,
-    metaModelPerspective: PropTypes.any,
+    // metaModelPerspective: PropTypes.any,
     currentPage: PropTypes.any,
     perPage: PropTypes.any,
-    // crude: PropTypes.any,
+    metaModelPerspectiveList: PropTypes.any,
     availableAction: PropTypes.any,
-    connectionData: PropTypes.any,
-    headerData: PropTypes.any
+    connectionData: PropTypes.any
+    // headerData: PropTypes.any
   }
