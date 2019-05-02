@@ -272,7 +272,24 @@ export default class Root extends Component {
             }
             resolve(require('../usersPage/usersPageRoute').default)
             break
-
+          case 'slaDashboard':
+            if (module.hot) {
+              module.hot.accept('../SlaDashboardPage/SlaDashboardRoute', () => {
+                require("../SlaDashboardPage/SlaDashboardRoute").default; // eslint-disable-line
+                this.forceUpdate()
+              })
+            }
+            resolve(require('../SlaDashboardPage/SlaDashboardRoute').default)
+            break
+          case 'penaltyDashboard':
+          if (module.hot) {
+            module.hot.accept('../penaltyDashboardPage/PenaltyDashboardRoute', () => {
+              require("../penaltyDashboardPage/PenaltyDashboardRoute").default; // eslint-disable-line
+              this.forceUpdate()
+            })
+          }
+          resolve(require('../penaltyDashboardPage/PenaltyDashboardRoute').default)
+            break
           default:
             break
         }
@@ -294,6 +311,16 @@ export default class Root extends Component {
       <AppWrapper>
         <BrowserRouter>
           <Switch>
+            <Route
+              path='/sla-dashboard'
+              exact
+              component={props => this.loadView('slaDashboard', props)}
+            />
+            <Route
+              path='/penalty-dashboard'
+              exact
+              component={props => this.loadView('penaltyDashboard', props)}
+            />
             <Route
               path='/users'
               exact
