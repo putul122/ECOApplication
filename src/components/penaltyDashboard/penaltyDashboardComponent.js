@@ -818,10 +818,10 @@ class PenaltyDashboard extends React.Component {
                 {item.target}
               </td>
               <td className='table-td'>
-                {item.score}
+                { (item.score > 0 && item.target > 0 && item.score < item.target) ? <span className='deactivated' style={{ fontSize: '14px' }}>{item.score}</span> : item.score }
               </td>
               <td className='table-td'>
-                {item.penalty}
+                { item.penalty > 0 ? <span className='deactivated' style={{ fontSize: '14px' }}>{item.penalty}</span> : item.penalty }
               </td>
               <td className='table-td'>
                 {item.date ? moment(new Date(item.date)).format('DD-MM-YYYY') : ''}
