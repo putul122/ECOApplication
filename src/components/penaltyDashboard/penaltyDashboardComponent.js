@@ -5,8 +5,7 @@ import PropTypes from 'prop-types'
 import 'antd/dist/antd.css'
 import moment from 'moment'
 import './index.css'
-// import _ from 'lodash'
-// import moment = require('moment');
+import _ from 'lodash'
 
 const { RangePicker } = DatePicker
 
@@ -19,6 +18,9 @@ class PenaltyDashboard extends React.Component {
       dupActualSlaDashboardData: [],
       PenaltyApiData: [],
       dupPenaltyApiData: [],
+      finalTableData: [],
+      dateFilteredData: [],
+      dateFilterSet: false,
       penaltyState: {
         supplier: '',
         service: '',
@@ -48,121 +50,12 @@ class PenaltyDashboard extends React.Component {
     }
   }
 
-  // componentWillMount () {
-  //   this.unselectAll()
-  //   this.props.penaltyMetaModel()
-  //   this.props.penaltygetMDPerspectiveDATA()
-  //   this.props.getMDPerspectiveDATA()
-  // }
-
   componentDidMount () {
-    // let { apiData, PenaltyDashboardData } = this.state
-    // for (let i = 0; i < PenaltyDashboardData.length; i++) {
-    //   apiData.push({
-    //     department: PenaltyDashboardData[i].parts[2].value.subject_part.value,
-    //     supplier: PenaltyDashboardData[i].parts[3].value.subject_part.value,
-    //     service: PenaltyDashboardData[i].parts[4].value.subject_part.value,
-    //     kpi: PenaltyDashboardData[i].parts[5].value.subject_part.value,
-    //     expDate: PenaltyDashboardData[i].parts[1].value.date_time_value
-    //   })
-    // }
-    // this.setState({apiData})
     this.props.penaltyMetaModel()
     this.props.penaltygetMDPerspectiveDATA()
-    // this.props.getMDPerspectiveDATA()
   }
-  // componentWillReceiveProps (nextProps) {
-  //   let ActuallArr1 = []
-  //   let ActuallArr = []
 
-  //   // Preparing the table
-  //   for (let i = 0; i < nextProps.penaltymodelPerspectiveData.length; i++) {
-  //     if (nextProps.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.length) {
-  //       nextProps.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.forEach(item => {
-  //         let penalty = item.values.Penalty.value
-  //         let score = item.values.Score.value
-  //         let target = item.values.Target.value
-  //         let date = item.timestamp
-
-  //         let obj1 = {
-  //           supplier: nextProps.penaltymodelPerspectiveData[i].parts[1].value[0].target_component.name,
-  //           service: nextProps.penaltymodelPerspectiveData[i].parts[2].value.subject_part.value,
-  //           kpi: nextProps.penaltymodelPerspectiveData[i].parts[3].value.subject_part.value,
-  //           penalty: penalty,
-  //           score: score,
-  //           target: target,
-  //           date: date
-  //         }
-  //         ActuallArr1.push(obj1)
-  //       })
-  //     } else {
-  //       let obj1 = {
-  //         supplier: nextProps.penaltymodelPerspectiveData[q].parts[1].value[0].target_component.name,
-  //         service: nextProps.penaltymodelPerspectiveData[q].parts[2].value.subject_part.value,
-  //         kpi: nextProps.penaltymodelPerspectiveData[q].parts[3].value.subject_part.value,
-  //         penalty: '',
-  //         score: '',
-  //         target: '',
-  //         date: ''
-  //       }
-  //       ActuallArr1.push(obj1)
-  //     }
-  //   }
-  //   // this.setState({PenaltyApiData: ActuallArr1, dupPenaltyApiData: ActuallArr1})
-
-  //   // filter and actual data
-  //   for (let i = 0; i < nextProps.modelPerspectiveData.length; i++) {
-  //     let obj = {
-  //       department: '',
-  //       supplier: nextProps.penaltymodelPerspectiveData[i].parts[1].value[0].target_component.name,
-  //       service: nextProps.penaltymodelPerspectiveData[i].parts[2].value.subject_part.value,
-  //       kpi: nextProps.penaltymodelPerspectiveData[i].parts[3].value.subject_part.value
-  //     }
-  //     ActuallArr.push(obj)
-  //   }
-
-  //   let depFilter = []
-  //   let supFilter = []
-  //   let serFilter = []
-  //   let kpiFil = []
-  //   console.log('ActualArr', ActuallArr)
-  //   ActuallArr.forEach((data) => {
-  //     depFilter.push(data.department)
-  //     supFilter.push(data.supplier)
-  //     serFilter.push(data.service)
-  //     kpiFil.push(data.kpi)
-  //   })
-  //   console.log('ActualArrAfter', ActuallArr)
-  //   this.setState({
-  //     UniqueArr: [...new Set(depFilter)],
-  //     departmentFilter: [...new Set(supFilter)],
-  //     supplierFilter: [...new Set(serFilter)],
-  //     serviceFilter: [...new Set(kpiFil)],
-  //     ActualSlaDashboardData: ActuallArr,
-  //     dupActualSlaDashboardData: ActuallArr
-  //   })
-  // }
-
-  // shouldComponentUpdate (nextProps, nextState) {
-  //   // this.setState({ departmentDropDownArray, supplierDropDownArray, serviceDropDownArray, KPIDropDownArray })
-  //   if (nextState.departmentDropDownArray && this.state.departmentDropDownArray.length !== nextState.departmentDropDownArray) {
-  //     return true
-  //   }
-  //   if (nextState.supplierDropDownArray && this.state.supplierDropDownArray.length !== nextState.supplierDropDownArray) {
-  //     console.log('sup')
-  //     return true
-  //   }
-  //   if (nextState.serviceDropDownArray && this.state.serviceDropDownArray.length !== nextState.serviceDropDownArray) {
-  //     console.log('serv')
-  //     return true
-  //   }
-  //   if (nextState.kpiDropDownArray && this.state.kpiDropDownArray.length !== nextState.kpiDropDownArray) {
-  //     console.log('here')
-  //     return true
-  //   }
-  //   return false
-  // }
-  unselectAll = () => {
+  unselectAll = async () => {
     let { dupActualSlaDashboardData } = this.state
     let repeatedArr = dupActualSlaDashboardData.map((data) => {
       return data.department
@@ -181,86 +74,102 @@ class PenaltyDashboard extends React.Component {
     let supplierFilter = [...new Set(repeatedArrsupp)]
     let serviceFilter = [...new Set(repeatedArrser)]
     // this.departmentDropDown(UniqueArr[0])
-    this.setState({dupPenaltyApiData: this.state.PenaltyApiData, UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select'})
-  }
-  tableFilter = (ActuallArr1) => {
-    let arr = []
-    let finalArr = []
-    console.log('ActuallArr1', ActuallArr1)
-    if (this.state.penaltyState.service !== '' && this.state.penaltyState.supplier !== '' && this.state.penaltyState.kpi !== '') {
-      arr = ActuallArr1.filter((data, i) => {
-        return (this.state.penaltyState.service === data.service && this.state.penaltyState.supplier === data.supplier && this.state.penaltyState.kpi === data.kpi)
-      })
-      this.setState({dupPenaltyApiData: arr})
-    } else if (this.state.penaltyState.service !== '' && this.state.penaltyState.supplier !== '') {
-      arr = ActuallArr1.filter((data, i) => {
-        return (this.state.penaltyState.service === data.service && this.state.penaltyState.supplier === data.supplier)
-      })
-      this.setState({dupPenaltyApiData: arr})
-    } else if (this.state.penaltyState.service !== '' && this.state.penaltyState.kpi !== '') {
-      arr = ActuallArr1.filter((data, i) => {
-        return (this.state.penaltyState.service === data.service && this.state.penaltyState.kpi === data.kpi)
-      })
-      this.setState({dupPenaltyApiData: arr})
-    } else if (this.state.penaltyState.supplier !== '' && this.state.penaltyState.kpi !== '') {
-      arr = ActuallArr1.filter((data, i) => {
-        return (this.state.penaltyState.supplier === data.supplier && this.state.penaltyState.kpi === data.kpi)
-      })
-      this.setState({dupPenaltyApiData: arr})
-    } else if (this.state.penaltyState.supplier !== '') {
-      arr = ActuallArr1.filter((data, i) => {
-        return (this.state.penaltyState.supplier === data.supplier)
-      })
-      this.setState({dupPenaltyApiData: arr})
-    } else if (this.state.penaltyState.service !== '') {
-      arr = ActuallArr1.filter((data, i) => {
-        return (this.state.penaltyState.service === data.service)
-      })
-      console.log('arr serv', arr)
-      this.setState({dupPenaltyApiData: arr})
-    } else if (this.state.penaltyState.kpi !== '') {
-      arr = ActuallArr1.filter((data, i) => {
-        return (this.state.penaltyState.kpi === data.kpi)
-      })
-      this.setState({dupPenaltyApiData: arr})
-    } else {
-      arr = ActuallArr1
-      this.setState({dupPenaltyApiData: ActuallArr1})
+    let penaltyState = {
+      kpi: '',
+      service: '',
+      supplier: ''
     }
+    await this.setState({penaltyState, dupPenaltyApiData: this.state.PenaltyApiData, UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select'})
+    this.tableFilter()
+  }
 
-    // Filtering by date
-    if (this.state.startDate !== '' && this.state.endDate !== '') {
-      const startTime = moment(this.state.startDate).unix()
-      const endTime = moment(this.state.endDate).unix()
-      finalArr = arr.filter(item => {
-        if (item.date) {
-          const itemTime = moment(item.date).unix()
-          return itemTime > startTime && itemTime < endTime
+  tableFilter = (ActuallArr1 = []) => {
+    let arr = []
+    if (this.state.penaltyState.service !== '' && this.state.penaltyState.supplier !== '' && this.state.penaltyState.kpi !== '') {
+      arr = this.props.penaltymodelPerspectiveData.filter((data, i) => {
+        const supplier = (data && data.parts && data.parts[1].value[0].target_component.name) || ''
+        const service = (data && data.parts && data.parts[2].value.subject_part.value) || ''
+        const kpi = (data && data.parts && data.parts[3].value.subject_part.value) || ''
+        return (this.state.penaltyState.service === service && this.state.penaltyState.supplier === supplier && this.state.penaltyState.kpi === kpi)
+      })
+    } else if (this.state.penaltyState.service !== '' && this.state.penaltyState.supplier !== '') {
+      arr = this.props.penaltymodelPerspectiveData.filter((data, i) => {
+        const supplier = (data && data.parts && data.parts[1].value[0].target_component.name) || ''
+        const service = (data && data.parts && data.parts[2].value.subject_part.value) || ''
+        return (this.state.penaltyState.service === service && this.state.penaltyState.supplier === supplier)
+      })
+    } else if (this.state.penaltyState.service !== '' && this.state.penaltyState.kpi !== '') {
+      arr = this.props.penaltymodelPerspectiveData.filter((data, i) => {
+        const service = (data && data.parts && data.parts[2].value.subject_part.value) || ''
+        const kpi = (data && data.parts && data.parts[3].value.subject_part.value) || ''
+        return (this.state.penaltyState.service === service && this.state.penaltyState.kpi === kpi)
+      })
+    } else if (this.state.penaltyState.supplier !== '' && this.state.penaltyState.kpi !== '') {
+      arr = this.props.penaltymodelPerspectiveData.filter((data, i) => {
+        const supplier = (data && data.parts && data.parts[1].value[0].target_component.name) || ''
+        const kpi = (data && data.parts && data.parts[3].value.subject_part.value) || ''
+        return (this.state.penaltyState.supplier === supplier && this.state.penaltyState.kpi === kpi)
+      })
+    } else if (this.state.penaltyState.supplier !== '') {
+      arr = this.props.penaltymodelPerspectiveData.filter((data, i) => {
+        if (data.parts) {
+          const supplier = (data && data.parts && data.parts[1].value[0].target_component.name) || ''
+          return (this.state.penaltyState.supplier === supplier)
         }
       })
-      this.setState({dupPenaltyApiData: arr})
-    } else if (this.startDate !== '') {
-      const startTime = moment(this.state.startDate).unix()
-      finalArr = arr.filter(item => {
-        if (item.date) {
-          const itemTime = moment(item.date).unix()
-          return itemTime > startTime
-        }
+    } else if (this.state.penaltyState.service !== '') {
+      arr = this.props.penaltymodelPerspectiveData.filter((data, i) => {
+        const service = (data && data.parts && data.parts[2].value.subject_part.value) || ''
+        return (this.state.penaltyState.service === service)
       })
-      this.setState({dupPenaltyApiData: arr})
-    } else if (this.endDate !== '') {
-      const endTime = moment(this.state.endDate).unix()
-      finalArr = arr.filter(item => {
-        if (item.date) {
-          const itemTime = moment(item.date).unix()
-          return itemTime < endTime
-        }
+    } else if (this.state.penaltyState.kpi !== '') {
+      arr = this.props.penaltymodelPerspectiveData.filter((data, i) => {
+        const kpi = (data && data.parts && data.parts[3].value.subject_part.value) || ''
+        return (this.state.penaltyState.kpi === kpi)
       })
-      this.setState({dupPenaltyApiData: finalArr})
     } else {
-      this.setState({dupPenaltyApiData: finalArr})
+      arr = this.props.penaltymodelPerspectiveData
+    }
+    let finalArr = []
+    arr.forEach(data => {
+      if (data && data.parts && data.parts[4].value.subject_part.value.length) {
+        data.parts[4].value.subject_part.value.forEach(item => {
+          let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.value) || ''
+          let score = (item && item.values && item.values.Score && item.values.Score.value) || ''
+          let target = (item && item.values && item.values.Target && item.values.Target.value) || ''
+          let date = item.timestamp
+
+          let obj1 = {
+            supplier: data && data.parts && data.parts[1].value[0].target_component.name,
+            service: data && data.parts && data.parts[2].value.subject_part.value,
+            kpi: data && data.parts && data.parts[3].value.subject_part.value,
+            penalty: penalty,
+            score: score,
+            target: target,
+            date: date
+          }
+          finalArr.push(obj1)
+        })
+      } else {
+        let obj1 = {
+          supplier: data && data.parts && data.parts[1].value[0].target_component.name,
+          service: data && data.parts && data.parts[2].value.subject_part.value,
+          kpi: data && data.parts && data.parts[3].value.subject_part.value,
+          penalty: '',
+          score: '',
+          target: '',
+          date: ''
+        }
+        finalArr.push(obj1)
+      }
+    })
+    if (this.state.dateFilterSet) {
+      this.valueAccordingToCalendar(finalArr)
+    } else {
+      this.setState({finalTableData: finalArr, currentPage: 1})
     }
   }
+
   departmentDropDown = (value, ActuallArr) => {
     this.setState({department: value})
     var { dupActualSlaDashboardData } = this.state
@@ -296,6 +205,7 @@ class PenaltyDashboard extends React.Component {
     var UniqueArrkpi = [...new Set(repeatedArrkpi)]
     this.setState({department: value, departmentFilter: UniqueArr, supplierFilter: UniqueArrser, serviceFilter: UniqueArrkpi})
   }
+
   SupplierDropDown = (value, ActuallArr, ActuallArr1) => {
     var { penaltyState } = this.state
     penaltyState.supplier = value
@@ -334,10 +244,6 @@ class PenaltyDashboard extends React.Component {
     var UniqueArrser = [...new Set(repeatedArrser)]
     var UniqueArrkpi = [...new Set(repeatedArrkpi)]
     this.setState({supplier: value, supplierFilter: UniqueArrser, UniqueArr: UniqueArrDep, serviceFilter: UniqueArrkpi})
-
-    if (this.state.startDate !== '' || this.state.endDate !== '') {
-      this.setState(() => { return { startDate: '', endDate: '' } })
-    }
     this.tableFilter(ActuallArr1)
   }
 
@@ -381,6 +287,7 @@ class PenaltyDashboard extends React.Component {
     this.setState({service: value, serviceFilter: UniqueArrkpi, UniqueArr: UniqueArruni, departmentFilter: UniqueArrsupp})
     this.tableFilter(ActuallArr1)
   }
+
   kpiDropDown = (value, ActuallArr, ActuallArr1) => {
     var { penaltyState } = this.state
     penaltyState.kpi = value
@@ -421,6 +328,7 @@ class PenaltyDashboard extends React.Component {
     this.setState({kpi: value, UniqueArr: UniqueArruni, departmentFilter: UniqueArrdep, supplierFilter: UniqueArrsupp})
     this.tableFilter(ActuallArr1)
   }
+
   PenaltydropDown = (depDropDownArray, supDropDownArray, serDropDownArray, kpiDropDownArray, ActuallArr, ActuallArr1) => {
     let departmentDropDownArray = this.state.UniqueArr.length ? this.state.UniqueArr : depDropDownArray
     let supplierDropDownArray = this.state.departmentFilter.length ? this.state.departmentFilter : supDropDownArray
@@ -546,18 +454,25 @@ class PenaltyDashboard extends React.Component {
       </div>
     )
   }
-  calendarValue = (value) => {
-    for (var i = 0; i < value.length; i++) {
-      if (i === 0) {
-        var a = new Date(value[i]._d)
-        var b = a.toUTCString()
-        this.setState({startDate: b})
-      } else if (i === 1) {
-        var aa = new Date(value[i]._d)
-        var bb = aa.toUTCString()
-        this.setState({endDate: bb})
+
+  calendarValue = async (value, ActuallArr1, ActuallArr) => {
+    if (value.length) {
+      for (var i = 0; i < value.length; i++) {
+        if (i === 0) {
+          var a = new Date(value[i]._d)
+          var b = a.toUTCString()
+          this.setState({startDate: b})
+        } else if (i === 1) {
+          var aa = new Date(value[i]._d)
+          var bb = aa.toUTCString()
+          this.setState({endDate: bb})
+        }
       }
+    } else {
+      await this.setState({ startDate: '', endDate: '', dateFilterSet: false })
+      this.tableFilter()
     }
+
     if (value.length > 1) {
       setTimeout(() => {
         this.valueAccordingToCalendar()
@@ -579,28 +494,97 @@ class PenaltyDashboard extends React.Component {
         supplierFilter: [...new Set(serFilter)],
         serviceFilter: [...new Set(kpiFil)]
       })
-      this.setState({dupActualSlaDashboardData: this.state.ActualSlaDashboardData})
-      this.tableFilter()
-    }
-  }
-  valueAccordingToCalendar = () => {
-    var { ActualSlaDashboardData } = this.state
-    console.log(ActualSlaDashboardData)
-    var dupActualSlaDashboardData = []
-    var sDate = new Date(this.state.startDate).getTime()
-    var eDate = new Date(this.state.endDate).getTime()
+      if (!this.state.finalTableData.length) {
+        const dupData = []
+        this.props.penaltymodelPerspectiveData.forEach(penaltyContract => {
+          if (this.props.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.length) {
+            this.props.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.forEach(item => {
+              let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.value) || ''
+              let score = (item && item.values && item.values.Score && item.values.Score.value) || ''
+              let target = (item && item.values && item.values.Target && item.values.Target.value) || ''
+              let date = item.timestamp
 
-    for (var i = 0; i < ActualSlaDashboardData.length; i++) {
-      var valDate = new Date(ActualSlaDashboardData[i].expDate).getTime()
-      if (valDate >= sDate && valDate <= eDate) {
-        dupActualSlaDashboardData.push(ActualSlaDashboardData[i])
+              let obj1 = {
+                supplier: this.props.penaltymodelPerspectiveData[i].parts[1].value[0].target_component.name,
+                service: this.props.penaltymodelPerspectiveData[i].parts[2].value.subject_part.value,
+                kpi: this.props.penaltymodelPerspectiveData[i].parts[3].value.subject_part.value,
+                penalty: penalty,
+                score: score,
+                target: target,
+                date: date
+              }
+              dupData.push(obj1)
+            })
+          } else {
+            let obj1 = {
+              supplier: this.props.penaltymodelPerspectiveData[i].parts[1].value[0].target_component.name,
+              service: this.props.penaltymodelPerspectiveData[i].parts[2].value.subject_part.value,
+              kpi: this.props.penaltymodelPerspectiveData[i].parts[3].value.subject_part.value,
+              penalty: '',
+              score: '',
+              target: '',
+              date: ''
+            }
+            dupData.push(obj1)
+          }
+        })
+        this.setState({finalTableData: dupData})
       }
     }
-    this.setState({dupActualSlaDashboardData})
-    // this.unselectAll()
-    this.tableFilter()
   }
-  PenaltyCalender = () => {
+
+  valueAccordingToCalendar = (ActuallArr1 = []) => {
+    // var { ActualSlaDashboardData } = this.state
+    let sDate = moment(this.state.startDate).unix()
+    let eDate = moment(this.state.endDate).unix()
+    let rawData = []
+    if (ActuallArr1.length) {
+      rawData = ActuallArr1
+    } else if (this.state.finalTableData.length) {
+      rawData = this.state.finalTableData
+    } else {
+      this.props.penaltymodelPerspectiveData.forEach(data => {
+        if (data && data.parts && data.parts[4].value.subject_part.value.length) {
+          data.parts[4].value.subject_part.value.forEach(item => {
+            let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.value) || ''
+            let score = (item && item.values && item.values.Score && item.values.Score.value) || ''
+            let target = (item && item.values && item.values.Target && item.values.Target.value) || ''
+            let date = item.timestamp
+
+            let obj1 = {
+              supplier: data.parts[1].value[0].target_component.name,
+              service: data.parts[2].value.subject_part.value,
+              kpi: data.parts[3].value.subject_part.value,
+              penalty: penalty,
+              score: score,
+              target: target,
+              date: date
+            }
+            rawData.push(obj1)
+          })
+        } else {
+          let obj1 = {
+            supplier: data && data.parts && data.parts[1].value[0].target_component.name,
+            service: data && data.parts && data.parts[2].value.subject_part.value,
+            kpi: data && data.parts && data.parts[3].value.subject_part.value,
+            penalty: '',
+            score: '',
+            target: '',
+            date: ''
+          }
+          rawData.push(obj1)
+        }
+      })
+    }
+    const finalData = rawData.filter(penaltyContract => {
+      if (penaltyContract.date.length) {
+        let valDate = moment(penaltyContract.date).unix()
+        return (valDate >= sDate && valDate <= eDate)
+      }
+    })
+    this.setState({ finalTableData: finalData, dateFilterSet: true, currentPage: 1 })
+  }
+  PenaltyCalender = (ActuallArr1, ActuallArr) => {
     return (
       <div className={styles.HeaderContainer}>
         {/* dropDown */}
@@ -612,7 +596,7 @@ class PenaltyDashboard extends React.Component {
             <RangePicker
               className='RangePicker'
               disabledDate={false}
-              onChange={(val) => this.calendarValue(val)}
+              onChange={(val) => this.calendarValue(val, ActuallArr1, ActuallArr)}
               dateRender={(current) => {
                 const style = {}
                 if (current.date() === 1) {
@@ -630,6 +614,15 @@ class PenaltyDashboard extends React.Component {
         </div>
       </div>
     )
+  }
+  pageSizeBlurHandler = async e => {
+  }
+  pageSizeChangeHandler = async e => {
+    await this.setState({
+      pageSize: +e.target.value
+    })
+  }
+  pageSizeBlurHandler = () => {
   }
   showingPage = (e, page) => {
     e.preventDefault()
@@ -659,7 +652,6 @@ class PenaltyDashboard extends React.Component {
     }
   }
   render () {
-    console.log('his.props.penaltymodelPerspectiveData', this.props.penaltymodelPerspectiveData)
     let ActuallArr1 = []
     let ActuallArr = []
     let depFilter = []
@@ -708,19 +700,20 @@ class PenaltyDashboard extends React.Component {
         }
       }
     }
-    let tableData = this.state.dupPenaltyApiData.length ? this.state.dupPenaltyApiData : ActuallArr1
+    console.log('this.state.dateFilteredData', this.state.dateFilteredData)
 
     // filter and actual data
     for (let i = 0; i < penaltymodelPerspectiveDataCount; i++) {
+      let date = new Date(this.props.penaltymodelPerspectiveData[i].parts[0].value.date_time_value)
       let obj = {
         department: '',
         supplier: this.props.penaltymodelPerspectiveData[i].parts[1].value[0].target_component.name,
         service: this.props.penaltymodelPerspectiveData[i].parts[2].value.subject_part.value,
-        kpi: this.props.penaltymodelPerspectiveData[i].parts[3].value.subject_part.value
+        kpi: this.props.penaltymodelPerspectiveData[i].parts[3].value.subject_part.value,
+        expDate: date.toUTCString()
       }
       ActuallArr.push(obj)
     }
-
     ActuallArr.forEach((data) => {
       depFilter.push(data.department)
       supFilter.push(data.supplier)
@@ -733,10 +726,48 @@ class PenaltyDashboard extends React.Component {
     finalSerFilter = [...new Set(serFilter)]
     finalKpiFil = [...new Set(kpiFil)]
 
+    const finalDataForTable = (this.state.finalTableData.length || this.state.dateFilterSet) ? this.state.finalTableData : ActuallArr1
+    const {
+      previousClass,
+      nextClass,
+      currentPage,
+      pageSize
+    } = this.state
+    const totalPages = Math.ceil(
+      finalDataForTable.length / pageSize
+    )
+    let pageArray = []
+    let paginationLimit = 6
+    let i = 1
+    while (i <= totalPages) {
+      let pageParameter = {}
+      pageParameter.number = i
+      pageParameter.class = ''
+      pageArray.push(pageParameter)
+      i++
+    }
+    pageArray = _.chunk(pageArray, paginationLimit)
+    const listPage = _.filter(pageArray, function (group) {
+      let found = _.filter(group, { number: currentPage })
+      if (found.length > 0) {
+        return group
+      }
+    })
+
+    const startValueOfRange = (currentPage - 1) * pageSize + 1
+    const endValueOfRange = (currentPage * pageSize) <= finalDataForTable.length ? (currentPage * pageSize) : finalDataForTable.length
+    const totalItems = finalDataForTable.length
+    var activeClass = ''
+    const pagTable = []
+
+    for (let i = startValueOfRange - 1; i < endValueOfRange; i++) {
+      pagTable.push(finalDataForTable[i])
+    }
+
     return (
       <div className={styles.MainContainer}>
         {this.PenaltydropDown(finalDepFilter, finalSupFilter, finalSerFilter, finalKpiFil, ActuallArr, ActuallArr1)}
-        {this.PenaltyCalender()}
+        {this.PenaltyCalender(ActuallArr1, ActuallArr)}
         <div className={styles.ContentContainer}>
           <div className={styles.leftContainer}>
             <div className={styles.tableContainer}>
@@ -772,7 +803,7 @@ class PenaltyDashboard extends React.Component {
                   </tr>
                 </thead>
                 <tbody className='table-body'>
-                  {tableData.map((item, index) => {
+                  {pagTable.map((item, index) => {
             return (<tr key={index} className='table-tr'>
               <td className='table-td'>
                 {item.supplier}
@@ -793,7 +824,7 @@ class PenaltyDashboard extends React.Component {
                 {item.penalty}
               </td>
               <td className='table-td'>
-                {item.date ? moment(new Date(item.date)).format('DD-MM-YYYY') : 0}
+                {item.date ? moment(new Date(item.date)).format('DD-MM-YYYY') : ''}
               </td>
             </tr>)
           })}
@@ -802,10 +833,162 @@ class PenaltyDashboard extends React.Component {
             </div>
           </div>
         </div>
+        <div className='row'>
+          <div className='col-sm-12 col-md-6' id='scrolling_vertical'>
+            <div
+              className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
+              id='scrolling_vertical'
+            >
+              <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
+                <ul className='pagination pg-blue pag'>
+                  {currentPage > 1 && (
+                    <li className='page-item'>
+                      <a
+                        href=''
+                        title='Previous'
+                        id='m_blockui_1_5'
+                        className={
+                          'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
+                          previousClass
+                        }
+                        onClick={e =>
+                          this.fetchUsersForGivenPageNumber(
+                            e,
+                            currentPage,
+                            'start'
+                          )
+                        }
+                      >
+                        <span aria-hidden='true'>&laquo;</span>
+                        <span className={'sr-only'}>Previous</span>
+                      </a>
+                    </li>
+                  )}
+                  {currentPage > 1 && (
+                    <li className='page-item'>
+                      <a
+                        href=''
+                        title='Previous'
+                        id='m_blockui_1_5'
+                        className={
+                          'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
+                          previousClass
+                        }
+                        onClick={e =>
+                          this.fetchUsersForGivenPageNumber(
+                            e,
+                            currentPage,
+                            'prev'
+                          )
+                        }
+                      >
+                        <span aria-hidden='true'>&lt;</span>
+                        <span className={'sr-only'}>Previous</span>
+                      </a>
+                    </li>
+                  )}
+                  {listPage[0] &&
+                    listPage[0].map(page => {
+                      if (page.number === currentPage) {
+                        page.class =
+                        'kt-datatable__pager-link--active activ'
+                        activeClass = 'active'
+                      } else {
+                        activeClass = ''
+                        page.class = ''
+                      }
+
+                      return (
+                        <li key={page.number} className={'page-item' + activeClass}>
+                          <a
+                            href=''
+                            className={`kt-datatable__pager-link kt-datatable__pager-link-number ${page.class} page-link list `}
+                            data-page={page.number}
+                            title={page.number}
+                            onClick={e =>
+                              this.fetchUsersForGivenPageNumber(
+                                e,
+                                page.number
+                              )
+                            }
+                            >
+                            {page.number}
+                          </a>
+                        </li>
+                      )
+                    })}
+                  {currentPage !== totalPages &&
+                    totalPages > 1 && (
+                    <li className='page-item'>
+                      <a
+                        href=''
+                        title='Next'
+                        className={
+                          'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
+                          nextClass
+                        }
+                        onClick={e =>
+                          this.fetchUsersForGivenPageNumber(
+                            e,
+                            currentPage,
+                            'next'
+                          )
+                        }
+                      >
+                        <span aria-hidden='true'>&gt;</span>
+                        <span className={'sr-only'}>Next</span>
+                      </a>
+                    </li>
+                  )}
+                  {currentPage !== totalPages &&
+                    totalPages > 1 && (
+                    <li className='page-item'>
+                      <a
+                        href=''
+                        title='Next'
+                        className={
+                          'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
+                          nextClass
+                        }
+                        onClick={e =>
+                          this.fetchUsersForGivenPageNumber(
+                            e,
+                            totalPages,
+                            'end'
+                          )
+                        }
+                      >
+                        <span aria-hidden='true'>&raquo;</span>
+                        <span className={'sr-only'}>Next</span>
+                      </a>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing}`}>
+            {/* showing dropdown */}
+            <div className='showing-div showspace spaceMargin '>
+              <div className='dropdown dropup-showing'>
+                <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{this.state.pageSize}<span className='caret' /></button>
+                <ul className='dropdown-menu menu'>
+                  <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 10)}>10</a></li>
+                  <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 20)}>20</a></li>
+                  <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 30)}>30</a></li>
+                  <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 40)}>40</a></li>
+                  <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 50)}>50</a></li>
+                </ul>
+              </div>
+              <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
 }
+
 PenaltyDashboard.propTypes = {
   // penaltymetaData: PropTypes.any,
   penaltyMetaModel: PropTypes.func,

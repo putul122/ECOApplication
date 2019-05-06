@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from './SlaDashboardComponent.scss'
-import { Avatar, DatePicker } from 'antd'
+import { Avatar, DatePicker, Spin } from 'antd'
 import _ from 'lodash'
 
 import 'antd/dist/antd.css'
@@ -21,6 +21,9 @@ class SlaDashboard extends React.Component {
     this.state = {
       SlaDashboardData: SlaDashboardJson,
       ActualSlaDashboardData: [],
+      metaContracts: [],
+      contractStages: {},
+      colors: ['orange', '#fd397a', '#0abb87', '#3e0abb', 'black', 'orange', '#fd397a', '#0abb87', '#3e0abb', 'yellow'],
       dupActualSlaDashboardData: [],
       SlaDashboardpenaltyJson: SlaDashboardpenaltyJson,
       SlaDashboardPieChartJson: SlaDashboardPieChartJson,
@@ -38,10 +41,6 @@ class SlaDashboard extends React.Component {
       service: 'Select',
       serviceFilter: [],
       kpi: 'Select',
-      drafts: 0,
-      agreed: 0,
-      active: 0,
-      expired: 0,
       contractsArray: [],
       uniqueContractsArrayCount: 0,
       uniqueContractsArray: [],
@@ -53,20 +52,7 @@ class SlaDashboard extends React.Component {
       supplierItems: [],
       serviceItems: [],
       kpiItems: [],
-      BarChartValue: [],
-      DropDownArray: [{
-        name: 'Agreed To',
-        id: 0
-      }, {
-        name: 'Adheres To',
-        id: 0
-      }, {
-        name: 'Service Is Measured By',
-        id: 0
-      }, {
-        name: 'Is Defined By KPI',
-        id: 0
-      }]
+      BarChartValue: []
     }
   }
   componentWillMount () {
@@ -74,138 +60,18 @@ class SlaDashboard extends React.Component {
     this.props.MetaModel()
     this.props.getMDPerspectiveDATA()
   }
-  componentDidMount () {
-    setTimeout(() => {
-    //   if (this.state.departmentItems || this.state.supplierItems || this.state.serviceItems || this.state.kpiItems) {
-      this.DepartmentId(this.state.DropDownArray[0].id)
-      this.SupplierId(this.state.DropDownArray[1].id)
-      this.ServiceId(this.state.DropDownArray[2].id)
-      this.KpiId(this.state.DropDownArray[3].id)
-
-      this.setState({loader: true})
-    //   }
-    }, 3000)
-  }
-  DepartmentId = (id) => {
-    const payload = {
-      user_id: id
-    }
-    this.props.getDropDownItemDep(payload)
-  }
-  SupplierId = (id) => {
-    const payload = {
-      user_id: id
-    }
-    this.props.getDropDownItemSup(payload)
-  }
-  ServiceId = (id) => {
-    const payload = {
-      user_id: id
-    }
-    this.props.getDropDownItemSer(payload)
-  }
-  KpiId = (id) => {
-    const payload = {
-      user_id: id
-    }
-    this.props.getDropDownItemKpi(payload)
-  }
   componentWillReceiveProps (nextProps) {
-    // New work
-    var metaDataParts = nextProps.metaData.resources[0].parts
-    var { DropDownArray } = this.state
-    var actuallDropDownData = DropDownArray
-    metaDataParts.forEach(element => {
-      DropDownArray.forEach((dropdownData, i) => {
-        if (element.name === dropdownData.name) {
-          if (element.standard_property === null && element.type_property === null) {
-            if (element.constraint_inverted === true) {
-              actuallDropDownData[i].id = element.constraint.component_type.id
-            } else {
-              actuallDropDownData[i].id = element.constraint.target_component_type.id
-            }
-          }
-        } else {
-          if (element.standard_property === null && element.type_property === null && element.constraint_perspective !== null) {
-            var constraintParts = element.constraint_perspective.parts
-            constraintParts.forEach((constraintElement, j) => {
-              DropDownArray.forEach((constraintDropDownData, k) => {
-                if (constraintElement.name === constraintDropDownData.name) {
-                  if (constraintElement.standard_property === null && constraintElement.type_property === null) {
-                    if (constraintElement.constraint_inverted === true) {
-                      actuallDropDownData[k].id = constraintElement.constraint.component_type.id
-                    } else {
-                      actuallDropDownData[k].id = constraintElement.constraint.target_component_type.id
-                    }
-                  }
-                } else {
-                  if (constraintElement.standard_property === null && constraintElement.type_property === null && constraintElement.constraint_perspective !== null) {
-                    var NestedconstraintParts = constraintElement.constraint_perspective.parts
-                    NestedconstraintParts.forEach((NestedconstraintElement, l) => {
-                      DropDownArray.forEach((NestedconstraintDropDownData, m) => {
-                        if (NestedconstraintElement.name === NestedconstraintDropDownData.name) {
-                          if (NestedconstraintElement.standard_property === null && NestedconstraintElement.type_property === null) {
-                            if (NestedconstraintElement.constraint_inverted === true) {
-                              actuallDropDownData[m].id = NestedconstraintElement.constraint.component_type.id
-                            } else {
-                              actuallDropDownData[m].id = NestedconstraintElement.constraint.target_component_type.id
-                            }
-                          }
-                        }
-                      })
-                    })
-                  }
-                }
-              })
-            })
-          }
-        }
-      })
-    })
-    this.setState({
-      DropDownArray: actuallDropDownData
-    })
-    var departmentItems = []
-    var supplierItems = []
-    var serviceItems = []
-    var kpiItems = []
-    var dep = nextProps.dropDownItemsDepData.resources
-    var sup = nextProps.dropDownItemsSupData.resources
-    var ser = nextProps.dropDownItemsSerData.resources
-    var kpi = nextProps.dropDownItemsKpiData.resources
-    dep.forEach((element, i) => {
-      departmentItems.push(element.name)
-    })
-    sup.forEach((element, i) => {
-      supplierItems.push(element.name)
-    })
-    ser.forEach((element, i) => {
-      serviceItems.push(element.name)
-    })
-    kpi.forEach((element, i) => {
-      kpiItems.push(element.name)
-    })
-    departmentItems = [...new Set(departmentItems)]
-    supplierItems = [...new Set(supplierItems)]
-    serviceItems = [...new Set(serviceItems)]
-    kpiItems = [...new Set(kpiItems)]
-    this.setState({
-      departmentItems,
-      supplierItems,
-      serviceItems,
-      kpiItems
-    })
     // filter and actual data
-    var ActuallArr = []
-    for (var i = 0; i < nextProps.modelPerspectiveData.length - 1; i++) {
-      var date
+    let ActuallArr = []
+    for (let i = 0; i < nextProps.modelPerspectiveData.length - 1; i++) {
+      let date
       if (nextProps.modelPerspectiveData[i].parts[1].value !== null) {
-        var dates = new Date(nextProps.modelPerspectiveData[i].parts[1].value.date_time_value)
+        let dates = new Date(nextProps.modelPerspectiveData[i].parts[1].value.date_time_value)
         date = dates.toUTCString()
       } else {
         date = ''
       }
-      var obj = {
+      let obj = {
         subject_id: nextProps.modelPerspectiveData[i].subject_id,
         department: nextProps.modelPerspectiveData[i].parts[3].value[0].target_component.name,
         supplier: nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.name,
@@ -218,10 +84,10 @@ class SlaDashboard extends React.Component {
     }
 
     this.setState({ActualSlaDashboardData: ActuallArr, dupActualSlaDashboardData: ActuallArr, ActualContractArr: ActuallArr})
-    var depFilter = []
-    var supFilter = []
-    var serFilter = []
-    var kpiFil = []
+    let depFilter = []
+    let supFilter = []
+    let serFilter = []
+    let kpiFil = []
     ActuallArr.map((data) => {
       depFilter.push(data.department)
       supFilter.push(data.supplier)
@@ -234,29 +100,24 @@ class SlaDashboard extends React.Component {
       supplierFilter: [...new Set(serFilter)],
       serviceFilter: [...new Set(kpiFil)]
     })
-    const { uniqueContractsArray, uniqueContractsArrayCount } = this.createUniqueContractsArray(ActuallArr)
-
-    var drafts = 0
-    var agreed = 0
-    var active = 0
-    var expired = 0
-
-    for (var j = 0; j < uniqueContractsArrayCount; j++) {
-      if (uniqueContractsArray[j].contracts === 'Draft') {
-        drafts = drafts + 1
-      } else if (uniqueContractsArray[j].contracts === 'Agreed') {
-        agreed = agreed + 1
-      } else if (uniqueContractsArray[j].contracts === 'Operational') {
-        active = active + 1
-      } else if (uniqueContractsArray[j].contracts === 'Expired') {
-        expired = expired + 1
-      }
+    let metaArray = nextProps.metaData.resources[0].parts[0].type_property.value_set.values
+    let metaContracts = []
+    for (let m = 0; m < metaArray.length; m++) {
+      metaContracts.push(metaArray[m].name)
     }
+    const { uniqueContractsArray, uniqueContractsArrayCount } = this.createUniqueContractsArray(ActuallArr)
+    let cStages = {}
+    metaContracts.forEach(contract => {
+      cStages[contract] = 0
+    })
+    for (let j = 0; j < uniqueContractsArrayCount; j++) {
+      cStages[uniqueContractsArray[j].contracts] += 1
+    }
+    console.log('metaContracts', metaContracts)
+    console.log('asd', cStages)
     this.setState({
-      drafts,
-      agreed,
-      active,
-      expired
+      metaContracts,
+      contractStages: cStages
     })
   }
 
@@ -270,87 +131,67 @@ class SlaDashboard extends React.Component {
   }
   ActualContracts = (arr) => {
     const { uniqueContractsArray, uniqueContractsArrayCount } = this.createUniqueContractsArray(arr)
-
-    var drafts = 0
-    var agreed = 0
-    var active = 0
-    var expired = 0
-    for (var i = 0; i < uniqueContractsArrayCount; i++) {
-      if (uniqueContractsArray[i].contracts === 'Draft') {
-        drafts = drafts + 1
-      } else if (uniqueContractsArray[i].contracts === 'Agreed') {
-        agreed = agreed + 1
-      } else if (uniqueContractsArray[i].contracts === 'Operational') {
-        active = active + 1
-      } else if (uniqueContractsArray[i].contracts === 'Expired') {
-        expired = expired + 1
-      }
+    let cStages = {}
+    this.state.metaContracts.forEach(contract => {
+      cStages[contract] = 0
+    })
+    for (let j = 0; j < uniqueContractsArrayCount; j++) {
+      cStages[uniqueContractsArray[j].contracts] += 1
     }
     this.setState({
-      drafts,
-      agreed,
-      active,
-      expired
+      contractStages: cStages
     })
   }
 
   createUniqueContractsArray = contractsArray => {
+    console.log(contractsArray)
+    console.log(this.state.ActuallArr)
     const uniqueContractsArray = _.uniqBy(contractsArray, 'subject_id')
     const uniqueContractsArrayCount = uniqueContractsArray.length
     this.setState({ uniqueContractsArray, uniqueContractsArrayCount })
     return { uniqueContractsArray, uniqueContractsArrayCount }
   }
   unselectAll = () => {
-    var { dupActualSlaDashboardData } = this.state
-    var repeatedArr = dupActualSlaDashboardData.map((data) => {
+    let { dupActualSlaDashboardData } = this.state
+    let repeatedArr = dupActualSlaDashboardData.map((data) => {
       return data.department
     })
-    var repeatedArrdep = dupActualSlaDashboardData.map((data) => {
+    let repeatedArrdep = dupActualSlaDashboardData.map((data) => {
       return data.supplier
     })
-    var repeatedArrsupp = dupActualSlaDashboardData.map((data) => {
+    let repeatedArrsupp = dupActualSlaDashboardData.map((data) => {
       return data.service
     })
-    var repeatedArrser = dupActualSlaDashboardData.map((data) => {
+    let repeatedArrser = dupActualSlaDashboardData.map((data) => {
       return data.kpi
     })
     const { uniqueContractsArray, uniqueContractsArrayCount } = this.createUniqueContractsArray(dupActualSlaDashboardData)
 
-    var UniqueArr = [...new Set(repeatedArr)]
-    var departmentFilter = [...new Set(repeatedArrdep)]
-    var supplierFilter = [...new Set(repeatedArrsupp)]
-    var serviceFilter = [...new Set(repeatedArrser)]
+    let UniqueArr = [...new Set(repeatedArr)]
+    let departmentFilter = [...new Set(repeatedArrdep)]
+    let supplierFilter = [...new Set(repeatedArrsupp)]
+    let serviceFilter = [...new Set(repeatedArrser)]
     // this.departmentDropDown(UniqueArr[0])
     this.setState({ActualContractArr: dupActualSlaDashboardData, UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select'})
 
-    var drafts = 0
-    var agreed = 0
-    var active = 0
-    var expired = 0
-
-    for (var i = 0; i < uniqueContractsArrayCount; i++) {
-      if (uniqueContractsArray[i].contracts === 'Draft') {
-        drafts = drafts + 1
-      } else if (uniqueContractsArray[i].contracts === 'Agreed') {
-        agreed = agreed + 1
-      } else if (uniqueContractsArray[i].contracts === 'Operational') {
-        active = active + 1
-      } else if (uniqueContractsArray[i].contracts === 'Expired') {
-        expired = expired + 1
-      }
+    let cStages = {}
+    this.state.metaContracts.forEach(contract => {
+      cStages[contract] = 0
+    })
+    for (let j = 0; j < uniqueContractsArrayCount; j++) {
+      cStages[uniqueContractsArray[j].contracts] += 1
     }
     this.setState({
-      drafts,
-      agreed,
-      active,
-      expired
+      contractStages: cStages
     })
   }
   departmentDropDown = (value) => {
     this.setState({department: value})
-    var { dupActualSlaDashboardData } = this.state
-    var array = dupActualSlaDashboardData.filter(data => {
-      if (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier && data.kpi === this.state.kpi) {
+    let { dupActualSlaDashboardData } = this.state
+    let array = dupActualSlaDashboardData.filter(data => {
+      if (data.department === value && this.state.supplier === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
+        return (data.department === value)
+      } else if (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier && data.kpi === this.state.kpi) {
         return (data.department === value && data.service === this.state.service && data.supplier === this.state.supplier && data.kpi === this.state.kpi)
       } else if (data.department === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier) {
         return (data.department === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier)
@@ -366,25 +207,25 @@ class SlaDashboard extends React.Component {
         return (data.department === value && data.service === this.state.service)
       }
     })
-    var repeatedArr = array.map((data) => {
+    let repeatedArr = array.map((data) => {
       return data.supplier
     })
-    var repeatedArrser = array.map((data) => {
+    let repeatedArrser = array.map((data) => {
       return data.service
     })
-    var repeatedArrkpi = array.map((data) => {
+    let repeatedArrkpi = array.map((data) => {
       return data.kpi
     })
-    var UniqueArr = [...new Set(repeatedArr)]
-    var UniqueArrser = [...new Set(repeatedArrser)]
-    var UniqueArrkpi = [...new Set(repeatedArrkpi)]
+    let UniqueArr = [...new Set(repeatedArr)]
+    let UniqueArrser = [...new Set(repeatedArrser)]
+    let UniqueArrkpi = [...new Set(repeatedArrkpi)]
     this.setState({department: value, departmentFilter: UniqueArr, supplierFilter: UniqueArrser, serviceFilter: UniqueArrkpi})
     this.contractValue(value, 'department')
   }
   SupplierDropDown = (value) => {
     this.setState({supplier: value})
-    var { dupActualSlaDashboardData } = this.state
-    var array = dupActualSlaDashboardData.filter((data) => {
+    let { dupActualSlaDashboardData } = this.state
+    let array = dupActualSlaDashboardData.filter((data) => {
       if (data.supplier === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
         return (data.supplier === value)
       } else if (data.supplier === value && data.department === this.state.department && data.service === this.state.service && data.kpi === this.state.kpi) {
@@ -403,25 +244,25 @@ class SlaDashboard extends React.Component {
         return (data.supplier === value && data.department === this.state.department)
       }
     })
-    var repeatedArrdep = array.map((data) => {
+    let repeatedArrdep = array.map((data) => {
       return data.department
     })
-    var repeatedArrser = array.map((data) => {
+    let repeatedArrser = array.map((data) => {
       return data.service
     })
-    var repeatedArrkpi = array.map((data) => {
+    let repeatedArrkpi = array.map((data) => {
       return data.kpi
     })
-    var UniqueArrDep = [...new Set(repeatedArrdep)]
-    var UniqueArrser = [...new Set(repeatedArrser)]
-    var UniqueArrkpi = [...new Set(repeatedArrkpi)]
+    let UniqueArrDep = [...new Set(repeatedArrdep)]
+    let UniqueArrser = [...new Set(repeatedArrser)]
+    let UniqueArrkpi = [...new Set(repeatedArrkpi)]
     this.setState({supplier: value, supplierFilter: UniqueArrser, UniqueArr: UniqueArrDep, serviceFilter: UniqueArrkpi})
     this.contractValue(value, 'supplier')
   }
   serviceDropDown = (value) => {
     this.setState({service: value})
-    var { dupActualSlaDashboardData } = this.state
-    var array = dupActualSlaDashboardData.filter((data) => {
+    let { dupActualSlaDashboardData } = this.state
+    let array = dupActualSlaDashboardData.filter((data) => {
       if (data.service === value && this.state.department === 'Select' && this.state.supplier === 'Select' && this.state.kpi === 'Select') {
         return (data.service === value)
       } else if (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier && data.kpi === this.state.kpi) {
@@ -440,25 +281,25 @@ class SlaDashboard extends React.Component {
         return (data.service === value && data.department === this.state.department)
       }
     })
-    var repeatedArr = array.map((data) => {
+    let repeatedArr = array.map((data) => {
       return data.kpi
     })
-    var repeatedArruni = array.map((data) => {
+    let repeatedArruni = array.map((data) => {
       return data.department
     })
-    var repeatedArrsupp = array.map((data) => {
+    let repeatedArrsupp = array.map((data) => {
       return data.supplier
     })
-    var UniqueArrkpi = [...new Set(repeatedArr)]
-    var UniqueArruni = [...new Set(repeatedArruni)]
-    var UniqueArrsupp = [...new Set(repeatedArrsupp)]
+    let UniqueArrkpi = [...new Set(repeatedArr)]
+    let UniqueArruni = [...new Set(repeatedArruni)]
+    let UniqueArrsupp = [...new Set(repeatedArrsupp)]
     this.setState({service: value, serviceFilter: UniqueArrkpi, UniqueArr: UniqueArruni, departmentFilter: UniqueArrsupp})
     this.contractValue(value, 'service')
   }
   kpiDropDown = (value) => {
     this.setState({kpi: value})
-    var { dupActualSlaDashboardData } = this.state
-    var array = dupActualSlaDashboardData.filter((data) => {
+    let { dupActualSlaDashboardData } = this.state
+    let array = dupActualSlaDashboardData.filter((data) => {
       if (data.kpi === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.supplier === 'Select') {
         return (data.kpi === value)
       } else if (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier && data.department === this.state.department) {
@@ -477,18 +318,18 @@ class SlaDashboard extends React.Component {
         return (data.kpi === value && data.service === this.state.service)
       }
     })
-    var repeatedArrUni = array.map((data) => {
+    let repeatedArrUni = array.map((data) => {
       return data.department
     })
-    var repeatedArrdep = array.map((data) => {
+    let repeatedArrdep = array.map((data) => {
       return data.supplier
     })
-    var repeatedArrsupp = array.map((data) => {
+    let repeatedArrsupp = array.map((data) => {
       return data.service
     })
-    var UniqueArruni = [...new Set(repeatedArrUni)]
-    var UniqueArrdep = [...new Set(repeatedArrdep)]
-    var UniqueArrsupp = [...new Set(repeatedArrsupp)]
+    let UniqueArruni = [...new Set(repeatedArrUni)]
+    let UniqueArrdep = [...new Set(repeatedArrdep)]
+    let UniqueArrsupp = [...new Set(repeatedArrsupp)]
     this.setState({kpi: value, UniqueArr: UniqueArruni, departmentFilter: UniqueArrdep, supplierFilter: UniqueArrsupp})
     this.contractValue(value, 'kpi')
   }
@@ -500,7 +341,7 @@ class SlaDashboard extends React.Component {
     }
 
     if (arrayToBeFiltered.length) {
-      var arr = []
+      let arr = []
       if (name === 'department') {
         arr = arrayToBeFiltered.filter((data, i) => {
           return (value === data.department && this.state.supplier === data.supplier && this.state.service === data.service && this.state.kpi === data.kpi) || (value === data.department && this.state.supplier === data.supplier && this.state.service === data.service) || (value === data.department && this.state.kpi === data.kpi && this.state.supplier === data.supplier) || (value === data.department && this.state.kpi === data.kpi && this.state.service === data.service) || (value === data.department && this.state.kpi === data.kpi) || (value === data.department && this.state.service === data.service) || (value === data.department && this.state.supplier === data.supplier) || (value === data.department)
@@ -644,14 +485,14 @@ class SlaDashboard extends React.Component {
     )
   }
   calendarValue = (value) => {
-    for (var i = 0; i < value.length; i++) {
+    for (let i = 0; i < value.length; i++) {
       if (i === 0) {
-        var a = new Date(value[i]._d)
-        var b = a.toUTCString()
+        let a = new Date(value[i]._d)
+        let b = a.toUTCString()
         this.setState({startDate: b})
       } else if (i === 1) {
-        var aa = new Date(value[i]._d)
-        var bb = aa.toUTCString()
+        let aa = new Date(value[i]._d)
+        let bb = aa.toUTCString()
         this.setState({endDate: bb})
       }
     }
@@ -660,10 +501,10 @@ class SlaDashboard extends React.Component {
         this.valueAccordingToCalendar()
       }, 300)
     } else {
-      var depFilter = []
-      var supFilter = []
-      var serFilter = []
-      var kpiFil = []
+      let depFilter = []
+      let supFilter = []
+      let serFilter = []
+      let kpiFil = []
       this.state.ActualSlaDashboardData.map((data) => {
         depFilter.push(data.department)
         supFilter.push(data.supplier)
@@ -680,24 +521,24 @@ class SlaDashboard extends React.Component {
     }
   }
   valueAccordingToCalendar = () => {
-    var { ActualSlaDashboardData } = this.state
-    var dupActualSlaDashboardData = []
-    var sDate = new Date(this.state.startDate).getTime()
-    var eDate = new Date(this.state.endDate).getTime()
-    for (var i = 0; i < ActualSlaDashboardData.length; i++) {
-      var valDate = new Date(ActualSlaDashboardData[i].expDate).getTime()
+    let { ActualSlaDashboardData } = this.state
+    let dupActualSlaDashboardData = []
+    let sDate = new Date(this.state.startDate).getTime()
+    let eDate = new Date(this.state.endDate).getTime()
+    for (let i = 0; i < ActualSlaDashboardData.length; i++) {
+      let valDate = new Date(ActualSlaDashboardData[i].expDate).getTime()
       if (valDate >= sDate && valDate <= eDate) {
         dupActualSlaDashboardData.push(ActualSlaDashboardData[i])
       }
     }
     this.setState({dupActualSlaDashboardData})
     this.unselectAll()
-    this.setState({
-      drafts: 0,
-      agreed: 0,
-      active: 0,
-      expired: 0
-    })
+    // this.setState({
+    //   drafts: 0,
+    //   agreed: 0,
+    //   active: 0,
+    //   expired: 0
+    // })
   }
   SlaCalender = () => {
     return (
@@ -730,18 +571,6 @@ class SlaDashboard extends React.Component {
       </div>
     )
   }
-  badgesComponent = (text, number, color) => {
-    return (
-      <div className={styles.contractText}>
-        <div className={`${styles.badgeContainer}`} style={{borderLeft: `5px solid ${color}`}}>
-          <div className={styles.badgeText}>{text}</div>
-          <Avatar className={styles.avatarOne} style={{backgroundColor: color}} size='medium'>
-            {number}
-          </Avatar>
-        </div>
-      </div>
-    )
-  }
   cardContent = (date, supplier, service, penalty) => {
     return (
       <div className={styles.cards}>
@@ -762,10 +591,10 @@ class SlaDashboard extends React.Component {
     )
   }
   BarChartValue = (val) => {
-    var { SlaDashboardBarChartJson } = this.state
-    var BarChartValue = []
+    let { SlaDashboardBarChartJson } = this.state
+    let BarChartValue = []
     SlaDashboardBarChartJson[0].parts[0].value.map((data, i) => {
-      var arr = data.children.filter((value, j) => {
+      let arr = data.children.filter((value, j) => {
         return val === value.key
       })
       if (arr.length) {
@@ -776,9 +605,9 @@ class SlaDashboard extends React.Component {
   }
   render () {
       return (
-        <div>
-          { this.state.loader
-            ? <div className={styles.MainContainer}>
+        <div className={styles.MainContainer}>
+          { this.state.ActualSlaDashboardData.length
+            ? <div>
               <div>
                 {this.SladropDown(this.state.dupActualSlaDashboardData)}
                 {this.SlaCalender()}
@@ -786,16 +615,29 @@ class SlaDashboard extends React.Component {
                   <div className={styles.leftContainer}>
                     <div className={styles.contractContainer}>
                       <div className={styles.contractText}>
-                        <a href='javascript:void(0)' className={styles.Text}>
-                          Contracts <Avatar className={styles.avatarOne} style={{backgroundColor: 'lightgreen'}} size='medium'>
-                            {this.state.uniqueContractsArrayCount}
-                          </Avatar>
+                        <a href='javascript:void(0)' onClick={() => { this.props.history.push('/perspective_hierarchy/15/ContractsList') }} className={styles.Text}>
+                          Contracts
                         </a>
+                        <Avatar className={styles.avatarOne} style={{backgroundColor: 'lightgreen'}} size='medium'>
+                          {this.state.uniqueContractsArrayCount}
+                        </Avatar>
                       </div>
-                      {this.badgesComponent('Draft', this.state.drafts, 'orange')}
+                      {
+                        this.state.metaContracts.map((data, i) => {
+                          return <div className={styles.contractText}>
+                            <div className={`${styles.badgeContainer}`} style={{borderLeft: `5px solid ${this.state.colors[i]}`}}>
+                              <div className={styles.badgeText}>{data}</div>
+                              <Avatar className={styles.avatarOne} style={{backgroundColor: this.state.colors[i]}} size='medium'>
+                                {this.state.contractStages[data]}
+                              </Avatar>
+                            </div>
+                          </div>
+                        })
+                      }
+                      {/* {this.badgesComponent('Draft', this.state.drafts, 'orange')}
                       {this.badgesComponent('Agreed', this.state.agreed, '#fd397a')}
                       {this.badgesComponent('Active', this.state.active, '#0abb87')}
-                      {this.badgesComponent('Expired', this.state.expired, '#3e0abb')}
+                      {this.badgesComponent('Expired', this.state.expired, '#3e0abb')} */}
                     </div>
                     <div className={styles.chartContainer}>
                       <div className={styles.pieContainer}>
@@ -834,7 +676,7 @@ class SlaDashboard extends React.Component {
                 </div>
               </div>
             </div>
-            : ''
+            : <Spin className={styles.spin} />
           }
         </div>
       )
@@ -846,14 +688,6 @@ SlaDashboard.propTypes = {
   MetaModel: PropTypes.func,
   modelPerspectiveData: PropTypes.any,
   getMDPerspectiveDATA: PropTypes.func,
-  dropDownItemsDepData: PropTypes.any,
-  getDropDownItemDep: PropTypes.func,
-  dropDownItemsSupData: PropTypes.any,
-  getDropDownItemSup: PropTypes.func,
-  dropDownItemsSerData: PropTypes.any,
-  getDropDownItemSer: PropTypes.func,
-  dropDownItemsKpiData: PropTypes.any,
-  getDropDownItemKpi: PropTypes.func,
   history: PropTypes.any
 }
 export default SlaDashboard
