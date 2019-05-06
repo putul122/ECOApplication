@@ -8,15 +8,15 @@ import { actions as sagaActions } from '../../redux/sagas/'
 export function mapStateToProps (state, props) {
   return {
     penaltymetaData: state.penaltyReducer.penaltymetaData,
-    penaltymodelPerspectiveData: state.penaltyReducer.penaltymodelPerspectiveData,
-    modelPerspectiveData: state.penaltyReducer.modelPerspectiveData
+    penaltymodelPerspectiveData: state.penaltyReducer.penaltymodelPerspectiveData
+    // modelPerspectiveData: state.penaltyReducer.modelPerspectiveData
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch
 export const propsMapping: Callbacks = {
   penaltyMetaModel: sagaActions.penaltyActions.penaltygetMDDATA,
-  penaltygetMDPerspectiveDATA: sagaActions.penaltyActions.penaltygetMDPerspectiveDATA,
-  getMDPerspectiveDATA: sagaActions.penaltyActions.getMDPerspectiveDATA
+  penaltygetMDPerspectiveDATA: sagaActions.penaltyActions.penaltygetMDPerspectiveDATA
+  // getMDPerspectiveDATA: sagaActions.penaltyActions.getMDPerspectiveDATA
 }
 
 // eslint-disable-next-line
@@ -76,7 +76,6 @@ const PenaltyDashboardContainer = compose(
           }
         ]
       }
-      console.log('breadcrumb', breadcrumb)
       this.props.setBreadcrumb && this.props.setBreadcrumb(breadcrumb)
     }
   })
