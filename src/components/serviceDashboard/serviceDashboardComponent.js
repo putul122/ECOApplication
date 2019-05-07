@@ -45,7 +45,7 @@ export default function ServiceDashboard (props) {
       // })
       subjectCount = parts[0].value.value.count
       return (
-        <div className='col-md-4'>
+        <div className='col-md-4' key={index}>
           <div className='m-portlet m-portlet--bordered-semi m-portlet--skin-light  m-portlet--rounded-force'>
             <div className='m-portlet__head'>
               <div className='m-portlet__head-caption'>

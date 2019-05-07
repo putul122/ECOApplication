@@ -625,7 +625,6 @@ class PenaltyDashboard extends React.Component {
           <div className={`dropdown dropup-showing ${styles.dropDown}`}>
             <RangePicker
               className='RangePicker'
-              disabledDate={false}
               onChange={(val) => this.calendarValue(val, ActuallArr1, ActuallArr)}
               dateRender={(current) => {
                 const style = {}
@@ -817,7 +816,6 @@ class PenaltyDashboard extends React.Component {
       serFilter.push(data.service)
       kpiFil.push(data.kpi)
     })
-
     finalDepFilter = [...new Set(depFilter)]
     finalSupFilter = [...new Set(supFilter)]
     finalSerFilter = [...new Set(serFilter)]
@@ -1096,7 +1094,7 @@ PenaltyDashboard.propTypes = {
   penaltyMetaModel: PropTypes.func,
   penaltymodelPerspectiveData: PropTypes.any,
   penaltygetMDPerspectiveDATA: PropTypes.func,
-  location: React.PropTypes.string.isRequired
+  location: PropTypes.string
 
   // getMDPerspectiveDATA: PropTypes.func
 }

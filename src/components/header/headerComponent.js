@@ -109,7 +109,7 @@ export default function HeaderComponent (props) {
   if (props.packages && props.packages.error_code === null && props.packages.resources) {
     selectModuleOptions = props.packages.resources.map(function (data, index) {
       return (
-        <li m-menu-submenu-toggle='click' aria-haspopup='true'>
+        <li key={index} aria-haspopup='true'>
           <a href={window.location.origin + '/select-module/' + data.key} className='m-menu__link m-menu__toggle' title={data.description} >
             <span className='m-menu__item-here' /><span className='m-menu__link-text btn btn-secondary' style={{border: 'none', width: '100%'}}>{data.name}</span>
           </a>
@@ -120,7 +120,7 @@ export default function HeaderComponent (props) {
   }
   return (
     <div>
-      <header id='m_header' className='m-grid__item    m-header ' m-minimize-offset='200' m-minimize-mobile-offset='200' >
+      <header id='m_header' className='m-grid__item m-header '>
         <div className='m-container m-container--fluid m-container--full-height' >
           <div className='m-stack m-stack--ver m-stack--desktop'>
             {/* <!-- BEGIN: Brand --> */}

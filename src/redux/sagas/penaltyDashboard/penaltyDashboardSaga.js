@@ -57,13 +57,11 @@ export function * penaltygetModelPerspective (action) {
   try {
     axios.defaults.headers.common['Authorization'] =
       'Bearer ' + localStorage.getItem('userAccessToken')
-      console.log('penaltymodelperspectives', api.penaltymodelperspectives)
     const ModelPerpestives = yield call(
       axios.get,
       api.penaltymodelperspectives,
       action.payload
     )
-    console.log('penaltymodelperspectives', ModelPerpestives.data)
     yield put(actionCreators.penaltyModelPerspectiveSuccess(ModelPerpestives.data))
   } catch (error) {
     yield put(actionCreators.penaltyModelPerspectiveFailure(error))
