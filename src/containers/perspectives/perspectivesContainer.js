@@ -91,7 +91,6 @@ export default compose(
       // mApp && mApp.block('#entitlementList', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     },
     componentWillReceiveProps: function (nextProps) {
-      console.log('nextProps', nextProps)
       if (nextProps.authenticateUser && nextProps.authenticateUser.resources) {
         if (!nextProps.authenticateUser.resources[0].result) {
           this.props.history.push('/')
@@ -203,7 +202,6 @@ export default compose(
         this.props.resetResponse()
       }
       if (nextProps.connectionData !== '' && nextProps.connectionData.operation.toCallApi && !nextProps.connectionData.operation.isComplete) {
-        console.log('nextProps.connectionData', nextProps.connectionData)
         let connectionData = {...nextProps.connectionData}
         let processIndex = nextProps.connectionData.operation.processIndex
         let totalLength = nextProps.connectionData.data.length
@@ -219,7 +217,6 @@ export default compose(
         nextProps.setConnectionData(connectionData)
       }
       if (nextProps.dropdownData !== '') {
-        console.log('nextProps.dropdownData', nextProps.dropdownData)
         if (nextProps.dropdownData.error_code === null) {
           let connectionData = {...nextProps.connectionData}
           connectionData.selectOption.push(nextProps.dropdownData.resources)
