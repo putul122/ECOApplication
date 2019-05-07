@@ -8,6 +8,7 @@ import './index.css'
 import _ from 'lodash'
 
 const { RangePicker } = DatePicker
+
 class PenaltyDashboard extends React.Component {
   constructor (props) {
     super(props)
@@ -27,8 +28,8 @@ class PenaltyDashboard extends React.Component {
       },
       NestedPenaltyApiData: [],
       UniqueArr: [],
-      startDate: this.props.location.state.slaStartDate ? this.props.location.state.slaStartDate : '',
-      endDate: this.props.location.state.slaEndDate ? this.props.location.state.slaEndDate : '',
+      startDate: this.props.location.state.slaStartDate ? this.props.location.state.slaStartDate : null,
+      endDate: this.props.location.state.slaEndDate ? this.props.location.state.slaEndDate : null,
       department: this.props.location.state.slaDepartment ? this.props.location.state.slaDepartment : 'Select',
       departmentFilter: [],
       supplier: this.props.location.state.slaSupplier ? this.props.location.state.slaSupplier : 'Select',
@@ -39,7 +40,6 @@ class PenaltyDashboard extends React.Component {
       kpiDropDownArray: [],
       service: this.props.location.state.slaService ? this.props.location.state.slaService : 'Select',
       serviceFilter: [],
-      loader: false,
       kpi: this.props.location.state.slaKpi ? this.props.location.state.slaKpi : 'Select',
       apiData: [],
       pageSize: 10,
@@ -53,6 +53,11 @@ class PenaltyDashboard extends React.Component {
   componentDidMount () {
     this.props.penaltyMetaModel()
     this.props.penaltygetMDPerspectiveDATA()
+    setTimeout(() => {
+      this.setState({
+        loader: true
+      })
+    }, 5000)
   }
 
   unselectAll = async () => {
@@ -164,7 +169,7 @@ class PenaltyDashboard extends React.Component {
       }
     })
     if (this.state.dateFilterSet) {
-      this.valueAccordingToCalendar(finalArr)
+      this.valueAccordingToCalendar(null, null, finalArr)
     } else {
       this.setState({finalTableData: finalArr, currentPage: 1})
     }
@@ -461,27 +466,33 @@ class PenaltyDashboard extends React.Component {
     )
   }
 
-  calendarValue = async (value, ActuallArr1, ActuallArr) => {
+  calendarValue = async (value, ActuallArr1, ActuallArr, propsSet = false) => {
+    let startDate = ''
+    let endDate = ''
+
     if (value.length) {
-      for (var i = 0; i < value.length; i++) {
+      for (let i = 0; i < value.length; i++) {
         if (i === 0) {
-          var a = new Date(value[i]._d)
-          var b = a.toUTCString()
-          this.setState({startDate: b})
+          this.props.location.state.slaStartDate = ''
+          startDate = new Date(value[i]._d)
+          this.setState({ startDate })
         } else if (i === 1) {
-          var aa = new Date(value[i]._d)
-          var bb = aa.toUTCString()
-          this.setState({endDate: bb})
+          this.props.location.state.endDate = ''
+          endDate = new Date(value[i]._d)
+          this.setState({ endDate })
         }
       }
+    } else if (propsSet) {
+      startDate = this.props.location.state.slaStartDate
+      endDate = this.props.location.state.slaEndDate
     } else {
-      await this.setState({ startDate: '', endDate: '', dateFilterSet: false })
+      await this.setState({ startDate: null, endDate: null, dateFilterSet: false })
       this.tableFilter()
     }
 
-    if (value.length > 1) {
+    if (value.length > 1 || propsSet) {
       setTimeout(() => {
-        this.valueAccordingToCalendar()
+        this.valueAccordingToCalendar(startDate, endDate)
       }, 300)
     } else {
       var depFilter = []
@@ -539,11 +550,19 @@ class PenaltyDashboard extends React.Component {
     }
   }
 
-  valueAccordingToCalendar = (ActuallArr1 = []) => {
-    // var { ActualSlaDashboardData } = this.state
-    let sDate = moment(this.state.startDate).unix()
-    let eDate = moment(this.state.endDate).unix()
+  valueAccordingToCalendar = (startDate = null, endDate = null, ActuallArr1 = []) => {
+    let sDate = 0
+    let eDate = 0
     let rawData = []
+
+    if (startDate && endDate) {
+      sDate = moment(startDate).unix()
+      eDate = moment(endDate).unix()
+    } else {
+      sDate = this.state.startDate ? moment(this.state.startDate).unix() : 0
+      eDate = this.state.endDate ? moment(this.state.endDate).unix() : 0
+    }
+
     if (ActuallArr1.length) {
       rawData = ActuallArr1
     } else if (this.state.finalTableData.length) {
@@ -582,14 +601,19 @@ class PenaltyDashboard extends React.Component {
         }
       })
     }
+
     const finalData = rawData.filter(penaltyContract => {
       if (penaltyContract.date.length) {
         let valDate = moment(penaltyContract.date).unix()
-        return (valDate >= sDate && valDate <= eDate)
+        if (sDate > 0 && eDate > 0) {
+          return valDate >= sDate && valDate <= eDate
+        }
+        return penaltyContract
       }
     })
     this.setState({ finalTableData: finalData, dateFilterSet: true, currentPage: 1 })
   }
+
   PenaltyCalender = (ActuallArr1, ActuallArr) => {
     return (
       <div className={styles.HeaderContainer}>
@@ -621,19 +645,24 @@ class PenaltyDashboard extends React.Component {
       </div>
     )
   }
+
   pageSizeBlurHandler = async e => {
   }
+
   pageSizeChangeHandler = async e => {
     await this.setState({
       pageSize: +e.target.value
     })
   }
+
   pageSizeBlurHandler = () => {
   }
+
   showingPage = (e, page) => {
     e.preventDefault()
     this.setState({ pageSize: page })
   }
+
   fetchUsersForGivenPageNumber = async (e, pageNumber, arrow = null) => {
     e.preventDefault()
 
@@ -657,6 +686,7 @@ class PenaltyDashboard extends React.Component {
       await this.setState({ currentPage: pageNumber })
     }
   }
+
   componentWillReceiveProps (nextProps) {
     let penaltymodelPerspectiveDataCount = nextProps.penaltymodelPerspectiveData.length ? nextProps.penaltymodelPerspectiveData.length - 1 : 0
     let ActuallArr1 = []
@@ -714,11 +744,12 @@ class PenaltyDashboard extends React.Component {
         this.serviceDropDown(this.props.location.state.slaService, ActuallArr, ActuallArr1)
       } else if (this.props.location.state.slaKpi !== 'Select') {
         this.kpiDropDown(this.props.location.state.slaKpi, ActuallArr, ActuallArr1)
-      } else if (this.props.location.state.slaDepartment !== 'Select') {
-        this.departmentDropDown(this.props.location.state.slaDepartment, ActuallArr)
+      } else if (this.props.location.state.slaStartDate !== '') {
+        this.calendarValue([], [], [], true)
       }
     }, 1000)
   }
+
   render () {
     let ActuallArr1 = []
     let ActuallArr = []
