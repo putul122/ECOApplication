@@ -19,6 +19,7 @@ const RESET_RESPONSE = 'perspectiveExclusionReducer/RESET_RESPONSE'
 const SET_CONNECTION_DATA = 'perspectiveExclusionReducer/SET_CONNECTION_DATA'
 const SET_HEADER_DATA = 'perspectiveExclusionReducer/SET_HEADER_DATA'
 const SET_META_MODEL_PERSPECTIVE_DATA = 'perspectiveExclusionReducer/SET_META_MODEL_PERSPECTIVE_DATA'
+const SET_MODAL_PERSPECTIVES_DATA = 'perspectiveExclusionReducer/SET_MODAL_PERSPECTIVES_DATA'
 
 export const actions = {
   FETCH_MODEL_PRESPECTIVES_SUCCESS,
@@ -32,7 +33,8 @@ export const actions = {
   SET_CONNECTION_DATA,
   FETCH_ALL_DROPDOWN_DATA_SUCCESS,
   SET_HEADER_DATA,
-  SET_META_MODEL_PERSPECTIVE_DATA
+  SET_META_MODEL_PERSPECTIVE_DATA,
+  SET_MODAL_PERSPECTIVES_DATA
 }
 
 export const actionCreators = {
@@ -43,11 +45,14 @@ export const actionCreators = {
   resetResponse: createAction(RESET_RESPONSE),
   setConnectionData: createAction(SET_CONNECTION_DATA),
   setHeaderData: createAction(SET_HEADER_DATA),
-  setMetaModelPerspectiveData: createAction(SET_META_MODEL_PERSPECTIVE_DATA)
+  setMetaModelPerspectiveData: createAction(SET_META_MODEL_PERSPECTIVE_DATA),
+  setModalPerspectivesData: createAction(SET_MODAL_PERSPECTIVES_DATA)
 }
 
 export const initialState = {
   modelPrespectives: '',
+  copyModelPrespectives: '',
+  modelPrespectiveData: '',
   metaModelPerspective: '',
   metaModelPerspectiveData: '',
   metaModelPerspectiveList: '',
@@ -102,7 +107,7 @@ export default handleActions(
   {
     [FETCH_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
       ...state,
-      modelPrespectives: action.payload
+      modelPrespectiveData: action.payload
     }),
     [FETCH_META_MODEL_PRESPECTIVE_SUCCESS]: (state, action) => ({
       ...state,
@@ -138,7 +143,8 @@ export default handleActions(
       crudActionResponse: '',
       deleteComponentResponse: '',
       dropdownData: '',
-      metaModelPerspectiveData: ''
+      metaModelPerspectiveData: '',
+      modelPrespectiveData: ''
     }),
     [SET_CONNECTION_DATA]: (state, action) => ({
       ...state,
@@ -157,6 +163,11 @@ export default handleActions(
       metaModelPerspective: action.payload.metaModelPerspective,
       metaModelPerspectiveList: action.payload.metaModelPerspectiveList,
       availableAction: {...state.availableAction, 'toProcessMetaModel': action.payload.toProcessMetaModel}
+    }),
+    [SET_MODAL_PERSPECTIVES_DATA]: (state, action) => ({
+      ...state,
+      modelPrespectives: action.payload.data,
+      copyModelPrespectives: action.payload.copyData
     })
   },
   initialState

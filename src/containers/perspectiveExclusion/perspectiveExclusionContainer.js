@@ -5,12 +5,13 @@ import perspectiveExclusion from '../../components/perspectiveExclusion/perspect
 import { actions as sagaActions } from '../../redux/sagas'
 import { actionCreators } from '../../redux/reducers/perspectiveExclusion/perspectiveExclusionReducer'
 import { actionCreators as basicActionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
-console.log('sagaActions', sagaActions)
 // Global State
 export function mapStateToProps (state, props) {
   return {
     authenticateUser: state.basicReducer.authenticateUser,
     modelPrespectives: state.perspectiveExclusionReducer.modelPrespectives,
+    copyModelPrespectives: state.perspectiveExclusionReducer.copyModelPrespectives,
+    modelPrespectiveData: state.perspectiveExclusionReducer.modelPrespectiveData,
     metaModelPerspectiveData: state.perspectiveExclusionReducer.metaModelPerspectiveData,
     metaModelPerspectiveList: state.perspectiveExclusionReducer.metaModelPerspectiveList,
     metaModelPerspective: state.perspectiveExclusionReducer.metaModelPerspective,
@@ -45,7 +46,8 @@ export const propsMapping: Callbacks = {
   updateModelPrespectives: sagaActions.modelActions.updateModelPrespectives,
   removeModelPrespectives: sagaActions.serviceActions.removeModelPrespectives,
   setHeaderData: actionCreators.setHeaderData,
-  setMetaModelPerspectiveData: actionCreators.setMetaModelPerspectiveData
+  setMetaModelPerspectiveData: actionCreators.setMetaModelPerspectiveData,
+  setModalPerspectivesData: actionCreators.setModalPerspectivesData
 }
 
 // If you want to use the function mapping
@@ -108,6 +110,19 @@ export default compose(
         if (!nextProps.authenticateUser.resources[0].result) {
           this.props.history.push('/')
         }
+      }
+      if (nextProps.modelPrespectiveData && nextProps.modelPrespectiveData !== '') {
+        // eslint-disable-next-line
+        // mApp && mApp.unblockPage()
+        this.props.resetResponse()
+        let payload = {}
+        payload.data = nextProps.modelPrespectiveData
+        payload.copyData = nextProps.modelPrespectiveData
+        // eslint-disable-next-line
+        mApp && mApp.unblockPage()
+        // eslint-disable-next-line
+        mApp && mApp.unblock('#ModelPerspectiveList')
+        nextProps.setModalPerspectivesData(payload)
       }
       if (nextProps.metaModelPerspectiveData && nextProps.metaModelPerspectiveData !== '') {
         this.props.resetResponse()

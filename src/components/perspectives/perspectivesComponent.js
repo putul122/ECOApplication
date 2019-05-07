@@ -36,9 +36,7 @@ export default function Perspectives (props) {
   let labels = []
   let messageList = ''
   let serviceName = props.addSettings.deleteObject ? props.addSettings.deleteObject.subject_name : ''
-  console.log('perspectives props', props, styles)
   let handleInputChange = debounce((e) => {
-    console.log(searchTextBox, copyModelPrespectives)
     // eslint-disable-next-line
     mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     let searchText = searchTextBox ? searchTextBox.value : ''
@@ -55,7 +53,6 @@ export default function Perspectives (props) {
         let payload = {}
         payload.data = list
         payload.copyData = props.copyModelPrespectives
-        console.log('search payload', payload)
         props.setModalPerspectivesData(payload)
       }
       // eslint-disable-next-line
@@ -92,8 +89,6 @@ export default function Perspectives (props) {
   }
   let handlePropertySelect = function (index) {
     return function (newValue: any, actionMeta: any) {
-      console.log('newValue', newValue)
-      console.log('actionMeta', actionMeta)
       let connectionData = JSON.parse(JSON.stringify(props.connectionData))
       let customerProperty = connectionData.customerProperty
       if (actionMeta.action === 'select-option') {
@@ -110,12 +105,10 @@ export default function Perspectives (props) {
   //   console.log('handle Blur change', event.target.value)
   // }
   let handledropdownChange = function (pages) {
-    console.log('handle change', pages, typeof pages)
     props.setPerPage(parseInt(pages))
     // showCurrentPages = pages
   }
   let openUpdateModal = function (data) {
-    console.log('data', data)
     let addSettings = {...props.addSettings}
     let labelParts = props.metaModelPerspective.resources[0].parts
     let selectedValues = []
@@ -315,7 +308,7 @@ export default function Perspectives (props) {
     payload.queryString.apply_changes = true
     payload.data = {}
     payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
-    console.log('payload', payload)
+    // console.log('payload', payload)
     props.updateModelPrespectives(payload)
   }
   let updateComponent = function (event) {
@@ -344,14 +337,13 @@ export default function Perspectives (props) {
           patchPayload.push(obj)
         } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
           let dataIndex = connectionData.data.findIndex(p => p.name === partData.name)
-          console.log('dataIndex', dataIndex)
           if (dataIndex !== -1) {
             // found index
             let max = connectionData.data[dataIndex].max
             let initialSelectedValue = connectionData.initialSelectedValues[dataIndex]
             let selectedValue = connectionData.selectedValues[dataIndex]
-            console.log('initialSelectedValue', initialSelectedValue)
-            console.log('selectedValue', selectedValue)
+            // console.log('initialSelectedValue', initialSelectedValue)
+            // console.log('selectedValue', selectedValue)
             let onlyInInitial = []
             if (initialSelectedValue) {
               if (max === 1) {
@@ -388,7 +380,6 @@ export default function Perspectives (props) {
               let value = []
               onlyInInitial.forEach(function (removeData, rid) {
                 let found = _.find(connectionIdArray, function (obj) { return (obj.target_component.id === removeData.id) })
-                console.log('found ----', found)
                 if (found) {
                   // set connection id
                   value.push(found.connection.id)
@@ -400,13 +391,10 @@ export default function Perspectives (props) {
               valueType = 'value/-'
               obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
               patchPayload.push(obj)
-              console.log('connectionId obj', connectionIdArray, obj)
             }
-            console.log('index', dataIndex)
-            console.log('onlyInInitial', onlyInInitial)
-            console.log('onlyInFinal', onlyInFinal)
-            let existingTargetComponent = connectionData.selectedValues[dataIndex]
-            console.log('existingTargetComponent', existingTargetComponent)
+            // console.log('index', dataIndex)
+            // console.log('onlyInInitial', onlyInInitial)
+            // console.log('onlyInFinal', onlyInFinal)
             if (onlyInFinal.length > 0) {
               let connections = []
               onlyInFinal.forEach(function (targetComponent, rid) {
@@ -420,7 +408,6 @@ export default function Perspectives (props) {
               valueType = 'value/-'
               obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
               patchPayload.push(obj)
-              console.log('add obj', obj)
             }
           } else {
             console.log('index', dataIndex)
@@ -431,7 +418,6 @@ export default function Perspectives (props) {
           let customerProperty = _.find(connectionData.customerProperty, function (obj) {
             return obj.name === partData.name
           })
-          console.log('customerProperty', customerProperty)
           if (customerProperty) {
             if (customerProperty.type_property.property_type.key === 'Boolean') {
               valueType = `boolean_value`
@@ -468,7 +454,6 @@ export default function Perspectives (props) {
     payload.data = {}
     payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
     console.log('payload', payload)
-    console.log('updateComponentModelPrespectives', props.updateComponentModelPrespectives)
     props.updateComponentModelPrespectives(payload)
   }
   let removeComponent = function (event) {
@@ -483,7 +468,6 @@ export default function Perspectives (props) {
     closeModal()
   }
   let listModelPrespectives = function () {
-    console.log('list modal pers', props)
     if (props.modelPrespectives !== '') {
       let labelParts = props.metaModelPerspective.resources[0].parts
       // let crude = props.crude
@@ -496,7 +480,6 @@ export default function Perspectives (props) {
       //     }
       //   }
       // }
-      console.log('list props', props)
       if (props.modelPrespectives.length > 0) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
         // modelPrespectives.splice(-1, 1)
@@ -648,9 +631,6 @@ export default function Perspectives (props) {
   }
   let handleSelectChange = function (index) {
     return function (newValue: any, actionMeta: any) {
-      console.log('newValue', newValue)
-      console.log('actionMeta', actionMeta)
-      console.log('index', index)
       let connectionData = {...props.connectionData}
       let selectedValues = connectionData.selectedValues
       if (actionMeta.action === 'select-option' || actionMeta.action === 'remove-value') {
@@ -820,7 +800,6 @@ export default function Perspectives (props) {
   const endValueOfRange = (currentPage * perPage) <= (modelPrespectivesList.length) ? (currentPage * perPage) : (modelPrespectivesList.length)
 
   var activeClass = ''
-  console.log('qq', modelPrespectivesList.length)
 return (
   <div>
     <div id='entitlementList'>
@@ -928,7 +907,7 @@ return (
                               <li><a href='javascript:void(0)' onClick={() => handledropdownChange(100)}>100</a></li>
                             </ul>
                           </div>
-                          <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {props.modelPrespectives.length} </span>
+                          <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {props.modelPrespectives ? props.modelPrespectives.length - 1 : ''} </span>
                         </div>
                       </div>
                     </div>
