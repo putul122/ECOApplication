@@ -2,13 +2,14 @@ import {createAction, handleActions} from 'redux-actions'
 import {
     FETCH_MODEL_PRESPECTIVES_SUCCESS,
     FETCH_META_MODEL_PRESPECTIVE_SUCCESS,
-    UPDATE_MODEL_PRESPECTIVES_SUCCESS,
-    DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS,
-    UPDATE_COMPONENT_MODEL_PRESPECTIVES_SUCCESS
+    UPDATE_MODEL_PRESPECTIVES_SUCCESS
 } from '../../sagas/model/modelSaga'
 // import {DELETE_COMPONENT_TYPE_COMPONENT_SUCCESS} from '../../sagas/componentTypeComponent/componentTypeComponentSaga'
 // import {ADD_COMPONENT_COMPONENT_SUCCESS} from '../../sagas/applicationDetail/applicationDetailSaga'
-import {FETCH_ALL_DROPDOWN_DATA_SUCCESS} from '../../sagas/service/serviceSaga'
+import {
+  FETCH_ALL_DROPDOWN_DATA_SUCCESS,
+  REMOVE_MODEL_PRESPECTIVES_SUCCESS
+} from '../../sagas/service/serviceSaga'
 // Name Spaced Action Types
 const SET_ADD_SETTINGS = 'perspectiveExclusionReducer/SET_ADD_SETTINGS'
 const SET_CURRENT_PAGE = 'perspectiveExclusionReducer/SET_CURRENT_PAGE'
@@ -28,8 +29,6 @@ export const actions = {
   SET_PER_PAGE,
   UPDATE_MODEL_PRESPECTIVES_SUCCESS,
   RESET_RESPONSE,
-  DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS,
-  UPDATE_COMPONENT_MODEL_PRESPECTIVES_SUCCESS,
   SET_CONNECTION_DATA,
   FETCH_ALL_DROPDOWN_DATA_SUCCESS,
   SET_HEADER_DATA,
@@ -73,7 +72,8 @@ export const initialState = {
     deleteObject: null,
     updateObject: null,
     createResponse: null,
-    updateResponse: null
+    updateResponse: null,
+    deleteResponse: null
   },
   availableAction: {
     Create: false,
@@ -86,8 +86,7 @@ export const initialState = {
     toProcessCrudModel: false
   },
   connectionData: '',
-  createComponentResponse: '',
-  updateComponentResponse: '',
+  crudActionResponse: '',
   deleteComponentResponse: '',
   dropdownData: '',
   headerData: {
@@ -128,20 +127,15 @@ export default handleActions(
     }),
     [UPDATE_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
       ...state,
-      createComponentResponse: action.payload
+      crudActionResponse: action.payload
     }),
-    [UPDATE_COMPONENT_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
-      ...state,
-      updateComponentResponse: action.payload
-    }),
-    [DELETE_COMPONENT_MODEL_PERSPECTIVES_SUCCESS]: (state, action) => ({
+    [REMOVE_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
       ...state,
       deleteComponentResponse: action.payload
     }),
     [RESET_RESPONSE]: (state, action) => ({
       ...state,
-      createComponentResponse: '',
-      updateComponentResponse: '',
+      crudActionResponse: '',
       deleteComponentResponse: '',
       dropdownData: '',
       metaModelPerspectiveData: ''

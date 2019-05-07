@@ -1,5 +1,5 @@
 import { createAction, handleActions } from 'redux-actions'
-import { LOGIN_USER_SUCCESS } from '../../sagas/login/loginSaga'
+import { LOGIN_USER_SUCCESS, LOGIN_USER_FAILURE } from '../../sagas/login/loginSaga'
 // Name Spaced Action Types
 const SET_LOGIN_PROCESS_STATUS = 'BasicReducer/SET_LOGIN_PROCESS_STATUS'
 const RESET_RESPONSE = 'explorerReducer/RESET_RESPONSE'
@@ -29,6 +29,11 @@ export default handleActions(
         loggedInresponse: action.payload,
         isLoggedin: action.payload.error_code === null || false
     }),
+    [LOGIN_USER_FAILURE]: (state, action) => ({
+      ...state,
+      loggedInresponse: action.payload,
+      isLoggedin: false
+     }),
     [SET_LOGIN_PROCESS_STATUS]: (state, action) => ({
       ...state,
       loginProcess: action.payload
