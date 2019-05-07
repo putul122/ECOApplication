@@ -1,6 +1,6 @@
 import React from 'react'
 import styles from './penaltyDashboardComponent.scss'
-import { DatePicker } from 'antd'
+import { DatePicker, Spin } from 'antd'
 import PropTypes from 'prop-types'
 import 'antd/dist/antd.css'
 import moment from 'moment'
@@ -8,10 +8,9 @@ import './index.css'
 import _ from 'lodash'
 
 const { RangePicker } = DatePicker
-
 class PenaltyDashboard extends React.Component {
-  constructor () {
-    super()
+  constructor (props) {
+    super(props)
     this.state = {
       PenaltyDashboardData: [],
       ActualSlaDashboardData: [],
@@ -28,19 +27,20 @@ class PenaltyDashboard extends React.Component {
       },
       NestedPenaltyApiData: [],
       UniqueArr: [],
-      startDate: '',
-      endDate: '',
-      department: 'Select',
+      startDate: this.props.location.state.slaStartDate ? this.props.location.state.slaStartDate : '',
+      endDate: this.props.location.state.slaEndDate ? this.props.location.state.slaEndDate : '',
+      department: this.props.location.state.slaDepartment ? this.props.location.state.slaDepartment : 'Select',
       departmentFilter: [],
-      supplier: 'Select',
+      supplier: this.props.location.state.slaSupplier ? this.props.location.state.slaSupplier : 'Select',
       supplierFilter: [],
       departmentDropDownArray: [],
       supplierDropDownArray: [],
       serviceDropDownArray: [],
       kpiDropDownArray: [],
-      service: 'Select',
+      service: this.props.location.state.slaService ? this.props.location.state.slaService : 'Select',
       serviceFilter: [],
-      kpi: 'Select',
+      loader: false,
+      kpi: this.props.location.state.slaKpi ? this.props.location.state.slaKpi : 'Select',
       apiData: [],
       pageSize: 10,
       currentPage: 1,
@@ -209,6 +209,8 @@ class PenaltyDashboard extends React.Component {
   SupplierDropDown = (value, ActuallArr, ActuallArr1) => {
     var { penaltyState } = this.state
     penaltyState.supplier = value
+    penaltyState.service = this.state.service !== 'Select' ? this.state.service : ''
+    penaltyState.kpi = this.state.kpi !== 'Select' ? this.state.kpi : ''
     this.setState({supplier: value, penaltyState})
     var { dupActualSlaDashboardData } = this.state
     const dropDownData = dupActualSlaDashboardData.length ? dupActualSlaDashboardData : ActuallArr
@@ -250,6 +252,8 @@ class PenaltyDashboard extends React.Component {
   serviceDropDown = (value, ActuallArr, ActuallArr1) => {
     var { penaltyState } = this.state
     penaltyState.service = value
+    penaltyState.supplier = this.state.supplier !== 'Select' ? this.state.supplier : ''
+    penaltyState.kpi = this.state.kpi !== 'Select' ? this.state.kpi : ''
     this.setState({service: value, penaltyState})
     var { dupActualSlaDashboardData } = this.state
     const dropDownData = dupActualSlaDashboardData.length ? dupActualSlaDashboardData : ActuallArr
@@ -291,6 +295,8 @@ class PenaltyDashboard extends React.Component {
   kpiDropDown = (value, ActuallArr, ActuallArr1) => {
     var { penaltyState } = this.state
     penaltyState.kpi = value
+    penaltyState.service = this.state.service !== 'Select' ? this.state.service : ''
+    penaltyState.supplier = this.state.supplier !== 'Select' ? this.state.supplier : ''
     this.setState({kpi: value, penaltyState})
     var { dupActualSlaDashboardData } = this.state
     const dropDownData = dupActualSlaDashboardData.length ? dupActualSlaDashboardData : ActuallArr
@@ -496,7 +502,7 @@ class PenaltyDashboard extends React.Component {
       })
       if (!this.state.finalTableData.length) {
         const dupData = []
-        this.props.penaltymodelPerspectiveData.forEach(penaltyContract => {
+        this.props.penaltymodelPerspectiveData.forEach((penaltyContract, i) => {
           if (this.props.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.length) {
             this.props.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.forEach(item => {
               let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.value) || ''
@@ -651,6 +657,68 @@ class PenaltyDashboard extends React.Component {
       await this.setState({ currentPage: pageNumber })
     }
   }
+  componentWillReceiveProps (nextProps) {
+    let penaltymodelPerspectiveDataCount = nextProps.penaltymodelPerspectiveData.length ? nextProps.penaltymodelPerspectiveData.length - 1 : 0
+    let ActuallArr1 = []
+    let ActuallArr = []
+    if (penaltymodelPerspectiveDataCount) {
+      for (let i = 0; i < 200; i++) {
+        if (nextProps.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.length) {
+          nextProps.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.forEach(item => {
+            let penalty = item.values.Penalty.value
+            let score = item.values.Score.value
+            let target = item.values.Target.value
+            let date = item.timestamp
+
+            let obj1 = {
+              supplier: nextProps.penaltymodelPerspectiveData[i].parts[1].value[0].target_component.name,
+              service: nextProps.penaltymodelPerspectiveData[i].parts[2].value.subject_part.value,
+              kpi: nextProps.penaltymodelPerspectiveData[i].parts[3].value.subject_part.value,
+              penalty: penalty,
+              score: score,
+              target: target,
+              date: date
+            }
+            ActuallArr1.push(obj1)
+          })
+        } else {
+          let obj1 = {
+            supplier: nextProps.penaltymodelPerspectiveData[i].parts[1].value[0].target_component.name,
+            service: nextProps.penaltymodelPerspectiveData[i].parts[2].value.subject_part.value,
+            kpi: nextProps.penaltymodelPerspectiveData[i].parts[3].value.subject_part.value,
+            penalty: '',
+            score: '',
+            target: '',
+            date: ''
+          }
+          ActuallArr1.push(obj1)
+        }
+      }
+    }
+    // filter and actual data
+    for (let i = 0; i < penaltymodelPerspectiveDataCount; i++) {
+      let date = new Date(nextProps.penaltymodelPerspectiveData[i].parts[0].value.date_time_value)
+      let obj = {
+        department: '',
+        supplier: nextProps.penaltymodelPerspectiveData[i].parts[1].value[0].target_component.name,
+        service: nextProps.penaltymodelPerspectiveData[i].parts[2].value.subject_part.value,
+        kpi: nextProps.penaltymodelPerspectiveData[i].parts[3].value.subject_part.value,
+        expDate: date.toUTCString()
+      }
+      ActuallArr.push(obj)
+    }
+    setTimeout(() => {
+      if (this.props.location.state.slaSupplier !== 'Select') {
+        this.SupplierDropDown(this.props.location.state.slaSupplier, ActuallArr, ActuallArr1)
+      } else if (this.props.location.state.slaService !== 'Select') {
+        this.serviceDropDown(this.props.location.state.slaService, ActuallArr, ActuallArr1)
+      } else if (this.props.location.state.slaKpi !== 'Select') {
+        this.kpiDropDown(this.props.location.state.slaKpi, ActuallArr, ActuallArr1)
+      } else if (this.props.location.state.slaDepartment !== 'Select') {
+        this.departmentDropDown(this.props.location.state.slaDepartment, ActuallArr)
+      }
+    }, 1000)
+  }
   render () {
     let ActuallArr1 = []
     let ActuallArr = []
@@ -700,8 +768,6 @@ class PenaltyDashboard extends React.Component {
         }
       }
     }
-    console.log('this.state.dateFilteredData', this.state.dateFilteredData)
-
     // filter and actual data
     for (let i = 0; i < penaltymodelPerspectiveDataCount; i++) {
       let date = new Date(this.props.penaltymodelPerspectiveData[i].parts[0].value.date_time_value)
@@ -766,224 +832,229 @@ class PenaltyDashboard extends React.Component {
 
     return (
       <div className={styles.MainContainer}>
-        {this.PenaltydropDown(finalDepFilter, finalSupFilter, finalSerFilter, finalKpiFil, ActuallArr, ActuallArr1)}
-        {this.PenaltyCalender(ActuallArr1, ActuallArr)}
-        <div className={styles.ContentContainer}>
-          <div className={styles.leftContainer}>
-            <div className={styles.tableContainer}>
-              <table
-                className='m-portlet table table-striped- table-hover table-checkable dataTable no-footer'
-                id='m_table_1'
-                aria-describedby='m_table_1_info'
-                role='grid'
-      >
-                <thead className='table-head'>
-                  <tr role='row' className='table-head-row'>
-                    <th className='table-th'>
-                      <p>Supplier</p>
-                    </th>
-                    <th className='table-th'>
-                      <p>Service</p>
-                    </th>
-                    <th className='table-th'>
-                      <p>KPI</p>
-                    </th>
-                    <th className='table-th'>
-                      <p>Target</p>
-                    </th>
-                    <th className='table-th'>
-                      <p>Actual</p>
-                    </th>
-                    <th className='table-th'>
-                      <p>Penalty</p>
-                    </th>
-                    <th className='table-th'>
-                      <p>Date</p>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className='table-body'>
-                  {pagTable.map((item, index) => {
-            return (<tr key={index} className='table-tr'>
-              <td className='table-td'>
-                {item.supplier}
-              </td>
-              <td className='table-td'>
-                {item.service}
-              </td>
-              <td className='table-td'>
-                {item.kpi}
-              </td>
-              <td className='table-td'>
-                {item.target}
-              </td>
-              <td className='table-td'>
-                {item.score}
-              </td>
-              <td className='table-td'>
-                {item.penalty}
-              </td>
-              <td className='table-td'>
-                {item.date ? moment(new Date(item.date)).format('DD-MM-YYYY') : ''}
-              </td>
-            </tr>)
-          })}
-                </tbody>
-              </table>
+        { ActuallArr.length
+          ? <div>
+            {this.PenaltydropDown(finalDepFilter, finalSupFilter, finalSerFilter, finalKpiFil, ActuallArr, ActuallArr1)}
+            {this.PenaltyCalender(ActuallArr1, ActuallArr)}
+            <div className={styles.ContentContainer}>
+              <div className={styles.leftContainer}>
+                <div className={styles.tableContainer}>
+                  <table
+                    className='m-portlet table table-striped- table-hover table-checkable dataTable no-footer'
+                    id='m_table_1'
+                    aria-describedby='m_table_1_info'
+                    role='grid'
+          >
+                    <thead className='table-head'>
+                      <tr role='row' className='table-head-row'>
+                        <th className='table-th'>
+                          <p>Supplier</p>
+                        </th>
+                        <th className='table-th'>
+                          <p>Service</p>
+                        </th>
+                        <th className='table-th'>
+                          <p>KPI</p>
+                        </th>
+                        <th className='table-th'>
+                          <p>Target</p>
+                        </th>
+                        <th className='table-th'>
+                          <p>Actual</p>
+                        </th>
+                        <th className='table-th'>
+                          <p>Penalty</p>
+                        </th>
+                        <th className='table-th'>
+                          <p>Date</p>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className='table-body'>
+                      {pagTable.map((item, index) => {
+                return (<tr key={index} className='table-tr'>
+                  <td className='table-td'>
+                    {item.supplier}
+                  </td>
+                  <td className='table-td'>
+                    {item.service}
+                  </td>
+                  <td className='table-td'>
+                    {item.kpi}
+                  </td>
+                  <td className='table-td'>
+                    {item.target}
+                  </td>
+                  <td className='table-td'>
+                    { (item.score > 0 && item.target > 0 && item.score < item.target) ? <span className='deactivated' style={{ fontSize: '14px', width: '100%', textAlign: 'center' }}>{item.score}</span> : item.score }
+                  </td>
+                  <td className='table-td'>
+                    { item.penalty > 0 ? <span className='deactivated' style={{ fontSize: '14px', width: '100%', textAlign: 'center' }}>{item.penalty}</span> : item.penalty}
+                  </td>
+                  <td className='table-td'>
+                    {item.date ? moment(new Date(item.date)).format('DD-MM-YYYY') : ''}
+                  </td>
+                </tr>)
+              })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className='row'>
-          <div className='col-sm-12 col-md-6' id='scrolling_vertical'>
-            <div
-              className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
-              id='scrolling_vertical'
-            >
-              <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
-                <ul className='pagination pg-blue pag'>
-                  {currentPage > 1 && (
-                    <li className='page-item'>
-                      <a
-                        href=''
-                        title='Previous'
-                        id='m_blockui_1_5'
-                        className={
-                          'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
-                          previousClass
-                        }
-                        onClick={e =>
-                          this.fetchUsersForGivenPageNumber(
-                            e,
-                            currentPage,
-                            'start'
-                          )
-                        }
-                      >
-                        <span aria-hidden='true'>&laquo;</span>
-                        <span className={'sr-only'}>Previous</span>
-                      </a>
-                    </li>
-                  )}
-                  {currentPage > 1 && (
-                    <li className='page-item'>
-                      <a
-                        href=''
-                        title='Previous'
-                        id='m_blockui_1_5'
-                        className={
-                          'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
-                          previousClass
-                        }
-                        onClick={e =>
-                          this.fetchUsersForGivenPageNumber(
-                            e,
-                            currentPage,
-                            'prev'
-                          )
-                        }
-                      >
-                        <span aria-hidden='true'>&lt;</span>
-                        <span className={'sr-only'}>Previous</span>
-                      </a>
-                    </li>
-                  )}
-                  {listPage[0] &&
-                    listPage[0].map(page => {
-                      if (page.number === currentPage) {
-                        page.class =
-                        'kt-datatable__pager-link--active activ'
-                        activeClass = 'active'
-                      } else {
-                        activeClass = ''
-                        page.class = ''
-                      }
-
-                      return (
-                        <li key={page.number} className={'page-item' + activeClass}>
+            <div className='row'>
+              <div className='col-sm-12 col-md-6' id='scrolling_vertical'>
+                <div
+                  className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
+                  id='scrolling_vertical'
+                >
+                  <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
+                    <ul className='pagination pg-blue pag'>
+                      {currentPage > 1 && (
+                        <li className='page-item'>
                           <a
                             href=''
-                            className={`kt-datatable__pager-link kt-datatable__pager-link-number ${page.class} page-link list `}
-                            data-page={page.number}
-                            title={page.number}
+                            title='Previous'
+                            id='m_blockui_1_5'
+                            className={
+                              'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
+                              previousClass
+                            }
                             onClick={e =>
                               this.fetchUsersForGivenPageNumber(
                                 e,
-                                page.number
+                                currentPage,
+                                'start'
                               )
                             }
-                            >
-                            {page.number}
+                          >
+                            <span aria-hidden='true'>&laquo;</span>
+                            <span className={'sr-only'}>Previous</span>
                           </a>
                         </li>
-                      )
-                    })}
-                  {currentPage !== totalPages &&
-                    totalPages > 1 && (
-                    <li className='page-item'>
-                      <a
-                        href=''
-                        title='Next'
-                        className={
-                          'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
-                          nextClass
-                        }
-                        onClick={e =>
-                          this.fetchUsersForGivenPageNumber(
-                            e,
-                            currentPage,
-                            'next'
+                      )}
+                      {currentPage > 1 && (
+                        <li className='page-item'>
+                          <a
+                            href=''
+                            title='Previous'
+                            id='m_blockui_1_5'
+                            className={
+                              'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
+                              previousClass
+                            }
+                            onClick={e =>
+                              this.fetchUsersForGivenPageNumber(
+                                e,
+                                currentPage,
+                                'prev'
+                              )
+                            }
+                          >
+                            <span aria-hidden='true'>&lt;</span>
+                            <span className={'sr-only'}>Previous</span>
+                          </a>
+                        </li>
+                      )}
+                      {listPage[0] &&
+                        listPage[0].map(page => {
+                          if (page.number === currentPage) {
+                            page.class =
+                            'kt-datatable__pager-link--active activ'
+                            activeClass = 'active'
+                          } else {
+                            activeClass = ''
+                            page.class = ''
+                          }
+
+                          return (
+                            <li key={page.number} className={'page-item' + activeClass}>
+                              <a
+                                href=''
+                                className={`kt-datatable__pager-link kt-datatable__pager-link-number ${page.class} page-link list `}
+                                data-page={page.number}
+                                title={page.number}
+                                onClick={e =>
+                                  this.fetchUsersForGivenPageNumber(
+                                    e,
+                                    page.number
+                                  )
+                                }
+                                >
+                                {page.number}
+                              </a>
+                            </li>
                           )
-                        }
-                      >
-                        <span aria-hidden='true'>&gt;</span>
-                        <span className={'sr-only'}>Next</span>
-                      </a>
-                    </li>
-                  )}
-                  {currentPage !== totalPages &&
-                    totalPages > 1 && (
-                    <li className='page-item'>
-                      <a
-                        href=''
-                        title='Next'
-                        className={
-                          'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
-                          nextClass
-                        }
-                        onClick={e =>
-                          this.fetchUsersForGivenPageNumber(
-                            e,
-                            totalPages,
-                            'end'
-                          )
-                        }
-                      >
-                        <span aria-hidden='true'>&raquo;</span>
-                        <span className={'sr-only'}>Next</span>
-                      </a>
-                    </li>
-                  )}
-                </ul>
+                        })}
+                      {currentPage !== totalPages &&
+                        totalPages > 1 && (
+                        <li className='page-item'>
+                          <a
+                            href=''
+                            title='Next'
+                            className={
+                              'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
+                              nextClass
+                            }
+                            onClick={e =>
+                              this.fetchUsersForGivenPageNumber(
+                                e,
+                                currentPage,
+                                'next'
+                              )
+                            }
+                          >
+                            <span aria-hidden='true'>&gt;</span>
+                            <span className={'sr-only'}>Next</span>
+                          </a>
+                        </li>
+                      )}
+                      {currentPage !== totalPages &&
+                        totalPages > 1 && (
+                        <li className='page-item'>
+                          <a
+                            href=''
+                            title='Next'
+                            className={
+                              'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
+                              nextClass
+                            }
+                            onClick={e =>
+                              this.fetchUsersForGivenPageNumber(
+                                e,
+                                totalPages,
+                                'end'
+                              )
+                            }
+                          >
+                            <span aria-hidden='true'>&raquo;</span>
+                            <span className={'sr-only'}>Next</span>
+                          </a>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing}`}>
+                {/* showing dropdown */}
+                <div className='showing-div showspace spaceMargin '>
+                  <div className='dropdown dropup-showing'>
+                    <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{this.state.pageSize}<span className='caret' /></button>
+                    <ul className='dropdown-menu menu'>
+                      <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 10)}>10</a></li>
+                      <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 20)}>20</a></li>
+                      <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 30)}>30</a></li>
+                      <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 40)}>40</a></li>
+                      <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 50)}>50</a></li>
+                    </ul>
+                  </div>
+                  <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
+                </div>
               </div>
             </div>
           </div>
-          <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing}`}>
-            {/* showing dropdown */}
-            <div className='showing-div showspace spaceMargin '>
-              <div className='dropdown dropup-showing'>
-                <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{this.state.pageSize}<span className='caret' /></button>
-                <ul className='dropdown-menu menu'>
-                  <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 10)}>10</a></li>
-                  <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 20)}>20</a></li>
-                  <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 30)}>30</a></li>
-                  <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 40)}>40</a></li>
-                  <li><a href='javascript:void(0)' onClick={(e) => this.showingPage(e, 50)}>50</a></li>
-                </ul>
-              </div>
-              <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
-            </div>
-          </div>
-        </div>
+          : !this.state.loader ? <Spin className={styles.spin} /> : ''
+        }
       </div>
     )
   }
@@ -993,7 +1064,9 @@ PenaltyDashboard.propTypes = {
   // penaltymetaData: PropTypes.any,
   penaltyMetaModel: PropTypes.func,
   penaltymodelPerspectiveData: PropTypes.any,
-  penaltygetMDPerspectiveDATA: PropTypes.func
+  penaltygetMDPerspectiveDATA: PropTypes.func,
+  location: React.PropTypes.string.isRequired
+
   // getMDPerspectiveDATA: PropTypes.func
 }
 export default PenaltyDashboard
