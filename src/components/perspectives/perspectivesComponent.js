@@ -180,6 +180,8 @@ export default function Perspectives (props) {
         data.type_property.date_time_value = setCustomerProperty[index]
       } else if (data.type_property.property_type.key === 'Text') {
         data.type_property.text_value = setCustomerProperty[index]
+      } else if (data.type_property.property_type.key === 'List') {
+        data.type_property.value_set_value = setCustomerProperty[index]
       } else {
         data.type_property.other_value = setCustomerProperty[index]
       }

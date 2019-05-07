@@ -19,10 +19,9 @@ export function mapStateToProps (state, props) {
     crude: state.perspectiveExclusionReducer.crude,
     addSettings: state.perspectiveExclusionReducer.addSettings,
     availableAction: state.perspectiveExclusionReducer.availableAction,
-    createComponentResponse: state.perspectiveExclusionReducer.createComponentResponse,
+    crudActionResponse: state.perspectiveExclusionReducer.crudActionResponse,
     deleteComponentResponse: state.perspectiveExclusionReducer.deleteComponentResponse,
     connectionData: state.perspectiveExclusionReducer.connectionData,
-    updateComponentResponse: state.perspectiveExclusionReducer.updateComponentResponse,
     dropdownData: state.perspectiveExclusionReducer.dropdownData,
     headerData: state.perspectiveExclusionReducer.headerData
   }
@@ -44,7 +43,7 @@ export const propsMapping: Callbacks = {
   deleteComponentModelPerspectives: sagaActions.modelActions.deleteComponentModelPerspectives,
   setConnectionData: actionCreators.setConnectionData,
   updateModelPrespectives: sagaActions.modelActions.updateModelPrespectives,
-  updateComponentModelPrespectives: sagaActions.modelActions.updateComponentModelPrespectives,
+  removeModelPrespectives: sagaActions.serviceActions.removeModelPrespectives,
   setHeaderData: actionCreators.setHeaderData,
   setMetaModelPerspectiveData: actionCreators.setMetaModelPerspectiveData
 }
@@ -105,7 +104,6 @@ export default compose(
       // mApp && mApp.block('#entitlementList', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     },
     componentWillReceiveProps: function (nextProps) {
-      console.log('nextProps', nextProps)
       if (nextProps.authenticateUser && nextProps.authenticateUser.resources) {
         if (!nextProps.authenticateUser.resources[0].result) {
           this.props.history.push('/')
@@ -162,7 +160,6 @@ export default compose(
         nextProps.setAvailableAction(availableAction)
       }
       if (nextProps.headerData.toBuildConnectionData) {
-        console.log('process header meta model', nextProps.metaModelPerspective)
         if (nextProps.headerData.metaModelPerspective.length > 0) {
           let connectionData = {}
           connectionData.standardProperty = []
@@ -186,7 +183,6 @@ export default compose(
                 let crude = nextProps.crude
                 let mask = metaModelPerspective.crude
                 let labelParts = metaModelPerspective.parts
-                console.log('labelParts', labelParts)
                 connectionData.selectedValues[metaIndex] = []
                 let cData = []
                 connectionData.standardProperty[metaIndex] = []
@@ -200,7 +196,6 @@ export default compose(
                   }
                 }
                 labelParts.forEach(function (data, index) {
-                  console.log('data labels', data)
                   if (data.standard_property === null && data.type_property === null && data.constraint_perspective === null) {
                     let obj = {}
                     obj.name = data.name
@@ -228,9 +223,7 @@ export default compose(
                 })
                 connectionData.data[metaIndex] = cData
                 connectionData.selectOption[metaIndex] = []
-                console.log('set connection ', connectionData)
                 nextProps.setConnectionData(connectionData)
-                // availableAction['toProcess'] = false
                 nextProps.setAvailableAction(availableAction)
               // }
             // }
@@ -241,7 +234,6 @@ export default compose(
         }
       }
       if (nextProps.headerData.toProcess) {
-        console.log('to prosess header data', nextProps.headerData)
         let headerData = JSON.parse(JSON.stringify(nextProps.headerData))
         let metaModelPerspective = JSON.parse(JSON.stringify(headerData.metaModelPerspective))
         let processedIndex = headerData.processedIndex
@@ -276,9 +268,9 @@ export default compose(
                     if (partData.standard_property === 'name') {
                       headerColumn.push(partData.name)
                     }
-                    if (partData.standard_property === 'description') {
-                      headerColumn.push(partData.name)
-                    }
+                    // if (partData.standard_property === 'description') {
+                    //   headerColumn.push(partData.name)
+                    // }
                   } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
                     headerColumn.push(partData.name)
                   }
@@ -291,82 +283,16 @@ export default compose(
         }
         this.props.setHeaderData(headerData)
       }
-      // if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcess) {
-      //   if (nextProps.metaModelPerspective.resources[0].crude) {
-      //     let addSettings = JSON.parse(JSON.stringify(nextProps.addSettings))
-      //     let availableAction = {...nextProps.availableAction}
-      //     let crude = nextProps.crude
-      //     let mask = nextProps.metaModelPerspective.resources[0].crude
-      //     let labelParts = nextProps.metaModelPerspective.resources[0].parts
-      //     let connectionData = {}
-      //     connectionData.operation = {
-      //       toCallApi: true,
-      //       isComplete: false,
-      //       processIndex: 0
-      //     }
-      //     connectionData.selectedValues = []
-      //     let cData = []
-      //     let standardProperty = []
-      //     let customerProperty = []
-      //     for (let option in crude) {
-      //       if (crude.hasOwnProperty(option)) {
-      //         if (mask & crude[option]) {
-      //           availableAction[option] = true
-      //         }
-      //       }
-      //     }
-      //     labelParts.forEach(function (data, index) {
-      //       if (data.standard_property === null && data.type_property === null) {
-      //         let obj = {}
-      //         obj.name = data.name
-      //         if (data.constraint_inverted) {
-      //           obj.componentId = data.constraint.component_type.id
-      //         } else {
-      //           obj.componentId = data.constraint.target_component_type.id
-      //         }
-      //         obj.data = null
-      //         obj.processed = false
-      //         obj.partIndex = index
-      //         obj.max = data.constraint.max
-      //         obj.min = data.constraint.min
-      //         cData.push(obj)
-      //         connectionData.selectedValues.push(null)
-      //       }
-      //       if (data.standard_property !== null && data.type_property === null) {
-      //         data.partIndex = index
-      //         standardProperty.push(data)
-      //       }
-      //       if (data.standard_property === null && data.type_property !== null) {
-      //         data.partIndex = index
-      //         customerProperty.push(data)
-      //       }
-      //     })
-      //     connectionData.data = cData
-      //     connectionData.customerProperty = customerProperty
-      //     connectionData.standardProperty = standardProperty
-      //     connectionData.selectOption = []
-      //     nextProps.setConnectionData(connectionData)
-      //     availableAction['toProcess'] = false
-      //     nextProps.setAvailableAction(availableAction)
-      //   }
-      // }
-      if (nextProps.createComponentResponse && nextProps.createComponentResponse !== '') {
+      if (nextProps.crudActionResponse && nextProps.crudActionResponse !== '') {
         let addSettings = {...nextProps.addSettings}
         addSettings.name = ''
         addSettings.description = ''
-        addSettings.createResponse = nextProps.createComponentResponse
-        nextProps.setAddSettings(addSettings)
-        let payload = {}
-        payload['meta_model_perspective_id[0]'] = this.props.match.params.id
-        payload['view_key[0]'] = this.props.match.params.viewKey
-        this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
-        nextProps.resetResponse()
-      }
-      if (nextProps.updateComponentResponse && nextProps.updateComponentResponse !== '') {
-        let addSettings = {...nextProps.addSettings}
-        addSettings.name = ''
-        addSettings.description = ''
-        addSettings.updateResponse = nextProps.updateComponentResponse
+        if (addSettings.isModalOpen) {
+          addSettings.createResponse = nextProps.crudActionResponse
+        }
+        if (addSettings.isEditModalOpen) {
+          addSettings.updateResponse = nextProps.crudActionResponse
+        }
         nextProps.setAddSettings(addSettings)
         let payload = {}
         payload['meta_model_perspective_id[0]'] = this.props.match.params.id
@@ -375,41 +301,31 @@ export default compose(
         nextProps.resetResponse()
       }
       if (nextProps.deleteComponentResponse && nextProps.deleteComponentResponse !== '') {
-        if (nextProps.deleteComponentResponse.error_code === null) {
-          // eslint-disable-next-line
-          toastr.success('The ' + nextProps.deleteComponentResponse.resources[0].name + ' was successfully deleted', 'Zapped!')
-          let payload = {}
-          payload['meta_model_perspective_id[0]'] = this.props.match.params.id
-          payload['view_key[0]'] = this.props.match.params.viewKey
-          this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
-          // eslint-disable-next-line
-          mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
-        } else {
-          // eslint-disable-next-line
-          toastr.error(nextProps.deleteComponentResponse.error_message, nextProps.deleteComponentResponse.error_code)
-        }
+        let addSettings = {...nextProps.addSettings}
+        addSettings.deleteResponse = nextProps.deleteComponentResponse
+        nextProps.setAddSettings(addSettings)
+        let payload = {}
+        payload['meta_model_perspective_id[0]'] = this.props.match.params.id
+        payload['view_key[0]'] = this.props.match.params.viewKey
+        this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
+        // if (nextProps.deleteComponentResponse.error_code === null) {
+        //   // eslint-disable-next-line
+        //   toastr.success('The ' + nextProps.deleteComponentResponse.resources[0].name + ' was successfully deleted', 'Zapped!')
+        //   let payload = {}
+        //   payload['meta_model_perspective_id[0]'] = this.props.match.params.id
+        //   payload['view_key[0]'] = this.props.match.params.viewKey
+        //   this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
+        //   // eslint-disable-next-line
+        //   mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+        // } else {
+        //   // eslint-disable-next-line
+        //   toastr.error(nextProps.deleteComponentResponse.error_message, nextProps.deleteComponentResponse.error_code)
+        // }
         this.props.resetResponse()
       }
       if (nextProps.connectionData !== '' && nextProps.connectionData.operation.toCallApi) {
-        console.log('nextProps.connectionData', nextProps.connectionData)
         let connectionData = {...nextProps.connectionData}
         let headerData = {...nextProps.headerData}
-        // let parentIndex = nextProps.connectionData.operation.parentIndex
-        // let processIndex = nextProps.connectionData.operation.processIndex[parentIndex]
-        // let totalLength = nextProps.connectionData.data[parentIndex].length
-        // if (processIndex < totalLength) {
-        //   let processData = nextProps.connectionData.data[parentIndex][processIndex]
-        //   nextProps.fetchDropdownData && nextProps.fetchDropdownData(processData.componentId)
-        //   connectionData.operation.processIndex[parentIndex] = processIndex + 1
-        //   connectionData.operation.toCallApi = false
-        // }
-        // if (processIndex === totalLength) {
-        //   connectionData.operation.parentIndex += 1
-        // }
-        // let totalMetaModelConnection = connectionData.data.length
-        // if (processIndex === totalLength && (parentIndex + 1) === totalMetaModelConnection) {
-        //   connectionData.operation.isComplete = true
-        // }
         headerData.metaModelPerspective.forEach(function (data, index) {
           if (data.view_key === 'ExclusionsMetric_List') {
             let payload = {}
@@ -432,19 +348,19 @@ export default compose(
                 if (partIndex === 2) {
                   let serviceData = dataParts.value[0].target_component
                   serviceData.subjectId = data.subject_id
-                  serviceData.subjectName = data.subject_name
+                  // serviceData.subjectName = data.subject_name
                   services.push(serviceData)
                 }
                 if (partIndex === 3) {
                   let kpiData = dataParts.value[0].target_component
                   kpiData.subjectId = data.subject_id
-                  kpiData.subjectName = data.subject_name
+                  // kpiData.subjectName = data.subject_name
                   kpi.push(kpiData)
                 }
                 if (partIndex === 4) {
                   let timeGranularityData = dataParts.value[0].target_component
                   timeGranularityData.subjectId = data.subject_id
-                  timeGranularityData.subjectName = data.subject_name
+                  // timeGranularityData.subjectName = data.subject_name
                   timeGranularity.push(timeGranularityData)
                 }
               })
@@ -464,16 +380,6 @@ export default compose(
           // eslint-disable-next-line
           mApp && mApp.unblockPage()
         }
-        // if (nextProps.dropdownData.error_code === null) {
-        //   let connectionData = {...nextProps.connectionData}
-        //   let parentIndex = connectionData.operation.parentIndex
-        //   connectionData.selectOption[parentIndex].push(nextProps.dropdownData.resources)
-        //   connectionData.operation.toCallApi = true
-        //   nextProps.setConnectionData(connectionData)
-        // } else {
-        //   // eslint-disable-next-line
-        //   toastr.error(nextProps.dropdownData.error_message, nextProps.dropdownData.error_code)
-        // }
         this.props.resetResponse()
       }
     }
