@@ -1,5 +1,6 @@
 import React from 'react'
 import _ from 'lodash'
+import debounce from 'lodash/debounce'
 import ReactModal from 'react-modal'
 import Select from 'react-select'
 import moment from 'moment'
@@ -11,6 +12,7 @@ ReactModal.setAppElement('#root')
 const customStylescrud = { content: { top: '15%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 
 export default function PerspectiveExclusion (props) {
+  let copyModelPrespectives = props.copyModelPrespectives
   let defaultStyle = {'content': {'top': '20%'}}
   let connectionSelectBoxList = ''
   let businessPropertyList = ''
@@ -28,6 +30,37 @@ export default function PerspectiveExclusion (props) {
   let labels = []
   let messageList = ''
   let serviceName = props.addSettings.deleteObject ? props.addSettings.deleteObject.subject_name : ''
+  let handleInputChange = debounce((e) => {
+    // eslint-disable-next-line
+    mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+    let searchText = searchTextBox ? searchTextBox.value : ''
+    let originalData = copyModelPrespectives
+    if (searchText.trim() !== '') {
+      if (originalData !== '') {
+        let list = _.filter(originalData, function (data, index) {
+          if (data.parts) {
+            if ((data.parts[0].value.toLowerCase()).match(searchText.toLowerCase())) {
+              return data
+            }
+          }
+        })
+        let payload = {}
+        payload.data = list
+        payload.copyData = props.copyModelPrespectives
+        props.setModalPerspectivesData(payload)
+      }
+      // eslint-disable-next-line
+      mApp && mApp.unblockPage()
+    } else {
+      let payload = {}
+      payload.data = props.copyModelPrespectives
+      payload.copyData = props.copyModelPrespectives
+      props.setModalPerspectivesData(payload)
+      // eslint-disable-next-line
+      mApp && mApp.unblockPage()
+    }
+    props.setCurrentPage(1)
+  }, 500)
   let editProperty = function (index, value, parentIndex) {
     let connectionData = {...props.connectionData}
     let customerProperty = connectionData.customerProperty
@@ -64,7 +97,6 @@ export default function PerspectiveExclusion (props) {
       props.setConnectionData(connectionData)
     }
   }
-  console.log('searchTextBox', searchTextBox)
   // let handleBlurdropdownChange = function (event) {
   //   console.log('handle Blur change', event.target.value)
   // }
@@ -116,7 +148,7 @@ export default function PerspectiveExclusion (props) {
             } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
               value = data.parts[ix].value !== null ? data.parts[ix].value.date_time_value : ''
             } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-              value = data.parts[ix].value !== null || data.parts[ix].value !== ''
+              value = data.parts[ix].value !== null ? data.parts[ix].value.boolean_value : false
             } else if (labelParts[ix].type_property.property_type.key === 'List') {
               value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
             } else {
@@ -730,6 +762,7 @@ export default function PerspectiveExclusion (props) {
             </div>)
         } else if (data.type_property.property_type.key === 'Boolean') {
             value = data.type_property.boolean_value
+            console.log('boolean value', value, data, index, props)
             businessPropertyList.push(<div className='form-group row'>
               <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
               <div className='col-8 form-group m-form__group has-info'>
@@ -869,13 +902,13 @@ return (
                       </div>)}
                     </div>
                     <br />
-                    <div id='m_table_1_wrapper' className='dataTables_wrapper dt-bootstrap4'>
+                    <div id='ModelPerspectiveList' className='dataTables_wrapper dt-bootstrap4'>
                       <div className='row' style={{'marginBottom': '20px'}}>
                         <div className='col-sm-12 col-md-6'>
                           <div className='dataTables_length pull-left' id='m_table_1_length' style={{'display': 'flex'}}>
                             <div style={{'display': 'flex', 'width': '350px'}}>
                               <div className='m-input-icon m-input-icon--left'>
-                                <input type='text' className='form-control m-input' placeholder='Search...' id='generalSearch' ref={input => (searchTextBox = input)} onKeyUp={''} />
+                                <input type='text' className='form-control m-input' placeholder='Search...' id='generalSearch' ref={input => (searchTextBox = input)} onKeyUp={handleInputChange} />
                                 <span className='m-input-icon__icon m-input-icon__icon--left'>
                                   <span>
                                     <i className='la la-search' />
@@ -958,7 +991,7 @@ return (
                               <li><a href='javascript:void(0)' onClick={() => handledropdownChange(100)}>100</a></li>
                             </ul>
                           </div>
-                          <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {props.modelPrespectives.length} </span>
+                          <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {props.modelPrespectives ? props.modelPrespectives.length - 1 : ''} </span>
                         </div>
                       </div>
                     </div>
@@ -1143,6 +1176,7 @@ return (
   PerspectiveExclusion.propTypes = {
     addSettings: PropTypes.any,
     modelPrespectives: PropTypes.any,
+    copyModelPrespectives: PropTypes.any,
     currentPage: PropTypes.any,
     perPage: PropTypes.any,
     metaModelPerspectiveList: PropTypes.any,

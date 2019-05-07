@@ -20,7 +20,6 @@ export default function ServiceDashboard (props) {
         return (obj.perspective === data.perspective_id && obj.role_key === 'List')
       })
       let listLink = 'javascript:void(0);'
-      console.log('List', List)
       if (List) {
         if (dashboardKey === 'ECO_SM') {
           listLink = '/perspectives/' + List.perspective + '/' + List.view_key
@@ -36,7 +35,6 @@ export default function ServiceDashboard (props) {
           listLink = '/perspectives/' + List.perspective + '/' + List.view_key
         }
       }
-      console.log('List', List)
       // parts.forEach(function (partData, i) {
       //   if (partData.value.hasOwnProperty(subjectName)) {
       //     subjectCount = partData.value[subjectName].count
