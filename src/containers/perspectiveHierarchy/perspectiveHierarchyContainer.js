@@ -114,7 +114,6 @@ export default compose(
       }
       if (nextProps.crudModelPerspectives && nextProps.crudModelPerspectives !== '' && !nextProps.availableAction.toProcess && nextProps.connectionData !== '' && nextProps.availableAction.toProcessCrudModel) {
         if (nextProps.crudModelPerspectives.error_code === null) {
-          console.log('crudModelPerspectives', nextProps.crudModelPerspectives)
           let addSettings = JSON.parse(JSON.stringify(nextProps.addSettings))
           let groupedPairedList = nextProps.addSettings.groupedPairedList
           let labelParts = nextProps.crudMetaModelPerspective.resources[0].parts
@@ -124,7 +123,6 @@ export default compose(
           if (!addSettings.isNexusPoint) {
             if (data.parts) {
               labelParts.forEach(function (partData, ix) {
-                console.log(partData, data.parts[ix])
                 if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
                   if (partData.standard_property === 'name') {
                     addSettings.name = data.parts[ix].value
@@ -171,7 +169,6 @@ export default compose(
             if (data.parts) {
               let groupCollection = addSettings.groupCollection
               labelParts.forEach(function (partData, ix) {
-                console.log(partData, data.parts[ix])
                 if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
                   if (partData.standard_property === 'name') {
                     addSettings.name = data.parts[ix].value
@@ -200,8 +197,6 @@ export default compose(
                     }
                   } else {
                     if (data.parts[ix] && data.parts[ix].value.parts.length > 0) {
-                      // todo write code for multiple component
-                      console.log('data.parts[ix] not group connection', data.parts[ix])
                       // eslint-disable-next-line
                       // debugger
                       let eachSelectedValues = []
@@ -471,7 +466,6 @@ export default compose(
         nextProps.resetResponse()
       }
       if (nextProps.connectionData !== '' && nextProps.connectionData.operation.toCallApi && !nextProps.connectionData.operation.isComplete) {
-        console.log('nextProps.connectionData', nextProps.connectionData)
         let connectionData = {...nextProps.connectionData}
         let processIndex = nextProps.connectionData.operation.processIndex
         let totalLength = nextProps.connectionData.data.length
@@ -489,7 +483,6 @@ export default compose(
         nextProps.setConnectionData(connectionData)
       }
       if (nextProps.dropdownData !== '') {
-        console.log('nextProps.dropdownData', nextProps.dropdownData)
         if (nextProps.dropdownData.error_code === null) {
           let connectionData = {...nextProps.connectionData}
           connectionData.selectOption.push(nextProps.dropdownData.resources)
@@ -502,7 +495,6 @@ export default compose(
         this.props.resetResponse()
       }
       if (nextProps.nestedModelPerspectives !== '' && nextProps.expandSettings.processAPIResponse) {
-        console.log('nextProps.nestedModelPerspectives', nextProps.nestedModelPerspectives)
         // eslint-disable-next-line
         mApp && mApp.unblockPage()
         if (nextProps.nestedModelPerspectives.length > 0) {
@@ -524,7 +516,6 @@ export default compose(
         nextProps.resetResponse()
       }
       if (nextProps.headerData.toProcess) {
-        console.log('to prosess header data', nextProps.headerData)
         let headerData = JSON.parse(JSON.stringify(nextProps.headerData))
         let metaModelPerspective = JSON.parse(JSON.stringify(headerData.metaModelPerspective))
         let processedIndex = headerData.processedIndex
@@ -535,11 +526,11 @@ export default compose(
               if (data.parts.length > 0) {
                 data.parts.forEach(function (partData, idx) {
                   if (partData.constraint_perspective !== null) {
-                    if (!partData.group_with_previous) {
+                    // if (!partData.group_with_previous) {
                       metaModelPerspective.push(partData.constraint_perspective)
                       processedIndex.push(index)
                       toProcess = true
-                    }
+                    // }
                   }
                 })
               }
