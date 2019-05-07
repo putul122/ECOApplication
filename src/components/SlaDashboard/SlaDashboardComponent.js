@@ -651,7 +651,16 @@ class SlaDashboard extends React.Component {
                             </div>
                           </div>
                         </div>
-                        <div className={styles.btnprops} onClick={() => this.props.history.push('penalty-dashboard')}role='button' tabIndex={0} onKeyDown={() => this.props.history.push('penalty-dashboard')}>
+                        <div className={styles.btnprops} onClick={() => {
+                          this.props.history.push('penalty-dashboard', {
+                            slaDepartment: this.state.department,
+                            slaSupplier: this.state.supplier,
+                            slaService: this.state.service,
+                            slaKpi: this.state.kpi,
+                            slaStartDate: this.state.startDate,
+                            slaEndDate: this.state.endDate
+                          })
+                        }} role='button' tabIndex={0} onKeyDown={() => this.props.history.push('penalty-dashboard')}>
                           <div className={styles.chart}>
                             <div className={styles.chartText}>
                               <span>Penalty</span>
