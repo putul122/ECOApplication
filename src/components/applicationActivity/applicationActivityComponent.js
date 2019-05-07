@@ -86,8 +86,8 @@ export default function ApplicationActivity (props) {
           let timeContent = '<span class="pull-right">' + messageTime + '</span>'
           //  console.log(ReactHtmlParser(messageContent + timeContent))
           return (
-            <div>
-              <li key={i}>
+            <div key={i}>
+              <li>
                 <img src={userIconlink} alt={message.author.name} />{ReactHtmlParser('<span style="font-zise:10px">' + message.author.name + '</span>' + ':')} {ReactHtmlParser(messageContent + timeContent)}
                 {props.notificationReceived && message.new && (<span className='m-nav__link-badge m-badge m-badge--dot m-badge--dot-small m-badge--danger pull-right' />)}
               </li>

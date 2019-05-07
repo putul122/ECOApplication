@@ -551,7 +551,6 @@ class SlaDashboard extends React.Component {
           <div className={`dropdown dropup-showing ${styles.dropDown}`}>
             <RangePicker
               className='RangePicker'
-              disabledDate={false}
               onChange={(val) => this.calendarValue(val)}
               dateRender={(current) => {
                 const style = {}
@@ -624,7 +623,7 @@ class SlaDashboard extends React.Component {
                       </div>
                       {
                         this.state.metaContracts.map((data, i) => {
-                          return <div className={styles.contractText}>
+                          return <div className={styles.contractText} key={i}>
                             <div className={`${styles.badgeContainer}`} style={{borderLeft: `5px solid ${this.state.colors[i]}`}}>
                               <div className={styles.badgeText}>{data}</div>
                               <Avatar className={styles.avatarOne} style={{backgroundColor: this.state.colors[i]}} size='medium'>
