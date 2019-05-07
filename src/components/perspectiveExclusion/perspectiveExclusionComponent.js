@@ -8,15 +8,10 @@ import PropTypes from 'prop-types'
 import styles from './perspectiveExclusionComponent.scss'
 import 'react-datepicker/dist/react-datepicker.css'
 ReactModal.setAppElement('#root')
-let comparer = function (otherArray) {
-  return function (current) {
-    return otherArray.filter(function (other) {
-      return other.value === current.value && other.display === current.display
-    }).length === 0
-  }
-}
 const customStylescrud = { content: { top: '15%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
+
 export default function PerspectiveExclusion (props) {
+  let defaultStyle = {'content': {'top': '20%'}}
   let connectionSelectBoxList = ''
   let businessPropertyList = ''
   let searchTextBox
@@ -33,7 +28,6 @@ export default function PerspectiveExclusion (props) {
   let labels = []
   let messageList = ''
   let serviceName = props.addSettings.deleteObject ? props.addSettings.deleteObject.subject_name : ''
-  console.log('perspectives props', props, searchTextBox, styles)
   let editProperty = function (index, value, parentIndex) {
     let connectionData = {...props.connectionData}
     let customerProperty = connectionData.customerProperty
@@ -70,6 +64,7 @@ export default function PerspectiveExclusion (props) {
       props.setConnectionData(connectionData)
     }
   }
+  console.log('searchTextBox', searchTextBox)
   // let handleBlurdropdownChange = function (event) {
   //   console.log('handle Blur change', event.target.value)
   // }
@@ -79,52 +74,69 @@ export default function PerspectiveExclusion (props) {
     // showCurrentPages = pages
   }
   let openUpdateModal = function (data) {
-    console.log('data', data)
     let addSettings = {...props.addSettings}
     let labelParts = props.metaModelPerspective.resources[0].parts
     let selectedValues = []
     let setCustomerProperty = []
+    let totalParts = data.parts.length
+    let startIndexOfLast3Parts = totalParts - 3
     if (data.parts) {
-      labelParts.forEach(function (partData, ix) {
-        if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
-          if (partData.name === 'Name') {
-            addSettings.name = data.parts[ix].value
+      data.parts.forEach(function (partData, ix) {
+        if (ix < startIndexOfLast3Parts) {
+          if (labelParts[ix] && labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
+            if (labelParts[ix].name === 'Name') {
+              addSettings.name = data.parts[ix].value
+            }
+            if (labelParts[ix].name === 'Description') {
+              addSettings.description = data.parts[ix].value
+            }
+          } else if (labelParts[ix] && labelParts[ix].standard_property === null && labelParts[ix].type_property === null) { // Connection Property
+            // Do not process connection property of parent meta model perspectives.
+            // if (data.parts[ix].value.length > 0) {
+            //   // todo write code for multiple component
+            //   let eachSelectedValues = []
+            //   data.parts[ix].value.forEach(function (value, ix) {
+            //     let targetComponent = value.target_component
+            //     targetComponent.label = targetComponent.name
+            //     targetComponent.value = targetComponent.id
+            //     eachSelectedValues.push(targetComponent)
+            //   })
+            //   selectedValues.push(eachSelectedValues)
+            // } else {
+            //   selectedValues.push(null)
+            // }
+          } else if (labelParts[ix] && labelParts[ix].standard_property === null && labelParts[ix].type_property !== null) { // Customer Property
+            let value = null
+            if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
+              value = data.parts[ix].value !== null ? data.parts[ix].value.int_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+              value = data.parts[ix].value !== null ? data.parts[ix].value.float_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+              value = data.parts[ix].value !== null ? data.parts[ix].value.text_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+              value = data.parts[ix].value !== null ? data.parts[ix].value.date_time_value : ''
+            } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+              value = data.parts[ix].value !== null || data.parts[ix].value !== ''
+            } else if (labelParts[ix].type_property.property_type.key === 'List') {
+              value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
+            } else {
+              value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
+            }
+            setCustomerProperty.push(value)
           }
-          if (partData.name === 'Description') {
-            addSettings.description = data.parts[ix].value
+        } else {
+          let subjectPart = data.parts[ix].value !== null ? data.parts[ix].value.subject_part : null
+          let subjectId = data.parts[ix].value !== null ? data.parts[ix].value.subject_id : null
+          let connectionObject = subjectPart ? subjectPart.value[0].target_component : null
+          if (connectionObject) {
+            connectionObject.subjectId = subjectId
+            connectionObject.value = connectionObject.id
+            connectionObject.label = connectionObject.name
+            let selectedObject = []
+            selectedObject.push(connectionObject)
+            selectedValues.push(selectedObject)
+            console.log('in if startIndexOfLast3Parts', connectionObject)
           }
-        } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
-          if (data.parts[ix].value.length > 0) {
-            // todo write code for multiple component
-            let eachSelectedValues = []
-            data.parts[ix].value.forEach(function (value, ix) {
-              let targetComponent = value.target_component
-              targetComponent.label = targetComponent.name
-              targetComponent.value = targetComponent.id
-              eachSelectedValues.push(targetComponent)
-            })
-            selectedValues.push(eachSelectedValues)
-          } else {
-            selectedValues.push(null)
-          }
-        } else if (partData.standard_property === null && partData.type_property !== null) { // Customer Property
-          let value = null
-          if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
-            value = data.parts[ix].value !== null ? data.parts[ix].value.int_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
-            value = data.parts[ix].value !== null ? data.parts[ix].value.float_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'Text') {
-            value = data.parts[ix].value !== null ? data.parts[ix].value.text_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
-            value = data.parts[ix].value !== null ? data.parts[ix].value.date_time_value : ''
-          } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-            value = data.parts[ix].value !== null || data.parts[ix].value !== ''
-          } else if (labelParts[ix].type_property.property_type.key === 'List') {
-            value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
-          } else {
-            value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
-          }
-          setCustomerProperty.push(value)
         }
       })
     }
@@ -133,7 +145,8 @@ export default function PerspectiveExclusion (props) {
     addSettings.updateResponse = null
     props.setAddSettings(addSettings)
     let connectionData = {...props.connectionData}
-    let existingCustomerProperty = connectionData.customerProperty.map(function (data, index) {
+    let pIndex = 0 // customer property is set in parent index 0
+    let existingCustomerProperty = connectionData.customerProperty[pIndex].map(function (data, index) {
       if (data.type_property.property_type.key === 'Boolean') {
         data.type_property.boolean_value = setCustomerProperty[index]
       } else if (data.type_property.property_type.key === 'Integer') {
@@ -149,8 +162,9 @@ export default function PerspectiveExclusion (props) {
       }
       return data
     })
-    connectionData.customerProperty = existingCustomerProperty
-    connectionData.selectedValues = selectedValues
+    connectionData.customerProperty[pIndex] = existingCustomerProperty
+    connectionData.selectedValues[0] = [] // no connection for parent Meta model Perspectives
+    connectionData.selectedValues[1] = selectedValues // metric point property for service meta model perspectives.
     connectionData.initialSelectedValues = JSON.parse(JSON.stringify(selectedValues))
     props.setConnectionData(connectionData)
   }
@@ -251,7 +265,6 @@ export default function PerspectiveExclusion (props) {
       }
       lastCustomerIndex = data.partIndex
     })
-    console.log('obj', obj, lastCustomerIndex)
     let allMetricPointSet = false
     allMetricPointSet = connectionData.selectedValues[1].every(function (selecteOption) {
       return (selecteOption !== null || selecteOption.length > 0)
@@ -290,7 +303,7 @@ export default function PerspectiveExclusion (props) {
   let updateComponent = function (event) {
     event.preventDefault()
     // eslint-disable-next-line
-    mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+    // mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     let addSettings = JSON.parse(JSON.stringify(props.addSettings))
     let connectionData = JSON.parse(JSON.stringify(props.connectionData))
     let labelParts = props.metaModelPerspective.resources[0].parts
@@ -311,93 +324,11 @@ export default function PerspectiveExclusion (props) {
             obj.value = props.addSettings.description
           }
           patchPayload.push(obj)
-        } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
-          let dataIndex = connectionData.data.findIndex(p => p.name === partData.name)
-          console.log('dataIndex', dataIndex)
-          if (dataIndex !== -1) {
-            // found index
-            let max = connectionData.data[dataIndex].max
-            let initialSelectedValue = connectionData.initialSelectedValues[dataIndex]
-            let selectedValue = connectionData.selectedValues[dataIndex]
-            console.log('initialSelectedValue', initialSelectedValue)
-            console.log('selectedValue', selectedValue)
-            let onlyInInitial = []
-            if (initialSelectedValue) {
-              if (max === 1) {
-                let temp = []
-                temp.push(initialSelectedValue)
-                initialSelectedValue = temp
-              }
-            }
-            if (selectedValue) {
-              if (max === 1) {
-                let temp = []
-                temp.push(selectedValue)
-                selectedValue = temp
-              }
-            }
-            if (initialSelectedValue) {
-              if (selectedValue) {
-                onlyInInitial = initialSelectedValue.filter(comparer(selectedValue))
-              } else {
-                onlyInInitial = initialSelectedValue
-              }
-            }
-            let onlyInFinal = []
-            if (selectedValue) {
-              if (initialSelectedValue) {
-                onlyInFinal = selectedValue.filter(comparer(initialSelectedValue))
-              } else {
-                onlyInFinal = selectedValue
-              }
-            }
-            // remove operation payload
-            if (onlyInInitial.length > 0) {
-              let connectionIdArray = data.parts[index].value
-              let value = []
-              onlyInInitial.forEach(function (removeData, rid) {
-                let found = _.find(connectionIdArray, function (obj) { return (obj.target_component.id === removeData.id) })
-                console.log('found ----', found)
-                if (found) {
-                  // set connection id
-                  value.push(found.connection.id)
-                }
-              })
-              let obj = {}
-              obj.op = 'remove'
-              obj.value = value
-              valueType = 'value/-'
-              obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
-              patchPayload.push(obj)
-              console.log('connectionId obj', connectionIdArray, obj)
-            }
-            console.log('index', dataIndex)
-            console.log('onlyInInitial', onlyInInitial)
-            console.log('onlyInFinal', onlyInFinal)
-            let existingTargetComponent = connectionData.selectedValues[dataIndex]
-            console.log('existingTargetComponent', existingTargetComponent)
-            if (onlyInFinal.length > 0) {
-              let connections = []
-              onlyInFinal.forEach(function (targetComponent, rid) {
-                let obj = {}
-                obj.target_id = targetComponent.id
-                connections.push(obj)
-              })
-              let obj = {}
-              obj.op = 'add'
-              obj.value = connections
-              valueType = 'value/-'
-              obj.path = '/' + data.subject_id + '/parts/' + index + '/' + valueType
-              patchPayload.push(obj)
-              console.log('add obj', obj)
-            }
-          } else {
-            console.log('index', dataIndex)
-          }
-        } if (partData.standard_property === null && partData.type_property !== null) {
+        } else if (partData.standard_property === null && partData.type_property !== null) {
           let obj = {}
           obj.op = 'replace'
-          let customerProperty = _.find(connectionData.customerProperty, function (obj) {
+          let pIndex = 0 // Business property is in parent meta model perspectives
+          let customerProperty = _.find(connectionData.customerProperty[pIndex], function (obj) {
             return obj.name === partData.name
           })
           console.log('customerProperty', customerProperty)
@@ -430,41 +361,74 @@ export default function PerspectiveExclusion (props) {
         }
       })
     }
+    let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
+    let dashboardKey = selectedPackage.key
+    let perspectives = selectedPackage.perspectives
+    let perspectiveId = parseInt(props.metaModelPerspective.resources[0].id)
+    let perspectiveViewKey = ''
+    if (dashboardKey === 'ECO_SLA') {
+      perspectiveViewKey = _.result(_.find(perspectives, function (obj) {
+          return (obj.perspective === perspectiveId && obj.role_key === 'Update')
+      }), 'view_key')
+    }
     let payload = {}
     payload.queryString = {}
-    payload.queryString.meta_model_perspective_id = props.metaModelPerspective.resources[0].id
+    payload.queryString.meta_model_perspective_id = perspectiveId
+    payload.queryString.view_key = perspectiveViewKey
     payload.queryString.apply_changes = true
     payload.data = {}
     payload.data[props.metaModelPerspective.resources[0].id] = patchPayload
     console.log('payload', payload)
-    console.log('updateComponentModelPrespectives', props.updateComponentModelPrespectives)
-    props.updateComponentModelPrespectives(payload)
+    props.updateModelPrespectives(payload)
   }
   let removeComponent = function (event) {
     event.preventDefault()
-    let addSettings = {...props.addSettings}
-    if (addSettings.deleteObject) {
-      let payload = {
-        'id': addSettings.deleteObject.subject_id
-      }
-      props.deleteComponentModelPerspectives(payload)
+    let removeObject = {}
+    removeObject.op = 'remove'
+    removeObject.path = `/${props.addSettings.deleteObject.subject_id}/`
+    let selectedPackage = JSON.parse(localStorage.getItem('selectedPackage'))
+    let dashboardKey = selectedPackage.key
+    let perspectives = selectedPackage.perspectives
+    let perspectiveId = parseInt(props.metaModelPerspective.resources[0].id)
+    let perspectiveViewKey = ''
+    if (dashboardKey === 'ECO_SLA') {
+      perspectiveViewKey = _.result(_.find(perspectives, function (obj) {
+          return (obj.perspective === perspectiveId && obj.role_key === 'Update')
+      }), 'view_key')
     }
-    closeModal()
+    let payload = {}
+    payload.queryString = {}
+    payload.queryString.meta_model_perspective_id = perspectiveId
+    payload.queryString.view_key = perspectiveViewKey
+    payload.queryString.apply_changes = true
+    payload.data = {}
+    let patchData = []
+    patchData.push(removeObject)
+    payload.data[perspectiveId] = patchData
+    console.log('remove payload data', payload)
+    props.removeModelPrespectives(payload)
   }
   if (props.metaModelPerspectiveList !== '') {
     if (props.metaModelPerspectiveList.resources[0].parts.length > 0) {
       tableHeader = []
       props.metaModelPerspectiveList.resources[0].parts.forEach(function (data, index) {
         if (data.standard_property !== null || data.type_property !== null) {
-          labels.push(data.name)
-          tableHeader.push(<th key={index + 'col' + index} className=''><h5>{data.name}</h5></th>)
+          if (data.standard_property !== null || data.type_property === null) {
+            if (data.standard_property !== 'description') {
+              labels.push(data.name)
+              tableHeader.push(<th key={index + 'col' + index} className=''><h5>{data.name}</h5></th>)
+            }
+          }
+          if (data.standard_property === null || data.type_property !== null) {
+            labels.push(data.name)
+            tableHeader.push(<th key={index + 'col' + index} className=''><h5>{data.name}</h5></th>)
+          }
         }
       })
       tableHeader.push(<th key={'last'} className='table-th pres-th'><p>Action</p></th>)
     }
   }
   let listModelPrespectives = function () {
-    console.log('list modal pers', props)
     if (props.modelPrespectives !== '' && props.metaModelPerspectiveList !== '') {
       let labelParts = props.metaModelPerspectiveList.resources[0].parts
       // let crude = props.crude
@@ -477,24 +441,22 @@ export default function PerspectiveExclusion (props) {
       //     }
       //   }
       // }
-      console.log('list props', props)
       if (props.modelPrespectives.length > 0) {
         let modelPrespectives = _.filter(props.modelPrespectives, {'error_code': null})
         // modelPrespectives.splice(-1, 1)
-        console.log('modelPrespectives -----.', modelPrespectives)
         if (modelPrespectives.length > 0) {
           modelPrespectivesList = []
           modelPrespectives.slice(perPage * (currentPage - 1), ((currentPage - 1) + 1) * perPage).forEach(function (data, index) {
             if (data.error_code === null && data.parts !== null) {
               let childList = []
-              console.log('data', data)
               if (data.parts) {
                 data.parts.forEach(function (partData, ix) {
-                  console.log('partData', partData)
                   let value
                   if (labelParts[ix] && labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
-                    value = partData.value ? partData.value : ''
-                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
+                    if (labelParts[ix].standard_property === 'name') {
+                      value = partData.value ? partData.value : ''
+                      childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
+                    }
                   } else if (labelParts[ix] && labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
                     if (partData.value) {
                       let targetComponents = []
@@ -513,15 +475,15 @@ export default function PerspectiveExclusion (props) {
                     } else if (labelParts[ix].type_property.property_type.key === 'Text') {
                       value = partData.value !== null ? partData.value.text_value : ''
                     } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
-                      value = partData.value !== null ? partData.value.date_time_value : ''
+                      value = partData.value !== null ? moment(partData.value.date_time_value).format('DD MMM YYYY') : ''
                     } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
-                      value = partData.value !== null ? partData.value.boolean_value : ''
+                      value = partData.value !== null && partData.value.boolean_value ? 'true' : 'false'
                     } else if (labelParts[ix].type_property.property_type.key === 'List') {
                       value = partData.value !== null ? (partData.value.value_set_value ? partData.value.value_set_value.name : '') : ''
                     } else {
                       value = partData.value !== null ? partData.value.other_value : ''
                     }
-                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{JSON.stringify(value)}</td>)
+                    childList.push(<td className='table-td pres-th' key={'ch_' + index + '_' + ix}>{value}</td>)
                   }
                 })
 
@@ -649,17 +611,14 @@ export default function PerspectiveExclusion (props) {
         let subjectId = newValue.subjectId
         let selectOption = connectionData.selectOption
         let backupSelectOption = connectionData.backupSelectOption
-        console.log('selectOption', selectOption, subjectId)
         let selectOptionLength = selectOption[parentIndex].length
         for (let i = index + 1; i < selectOptionLength; i++) {
-          console.log('slect option exist')
           if (selectOption[parentIndex][i]) {
             let filterObject = _.find(backupSelectOption[parentIndex][i], function (obj) {
               return obj.subjectId === subjectId
             })
             let filterArray = []
             filterArray.push(filterObject)
-            console.log('filterArray', filterArray)
             selectOption[parentIndex][i] = filterArray
             selectedValues[parentIndex][i] = []
           }
@@ -673,10 +632,8 @@ export default function PerspectiveExclusion (props) {
         // props.setConnectionData(connectionData)
         let selectOption = connectionData.selectOption
         let backupSelectOption = connectionData.backupSelectOption
-        console.log('selectOption', selectOption)
         let selectOptionLength = selectOption[parentIndex].length
         for (let i = index + 1; i < selectOptionLength; i++) {
-          console.log('slect option exist')
           if (selectOption[parentIndex][i]) {
             let restoreList = backupSelectOption[parentIndex][i]
             selectOption[parentIndex][i] = restoreList
@@ -693,26 +650,29 @@ export default function PerspectiveExclusion (props) {
     mApp && mApp.unblockPage()
     let connectionData = {...props.connectionData}
     connectionSelectBoxList = []
-    console.log('connectionData', connectionData)
     connectionData.data.forEach(function (connectionProperty, parentIndex) {
-      console.log('connectionProperty', connectionProperty, parentIndex)
       if (connectionProperty && connectionProperty.length > 0) {
         connectionProperty.forEach(function (data, index) {
-          let selectOptions = connectionData.selectOption[parentIndex][index].map(function (component, id) {
-            component.value = component.id
-            component.label = component.name
-            return component
-          })
+          let selectOptions = []
+          if (connectionData.selectOption[parentIndex][index] && connectionData.selectOption[parentIndex][index].length > 0) {
+            selectOptions = connectionData.selectOption[parentIndex][index].map(function (component, id) {
+              component.value = component.id
+              component.label = component.name
+              return component
+            })
+          }
+          let defaultValue = connectionData.selectedValues[parentIndex][index] || null
           connectionSelectBoxList.push(<div className='form-group row'>
             <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
             <div className='col-8'>
               <Select
                 className='input-sm m-input'
                 placeholder={'Select ' + data.name}
+                isDisabled={props.addSettings.isEditModalOpen}
                 // isMulti={data.max !== 1}
                 isClearable
                 isSearchable
-                value={connectionData.selectedValues[parentIndex][index]}
+                value={defaultValue}
                 onChange={handleSelectChange(index, parentIndex)}
                 options={selectOptions}
               />
@@ -721,7 +681,6 @@ export default function PerspectiveExclusion (props) {
         })
       }
     })
-    console.log('connectionSelectBoxList', connectionSelectBoxList)
     businessPropertyList = []
     connectionData.customerProperty.forEach(function (customerProperty, parentIndex) {
       if (customerProperty && customerProperty.length > 0) {
@@ -770,11 +729,11 @@ export default function PerspectiveExclusion (props) {
               </div>
             </div>)
         } else if (data.type_property.property_type.key === 'Boolean') {
-            value = data.type_property.text_value
+            value = data.type_property.boolean_value
             businessPropertyList.push(<div className='form-group row'>
               <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
               <div className='col-8 form-group m-form__group has-info'>
-                <input onChange={(event) => { editProperty(index, event.target.checked, parentIndex) }} type='checkbox' style={{cursor: 'pointer'}} />
+                <input checked={value} onChange={(event) => { editProperty(index, event.target.checked, parentIndex) }} type='checkbox' style={{cursor: 'pointer'}} />
                 {false && (<div className='form-control-feedback'>should be Text</div>)}
               </div>
             </div>)
@@ -816,7 +775,6 @@ export default function PerspectiveExclusion (props) {
         })
       }
     })
-    console.log('businessPropertyList', businessPropertyList)
     if (businessPropertyList.length === 0) {
       businessPropertyList = ''
     }
@@ -851,6 +809,29 @@ export default function PerspectiveExclusion (props) {
             return (<li className='m-list-search__result-item' key={index}>{data.message}</li>)
           } else {
             if (props.addSettings.updateResponse.length === 1) {
+              return (<li className='m-list-search__result-item' key={99}>{'No data has been added.'}</li>)
+            }
+          }
+        } else {
+          return (<li className='m-list-search__result-item' key={index}>{'Error Code: ' + data.error_code + 'Message: ' + data.error_message}</li>)
+        }
+      })
+    } else {
+      messageList = []
+      messageList.push((
+        <li className='m-list-search__result-item' key={0}>{'No data has been added.'}</li>
+      ))
+    }
+  }
+  if (props.addSettings.deleteResponse !== null) {
+    defaultStyle = customStylescrud
+    if (props.addSettings.deleteResponse.length > 0) {
+      messageList = props.addSettings.deleteResponse.map(function (data, index) {
+        if (data.error_code === null) {
+          if (data.message != null) {
+            return (<li className='m-list-search__result-item' key={index}>{data.message}</li>)
+          } else {
+            if (props.addSettings.deleteResponse.length === 1) {
               return (<li className='m-list-search__result-item' key={99}>{'No data has been added.'}</li>)
             }
           }
@@ -1076,13 +1057,13 @@ return (
       </ReactModal>
       <ReactModal isOpen={props.addSettings.isEditModalOpen}
         onRequestClose={closeModal}
-        className='modal-dialog modal-lg'
-        style={{'content': {'top': '20%'}}}
+        // className='modal-dialog modal-lg'
+        style={customStylescrud}
         >
         {/* <button onClick={closeModal} ><i className='la la-close' /></button> */}
         <div className={''}>
           <div className=''>
-            <div className='modal-content' style={{'height': '400px'}}>
+            <div className='modal-content' >
               <div className='modal-header'>
                 {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit Perspective</h4>)}
                 {props.addSettings.updateResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Update Report</h4>)}
@@ -1090,7 +1071,7 @@ return (
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
-              <div className='modal-body' style={{'height': 'calc(60vh - 55px)', 'overflow': 'auto'}}>
+              <div className='modal-body' style={{'height': 'calc(70vh - 30px)', 'overflow': 'auto'}}>
                 {props.addSettings.updateResponse === null && (<div className='col-md-12'>
                   {/* {messageBlock} */}
                   <div className='form-group m-form__group row'>
@@ -1128,43 +1109,43 @@ return (
       <ReactModal isOpen={props.addSettings.isDeleteModalOpen}
         onRequestClose={closeModal}
         className='modal-dialog '
-        style={{'content': {'top': '20%'}}} >
+        style={defaultStyle} >
         <div className={styles.modalwidth}>
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
-                <h4 className='modal-title' id='exampleModalLabel'>Delete Service</h4>
+                {props.addSettings.deleteResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Delete Exclusion</h4>)}
+                {props.addSettings.deleteResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Delete Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
                 </button>
               </div>
-              <div className='modal-body'>
+              {props.addSettings.deleteResponse === null && (<div className='modal-body'>
                 <div>
                   <h6>Confirm deletion of Exclusion {serviceName}</h6>
                 </div>
-              </div>
+              </div>)}
+              {props.addSettings.deleteResponse !== null && (<div className='modal-body' style={{'height': 'calc(70vh - 30px)', 'overflow': 'auto'}} >
+                {messageList}
+              </div>)}
               <div className='modal-footer'>
                 <button type='button' onClick={closeModal} id='m_login_signup' className='btn btn-outline-info btn-sm'>Close</button>
-                <button type='button' id='m_login_signup' className='btn btn-outline-info btn-sm' onClick={removeComponent}>Confirm</button>
+                {props.addSettings.deleteResponse === null && (<button type='button' id='m_login_signup' className='btn btn-outline-info btn-sm' onClick={removeComponent}>Confirm</button>)}
               </div>
             </div>
           </div>
         </div>
       </ReactModal>
     </div>
-    {/* <Discussion name={'Entitlements'} TypeKey='Entitlement' type='ComponentType' {...props} />
-    <NewDiscussion contextId={contextId} name={'Entitlements'} type='ComponentType' {...props} /> */}
   </div>
       )
   }
   PerspectiveExclusion.propTypes = {
     addSettings: PropTypes.any,
     modelPrespectives: PropTypes.any,
-    // metaModelPerspective: PropTypes.any,
     currentPage: PropTypes.any,
     perPage: PropTypes.any,
     metaModelPerspectiveList: PropTypes.any,
     availableAction: PropTypes.any,
     connectionData: PropTypes.any
-    // headerData: PropTypes.any
   }
