@@ -27,8 +27,8 @@ class PenaltyDashboard extends React.Component {
       },
       NestedPenaltyApiData: [],
       UniqueArr: [],
-      startDate: '',
-      endDate: '',
+      startDate: this.props.location.state.slaStartDate ? this.props.location.state.slaStartDate : '',
+      endDate: this.props.location.state.slaEndDate ? this.props.location.state.slaEndDate : '',
       department: this.props.location.state.slaDepartment ? this.props.location.state.slaDepartment : 'Select',
       departmentFilter: [],
       supplier: this.props.location.state.slaSupplier ? this.props.location.state.slaSupplier : 'Select',
@@ -502,7 +502,7 @@ class PenaltyDashboard extends React.Component {
       })
       if (!this.state.finalTableData.length) {
         const dupData = []
-        this.props.penaltymodelPerspectiveData.forEach(penaltyContract => {
+        this.props.penaltymodelPerspectiveData.forEach((penaltyContract, i) => {
           if (this.props.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.length) {
             this.props.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.forEach(item => {
               let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.value) || ''
