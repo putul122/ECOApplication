@@ -210,7 +210,8 @@ const api = {
   iconURL: 'https://ecoconductor-dev-api-resources.azurewebsites.net/icons/',
   getPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SM',
   getSLAPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SLA',
-  getAllPackages: 'https://ecoconductor-dev-api-model.azurewebsites.net/model_packages'
+  getAllPackages: 'https://ecoconductor-dev-api-model.azurewebsites.net/model_packages',
+  getMxGraphData: 'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/24'
 }
 
 export default api
