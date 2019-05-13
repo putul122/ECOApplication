@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import AppWrapper from '../../components/appWrapper/appWrapperComponent'
+import MxGraphComponent from '../../components/MxGraphTestComponent'
 
 if (module.hot) {
   module.hot.accept()
@@ -329,6 +330,11 @@ export default class Root extends Component {
               path='/mxgraph'
               exact
               component={props => this.loadView('mxgraph', props)}
+            />
+            <Route
+              path='/mxgraph-test'
+              exact
+              component={props => <MxGraphComponent {...this.props} />}
             />
             <Route
               path='/penalty-dashboard'
