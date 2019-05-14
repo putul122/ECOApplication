@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import AppWrapper from '../../components/appWrapper/appWrapperComponent'
+import MxGraphComponent from '../../components/MxGraphTestComponent'
 
 if (module.hot) {
   module.hot.accept()
@@ -290,6 +291,15 @@ export default class Root extends Component {
           }
           resolve(require('../penaltyDashboardPage/PenaltyDashboardRoute').default)
             break
+          case 'mxgraph':
+          if (module.hot) {
+            module.hot.accept('../mxGraphPage/mxGraphPageRoute', () => {
+              require("../mxGraphPage/mxGraphPageRoute").default; // eslint-disable-line
+              this.forceUpdate()
+            })
+          }
+          resolve(require('../mxGraphPage/mxGraphPageRoute').default)
+          break
           default:
             break
         }
@@ -315,6 +325,16 @@ export default class Root extends Component {
               path='/sla-dashboard'
               exact
               component={props => this.loadView('slaDashboard', props)}
+            />
+            <Route
+              path='/mxgraph'
+              exact
+              component={props => this.loadView('mxgraph', props)}
+            />
+            <Route
+              path='/mxgraph-test'
+              exact
+              component={props => <MxGraphComponent {...this.props} />}
             />
             <Route
               path='/penalty-dashboard'

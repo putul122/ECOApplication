@@ -26,6 +26,7 @@ import editRolesReducer from './editRolesReducer/editRolesReducerReducer'
 import dataReducer from './data/dataReducer'
 import penaltyReducer from './penaltyDashboardReducer/penaltyDashboardReducerReducer'
 import perspectiveExclusionReducer from './perspectiveExclusion/perspectiveExclusionReducer'
+import mxGraphReducer from './mxGraphReducer/mxGraphReducerReducer'
 
 export default combineReducers({
     basicReducer,
@@ -54,5 +55,6 @@ export default combineReducers({
     slaReducer,
     dataReducer,
     penaltyReducer,
-    perspectiveExclusionReducer
+    perspectiveExclusionReducer,
+    mxGraphReducer
 })
