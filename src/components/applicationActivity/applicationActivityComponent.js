@@ -8,7 +8,6 @@ const liStyle = {
   margin: '0 0 6px 0'
 }
 export default function ApplicationActivity (props) {
-  console.log('activity message props', props.activityMessages, props.notificationReceived, props)
   let activityMessages = props.activityMessages.resources ? props.activityMessages.resources : ''
   let activityMessagesList = ''
   let parseMessage = function (result) {
@@ -140,7 +139,6 @@ export default function ApplicationActivity (props) {
         temp.push(activityMessages[i])
         result.push(temp)
         // result = result.reverse()
-        console.log('final result -------->', result)
         parseMessage(result)
       }
     }
@@ -156,6 +154,5 @@ export default function ApplicationActivity (props) {
   )
 }
 ApplicationActivity.propTypes = {
-  activityMessages: PropTypes.any,
-  notificationReceived: PropTypes.any
+  activityMessages: PropTypes.any
 }
