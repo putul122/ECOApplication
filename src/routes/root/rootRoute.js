@@ -281,6 +281,17 @@ export default class Root extends Component {
             }
             resolve(require('../SlaDashboardPage/SlaDashboardRoute').default)
             break
+
+          case 'slaComparison':
+            if (module.hot) {
+              module.hot.accept('../SlaComparisonPage/SlaComparisonRoute', () => {
+                require("../SlaComparisonPage/SlaComparisonRoute").default; // eslint-disable-line
+                this.forceUpdate()
+              })
+            }
+            resolve(require('../SlaComparisonPage/SlaComparisonRoute').default)
+            break
+
           case 'penaltyDashboard':
           if (module.hot) {
             module.hot.accept('../penaltyDashboardPage/PenaltyDashboardRoute', () => {
@@ -315,6 +326,11 @@ export default class Root extends Component {
               path='/sla-dashboard'
               exact
               component={props => this.loadView('slaDashboard', props)}
+            />
+            <Route
+              path='/sla-comparison'
+              exact
+              component={props => this.loadView('slaComparison', props)}
             />
             <Route
               path='/penalty-dashboard'

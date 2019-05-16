@@ -3,6 +3,7 @@
   "plugins": ["jsx-a11y"],
   "rules":{
     "indent": 0,
-    "no-tabs": 0
+    "no-tabs": 0,
+    "no-debugger": 0
   }
 }
