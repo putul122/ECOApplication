@@ -24,7 +24,7 @@ export default class Piechart extends PureComponent {
       { name: 'Group 1', value: this.props.valueOne },
       { name: 'Group 2', value: this.props.valueTwo }
     ]
-    const COLORS = ['green', 'red']
+    const COLORS = ['#0abb87', '#fd397a']
     return (
       <PieChart width={400} height={400}>
         <Pie
