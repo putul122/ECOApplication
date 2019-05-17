@@ -72,12 +72,12 @@ class SlaDashboard extends React.Component {
         date = ''
       }
       let obj = {
-        subject_id: nextProps.modelPerspectiveData[i].subject_id,
-        department: nextProps.modelPerspectiveData[i].parts[3].value[0].target_component.name,
-        supplier: nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.name,
-        service: nextProps.modelPerspectiveData[i].parts[6].value.subject_part.value,
-        kpi: nextProps.modelPerspectiveData[i].parts[7].value.subject_part.value,
-        contracts: nextProps.modelPerspectiveData[i].parts[0].value !== null ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value.name : '',
+        subject_id: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].subject_id,
+        department: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[3].value && nextProps.modelPerspectiveData[i].parts[3].value[0].target_component && nextProps.modelPerspectiveData[i].parts[3].value[0].target_component.name,
+        supplier: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[2].value && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.name,
+        service: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[6].value && nextProps.modelPerspectiveData[i].parts[6].value.subject_part && nextProps.modelPerspectiveData[i].parts[6].value.subject_part.value,
+        kpi: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[7].value && nextProps.modelPerspectiveData[i].parts[7].value.subject_part && nextProps.modelPerspectiveData[i].parts[7].value.subject_part.value,
+        contracts: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[0].value !== null ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value.name : '' : '',
         expDate: date
       }
       ActuallArr.push(obj)
@@ -88,6 +88,8 @@ class SlaDashboard extends React.Component {
     let supFilter = []
     let serFilter = []
     let kpiFil = []
+    let metaArray = []
+
     ActuallArr.map((data) => {
       depFilter.push(data.department)
       supFilter.push(data.supplier)
@@ -100,10 +102,15 @@ class SlaDashboard extends React.Component {
       supplierFilter: [...new Set(serFilter)],
       serviceFilter: [...new Set(kpiFil)]
     })
-    let metaArray = nextProps.metaData.resources[0].parts[0].type_property.value_set.values
+
+    metaArray = nextProps.metaData && nextProps.metaData.resources && nextProps.metaData.resources[0].parts && nextProps.metaData.resources[0].parts[0].type_property && nextProps.metaData.resources[0].parts[0].type_property.value_set && nextProps.metaData.resources[0].parts[0].type_property.value_set.values
+
     let metaContracts = []
-    for (let m = 0; m < metaArray.length; m++) {
-      metaContracts.push(metaArray[m].name)
+
+    if (metaArray && metaArray.length) {
+      for (let m = 0; m < metaArray.length; m++) {
+        metaContracts.push(metaArray[m].name)
+      }
     }
     const { uniqueContractsArray, uniqueContractsArrayCount } = this.createUniqueContractsArray(ActuallArr)
     let cStages = {}
