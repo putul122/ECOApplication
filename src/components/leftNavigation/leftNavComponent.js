@@ -75,7 +75,7 @@ class LeftNavigation extends React.Component {
                 </span>
               </a>
             </li>
-            <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
+            {/* <li className={'m-menu__item  m-menu__item--submenu m-menu__item--submenu-fullheight '}>
               <a className='m-menu__link' href='/users'>
                 <i className='m-menu__link-icon flaticon-user ' style={{'fontSize': '25px'}} />
                 <span className={styles.navtext}>
@@ -98,7 +98,7 @@ class LeftNavigation extends React.Component {
                   Billing
                 </span>
               </a>
-            </li>
+            </li> */}
           </ul>
         </nav>
       </div>

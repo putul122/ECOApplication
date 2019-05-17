@@ -82,12 +82,11 @@ export default function HeaderComponent (props) {
   if (isLoginSlideOpen) {
     loginSlideClass = 'm-dropdown--open'
   } else {
-    loginSlideClass = ''
+    loginSlideClass = 'm-dropdown--close'
   }
   let openLoginSlide = function (event) {
     event.preventDefault()
-    loginSlideClass = 'm-dropdown--open'
-    props.setLoginslideFlag(true)
+    props.setLoginslideFlag(!isLoginSlideOpen)
   }
   let logOut = function (event) {
     event.preventDefault()
@@ -98,12 +97,6 @@ export default function HeaderComponent (props) {
     localStorage.removeItem('selectedPackage')
     props.setLoginslideFlag(false)
     props.history.push('/')
-  }
-
-  let closeLoginSlide = function (event) {
-    event.preventDefault()
-    loginSlideClass = 'm-dropdown--close'
-    props.setLoginslideFlag(false)
   }
   let selectModuleOptions = ''
   if (props.packages && props.packages.error_code === null && props.packages.resources) {
@@ -215,16 +208,36 @@ export default function HeaderComponent (props) {
                               </div> */}
                               <div className=' '>
                                 {/* <span className='m-card-user__name m--font-weight-500'>Mark Andre</span> */}
-                                <a href='' onClick={closeLoginSlide} ><i className='la la-close' /></a>
                               </div>
                             </div>
                           </div>
                           <div className='m-dropdown__body'>
                             <div className='m-dropdown__content'>
-                              <ul className='m-nav m-nav--skin-light'>
-                                <li className='m-nav__item'>
-                                  <a href='javascript:void(0);' onClick={logOut} className='btn m-btn--pill    btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder'>Logout</a>
+                              <ul className='kt-nav kt-margin-b-10'>
+                                <li className='kt-nav__item'>
+                                  <a className='kt-nav__link'>
+                                    <span className='kt-nav__link-icon'><i className='flaticon-user' /></span>
+                                    <span className='kt-nav__link-text'>Users</span>
+                                  </a>
                                 </li>
+                                <li className='kt-nav__item'>
+                                  <a className='kt-nav__link'>
+                                    <span className='kt-nav__link-icon'><i className='flaticon-interface-8' /></span>
+                                    <span className='kt-nav__link-text'>Roles</span>
+                                  </a>
+                                </li>
+                                <li className='kt-nav__item'>
+                                  <a className='kt-nav__link'>
+                                    <span className='kt-nav__link-icon'><i className='flaticon-coins' /></span>
+                                    <span className='kt-nav__link-text'>Billing</span>
+                                  </a>
+                                </li>
+                                <li className='kt-nav__item kt-nav__item--custom kt-margin-t-15'>
+                                  <a href='javascript:void(0);' onClick={logOut} className='btn btn-label-brand btn-upper btn-sm btn-bold'>Sign Out</a>
+                                </li>
+                                {/* <li className='m-nav__item'>
+                                  <a href='javascript:void(0);' onClick={logOut} className='btn m-btn--pill    btn-secondary m-btn m-btn--custom m-btn--label-brand m-btn--bolder'>Logout</a>
+                                </li> */}
                               </ul>
                             </div>
                           </div>
