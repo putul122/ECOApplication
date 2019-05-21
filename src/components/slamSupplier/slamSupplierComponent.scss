@@ -1,0 +1,236 @@
+.MainContainer{
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: white;
+    box-shadow: 2px 2px 15px lightgray !important;
+    padding: 10px;
+}
+.HeaderContainer{
+    flex:1;
+    align-items: center;
+    margin-top: 20px;
+
+}
+.ContentContainer{
+    flex:5;
+    display: flex;
+    flex-direction: row;
+    margin-top: 30px;
+}
+.mainDropdown{
+    display: flex !important;
+    flex-direction: row !important;
+}
+.LeftText{
+    display: flex;
+    align-items: center;
+    color: #666c8b;
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0px 10px 20px 30px;
+    text-align: right;
+    width: 10%;
+}
+.dropDown{
+}
+.dropDownBtn{
+    padding: 7px 11px;
+    margin-right: 10px;
+    // border:1px solid #5d77fc !important;
+}
+.dropList{
+    width: 94%;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.RangePicker{
+    width:500px !important;
+    height: 1000px !important;
+    
+}
+.leftContainer{
+    flex:4;
+    display: flex;
+    flex-direction: column;
+}
+.rightContainer{
+    background-color: #f7f8fa;
+    flex:1;
+    height: 100%;
+    box-shadow: 0px 0px 4px lightgrey;
+}
+.contractContainer{
+    flex:0.5;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+}
+.chartContainer{
+    flex:6;
+    display: flex;
+    flex-direction: column;
+}
+.tableContainer{
+    flex:4;
+    height: 400px;
+    overflow-y:auto; 
+    margin-right: 10px;
+}
+.contractText{
+    flex:1;
+    align-items: center;
+    display: flex;
+}
+.Text{
+    font-weight: bold;
+    color: #666c8b;
+    font-size: 16px;
+    text-decoration: underline;
+}
+.badgeContainer{
+    width: 80%;
+    background-color: #f7f8fa;
+    display: flex;
+    flex-direction: row;
+    height: 1;
+    height: 100%;
+    align-items: center;
+}
+.badgeText{
+    flex: 2;
+    padding-left: 8px;
+    color: #666c8b;
+    font-size: 15px;
+    font-weight: bold;
+}
+.avatarOne{
+    vertical-align: middle;
+    margin: 0px 10px !important;
+    font-weight: bold;
+}
+.avatarTwo{
+    background-color: #fd397a !important;
+    vertical-align: middle;
+    margin: 0px 10px !important;
+    font-weight: bold;
+}
+
+.headerText{
+    border-bottom: 2px solid #ebedf2;
+    display: flex;
+    align-items: center;
+    font-size: 17px;
+    font-weight: bold;
+    color: #46445c;
+    padding-left: 12px;
+    height: 60px;
+}
+.cards{
+    box-shadow: 0px 0px 13px 0px rgba(82,63,105,0.05);
+    background-color: #fff;
+    margin: 10px auto;
+    border-radius: 4px;
+    width:90%;
+}
+.date{
+    padding: 6px 0px 6px 6px;
+    font-size: 13px;
+    font-weight: bold;
+    border-bottom: 2px solid #ebedf2;
+}
+.cardText{
+    padding-left: 6px;
+}
+.cardTextOne{
+    padding-left: 6px;
+    padding-bottom: 10px;
+}
+.cardLeftText{
+    color: #7d9dd8;
+    font-size: 12px;
+    font-weight: bold;
+    padding-right: 10px;
+}
+.cardRightText{
+    color: #737ca0;
+    font-size: 12px;
+    font-weight: bold;
+    padding-right: 10px;
+}
+.cardRightTextColor{
+    color: red;
+    font-size: 12px;
+    font-weight: bold;
+    padding-right: 10px;
+}
+.pieContainer{
+    flex:1;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+.barContainer{
+    flex:1;
+}
+.pieChart{
+    flex:1; 
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.penaltyChart{
+    flex:1;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.chart{
+    width:90%;
+    height: 90%;
+    background-color: white;
+    box-shadow: 0px 0px 10px lightgray;
+    display: flex;
+    flex-direction: row;
+}
+.Barchart{
+    justify-content: center;
+    align-items: center;
+    width:95%;
+    height: 90%;
+    background-color: white;
+    box-shadow: 0px 0px 10px lightgray;
+    display: flex;
+    flex-direction: row;
+}
+.chartText{
+    flex:1;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #6c7293;
+    padding-left: 20px;
+}
+.Mainchart{
+    flex:3;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+.largeBtn{
+    width: 352px !important;
+    justify-content: space-between !important;
+    display: flex !important;
+    padding-right: 20px !important;
+}
+.smallBtn{
+    width: 252px !important;
+    justify-content: space-between !important;
+    display: flex !important;
+    padding-right: 20px !important;
+}
