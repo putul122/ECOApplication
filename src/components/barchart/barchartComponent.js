@@ -3,22 +3,42 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts'
 import PropTypes from 'prop-types'
+import moment from 'moment'
 
 export default class Barchart extends PureComponent {
   static jsfiddleUrl = 'https://jsfiddle.net/alidingling/30763kr7/'
 
   render () {
-    const data = [
-      {
-        name: 'FEB', Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[0][0].children[0].value.count : 0, Non_Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[0][0].children[1].value.count : 0, amt: 2400
-      },
-      {
-        name: 'MAR', Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[1][0].children[0].value.count : 0, Non_Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[1][0].children[1].value.count : 0, amt: 2210
-      },
-      {
-        name: 'APR', Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[2][0].children[0].value.count : 0, Non_Compliant: this.props.BarChartValue.length ? this.props.BarChartValue[2][0].children[1].value.count : 0, amt: 2290
-      }
-    ]
+    const monthObject = {
+      1: 'Jan',
+      2: 'Feb',
+      3: 'Mar',
+      4: 'Apr',
+      5: 'May',
+      6: 'Jun',
+      7: 'Jul',
+      8: 'Aug',
+      9: 'Sep',
+      10: 'Oct',
+      11: 'Nov',
+      12: 'Dec'
+    }
+
+    const data = []
+    const barChartValue = this.props.BarChartValue
+
+    barChartValue && barChartValue.children && barChartValue.children.length && barChartValue.children.map((bar, i) => {
+        const dateObj = new Date(bar.children[i].key)
+        const momentDate = moment(dateObj)
+        const monthName = monthObject[momentDate.month()]
+
+        const dataObj = {
+          name: monthName, Compliant: barChartValue.children[0].children[i].value.sum, Non_Compliant: barChartValue.children[1].children[i].value.sum
+        }
+
+        data.push(dataObj)
+    })
+
     return (
       <BarChart
         width={850}

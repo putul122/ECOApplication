@@ -2,7 +2,6 @@ import React from 'react'
 import styles from './SlaDashboardComponent.scss'
 import { Avatar, DatePicker, Spin } from 'antd'
 import _ from 'lodash'
-
 import 'antd/dist/antd.css'
 import './index.css'
 import PropTypes from 'prop-types'
@@ -13,11 +12,15 @@ import { SlaDashboardpenaltyJson } from './sla-dashboard-penalty.js'
 import { SlaDashboardPieChartJson } from './sla-dashboard-compliance-pie-chart.js'
 import { HuaweiSlaDashboardPieChartJson } from './sla-dashboard-huawei-compliance-pie-chart.js'
 import { SlaDashboardBarChartJson } from './sla-dashboard-compliance-bar-chart.js'
+import axios from 'axios'
+import api from '../../constants'
+
 const { RangePicker } = DatePicker
 
 class SlaDashboard extends React.Component {
   constructor () {
     super()
+
     this.state = {
       SlaDashboardData: SlaDashboardJson,
       ActualSlaDashboardData: [],
@@ -33,12 +36,36 @@ class SlaDashboard extends React.Component {
       UniqueArr: [],
       startDate: '',
       endDate: '',
+      ordersObject: {},
+      perspectiveFilter: {
+        parts: {}
+      },
       prevDropdownName: '',
       department: 'Select',
       departmentFilter: [],
       supplier: 'Select',
       supplierFilter: [],
       service: 'Select',
+      package: 'Select',
+      packageValue: 54381,
+      PackageArr: [
+        {
+          package: 'Daily',
+          value: 54379
+        },
+        {
+          package: 'Monthly',
+          value: 54381
+        },
+        {
+          package: 'Quarterly',
+          value: 54382
+        },
+        {
+          package: 'Yearly',
+          value: 54383
+        }
+      ],
       serviceFilter: [],
       kpi: 'Select',
       contractsArray: [],
@@ -52,14 +79,19 @@ class SlaDashboard extends React.Component {
       supplierItems: [],
       serviceItems: [],
       kpiItems: [],
+      compliance: 50,
+      nonCompliance: 50,
+      penalty: 0,
       BarChartValue: []
     }
   }
+
   componentWillMount () {
     this.unselectAll()
     this.props.MetaModel()
     this.props.getMDPerspectiveDATA()
   }
+
   componentWillReceiveProps (nextProps) {
     // filter and actual data
     let ActuallArr = []
@@ -74,22 +106,29 @@ class SlaDashboard extends React.Component {
       let obj = {
         subject_id: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].subject_id,
         department: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[3].value && nextProps.modelPerspectiveData[i].parts[3].value[0].target_component && nextProps.modelPerspectiveData[i].parts[3].value[0].target_component.name,
+        departmentId: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[3].value && nextProps.modelPerspectiveData[i].parts[3].value[0].target_component && nextProps.modelPerspectiveData[i].parts[3].value[0].target_component.id,
         supplier: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[2].value && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.name,
+        supplierId: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[2].value && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.id,
         service: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[6].value && nextProps.modelPerspectiveData[i].parts[6].value.subject_part && nextProps.modelPerspectiveData[i].parts[6].value.subject_part.value,
+        serviceId: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[6].value && nextProps.modelPerspectiveData[i].parts[6].value.subject_part && nextProps.modelPerspectiveData[i].parts[6].value.subject_id,
         kpi: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[7].value && nextProps.modelPerspectiveData[i].parts[7].value.subject_part && nextProps.modelPerspectiveData[i].parts[7].value.subject_part.value,
+        kpiId: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[7].value && nextProps.modelPerspectiveData[i].parts[7].value.subject_part && nextProps.modelPerspectiveData[i].parts[7].value.subject_id,
         contracts: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[0].value !== null ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value.name : '' : '',
         expDate: date
       }
       ActuallArr.push(obj)
     }
-
-    this.setState({ActualSlaDashboardData: ActuallArr, dupActualSlaDashboardData: ActuallArr, ActualContractArr: ActuallArr})
+    let ordersObject = {}
+    ordersObject['supplier'] = nextProps.metaData.resources[0].parts[2].order
+    ordersObject['department'] = nextProps.metaData.resources[0].parts[3].order
+    ordersObject['service'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[1].order
+    ordersObject['kpi'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[2].order
+    this.setState({ordersObject, ActualSlaDashboardData: ActuallArr, dupActualSlaDashboardData: ActuallArr, ActualContractArr: ActuallArr})
     let depFilter = []
     let supFilter = []
     let serFilter = []
     let kpiFil = []
     let metaArray = []
-
     ActuallArr.map((data) => {
       depFilter.push(data.department)
       supFilter.push(data.supplier)
@@ -120,8 +159,6 @@ class SlaDashboard extends React.Component {
     for (let j = 0; j < uniqueContractsArrayCount; j++) {
       cStages[uniqueContractsArray[j].contracts] += 1
     }
-    console.log('metaContracts', metaContracts)
-    console.log('asd', cStages)
     this.setState({
       metaContracts,
       contractStages: cStages
@@ -136,6 +173,7 @@ class SlaDashboard extends React.Component {
     })
     this.Contracts(uniqueArray)
   }
+
   ActualContracts = (arr) => {
     const { uniqueContractsArray, uniqueContractsArrayCount } = this.createUniqueContractsArray(arr)
     let cStages = {}
@@ -151,15 +189,14 @@ class SlaDashboard extends React.Component {
   }
 
   createUniqueContractsArray = contractsArray => {
-    console.log(contractsArray)
-    console.log(this.state.ActuallArr)
     const uniqueContractsArray = _.uniqBy(contractsArray, 'subject_id')
     const uniqueContractsArrayCount = uniqueContractsArray.length
     this.setState({ uniqueContractsArray, uniqueContractsArrayCount })
     return { uniqueContractsArray, uniqueContractsArrayCount }
   }
+
   unselectAll = () => {
-    let { dupActualSlaDashboardData } = this.state
+    let { dupActualSlaDashboardData, perspectiveFilter, ordersObject } = this.state
     let repeatedArr = dupActualSlaDashboardData.map((data) => {
       return data.department
     })
@@ -179,7 +216,7 @@ class SlaDashboard extends React.Component {
     let supplierFilter = [...new Set(repeatedArrsupp)]
     let serviceFilter = [...new Set(repeatedArrser)]
     // this.departmentDropDown(UniqueArr[0])
-    this.setState({ActualContractArr: dupActualSlaDashboardData, UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select'})
+    this.setState({ActualContractArr: dupActualSlaDashboardData, UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select', compliance: 50, nonCompliance: 50, penalty: 0, BarChartValue: []})
 
     let cStages = {}
     this.state.metaContracts.forEach(contract => {
@@ -188,13 +225,24 @@ class SlaDashboard extends React.Component {
     for (let j = 0; j < uniqueContractsArrayCount; j++) {
       cStages[uniqueContractsArray[j].contracts] += 1
     }
+    // deletion of perspective filter dropdown
+    delete perspectiveFilter.parts[ordersObject['supplier']]
+    delete perspectiveFilter.parts[ordersObject['department']]
+    if (perspectiveFilter.parts['7']) {
+      delete perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['service']]
+      delete perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['kpi']]
+    }
     this.setState({
-      contractStages: cStages
+      contractStages: cStages,
+      perspectiveFilter,
+      packageValue: 54381,
+      package: 'Select'
     })
   }
-  departmentDropDown = (value) => {
+
+  departmentDropDown = value => {
     this.setState({department: value})
-    let { dupActualSlaDashboardData } = this.state
+    let { dupActualSlaDashboardData, ordersObject, perspectiveFilter } = this.state
     let array = dupActualSlaDashboardData.filter(data => {
       if (data.department === value && this.state.supplier === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
         return (data.department === value)
@@ -214,6 +262,15 @@ class SlaDashboard extends React.Component {
         return (data.department === value && data.service === this.state.service)
       }
     })
+    perspectiveFilter.parts[ordersObject['department']] = {
+      target_component_ids: [
+        array[0].departmentId
+     ]
+    }
+
+    this.getComplianceData(perspectiveFilter)
+
+    // perspectiveFilter.parts
     let repeatedArr = array.map((data) => {
       return data.supplier
     })
@@ -226,12 +283,30 @@ class SlaDashboard extends React.Component {
     let UniqueArr = [...new Set(repeatedArr)]
     let UniqueArrser = [...new Set(repeatedArrser)]
     let UniqueArrkpi = [...new Set(repeatedArrkpi)]
-    this.setState({department: value, departmentFilter: UniqueArr, supplierFilter: UniqueArrser, serviceFilter: UniqueArrkpi})
+    this.setState({perspectiveFilter, department: value, departmentFilter: UniqueArr, supplierFilter: UniqueArrser, serviceFilter: UniqueArrkpi})
     this.contractValue(value, 'department')
   }
-  SupplierDropDown = (value) => {
+
+  getComplianceData = (perspectiveFilter, filterType) => {
+    const stringifiedPerspectiveFilter = JSON.stringify(perspectiveFilter)
+    const base64ecodedPerspectiveFilter = btoa(stringifiedPerspectiveFilter)
+
+    axios
+      .get(api.perspectiveFilter(base64ecodedPerspectiveFilter))
+      .then(res => {
+        console.log('ressssss', res)
+        this.setState({
+          BarChartValue: res.data && res.data[0].parts && res.data[0].parts[0].value,
+          compliance: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[0].value.sum,
+          nonCompliance: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[1].value.sum,
+          penalty: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[2].value.sum
+        })
+      })
+  }
+
+  SupplierDropDown = async value => {
     this.setState({supplier: value})
-    let { dupActualSlaDashboardData } = this.state
+    let { dupActualSlaDashboardData, ordersObject, perspectiveFilter } = this.state
     let array = dupActualSlaDashboardData.filter((data) => {
       if (data.supplier === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
         return (data.supplier === value)
@@ -251,6 +326,14 @@ class SlaDashboard extends React.Component {
         return (data.supplier === value && data.department === this.state.department)
       }
     })
+    perspectiveFilter.parts[ordersObject['supplier']] = {
+      target_component_ids: [
+        array[0].supplierId
+     ]
+    }
+
+    await this.getComplianceData(perspectiveFilter)
+
     let repeatedArrdep = array.map((data) => {
       return data.department
     })
@@ -266,9 +349,10 @@ class SlaDashboard extends React.Component {
     this.setState({supplier: value, supplierFilter: UniqueArrser, UniqueArr: UniqueArrDep, serviceFilter: UniqueArrkpi})
     this.contractValue(value, 'supplier')
   }
+
   serviceDropDown = (value) => {
     this.setState({service: value})
-    let { dupActualSlaDashboardData } = this.state
+    let { dupActualSlaDashboardData, ordersObject, perspectiveFilter } = this.state
     let array = dupActualSlaDashboardData.filter((data) => {
       if (data.service === value && this.state.department === 'Select' && this.state.supplier === 'Select' && this.state.kpi === 'Select') {
         return (data.service === value)
@@ -288,6 +372,29 @@ class SlaDashboard extends React.Component {
         return (data.service === value && data.department === this.state.department)
       }
     })
+    if (!perspectiveFilter.parts['7']) {
+      perspectiveFilter.parts['7'] = {
+        constraint_perspective: {
+          parts: {
+            '5': {
+              constraint_perspective: {
+                parts: {}
+              }
+            }
+          }
+        }
+      }
+    }
+    perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['service']] = {
+      constraint_perspective: {
+        subject_ids: [
+          array[0].serviceId
+        ]
+      }
+    }
+
+    this.getComplianceData(perspectiveFilter)
+
     let repeatedArr = array.map((data) => {
       return data.kpi
     })
@@ -303,9 +410,10 @@ class SlaDashboard extends React.Component {
     this.setState({service: value, serviceFilter: UniqueArrkpi, UniqueArr: UniqueArruni, departmentFilter: UniqueArrsupp})
     this.contractValue(value, 'service')
   }
+
   kpiDropDown = (value) => {
     this.setState({kpi: value})
-    let { dupActualSlaDashboardData } = this.state
+    let { dupActualSlaDashboardData, ordersObject, perspectiveFilter } = this.state
     let array = dupActualSlaDashboardData.filter((data) => {
       if (data.kpi === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.supplier === 'Select') {
         return (data.kpi === value)
@@ -325,6 +433,29 @@ class SlaDashboard extends React.Component {
         return (data.kpi === value && data.service === this.state.service)
       }
     })
+    if (!perspectiveFilter.parts['7']) {
+      perspectiveFilter.parts['7'] = {
+        constraint_perspective: {
+          parts: {
+            '5': {
+              constraint_perspective: {
+                parts: {}
+              }
+            }
+          }
+        }
+      }
+    }
+    perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['kpi']] = {
+      constraint_perspective: {
+        subject_ids: [
+          array[0].kpiId
+        ]
+      }
+    }
+
+    this.getComplianceData(perspectiveFilter)
+
     let repeatedArrUni = array.map((data) => {
       return data.department
     })
@@ -340,6 +471,7 @@ class SlaDashboard extends React.Component {
     this.setState({kpi: value, UniqueArr: UniqueArruni, departmentFilter: UniqueArrdep, supplierFilter: UniqueArrsupp})
     this.contractValue(value, 'kpi')
   }
+
   contractValue = (value, name) => {
     let arrayToBeFiltered = this.state.ActualContractArr
 
@@ -370,6 +502,7 @@ class SlaDashboard extends React.Component {
       this.ActualContracts(arr)
     }
   }
+
   SladropDown = (dupActualSlaDashboardData) => {
     return (
       <div className={styles.HeaderContainer}>
@@ -416,7 +549,6 @@ class SlaDashboard extends React.Component {
                       <a href='javascript:void(0)'
                         onClick={() => {
                             this.SupplierDropDown(val)
-                            this.BarChartValue(val)
                           }
                         }
                       >{val}</a>
@@ -491,23 +623,51 @@ class SlaDashboard extends React.Component {
       </div>
     )
   }
+
   calendarValue = (value) => {
+    let { perspectiveFilter, packageValue } = this.state
+    let a, b, aa, bb
     for (let i = 0; i < value.length; i++) {
       if (i === 0) {
-        let a = new Date(value[i]._d)
-        let b = a.toUTCString()
+        a = new Date(value[i]._d)
+        b = a.toUTCString()
         this.setState({startDate: b})
       } else if (i === 1) {
-        let aa = new Date(value[i]._d)
-        let bb = aa.toUTCString()
+        aa = new Date(value[i]._d)
+        bb = aa.toUTCString()
         this.setState({endDate: bb})
       }
     }
     if (value.length > 1) {
       setTimeout(() => {
         this.valueAccordingToCalendar()
+        if (!perspectiveFilter.parts['7']) {
+          perspectiveFilter.parts['7'] = {
+            constraint_perspective: {
+              parts: {
+                '5': {
+                  constraint_perspective: {
+                    parts: {}
+                  }
+                }
+              }
+            }
+          }
+        }
+        perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts['6'] = {
+          value_set_id: 1,
+          values_start_time: a.toISOString().slice(0, 10),
+          values_end_time: aa.toISOString().slice(0, 10),
+          time_component_id: packageValue
+        }
+        console.log(perspectiveFilter)
+        this.getComplianceData(perspectiveFilter)
       }, 300)
     } else {
+      // deletion of perspective filter calendar
+      if (perspectiveFilter.parts['7']) {
+        delete perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts['6']
+      }
       let depFilter = []
       let supFilter = []
       let serFilter = []
@@ -522,11 +682,13 @@ class SlaDashboard extends React.Component {
         UniqueArr: [...new Set(depFilter)],
         departmentFilter: [...new Set(supFilter)],
         supplierFilter: [...new Set(serFilter)],
-        serviceFilter: [...new Set(kpiFil)]
+        serviceFilter: [...new Set(kpiFil)],
+        perspectiveFilter
       })
       this.setState({dupActualSlaDashboardData: this.state.ActualSlaDashboardData})
     }
   }
+
   valueAccordingToCalendar = () => {
     let { ActualSlaDashboardData } = this.state
     let dupActualSlaDashboardData = []
@@ -547,11 +709,25 @@ class SlaDashboard extends React.Component {
     //   expired: 0
     // })
   }
+
+  packageSelector = (packageName, value) => {
+    this.setState({
+      package: packageName,
+      packageValue: value
+    })
+
+    const { perspectiveFilter } = this.state
+
+    if (perspectiveFilter.parts['7'] && perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts['6']) {
+      perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts['6'].time_component_id = value
+    }
+  }
+
   SlaCalender = () => {
     return (
       <div className={styles.HeaderContainer}>
         {/* dropDown */}
-        <div className={styles.mainDropdown}>
+        <div className={styles.mainDropdownCalender}>
           <div className={styles.LeftText}>
             <p>Period</p>
           </div>
@@ -574,9 +750,37 @@ class SlaDashboard extends React.Component {
             />
           </div>
         </div>
+        <div className={styles.mainDropdown}>
+          <div className={styles.LeftText}>
+            <p>Package</p>
+          </div>
+          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
+            <button className={`btn btn-default dropdown-toggle dropup-btn ${styles.dropDownBtn}`} type='button' data-toggle='dropdown'>
+              {this.state.package}
+              <span className='caret' />
+            </button>
+            <ul className={`dropdown-menu menu ${styles.dropList}`}>
+              {
+                this.state.PackageArr.map((val, key) => {
+                  return (
+                    <li key={key}>
+                      <a href='javascript:void(0)'
+                        onClick={() => {
+                            this.packageSelector(val.package, val.value)
+                          }
+                        }
+                      >{val.package}</a>
+                    </li>
+                  )
+                })
+              }
+            </ul>
+          </div>
+        </div>
       </div>
     )
   }
+
   cardContent = (date, supplier, service, penalty) => {
     return (
       <div className={styles.cards}>
@@ -596,19 +800,7 @@ class SlaDashboard extends React.Component {
       </div>
     )
   }
-  BarChartValue = (val) => {
-    let { SlaDashboardBarChartJson } = this.state
-    let BarChartValue = []
-    SlaDashboardBarChartJson[0].parts[0].value.map((data, i) => {
-      let arr = data.children.filter((value, j) => {
-        return val === value.key
-      })
-      if (arr.length) {
-        BarChartValue.push(arr)
-      }
-    })
-    this.setState({BarChartValue})
-  }
+
   render () {
       return (
         <div className={styles.MainContainer}>
@@ -645,6 +837,20 @@ class SlaDashboard extends React.Component {
                       {this.badgesComponent('Active', this.state.active, '#0abb87')}
                       {this.badgesComponent('Expired', this.state.expired, '#3e0abb')} */}
                     </div>
+                    <div className={styles.slaComparisonText}>
+                      <a href='javascript:void(0)' onClick={() => {
+                          this.props.history.push('/sla-comparison', {
+                            slaDepartment: this.state.department,
+                            slaSupplier: this.state.supplier,
+                            slaService: this.state.service,
+                            slaKpi: this.state.kpi,
+                            slaStartDate: this.state.startDate,
+                            slaEndDate: this.state.endDate
+                          })
+                        }} className={styles.Text}>
+                        SLA Comparison
+                      </a>
+                    </div>
                     <div className={styles.chartContainer}>
                       <div className={styles.pieContainer}>
                         <div className={styles.pieChart}>
@@ -653,7 +859,7 @@ class SlaDashboard extends React.Component {
                               <span>Compliance</span>
                             </div>
                             <div className={styles.Mainchart}>
-                              <PieChart valueOne={this.state.supplier === 'Huawei' ? this.state.HuaweiSlaDashboardPieChartJson[0].parts[0].value[0].value.count : this.state.SlaDashboardPieChartJson[0].parts[0].value[0].value.count} valueTwo={this.state.supplier === 'Huawei' ? this.state.HuaweiSlaDashboardPieChartJson[0].parts[0].value[1].value.count : this.state.SlaDashboardPieChartJson[0].parts[0].value[1].value.count} />
+                              <PieChart valueOne={this.state.compliance} valueTwo={this.state.nonCompliance} />
                             </div>
                           </div>
                         </div>
@@ -673,7 +879,7 @@ class SlaDashboard extends React.Component {
                             </div>
                             <div className={styles.Mainchart}>
                               <Avatar className={styles.avatarTwo} size='large'>
-                                { this.state.supplier === 'Huawei' ? 0.97 : 1.125 }
+                                { this.state.penalty === 0 ? 0 : this.state.penalty ? this.state.penalty.toFixed(2) : 'N/A' }
                               </Avatar>
                             </div>
                           </div>
@@ -682,7 +888,7 @@ class SlaDashboard extends React.Component {
                       <div className={styles.barContainer}>
                         <div className={styles.pieChart}>
                           <div className={styles.Barchart}>
-                            <Barchart BarChartValue={this.state.BarChartValue} />
+                            <Barchart BarChartValue={this.state.BarChartValue} supplier={this.state.supplier} />
                           </div>
                         </div>
                       </div>
