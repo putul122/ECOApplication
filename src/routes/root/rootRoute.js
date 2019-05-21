@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import AppWrapper from '../../components/appWrapper/appWrapperComponent'
-import MxGraphComponent from '../../components/MxGraphTestComponent'
+// import MxGraphComponent from '../../components/MxGraphTestComponent'
 
 if (module.hot) {
   module.hot.accept()
