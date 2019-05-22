@@ -6,11 +6,18 @@
     box-shadow: 2px 2px 15px lightgray !important;
     padding: 10px;
 }
+.dateContainer{
+    display: flex;
+    
+}
 .HeaderContainer{
     flex:0.7;
     padding-left: 10px;
     align-items: center;
     display: flex;
+}
+.slaComparisonText{
+    margin-bottom: 20px;
 }
 .ContentContainer{
     flex:10;
@@ -20,6 +27,11 @@
 .mainDropdown{
     display: flex !important;
     flex-direction: row !important;
+}
+.mainDropdownCalender{
+    display: flex !important;
+    flex-direction: row !important;
+    margin-right: 10px;
 }
 .LeftText{
     display: flex;

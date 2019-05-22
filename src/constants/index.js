@@ -211,7 +211,9 @@ const api = {
   getPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SM',
   getSLAPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SLA',
   getAllPackages: 'https://ecoconductor-dev-api-model.azurewebsites.net/model_packages',
-  getMxGraphData: 'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/24'
+  perspectiveFilter: function (filter) {
+    return 'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=15&view_key[0]=ContractsList_Compliance&filter[0]=' + filter
+  }
 }
 
 export default api
