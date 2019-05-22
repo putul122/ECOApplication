@@ -36,7 +36,7 @@ class SlamSupplier extends Component {
       this.setState({
         loader: true
       })
-    }, 5000)
+    }, 500)
   }
 
   unselectAll = async () => {

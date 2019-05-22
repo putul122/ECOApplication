@@ -57,7 +57,7 @@ class PenaltyDashboard extends React.Component {
       this.setState({
         loader: true
       })
-    }, 5000)
+    }, 500)
   }
 
   unselectAll = async () => {
@@ -746,7 +746,7 @@ class PenaltyDashboard extends React.Component {
       } else if (this.props.location.state.slaStartDate !== '') {
         this.calendarValue([], [], [], true)
       }
-    }, 1000)
+    }, 100)
   }
 
   render () {

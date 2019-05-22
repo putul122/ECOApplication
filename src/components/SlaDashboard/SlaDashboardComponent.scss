@@ -220,6 +220,9 @@
     outline:none !important;
     border:none !important;
 }
+.btnprops:hover {
+    cursor: pointer;
+}
 .chart{
     width:90%;
     height: 90%;
@@ -255,10 +258,13 @@
     align-items: center;
 }
 .clearFilter{
-    width:250px;
+    max-width:250px;
     color: white !important;
     background-color: #fd397a !important;
 }
 .emptyPara{
     height: 25px;
+}
+.mouseEnter{
+    cursor: pointer;
 }

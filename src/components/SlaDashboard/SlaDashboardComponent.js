@@ -701,7 +701,7 @@ class SlaDashboard extends React.Component {
       }
     }
     this.setState({dupActualSlaDashboardData})
-    this.unselectAll()
+    // this.unselectAll()
     // this.setState({
     //   drafts: 0,
     //   agreed: 0,
@@ -710,7 +710,7 @@ class SlaDashboard extends React.Component {
     // })
   }
 
-  packageSelector = (packageName, value) => {
+  packageSelector = async (packageName, value) => {
     this.setState({
       package: packageName,
       packageValue: value
@@ -720,6 +720,9 @@ class SlaDashboard extends React.Component {
 
     if (perspectiveFilter.parts['7'] && perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts['6']) {
       perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts['6'].time_component_id = value
+      await this.setState({perspectiveFilter})
+      console.log('perspectiveFilter', perspectiveFilter)
+      this.getComplianceData(perspectiveFilter)
     }
   }
 
@@ -837,8 +840,24 @@ class SlaDashboard extends React.Component {
                       {this.badgesComponent('Active', this.state.active, '#0abb87')}
                       {this.badgesComponent('Expired', this.state.expired, '#3e0abb')} */}
                     </div>
-                    <div className={styles.slaComparisonText}>
-                      <a href='javascript:void(0)' onClick={() => {
+                    <div className={styles.btnprops} onClick={() => {
+                      this.props.history.push('sla-comparison', {
+                          slaDepartment: this.state.department,
+                          slaSupplier: this.state.supplier,
+                          slaService: this.state.service,
+                          slaKpi: this.state.kpi,
+                          slaStartDate: this.state.startDate,
+                          slaEndDate: this.state.endDate
+                        })
+                      }} role='button' tabIndex={0} onKeyDown={() => this.props.history.push('penalty-dashboard')}>
+                      <div className={styles.chart}>
+                        <div className={styles.chartText}>
+                          <span>SLA Comparison</span>
+                        </div>
+                      </div>
+                    </div>
+                    {/* <div className={styles.slaComparisonText}>
+                      <button onKeyDown={() => console.log('hello')} onClick={() => {
                           this.props.history.push('/sla-comparison', {
                             slaDepartment: this.state.department,
                             slaSupplier: this.state.supplier,
@@ -849,8 +868,8 @@ class SlaDashboard extends React.Component {
                           })
                         }} className={styles.Text}>
                         SLA Comparison
-                      </a>
-                    </div>
+                      </button>
+                    </div> */}
                     <div className={styles.chartContainer}>
                       <div className={styles.pieContainer}>
                         <div className={styles.pieChart}>
