@@ -99,6 +99,7 @@ export default function BalancedScorecard (props) {
         payload['meta_model_perspective_id'] = data.metaModelPerspectives.id
         payload['view_key'] = data.metaModelPerspectives.view_key
         payload['parent_reference'] = data.parentReference
+        payload['filter[0]'] = data.childFilter
         if (data.containerPerspectiveId) {
           payload['container_meta_model_perspective_id'] = data.containerPerspectiveId
           payload['container_view_key'] = data.containerPerspectiveViewKey
@@ -326,104 +327,6 @@ export default function BalancedScorecard (props) {
     addSettings.description = event.target.value
     props.setAddSettings(addSettings)
   }
-  let createNexusComponent = function (event) {
-    event.preventDefault()
-    // eslint-disable-next-line
-    mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
-    let addSettings = JSON.parse(JSON.stringify(props.addSettings))
-    let patchPayload = []
-    let obj = {}
-    obj.op = 'add'
-    obj.path = '/-'
-    obj.value = {}
-    obj.value.parts = []
-    let connectionData = JSON.parse(JSON.stringify(props.connectionData))
-    let groupedPairedList = props.addSettings.groupedPairedList
-    connectionData.selectedValues.forEach(function (data, index) {
-      if (Array.isArray(data)) {
-        if (data.length > 0) {
-          let connections = []
-          data.forEach(function (selectedValue, ix) {
-            let obj = {}
-            obj.target_id = selectedValue.id
-            connections.push(obj)
-          })
-          let extraArray = []
-          extraArray.push(connections)
-          obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
-        } else {
-          // obj.value.parts[connectionData.data[index].partIndex] = {}
-        }
-      } else {
-        if (data) {
-          let connections = []
-          let obj1 = {}
-          obj1.target_id = data.id
-          connections.push(obj1)
-          let extraArray = []
-          extraArray.push(connections)
-          obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
-        } else {
-          // obj.value.parts[connectionData.data[index].partIndex] = {}
-        }
-      }
-    })
-    if (groupedPairedList.length > 0) {
-      let groupedValues = []
-      groupedPairedList.forEach(function (data, index) {
-        let values = []
-        if (data[0]) {
-          let cObj = {}
-          cObj.target_id = data[0].id
-          values.push(cObj)
-        }
-        if (data[1]) {
-          let cObj = {}
-          cObj.target_id = data[1].id
-          values.push(cObj)
-        }
-        groupedValues.push(values)
-      })
-      obj.value.parts.push({'value': groupedValues})
-    }
-    // connectionData.standardProperty.forEach(function (data, index) {
-    //   if (data.standard_property === 'name') {
-    //     obj.value.parts[data.partIndex] = {'value': addSettings.name}
-    //   } else if (data.standard_property === 'description') {
-    //     obj.value.parts[data.partIndex] = {'value': addSettings.description}
-    //   }
-    // })
-    // connectionData.customerProperty.forEach(function (data, index) {
-    //   if (data.type_property.property_type.key === 'Boolean') {
-    //     obj.value.parts[data.partIndex] = {value: {'boolean_value': data.type_property.boolean_value}}
-    //   } else if (data.type_property.property_type.key === 'Integer') {
-    //     obj.value.parts[data.partIndex] = {value: {'int_value': data.type_property.int_value}}
-    //   } else if (data.type_property.property_type.key === 'Decimal') {
-    //     obj.value.parts[data.partIndex] = {value: {'float_value': data.type_property.float_value}}
-    //   } else if (data.type_property.property_type.key === 'DateTime') {
-    //     obj.value.parts[data.partIndex] = {value: {'date_time_value': data.type_property.date_time_value}}
-    //   } else if (data.type_property.property_type.key === 'Text') {
-    //     obj.value.parts[data.partIndex] = {value: {'text_value': data.type_property.text_value}}
-    //   } else if (data.type_property.property_type.key === 'List') {
-    //     obj.value.parts[data.partIndex] = {value: {'value_set_value_id': data.type_property.value_set_value ? data.type_property.value_set_value.id : null}}
-    //   } else {
-    //     obj.value.parts[data.partIndex] = {value: {'other_value': data.type_property.other_value}}
-    //   }
-    // })
-    patchPayload.push(obj)
-    let payload = {}
-    payload.queryString = {}
-    payload.queryString.meta_model_perspective_id = props.addSettings.perspectiveId
-    payload.queryString.view_key = props.addSettings.viewKey
-    payload.queryString.apply_changes = true
-    if (addSettings.initiatedFrom === 'ChildrenNode') {
-      payload.queryString.parent_reference = addSettings.selectedData.parentReference
-    }
-    payload.data = {}
-    payload.data[props.addSettings.perspectiveId] = patchPayload
-    console.log('payload', payload)
-    props.updateModelPrespectives(payload)
-  }
   let createComponent = function (event) {
     event.preventDefault()
     // eslint-disable-next-line
@@ -485,6 +388,12 @@ export default function BalancedScorecard (props) {
         obj.value.parts[data.partIndex] = {value: {'other_value': data.type_property.other_value}}
       }
     })
+    if (addSettings.isNexusPoint) {
+      let metricObject = {'target_id': connectionData.metricSelectedValue[0].subjectId}
+      let metricPointArray = []
+      metricPointArray.push(metricObject)
+      obj.value.parts.push({'value': metricPointArray})
+    }
     patchPayload.push(obj)
     let payload = {}
     payload.queryString = {}
@@ -821,6 +730,7 @@ export default function BalancedScorecard (props) {
       obj.level = currentLevel
       headerColumn.push(obj)
     })
+    console.log('childLabelParts', childLabelParts)
     if (childData) {
       childLabelParts.forEach(function (labelData, cix) {
         if (labelData.standard_property !== null && labelData.type_property === null) { // Standard Property
@@ -828,8 +738,9 @@ export default function BalancedScorecard (props) {
             selectedObject.name = childData[cix] ? childData[cix].value : ''
           }
         } else if (labelData.standard_property === null && labelData.type_property === null) { // Connection Property
-          if (labelData.constraint_perspective) {
+          if (labelData.constraint_perspective && !labelData.nexus) {
             selectedObject.parentReference = childData[cix] ? childData[cix].value.parent_reference : null
+            selectedObject.childFilter = childData[cix] ? childData[cix].value.child_filter : null
             selectedObject.metaModelPerspectives = childLabelParts[cix].constraint_perspective
             selectedObject.containerPerspectiveId = childLabelParts[cix].container_perspective_id
             selectedObject.containerPerspectiveViewKey = childLabelParts[cix].container_perspective_view_key
@@ -842,6 +753,7 @@ export default function BalancedScorecard (props) {
           // }
         }
       })
+      let totalMetricPoints = 0
       childLabelParts.forEach(function (labelData, cix) {
         let childValue
         if (labelData.standard_property !== null && labelData.type_property === null) { // Standard Property
@@ -888,8 +800,11 @@ export default function BalancedScorecard (props) {
           }
         } else if (labelData.standard_property === null && labelData.type_property === null) { // Connection Property
           // console.log('partData', partData, labelParts[ix], ix)
-          if (labelData.constraint_perspective && !labelData.group_with_previous) {
-            // selectedObject.parentReference = childPartData.value.parent_reference
+          if (labelData.constraint_perspective && !labelData.nexus) {
+            console.log('calculate', cix, totalMetricPoints, childData)
+            if (totalMetricPoints > 0) {
+              selectedObject.parentReference = childData[cix + totalMetricPoints - 1].value.parent_reference
+            }
             // let columnHeaderName = labelData.constraint_perspective.name
             // if (columnHeaderName != null && columnHeaderName.length > 0 && columnHeaderName.charAt(columnHeaderName.length - 1) === 's') {
             //   childValue = columnHeaderName.substring(0, columnHeaderName.length - 1)
@@ -907,28 +822,22 @@ export default function BalancedScorecard (props) {
               headerColumn[columnId].level = 0
             }
           }
-          if (labelData.group_with_previous) {
-            // selectedObject.parentReference = childPartData.value.parent_reference
-            let columnHeaderName = labelData.constraint_perspective.name.toString()
-            if (columnHeaderName != null && columnHeaderName.length > 0 && columnHeaderName.charAt(columnHeaderName.length - 1) === 's') {
-              columnHeaderName = columnHeaderName.substring(0, columnHeaderName.length - 1)
-            }
-            let groupDataValue = childData[cix] ? childData[cix].value : null
-            if (groupDataValue) {
-              childValue = groupDataValue.items[0].subject_name
-            }
-            // childValue = labelData.constraint_perspective.name
-            // selectedObject.metaModelPerspectives = childLabelParts[cix].constraint_perspective
-            if (labelData.role_perspectives) {
-              childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}><a onClick={() => openModal(selectedObject, 'ChildrenNode', 'Add')} href='javascript:void(0);' >{'Add ' + childValue}</a></td>)
-            } else {
-              childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}>{childValue}</td>)
-            }
-            let columnId = props.headerData.headerColumn.indexOf(columnHeaderName)
-            if (columnId !== -1) {
-              headerColumn[columnId].isProcessed = true
-              headerColumn[columnId].level = 0
-            }
+          if (labelData.constraint_perspective && labelData.nexus) {
+            let metricMetaPerspectives = labelData.constraint_perspective
+            totalMetricPoints = metricMetaPerspectives.parts.length
+            metricMetaPerspectives.parts.forEach(function (metricData, mix) {
+              let headerIndex = _.findIndex(headerColumn, function (o) { return o.name === metricData.name })
+              if (headerIndex) {
+                headerColumn[headerIndex].isProcessed = true
+                headerColumn[headerIndex].level = currentLevel
+                let subjectValue = childData[cix + mix] ? childData[cix + mix].value.subject_part.value : ''
+                if (subjectValue.length > 0) {
+                  childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_start_metric' + mix}>{subjectValue[0].target_component.name}</td>)
+                } else {
+                  childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_start_metric' + mix}>{''}</td>)
+                }
+              }
+            })
           }
         }
       })
@@ -1068,6 +977,7 @@ export default function BalancedScorecard (props) {
                   } else if (labelData.standard_property === null && labelData.type_property === null) { // Connection Property
                     if (labelData.constraint_perspective) {
                       selectedObject.parentReference = data.parts[cix] ? data.parts[cix].value.parent_reference : null
+                      selectedObject.childFilter = data.parts[cix] ? data.parts[cix].value.child_filter : null
                       selectedObject.metaModelPerspectives = labelParts[cix].constraint_perspective
                       selectedObject.containerPerspectiveId = labelParts[cix].container_perspective_id
                       selectedObject.containerPerspectiveViewKey = labelParts[cix].container_perspective_view_key
@@ -1141,11 +1051,13 @@ export default function BalancedScorecard (props) {
                   // }
                 })
               }
+              let length = headerColumn.length
               headerColumn.forEach(function (columnData, cid) {
-                if (!columnData.isProcessed) {
+                if (!columnData.isProcessed & length !== cid + 1) {
                   rowColumn.push(<td className='' key={'ch_' + index + '_emp' + cid} >{''}</td>)
                 }
               })
+              console.log('headerColumn', headerColumn)
               // let availableAction = {...props.availableAction}
               // let list = []
               // if (availableAction.Update) {
@@ -1270,6 +1182,7 @@ export default function BalancedScorecard (props) {
       console.log('newValue', newValue)
       console.log('actionMeta', actionMeta)
       console.log('index', index)
+      console.log('type', type)
       let connectionData = {...props.connectionData}
       if (type === 'Connection') {
         let selectedValues = connectionData.selectedValues
@@ -1289,11 +1202,39 @@ export default function BalancedScorecard (props) {
         if (actionMeta.action === 'select-option' || actionMeta.action === 'remove-value') {
           selectedValues[index] = newValue
           connectionData.metricSelectedValue = selectedValues
+          let subjectId = newValue.subjectId
+          let selectOption = connectionData.metricSelectOption
+          let backupSelectOption = connectionData.backupMetricSelectOption
+          let selectOptionLength = selectOption.length
+          for (let i = index + 1; i < selectOptionLength; i++) {
+            if (selectOption[i]) {
+              let filterObject = _.find(backupSelectOption[i], function (obj) {
+                return obj.subjectId === subjectId
+              })
+              let filterArray = []
+              filterArray.push(filterObject)
+              selectOption[i] = filterArray
+              selectedValues[i] = []
+            }
+          }
+          connectionData.metricSelectOption = selectOption
           props.setConnectionData(connectionData)
         }
         if (actionMeta.action === 'clear') {
+          let selectedValues = connectionData.selectedValues
           selectedValues[index] = null
           connectionData.metricSelectedValue = selectedValues
+          let selectOption = connectionData.metricSelectOption
+          let backupSelectOption = connectionData.backupMetricSelectOption
+          let selectOptionLength = selectOption.length
+          for (let i = index + 1; i < selectOptionLength; i++) {
+            if (selectOption[i]) {
+              let restoreList = backupSelectOption[i]
+              selectOption[i] = restoreList
+              selectedValues[i] = []
+            }
+          }
+          connectionData.metricSelectOption = selectOption
           props.setConnectionData(connectionData)
         }
       }
@@ -1666,8 +1607,7 @@ return (
               </div>
               <div className='modal-footer'>
                 <button type='button' onClick={closeModal} className='btn btn-outline-danger btn-sm'>Close</button>
-                {props.addSettings.createResponse === null && !props.addSettings.isNexusPoint && (<button className='btn btn-outline-info btn-sm' onClick={createComponent} >Add</button>)}
-                {props.addSettings.createResponse === null && props.addSettings.isNexusPoint && (<button className='btn btn-outline-info btn-sm' onClick={createNexusComponent} >Add</button>)}
+                {props.addSettings.createResponse === null && (<button className='btn btn-outline-info btn-sm' onClick={createComponent} >Add</button>)}
               </div>
             </div>
           </div>

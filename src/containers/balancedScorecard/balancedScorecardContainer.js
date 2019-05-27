@@ -251,6 +251,8 @@ export default compose(
                 let payload = {}
                 payload['meta_model_perspective_id[0]'] = data.constraint_perspective.id
                 payload['view_key[0]'] = data.constraint_perspective.view_key
+                console.log('dropcall', nextProps)
+                payload['filter[0]'] = addSettings.selectedData.childFilter
                 nextProps.fetchAllDropdownData && nextProps.fetchAllDropdownData(payload)
                 addSettings.isNexusPoint = true
                 nextProps.setAddSettings(addSettings)
