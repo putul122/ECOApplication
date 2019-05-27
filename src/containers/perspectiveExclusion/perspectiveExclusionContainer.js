@@ -24,8 +24,7 @@ export function mapStateToProps (state, props) {
     deleteComponentResponse: state.perspectiveExclusionReducer.deleteComponentResponse,
     connectionData: state.perspectiveExclusionReducer.connectionData,
     dropdownData: state.perspectiveExclusionReducer.dropdownData,
-    headerData: state.perspectiveExclusionReducer.headerData,
-    allDropdownData: state.perspectiveExclusionReducer.allDropdownData
+    headerData: state.perspectiveExclusionReducer.headerData
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch

@@ -36,6 +36,7 @@ class SlaDashboard extends React.Component {
       UniqueArr: [],
       startDate: '',
       endDate: '',
+      slaComparisonArray: [],
       ordersObject: {},
       perspectiveFilter: {
         parts: {}
@@ -135,6 +136,7 @@ class SlaDashboard extends React.Component {
       serFilter.push(data.service)
       kpiFil.push(data.kpi)
     })
+    console.log('abc', ActuallArr)
     this.setState({
       UniqueArr: [...new Set(depFilter)],
       departmentFilter: [...new Set(supFilter)],
@@ -161,7 +163,8 @@ class SlaDashboard extends React.Component {
     }
     this.setState({
       metaContracts,
-      contractStages: cStages
+      contractStages: cStages,
+      slaComparisonArray: ActuallArr
     })
   }
 
@@ -303,7 +306,6 @@ class SlaDashboard extends React.Component {
         })
       })
   }
-
   SupplierDropDown = async value => {
     this.setState({supplier: value})
     let { dupActualSlaDashboardData, ordersObject, perspectiveFilter } = this.state
@@ -623,6 +625,14 @@ class SlaDashboard extends React.Component {
       </div>
     )
   }
+  isEmpty = (obj) => {
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        return false
+      }
+    }
+    return true
+  }
 
   calendarValue = (value) => {
     let { perspectiveFilter, packageValue } = this.state
@@ -664,10 +674,14 @@ class SlaDashboard extends React.Component {
         this.getComplianceData(perspectiveFilter)
       }, 300)
     } else {
-      // deletion of perspective filter calendar
       if (perspectiveFilter.parts['7']) {
         delete perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts['6']
+        if (this.isEmpty(perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts)) {
+          alert(123)
+          delete perspectiveFilter.parts['7']
+        }
       }
+      console.log(perspectiveFilter)
       let depFilter = []
       let supFilter = []
       let serFilter = []
@@ -835,41 +849,41 @@ class SlaDashboard extends React.Component {
                           </div>
                         })
                       }
-                      {/* {this.badgesComponent('Draft', this.state.drafts, 'orange')}
-                      {this.badgesComponent('Agreed', this.state.agreed, '#fd397a')}
-                      {this.badgesComponent('Active', this.state.active, '#0abb87')}
-                      {this.badgesComponent('Expired', this.state.expired, '#3e0abb')} */}
                     </div>
-                    <div className={styles.btnprops} onClick={() => {
+                    {/* <div className={styles.btnpropsComparison} onClick={() => {
                       this.props.history.push('sla-comparison', {
                           slaDepartment: this.state.department,
                           slaSupplier: this.state.supplier,
                           slaService: this.state.service,
                           slaKpi: this.state.kpi,
                           slaStartDate: this.state.startDate,
-                          slaEndDate: this.state.endDate
+                          slaEndDate: this.state.endDate,
+                          slaComparisonArray: this.state.slaComparisonArray
                         })
                       }} role='button' tabIndex={0} onKeyDown={() => this.props.history.push('penalty-dashboard')}>
-                      <div className={styles.chart}>
-                        <div className={styles.chartText}>
-                          <span>SLA Comparison</span>
+                      <div className={styles.chartComparison}>
+                        <div className={styles.chartTextComparison}>
+                          <span className={styles.textComparison}>SLA Comparison</span>
                         </div>
                       </div>
-                    </div>
-                    {/* <div className={styles.slaComparisonText}>
-                      <button onKeyDown={() => console.log('hello')} onClick={() => {
-                          this.props.history.push('/sla-comparison', {
-                            slaDepartment: this.state.department,
-                            slaSupplier: this.state.supplier,
-                            slaService: this.state.service,
-                            slaKpi: this.state.kpi,
-                            slaStartDate: this.state.startDate,
-                            slaEndDate: this.state.endDate
-                          })
-                        }} className={styles.Text}>
-                        SLA Comparison
-                      </button>
                     </div> */}
+                    <div className={styles.btnpropsComparison}>
+                      <div className={`dropdown dropup-showing ${styles.dropDown}`}>
+                        <button onClick={() => {
+                          this.props.history.push('sla-comparison', {
+                              slaDepartment: this.state.department,
+                              slaSupplier: this.state.supplier,
+                              slaService: this.state.service,
+                              slaKpi: this.state.kpi,
+                              slaStartDate: this.state.startDate,
+                              slaEndDate: this.state.endDate,
+                              slaComparisonArray: this.state.slaComparisonArray
+                            })
+                          }} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} type='button'>
+                          Sla Comparison
+                        </button>
+                      </div>
+                    </div>
                     <div className={styles.chartContainer}>
                       <div className={styles.pieContainer}>
                         <div className={styles.pieChart}>
@@ -907,7 +921,7 @@ class SlaDashboard extends React.Component {
                       <div className={styles.barContainer}>
                         <div className={styles.pieChart}>
                           <div className={styles.Barchart}>
-                            <Barchart BarChartValue={this.state.BarChartValue} supplier={this.state.supplier} />
+                            <Barchart BarChartValue={this.state.BarChartValue} supplier={this.state.supplier} duration={this.state.package} />
                           </div>
                         </div>
                       </div>

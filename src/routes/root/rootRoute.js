@@ -243,15 +243,6 @@ export default class Root extends Component {
             }
             resolve(require('../perspectiveHierarchyPage/perspectiveHierarchyPageRoute').default)
           break
-          case 'billing':
-            if (module.hot) {
-                    module.hot.accept('../balancedScorecard/balancedScorecardRoute', () => {
-                require('../balancedScorecard/balancedScorecardRoute').default // eslint-disable-line
-                        this.forceUpdate()
-                    })
-            }
-            resolve(require('../balancedScorecard/balancedScorecardRoute').default)
-          break
           case 'perspectiveExclusion':
             if (module.hot) {
                     module.hot.accept('../perspectiveExclusionPage/perspectiveExclusionPageRoute', () => {
@@ -442,11 +433,6 @@ export default class Root extends Component {
               exact
               path='/change_password'
               component={props => this.loadView('changePassword', props)}
-            />
-            <Route
-              exact
-              path='/billing'
-              component={props => this.loadView('billing', props)}
             />
             <Route
               exact
