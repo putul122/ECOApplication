@@ -212,19 +212,19 @@ export default function HeaderComponent (props) {
                             <div className='m-dropdown__content'>
                               <ul className='kt-nav kt-margin-b-10'>
                                 <li className='kt-nav__item'>
-                                  <a className='kt-nav__link'>
+                                  <a href='/users' className='kt-nav__link'>
                                     <span className='kt-nav__link-icon'><i className='flaticon-user' /></span>
                                     <span className='kt-nav__link-text'>Users</span>
                                   </a>
                                 </li>
                                 <li className='kt-nav__item'>
-                                  <a className='kt-nav__link'>
+                                  <a href='/roles' className='kt-nav__link'>
                                     <span className='kt-nav__link-icon'><i className='flaticon-interface-8' /></span>
                                     <span className='kt-nav__link-text'>Roles</span>
                                   </a>
                                 </li>
                                 <li className='kt-nav__item'>
-                                  <a className='kt-nav__link'>
+                                  <a href='/billing' className='kt-nav__link'>
                                     <span className='kt-nav__link-icon'><i className='flaticon-coins' /></span>
                                     <span className='kt-nav__link-text'>Billing</span>
                                   </a>
