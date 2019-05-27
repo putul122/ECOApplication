@@ -2,6 +2,7 @@ import {connect} from 'react-redux'
 import BalancedScorecard from '../../components/balancedScorecard/balancedScorecardComponent'
 // For Lifecycle composing
 import {compose, lifecycle} from 'recompose'
+import _ from 'lodash'
 import {actions as sagaActions} from '../../redux/sagas/'
 import {actionCreators} from '../../redux/reducers/balancedScorecard/balancedScorecardReducer'
 import { actionCreators as basicActionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
@@ -81,9 +82,16 @@ toastr.options = {
   'showMethod': 'fadeIn',
   'hideMethod': 'fadeOut'
 }
-let perspectiveId = 72
-let perspectiveViewKey = 'PenaltyAgreementList'
-
+let perspectiveViewKey = null
+let packages = JSON.parse(localStorage.getItem('packages'))
+let perspectives = _.result(_.find(packages.resources, function (obj) {
+  return obj.key === 'ECO_SLA'
+}), 'perspectives')
+let perspectiveObject = _.find(perspectives, function (obj) {
+  return (obj.key === 'PenaltyAgreement_List' && obj.role_key === 'List')
+})
+let perspectiveId = perspectiveObject.perspective
+perspectiveViewKey = perspectiveObject.view_key
 // export default connect(mapStateToProps, propsMapping)(BalancedScorecard)
 export default compose(
   connect(mapStateToProps, propsMapping),
