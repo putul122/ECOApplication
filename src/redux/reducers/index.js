@@ -27,6 +27,7 @@ import dataReducer from './data/dataReducer'
 import penaltyReducer from './penaltyDashboardReducer/penaltyDashboardReducerReducer'
 import perspectiveExclusionReducer from './perspectiveExclusion/perspectiveExclusionReducer'
 import balancedScorecardReducer from './balancedScorecard/balancedScorecardReducer'
+import mxGraphReducer from './mxGraphReducer/mxGraphReducerReducer'
 
 export default combineReducers({
     basicReducer,
@@ -56,5 +57,6 @@ export default combineReducers({
     dataReducer,
     penaltyReducer,
     perspectiveExclusionReducer,
-    balancedScorecardReducer
+    balancedScorecardReducer,
+    mxGraphReducer
 })

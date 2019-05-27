@@ -24,7 +24,6 @@ var connection = new signalR.HubConnectionBuilder()
           .configureLogging(signalR.LogLevel.Information)
           .build()
 connection.start().then(function () {
-  console.log('Connection Started---- >', connection)
   connection.invoke('GetNotificationStatus').catch(err => console.error('Call GetNotificationStatus method---', err))
 }).catch(err => console.error('connection error --------------', err))
 
@@ -42,9 +41,7 @@ export default function HeaderComponent (props) {
   }
 
   connection.on('ReceiveMessage', (payload) => {
-    console.log('1111111111111111111111111111111111111110000000000000000000000000000000000')
     payload = JSON.parse(payload)
-    console.log('ReceiveMessage -----------------------', payload)
     if (payload.notify) {
       props.setNotificationFlag(true)
     } else {

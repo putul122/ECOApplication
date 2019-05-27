@@ -210,7 +210,10 @@ const api = {
   iconURL: 'https://ecoconductor-dev-api-resources.azurewebsites.net/icons/',
   getPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SM',
   getSLAPackage: 'https://model-eco-dev.ecoconductor.com/model_packages/ECO_SLA',
-  getAllPackages: 'https://ecoconductor-dev-api-model.azurewebsites.net/model_packages'
+  getAllPackages: 'https://ecoconductor-dev-api-model.azurewebsites.net/model_packages',
+  perspectiveFilter: function (filter) {
+    return 'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=15&view_key[0]=ContractsList_Compliance&filter[0]=' + filter
+  }
 }
 
 export default api

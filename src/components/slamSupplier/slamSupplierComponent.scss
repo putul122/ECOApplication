@@ -1,71 +1,48 @@
 .MainContainer{
     display: flex;
     flex-direction: column;
-    height: 120vh;
+    height: 100vh;
     background-color: white;
     box-shadow: 2px 2px 15px lightgray !important;
     padding: 10px;
 }
-.dateContainer{
-    display: flex;
-    
-}
 .HeaderContainer{
-    flex:0.7;
-    padding-left: 10px;
+    flex:1;
     align-items: center;
-    display: flex;
-}
-.slaComparisonText{
-    margin-bottom: 20px;
+    margin-top: 20px;
+
 }
 .ContentContainer{
-    flex:10;
+    flex:5;
     display: flex;
     flex-direction: row;
+    margin-top: 30px;
 }
 .mainDropdown{
     display: flex !important;
     flex-direction: row !important;
 }
-.mainDropdownCalender{
-    display: flex !important;
-    flex-direction: row !important;
-    margin-right: 10px;
-}
 .LeftText{
     display: flex;
-    justify-content: center;
     align-items: center;
     color: #666c8b;
     font-size: 16px;
     font-weight: bold;
-    margin-right: 10px;
-}
-.LeftTextColor{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #858fdc;
-    font-size: 16px;
-    font-weight: bold;
-    margin-right: 10px;
+    margin: 0px 10px 20px 30px;
+    text-align: right;
+    width: 10%;
 }
 .dropDown{
 }
 .dropDownBtn{
     padding: 7px 11px;
-    overflow: hidden;
-    // min-width:150px ;
-    // max-width: 230px;
-    width: 145px;
     margin-right: 10px;
     // border:1px solid #5d77fc !important;
 }
 .dropList{
     width: 94%;
-    overflow-y: scroll;
     max-height: 300px;
+    overflow-y: auto;
 }
 .RangePicker{
     width:500px !important;
@@ -80,7 +57,7 @@
 .rightContainer{
     background-color: #f7f8fa;
     flex:1;
-    height: 97%;
+    height: 100%;
     box-shadow: 0px 0px 4px lightgrey;
 }
 .contractContainer{
@@ -188,7 +165,7 @@
     padding-right: 10px;
 }
 .pieContainer{
-    flex:0.5;
+    flex:1;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -210,15 +187,6 @@
     display: flex;
     justify-content: center;
     align-items: center;
-}
-.btnprops{
-    flex:1;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    outline:none !important;
-    border:none !important;
 }
 .chart{
     width:90%;
@@ -254,11 +222,15 @@
     display: flex;
     align-items: center;
 }
-.clearFilter{
-    width:250px;
-    color: white !important;
-    background-color: #fd397a !important;
+.largeBtn{
+    width: 352px !important;
+    justify-content: space-between !important;
+    display: flex !important;
+    padding-right: 20px !important;
 }
-.emptyPara{
-    height: 25px;
+.smallBtn{
+    width: 252px !important;
+    justify-content: space-between !important;
+    display: flex !important;
+    padding-right: 20px !important;
 }
