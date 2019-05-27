@@ -180,8 +180,6 @@ export default function BalancedScorecard (props) {
     // }
     // end of code for check level operation
     addSettings.isNexusPoint = false
-    addSettings.groupCollection = []
-    addSettings.groupedPairedList = []
     let perspectiveId = ''
     let viewKey = ''
     if (operationType === 'Add') {
@@ -199,19 +197,21 @@ export default function BalancedScorecard (props) {
       let perspectives = _.result(_.find(packages.resources, function (obj) {
         return obj.key === 'ECO_SLA'
       }), 'perspectives')
-      perspectiveId = props.match.params.id
-      console.log('perspectives', packages, perspectives, perspectiveId)
       if (operationType === 'Add') {
-        viewKey = _.result(_.find(perspectives, function (obj) {
-          return (obj.perspective === parseInt(perspectiveId) && obj.role_key === 'Create')
-        }), 'view_key')
+        let perspectiveObject = _.find(perspectives, function (obj) {
+          return (obj.key === 'PenaltyAgreement_Add' && obj.role_key === 'Create')
+        })
+        perspectiveId = perspectiveObject.perspective
+        viewKey = perspectiveObject.view_key
       } else if (operationType === 'Edit') {
-        viewKey = _.result(_.find(perspectives, function (obj) {
-          return (obj.perspective === parseInt(perspectiveId) && obj.role_key === 'Update')
-        }), 'view_key')
+        let perspectiveObject = _.find(perspectives, function (obj) {
+          return (obj.key === 'PenaltyAgreement_Update' && obj.role_key === 'Update')
+        })
+        perspectiveId = perspectiveObject.perspective
+        viewKey = perspectiveObject.view_key
       }
 
-      console.log('view_key key', viewKey, perspectiveId, perspectives)
+      console.log('view_key key', viewKey, perspectiveId)
       if (viewKey) {
         let payload = {}
         payload.id = perspectiveId
@@ -673,15 +673,16 @@ export default function BalancedScorecard (props) {
     payload.id = props.addSettings.deleteObject.subjectId
     payload.queryString = {}
     if (props.addSettings.initiatedFrom === 'ParentNode') {
+      let viewKey = null
       let packages = JSON.parse(localStorage.getItem('packages'))
       let perspectives = _.result(_.find(packages.resources, function (obj) {
         return obj.key === 'ECO_SLA'
       }), 'perspectives')
-      let perspectiveId = props.match.params.id
-      let viewKey = null
-      viewKey = _.result(_.find(perspectives, function (obj) {
-        return (obj.perspective === parseInt(perspectiveId) && obj.role_key === 'Delete')
-      }), 'view_key')
+      let perspectiveObject = _.find(perspectives, function (obj) {
+        return (obj.key === 'PenaltyAgreement_Delete' && obj.role_key === 'Delete')
+      })
+      let perspectiveId = perspectiveObject.perspective
+      viewKey = perspectiveObject.view_key
       payload.queryString.meta_model_perspective_id = perspectiveId
       payload.queryString.view_key = viewKey
       payload.queryString.apply_changes = true
