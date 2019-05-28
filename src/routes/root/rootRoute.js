@@ -311,7 +311,7 @@ export default class Root extends Component {
           }
           resolve(require('../penaltyDashboardPage/PenaltyDashboardRoute').default)
             break
-          case 'mxgraph':
+          case 'mxgraphTest':
           if (module.hot) {
             module.hot.accept('../mxGraphPage/mxGraphPageRoute', () => {
               require("../mxGraphPage/mxGraphPageRoute").default; // eslint-disable-line
@@ -341,6 +341,11 @@ export default class Root extends Component {
       <AppWrapper>
         <BrowserRouter>
           <Switch>
+            <Route
+              path='/mxgraph-test'
+              exact
+              component={props => this.loadView('mxgraphTest', props)}
+            />
             <Route
               path='/sla-dashboard'
               exact
