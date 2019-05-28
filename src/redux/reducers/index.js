@@ -26,8 +26,8 @@ import editRolesReducer from './editRolesReducer/editRolesReducerReducer'
 import dataReducer from './data/dataReducer'
 import penaltyReducer from './penaltyDashboardReducer/penaltyDashboardReducerReducer'
 import perspectiveExclusionReducer from './perspectiveExclusion/perspectiveExclusionReducer'
-import balancedScorecardReducer from './balancedScorecard/balancedScorecardReducer'
 import mxGraphReducer from './mxGraphReducer/mxGraphReducerReducer'
+import balancedScorecardReducer from './balancedScorecard/balancedScorecardReducer'
 
 export default combineReducers({
     basicReducer,
