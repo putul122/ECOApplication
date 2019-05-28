@@ -31,6 +31,10 @@ export default function Data (props) {
             listLink = '/perspective_exclusion/' + List.perspective + '/' + List.view_key
           } else if (List.view_key === 'KPIList') {
             listLink = '/perspectives/' + List.perspective + '/' + List.view_key
+          } else if (List.view_key === 'PenaltyAgreementList') {
+            listLink = '/billing'
+          } else {
+            listLink = '/perspectives/' + List.perspective + '/' + List.view_key
           }
         } else if (dashboardKey === 'ECO_DEFAULT') {
           listLink = '/perspectives/' + List.perspective + '/' + List.view_key
