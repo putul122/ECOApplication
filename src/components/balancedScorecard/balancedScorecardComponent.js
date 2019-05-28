@@ -18,7 +18,6 @@ let comparer = function (otherArray) {
 }
 const customStylescrud = { content: { top: '10%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function BalancedScorecard (props) {
-  console.log('props ==========================', props, props.expandSettings)
   let defaultStyle = {'content': {'top': '20%'}}
   let copyModelPrespectives = props.copyModelPrespectives
   let perspectiveName = ''
@@ -91,7 +90,7 @@ export default function BalancedScorecard (props) {
   }, 500)
   let handleClick = function (data, level) {
     let expandFlag = true
-    let expandSettings = {...props.expandSettings}
+    let expandSettings = JSON.parse(JSON.stringify(props.expandSettings))
     let selectedObject = expandSettings.selectedObject[level]
     if (selectedObject && selectedObject.name === data.name) {
       expandFlag = !selectedObject.expandFlag
@@ -114,7 +113,12 @@ export default function BalancedScorecard (props) {
       expandSettings.selectedObject[level] = data
       expandSettings.selectedObject[level].expandFlag = expandFlag
       if (data.rolePerspectives) {
-        expandSettings.selectedObject[level].showChildExpandIcon = true
+        let headerColumns = props.headerData.headerColumn
+        if (headerColumns[headerColumns.length - 1] === data.metaModelPerspectives.name) {
+          expandSettings.selectedObject[level].showChildExpandIcon = false
+        } else {
+          expandSettings.selectedObject[level].showChildExpandIcon = true
+        }
       } else {
         expandSettings.selectedObject[level].showChildExpandIcon = false
       }
@@ -421,91 +425,6 @@ export default function BalancedScorecard (props) {
     console.log('payload', payload)
     props.updateModelPrespectives(payload)
   }
-  // let updateNexusComponent = function (event) {
-  //   event.preventDefault()
-  //   // eslint-disable-next-line
-  //   mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
-  //   let addSettings = JSON.parse(JSON.stringify(props.addSettings))
-  //   let updateObject = props.addSettings.updateObject
-  //   let patchPayload = []
-  //   let obj = {}
-  //   obj.op = 'replace'
-  //   obj.path = `/${updateObject.subject_id}/`
-  //   obj.value = {}
-  //   obj.value.parts = []
-  //   let connectionData = JSON.parse(JSON.stringify(props.connectionData))
-  //   let groupedPairedList = props.addSettings.groupedPairedList
-  //   connectionData.selectedValues.forEach(function (data, index) {
-  //     if (Array.isArray(data)) {
-  //       if (data.length > 0) {
-  //         let connections = []
-  //         data.forEach(function (selectedValue, ix) {
-  //           let obj = {}
-  //           obj.target_id = selectedValue.id
-  //           connections.push(obj)
-  //         })
-  //         let extraArray = []
-  //         extraArray.push(connections)
-  //         obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
-  //       } else {
-  //         // obj.value.parts[connectionData.data[index].partIndex] = {}
-  //       }
-  //     } else {
-  //       if (data) {
-  //         let connections = []
-  //         let obj1 = {}
-  //         obj1.target_id = data.id
-  //         connections.push(obj1)
-  //         let extraArray = []
-  //         extraArray.push(connections)
-  //         obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
-  //       } else {
-  //         // obj.value.parts[connectionData.data[index].partIndex] = {}
-  //       }
-  //     }
-  //   })
-  //   if (groupedPairedList.length > 0) {
-  //     let groupedValues = []
-  //     groupedPairedList.forEach(function (data, index) {
-  //       let values = []
-  //       if (data[0]) {
-  //         let cObj = {}
-  //         cObj.target_id = data[0].id
-  //         values.push(cObj)
-  //       }
-  //       if (data[1]) {
-  //         let cObj = {}
-  //         cObj.target_id = data[1].id
-  //         values.push(cObj)
-  //       }
-  //       groupedValues.push(values)
-  //     })
-  //     obj.value.parts.push({'value': groupedValues})
-  //   }
-  //   patchPayload.push(obj)
-  //   let selectedData = addSettings.selectedData
-  //   let payload = {}
-  //   payload.id = updateObject.subject_id
-  //   payload.queryString = {}
-  //   payload.queryString.meta_model_perspective_id = props.crudMetaModelPerspective.resources[0].id
-  //   payload.queryString.apply_changes = true
-  //   if (addSettings.initiatedFrom === 'ChildrenNode') {
-  //     payload.queryString.parent_reference = addSettings.selectedData.parentReference
-  //     let viewKey = null
-  //     if (selectedData.rolePerspectives) {
-  //       if (selectedData.rolePerspectives.Update) {
-  //         viewKey = selectedData.rolePerspectives.Update.part_perspective_view_key
-  //       }
-  //     }
-  //     if (viewKey) {
-  //       payload.queryString.view_key = viewKey
-  //     }
-  //   } else {
-  //     payload.queryString.view_key = addSettings.viewKey
-  //   }
-  //   payload.data = patchPayload
-  //   props.updateNestedModelPrespectives(payload)
-  // }
   let updateComponent = function (event) {
     event.preventDefault()
     // eslint-disable-next-line
@@ -791,16 +710,16 @@ export default function BalancedScorecard (props) {
             }
             let availableAction = {...props.availableAction}
             let list = []
-            if (showChildExpandIcon) {
-              if (faClass !== '') {
+            // if (showChildExpandIcon) {
+              // if (faClass !== '') {
                 if (availableAction.Update) {
-                  list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} > <img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
+                  list.push(<a key={'action_update' + cix} href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(editSelectedObject, 'ChildrenNode', 'Edit') }} > <img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
                 }
                 if (availableAction.Delete) {
-                  list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, currentLevel, 'ChildrenNode') }} > <img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
+                  list.push(<a key={'action_delete' + cix} href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, currentLevel, 'ChildrenNode') }} > <img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
                 }
-              }
-            }
+              // }
+            // }
             childRowColumn.push(<td className='' key={'ch_' + '_' + currentLevel + '_' + cix}>
               <i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, currentLevel + 1) }} style={{'cursor': 'pointer'}} /> {childValue}&nbsp;&nbsp;
               <div className='btn-group-sm m-btn-group--pill btn-group' role='group' aria-label='First group'>
@@ -915,7 +834,7 @@ export default function BalancedScorecard (props) {
         if (expandLevel - startLevel >= 0 && startLevel >= 0) {
           startLevel = startLevel - 1
         } else {
-          console.log(' why else equal', startLevel, expandLevel)
+          // stop process row data
           break
         }
       } while (expandLevel - startLevel >= 0)
@@ -1019,10 +938,10 @@ export default function BalancedScorecard (props) {
                       let availableAction = {...props.availableAction}
                       let list = []
                       if (availableAction.Update) {
-                        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} ><img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
+                        list.push(<a key={'action_edit' + ix} href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} ><img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
                       }
                       if (availableAction.Delete) {
-                        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} ><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
+                        list.push(<a key={'action_delete' + ix} href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} ><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
                       }
                       rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
                         {list}
@@ -1076,7 +995,7 @@ export default function BalancedScorecard (props) {
               // }
               // rowColumn.push(<td className='' key={'last' + index} >{list}</td>)
               return (
-                <table style={{'tableLayout': 'fixed', 'width': '100%'}} className='table table-striped- table-bordered table-hover table-checkable responsive no-wrap dataTable dtr-inline collapsed' id='m_table_1' aria-describedby='m_table_1_info' role='grid'>
+                <table key={'listEntry' + index} style={{'tableLayout': 'fixed', 'width': '100%'}} className='table table-striped- table-bordered table-hover table-checkable responsive no-wrap dataTable dtr-inline collapsed' id='m_table_1' aria-describedby='m_table_1_info' role='grid'>
                   {index === 0 && (<thead>
                     {tableHeader}
                   </thead>)}
@@ -1363,7 +1282,6 @@ export default function BalancedScorecard (props) {
         </div>)
       } else if (data.type_property.property_type.key === 'DateTime') {
         value = data.type_property.date_time_value ? moment(data.type_property.date_time_value).format('DD MMM YYYY') : null
-        console.log('props', props)
         return (<div className='form-group row'>
           <div className='m-form__group col-12' style={{'display': 'flex'}}>
             <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
@@ -1707,6 +1625,7 @@ return (
     // crude: PropTypes.any,
     availableAction: PropTypes.any,
     connectionData: PropTypes.any,
+    // eslint-disable-next-line
     expandSettings: PropTypes.any,
     headerData: PropTypes.any,
     copyModelPrespectives: PropTypes.any
