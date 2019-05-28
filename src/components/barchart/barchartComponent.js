@@ -6,8 +6,6 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 
 export default class Barchart extends PureComponent {
-  // static' jsfiddleUrl = 'https://jsfiddle.net/alidingling/30763kr7/'
-
   render () {
     const monthObject = {
       1: 'Jan',
@@ -29,9 +27,7 @@ export default class Barchart extends PureComponent {
     let arrayOfYear = []
     let uniqueArray = []
     let quaterArray = ['Quater One', 'Quater Two', 'Quater Three', 'Quater Four']
-    let quaterDataArray = []
     const barChartValue = this.props.BarChartValue
-    console.log('barChartValue', barChartValue)
     if (this.props.duration === 'Daily') {
       barChartValue && barChartValue.children && barChartValue.children.length && barChartValue.children.map((bar, i) => {
         const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key)
@@ -48,34 +44,60 @@ export default class Barchart extends PureComponent {
         }
       })
     } else if (this.props.duration === 'Quarterly') {
-      let totalCompliantData = 0
-      let totalNonData = 0
+      let q1obj = {
+        name: quaterArray[0],
+        Non_Compliant: 0,
+        Compliant: 0
+      }
+      let q2obj = {
+        name: quaterArray[1],
+        Non_Compliant: 0,
+        Compliant: 0
+      }
+      let q3obj = {
+        name: quaterArray[2],
+        Non_Compliant: 0,
+        Compliant: 0
+      }
+      let q4obj = {
+        name: quaterArray[3],
+        Non_Compliant: 0,
+        Compliant: 0
+      }
       barChartValue && barChartValue.children && barChartValue.children.length && barChartValue.children.map((bar, i) => {
         const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key)
         const momentDate = moment(dateObj)
         const monthName = monthObject[momentDate.month()]
-        const dayAndMonth = momentDate.date() + ' ' + monthName
-        const dataObj = {
-          name: dayAndMonth,
-          Compliant: barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum,
-          Non_Compliant: barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum
+        if (monthName === 'Jan' || monthName === 'Feb' || monthName === 'Mar') {
+          q1obj = {
+            name: quaterArray[0],
+            Non_Compliant: q1obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum),
+            Compliant: q1obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum)
+          }
+        } else if (monthName === 'Apr' || monthName === 'May' || monthName === 'Jun') {
+          q2obj = {
+            name: quaterArray[1],
+            Non_Compliant: q2obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum),
+            Compliant: q2obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum)
+          }
+        } else if (monthName === 'Jul' || monthName === 'Aug' || monthName === 'Sep') {
+          q3obj = {
+            name: quaterArray[2],
+            Non_Compliant: q3obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum),
+            Compliant: q3obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum)
+          }
+        } else if (monthName === 'Oct' || monthName === 'Nov' || monthName === 'Dec') {
+          q4obj = {
+            name: quaterArray[3],
+            Non_Compliant: q4obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum),
+            Compliant: q4obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum)
+          }
         }
-        if (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum !== undefined) {
-          totalCompliantData = totalCompliantData + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum)
-          totalNonData = totalNonData + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum)
-        }
-        quaterDataArray.push(dataObj)
       })
-      let quaterCompiantData = totalCompliantData / 4
-      let quaterNonData = totalNonData / 4
-      for (let i = 0; i < quaterArray.length; i++) {
-        let obj = {
-          name: quaterArray[i],
-          Compliant: quaterCompiantData,
-          Non_Compliant: quaterNonData
-        }
-        data.push(obj)
-      }
+        data.push(q1obj)
+        data.push(q2obj)
+        data.push(q3obj)
+        data.push(q4obj)
     } else if (this.props.duration === 'Yearly') {
       barChartValue && barChartValue.children && barChartValue.children.length && barChartValue.children.map((bar, i) => {
         const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key)
