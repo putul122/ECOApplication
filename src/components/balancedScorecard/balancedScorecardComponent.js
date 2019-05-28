@@ -1,5 +1,6 @@
 import React from 'react'
 import _ from 'lodash'
+import debounce from 'lodash/debounce'
 import ReactModal from 'react-modal'
 import Select from 'react-select'
 import moment from 'moment'
@@ -17,8 +18,9 @@ let comparer = function (otherArray) {
 }
 const customStylescrud = { content: { top: '10%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function BalancedScorecard (props) {
-  console.log('props ==========================', props)
+  console.log('props ==========================', props, props.expandSettings)
   let defaultStyle = {'content': {'top': '20%'}}
+  let copyModelPrespectives = props.copyModelPrespectives
   let perspectiveName = ''
   let standardPropertyList = ''
   let connectionSelectBoxList = ''
@@ -37,7 +39,7 @@ export default function BalancedScorecard (props) {
   let messageList = ''
   let deletePerspectiveName = props.addSettings.deleteObject ? props.addSettings.deleteObject.name : ''
   let updatePerspectiveName = props.addSettings.selectedData ? props.addSettings.selectedData.editName : ''
-  let expandSettings = props.expandSettings
+  // let expandSettings = props.expandSettings
   if (props.addSettings.isEditModalOpen) {
     if (props.addSettings.selectedData) {
       if (props.addSettings.selectedData.initiatedFrom === 'ParentNode') {
@@ -56,11 +58,38 @@ export default function BalancedScorecard (props) {
   } else {
     perspectiveName = props.metaModelPerspective ? props.metaModelPerspective.resources[0].name : ''
   }
-  console.log('perspectives props', props, searchTextBox, expandSettings)
+  let handleInputChange = debounce((e) => {
+    // eslint-disable-next-line
+    mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+    let searchText = searchTextBox ? searchTextBox.value : ''
+    let originalData = copyModelPrespectives
+    if (searchText.trim() !== '') {
+      if (originalData !== '') {
+        let list = _.filter(originalData, function (data, index) {
+          if (data.parts) {
+            if ((data.parts[0].value.toLowerCase()).match(searchText.toLowerCase())) {
+              return data
+            }
+          }
+        })
+        let payload = {}
+        payload.data = list
+        payload.copyData = props.copyModelPrespectives
+        props.setModalPerspectivesData(payload)
+      }
+      // eslint-disable-next-line
+      mApp && mApp.unblockPage()
+    } else {
+      let payload = {}
+      payload.data = props.copyModelPrespectives
+      payload.copyData = props.copyModelPrespectives
+      props.setModalPerspectivesData(payload)
+      // eslint-disable-next-line
+      mApp && mApp.unblockPage()
+    }
+    props.setCurrentPage(1)
+  }, 500)
   let handleClick = function (data, level) {
-    console.log(data)
-    console.log('level', level)
-    console.log(props.expandSettings)
     let expandFlag = true
     let expandSettings = {...props.expandSettings}
     let selectedObject = expandSettings.selectedObject[level]
@@ -153,9 +182,6 @@ export default function BalancedScorecard (props) {
     props.setPerPage(parseInt(event.target.value))
   }
   let openModal = function (data, level, operationType) {
-    console.log('data', data)
-    console.log('level', level)
-    console.log('operationType', operationType)
     let addSettings = {...props.addSettings}
     // check Expand level and set Level on open Modal operation
     // let expandSettings = {...props.expandSettings}
@@ -190,8 +216,6 @@ export default function BalancedScorecard (props) {
     addSettings.name = ''
     addSettings.description = ''
     addSettings.selectedData = data
-    // props.setAddSettings(addSettings)
-    console.log('open modal', data, level)
     if (level === 'ParentNode') {
       let packages = JSON.parse(localStorage.getItem('packages'))
       let perspectives = _.result(_.find(packages.resources, function (obj) {
@@ -210,8 +234,6 @@ export default function BalancedScorecard (props) {
         perspectiveId = perspectiveObject.perspective
         viewKey = perspectiveObject.view_key
       }
-
-      console.log('view_key key', viewKey, perspectiveId)
       if (viewKey) {
         let payload = {}
         payload.id = perspectiveId
@@ -232,9 +254,7 @@ export default function BalancedScorecard (props) {
     }
     if (level === 'ChildrenNode') {
       if (data) {
-        console.log('children node -----------', data)
         if (data.rolePerspectives) {
-          console.log('if data', data)
           let rolePerspectives = data.rolePerspectives
           let payload = {}
           if (operationType === 'Add') {
@@ -266,7 +286,6 @@ export default function BalancedScorecard (props) {
           // eslint-disable-next-line
           mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
         } else {
-          console.log('else data', data)
           addSettings.isModalOpen = false
           addSettings.isEditModalOpen = false
           // let payload = {}
@@ -291,14 +310,8 @@ export default function BalancedScorecard (props) {
     props.setAddSettings(addSettings)
   }
   let openDeleteModal = function (data, level, initiatedFrom) {
-    console.log('delete', data, level)
     let addSettings = {...props.addSettings}
     addSettings.isDeleteModalOpen = true
-    // if (level === null || level === 0) {
-    //   addSettings.isDeleteModalOpen = true
-    // } else {
-    //   addSettings.isDeleteModalOpen = false
-    // }
     addSettings.deleteObject = data
     addSettings.deleteOperationLevel = level
     addSettings.initiatedFrom = initiatedFrom
@@ -408,91 +421,91 @@ export default function BalancedScorecard (props) {
     console.log('payload', payload)
     props.updateModelPrespectives(payload)
   }
-  let updateNexusComponent = function (event) {
-    event.preventDefault()
-    // eslint-disable-next-line
-    mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
-    let addSettings = JSON.parse(JSON.stringify(props.addSettings))
-    let updateObject = props.addSettings.updateObject
-    let patchPayload = []
-    let obj = {}
-    obj.op = 'replace'
-    obj.path = `/${updateObject.subject_id}/`
-    obj.value = {}
-    obj.value.parts = []
-    let connectionData = JSON.parse(JSON.stringify(props.connectionData))
-    let groupedPairedList = props.addSettings.groupedPairedList
-    connectionData.selectedValues.forEach(function (data, index) {
-      if (Array.isArray(data)) {
-        if (data.length > 0) {
-          let connections = []
-          data.forEach(function (selectedValue, ix) {
-            let obj = {}
-            obj.target_id = selectedValue.id
-            connections.push(obj)
-          })
-          let extraArray = []
-          extraArray.push(connections)
-          obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
-        } else {
-          // obj.value.parts[connectionData.data[index].partIndex] = {}
-        }
-      } else {
-        if (data) {
-          let connections = []
-          let obj1 = {}
-          obj1.target_id = data.id
-          connections.push(obj1)
-          let extraArray = []
-          extraArray.push(connections)
-          obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
-        } else {
-          // obj.value.parts[connectionData.data[index].partIndex] = {}
-        }
-      }
-    })
-    if (groupedPairedList.length > 0) {
-      let groupedValues = []
-      groupedPairedList.forEach(function (data, index) {
-        let values = []
-        if (data[0]) {
-          let cObj = {}
-          cObj.target_id = data[0].id
-          values.push(cObj)
-        }
-        if (data[1]) {
-          let cObj = {}
-          cObj.target_id = data[1].id
-          values.push(cObj)
-        }
-        groupedValues.push(values)
-      })
-      obj.value.parts.push({'value': groupedValues})
-    }
-    patchPayload.push(obj)
-    let selectedData = addSettings.selectedData
-    let payload = {}
-    payload.id = updateObject.subject_id
-    payload.queryString = {}
-    payload.queryString.meta_model_perspective_id = props.crudMetaModelPerspective.resources[0].id
-    payload.queryString.apply_changes = true
-    if (addSettings.initiatedFrom === 'ChildrenNode') {
-      payload.queryString.parent_reference = addSettings.selectedData.parentReference
-      let viewKey = null
-      if (selectedData.rolePerspectives) {
-        if (selectedData.rolePerspectives.Update) {
-          viewKey = selectedData.rolePerspectives.Update.part_perspective_view_key
-        }
-      }
-      if (viewKey) {
-        payload.queryString.view_key = viewKey
-      }
-    } else {
-      payload.queryString.view_key = addSettings.viewKey
-    }
-    payload.data = patchPayload
-    props.updateNestedModelPrespectives(payload)
-  }
+  // let updateNexusComponent = function (event) {
+  //   event.preventDefault()
+  //   // eslint-disable-next-line
+  //   mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+  //   let addSettings = JSON.parse(JSON.stringify(props.addSettings))
+  //   let updateObject = props.addSettings.updateObject
+  //   let patchPayload = []
+  //   let obj = {}
+  //   obj.op = 'replace'
+  //   obj.path = `/${updateObject.subject_id}/`
+  //   obj.value = {}
+  //   obj.value.parts = []
+  //   let connectionData = JSON.parse(JSON.stringify(props.connectionData))
+  //   let groupedPairedList = props.addSettings.groupedPairedList
+  //   connectionData.selectedValues.forEach(function (data, index) {
+  //     if (Array.isArray(data)) {
+  //       if (data.length > 0) {
+  //         let connections = []
+  //         data.forEach(function (selectedValue, ix) {
+  //           let obj = {}
+  //           obj.target_id = selectedValue.id
+  //           connections.push(obj)
+  //         })
+  //         let extraArray = []
+  //         extraArray.push(connections)
+  //         obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
+  //       } else {
+  //         // obj.value.parts[connectionData.data[index].partIndex] = {}
+  //       }
+  //     } else {
+  //       if (data) {
+  //         let connections = []
+  //         let obj1 = {}
+  //         obj1.target_id = data.id
+  //         connections.push(obj1)
+  //         let extraArray = []
+  //         extraArray.push(connections)
+  //         obj.value.parts[connectionData.data[index].partIndex] = {'value': extraArray}
+  //       } else {
+  //         // obj.value.parts[connectionData.data[index].partIndex] = {}
+  //       }
+  //     }
+  //   })
+  //   if (groupedPairedList.length > 0) {
+  //     let groupedValues = []
+  //     groupedPairedList.forEach(function (data, index) {
+  //       let values = []
+  //       if (data[0]) {
+  //         let cObj = {}
+  //         cObj.target_id = data[0].id
+  //         values.push(cObj)
+  //       }
+  //       if (data[1]) {
+  //         let cObj = {}
+  //         cObj.target_id = data[1].id
+  //         values.push(cObj)
+  //       }
+  //       groupedValues.push(values)
+  //     })
+  //     obj.value.parts.push({'value': groupedValues})
+  //   }
+  //   patchPayload.push(obj)
+  //   let selectedData = addSettings.selectedData
+  //   let payload = {}
+  //   payload.id = updateObject.subject_id
+  //   payload.queryString = {}
+  //   payload.queryString.meta_model_perspective_id = props.crudMetaModelPerspective.resources[0].id
+  //   payload.queryString.apply_changes = true
+  //   if (addSettings.initiatedFrom === 'ChildrenNode') {
+  //     payload.queryString.parent_reference = addSettings.selectedData.parentReference
+  //     let viewKey = null
+  //     if (selectedData.rolePerspectives) {
+  //       if (selectedData.rolePerspectives.Update) {
+  //         viewKey = selectedData.rolePerspectives.Update.part_perspective_view_key
+  //       }
+  //     }
+  //     if (viewKey) {
+  //       payload.queryString.view_key = viewKey
+  //     }
+  //   } else {
+  //     payload.queryString.view_key = addSettings.viewKey
+  //   }
+  //   payload.data = patchPayload
+  //   props.updateNestedModelPrespectives(payload)
+  // }
   let updateComponent = function (event) {
     event.preventDefault()
     // eslint-disable-next-line
@@ -657,9 +670,6 @@ export default function BalancedScorecard (props) {
       payload.queryString.view_key = addSettings.viewKey
     }
     payload.data = patchPayload
-    // console.log('payload', payload)
-    // console.log('updateComponentModelPrespectives', props.updateComponentModelPrespectives)
-    // props.updateComponentModelPrespectives(payload)
     props.updateNestedModelPrespectives(payload)
   }
   let removeComponent = function (event) {
@@ -731,7 +741,6 @@ export default function BalancedScorecard (props) {
       obj.level = currentLevel
       headerColumn.push(obj)
     })
-    console.log('childLabelParts', childLabelParts)
     if (childData) {
       childLabelParts.forEach(function (labelData, cix) {
         if (labelData.standard_property !== null && labelData.type_property === null) { // Standard Property
@@ -802,7 +811,6 @@ export default function BalancedScorecard (props) {
         } else if (labelData.standard_property === null && labelData.type_property === null) { // Connection Property
           // console.log('partData', partData, labelParts[ix], ix)
           if (labelData.constraint_perspective && !labelData.nexus) {
-            console.log('calculate', cix, totalMetricPoints, childData)
             if (totalMetricPoints > 0) {
               selectedObject.parentReference = childData[cix + totalMetricPoints - 1].value.parent_reference
             }
@@ -1058,7 +1066,6 @@ export default function BalancedScorecard (props) {
                   rowColumn.push(<td className='' key={'ch_' + index + '_emp' + cid} >{''}</td>)
                 }
               })
-              console.log('headerColumn', headerColumn)
               // let availableAction = {...props.availableAction}
               // let list = []
               // if (availableAction.Update) {
@@ -1291,9 +1298,10 @@ export default function BalancedScorecard (props) {
                 <Select
                   className='input-sm m-input'
                   placeholder={data.placeHolder}
+                  isDisabled={props.addSettings.isEditModalOpen}
                   // isMulti={data.max !== 1}
                   isClearable
-                  value={connectionData.selectedValues[index]}
+                  value={connectionData.metricSelectedValue[index]}
                   onChange={handleSelectChange(index, 'Metric')}
                   options={selectOptions}
                 />
@@ -1355,13 +1363,14 @@ export default function BalancedScorecard (props) {
         </div>)
       } else if (data.type_property.property_type.key === 'DateTime') {
         value = data.type_property.date_time_value ? moment(data.type_property.date_time_value).format('DD MMM YYYY') : null
+        console.log('props', props)
         return (<div className='form-group row'>
           <div className='m-form__group col-12' style={{'display': 'flex'}}>
             <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
             <div className='col-9 form-group m-form__group has-info'>
               <DatePicker
                 className='input-sm form-control m-input'
-                selected={data.type_property.date_time_value}
+                selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
                 dateFormat='DD MMM YYYY'
                 onSelect={(date) => { editProperty(index, date) }}
               />
@@ -1489,7 +1498,6 @@ export default function BalancedScorecard (props) {
       ))
     }
   }
-  console.log('businessPropertyList', businessPropertyList)
 return (
   <div>
     <div id='entitlementList'>
@@ -1508,7 +1516,7 @@ return (
                       </div>)}
                     </div>
                     <br />
-                    <div id='m_table_1_wrapper' className='dataTables_wrapper dt-bootstrap4'>
+                    <div id='ModelPerspectiveList' className='dataTables_wrapper dt-bootstrap4'>
                       <div className='row' style={{'marginBottom': '20px'}}>
                         <div className='col-sm-12 col-md-6'>
                           <div className='dataTables_length' id='m_table_1_length' style={{'display': 'flex'}}>
@@ -1528,7 +1536,7 @@ return (
                             <div style={{'display': 'flex'}}>
                               <h5 style={{'margin': '10px'}}>Search</h5>
                               <div className='m-input-icon m-input-icon--left'>
-                                <input type='text' className='form-control m-input' placeholder='Search...' id='generalSearch' ref={input => (searchTextBox = input)} onKeyUp={''} />
+                                <input type='text' className='form-control m-input' placeholder='Search...' id='generalSearch' ref={input => (searchTextBox = input)} onKeyUp={handleInputChange} />
                                 <span className='m-input-icon__icon m-input-icon__icon--left'>
                                   <span>
                                     <i className='la la-search' />
@@ -1580,7 +1588,7 @@ return (
         style={customStylescrud}
         >
         {/* <button onClick={closeModal} ><i className='la la-close' /></button> */}
-        <div className={''}>
+        <div className={'blockNexusUI'}>
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
@@ -1620,7 +1628,7 @@ return (
         style={customStylescrud}
         >
         {/* <button onClick={closeModal} ><i className='la la-close' /></button> */}
-        <div className={''}>
+        <div className={'blockNexusUI'}>
           <div className=''>
             <div className='modal-content' >
               <div className='modal-header'>
@@ -1648,8 +1656,7 @@ return (
               </div>
               <div className='modal-footer'>
                 <button type='button' onClick={closeModal} className='btn btn-outline-danger btn-sm'>Close</button>
-                {props.addSettings.updateResponse === null && !props.addSettings.isNexusPoint && (<button className='btn btn-outline-info btn-sm' onClick={updateComponent} >Update</button>)}
-                {props.addSettings.updateResponse === null && props.addSettings.isNexusPoint && (<button className='btn btn-outline-info btn-sm' onClick={updateNexusComponent} >Update</button>)}
+                {props.addSettings.updateResponse === null && (<button className='btn btn-outline-info btn-sm' onClick={updateComponent} >Update</button>)}
               </div>
             </div>
           </div>
@@ -1701,5 +1708,6 @@ return (
     availableAction: PropTypes.any,
     connectionData: PropTypes.any,
     expandSettings: PropTypes.any,
-    headerData: PropTypes.any
+    headerData: PropTypes.any,
+    copyModelPrespectives: PropTypes.any
   }

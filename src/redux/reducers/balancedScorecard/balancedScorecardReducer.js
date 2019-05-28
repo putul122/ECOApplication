@@ -26,6 +26,7 @@ const RESET_RESPONSE = 'balancedScorecardReducer/RESET_RESPONSE'
 const SET_CONNECTION_DATA = 'balancedScorecardReducer/SET_CONNECTION_DATA'
 const SET_EXPAND_SETTINGS = 'balancedScorecardReducer/SET_EXPAND_SETTINGS'
 const SET_HEADER_DATA = 'balancedScorecardReducer/SET_HEADER_DATA'
+const SET_MODAL_PERSPECTIVES_DATA = 'balancedScorecardReducer/SET_MODAL_PERSPECTIVES_DATA'
 
 export const actions = {
   FETCH_MODEL_PRESPECTIVES_SUCCESS,
@@ -43,7 +44,8 @@ export const actions = {
   SET_CONNECTION_DATA,
   FETCH_DROPDOWN_DATA_SUCCESS,
   SET_EXPAND_SETTINGS,
-  SET_HEADER_DATA
+  SET_HEADER_DATA,
+  SET_MODAL_PERSPECTIVES_DATA
 }
 
 export const actionCreators = {
@@ -54,11 +56,14 @@ export const actionCreators = {
   resetResponse: createAction(RESET_RESPONSE),
   setConnectionData: createAction(SET_CONNECTION_DATA),
   setExpandSettings: createAction(SET_EXPAND_SETTINGS),
-  setHeaderData: createAction(SET_HEADER_DATA)
+  setHeaderData: createAction(SET_HEADER_DATA),
+  setModalPerspectivesData: createAction(SET_MODAL_PERSPECTIVES_DATA)
 }
 
 export const initialState = {
   modelPrespectives: '',
+  copyModelPrespectives: '',
+  modelPrespectiveData: '',
   metaModelPerspective: '',
   crudMetaModelPerspective: '',
   nestedModelPerspectives: '',
@@ -132,8 +137,7 @@ export default handleActions(
   {
     [FETCH_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
       ...state,
-      modelPrespectives: action.payload,
-      availableAction: {...state.availableAction, 'toProcessModelPerspectives': true}
+      modelPrespectiveData: action.payload
     }),
     [FETCH_META_MODEL_PRESPECTIVE_SUCCESS]: (state, action) => ({
       ...state,
@@ -175,7 +179,8 @@ export default handleActions(
       deleteComponentResponse: '',
       dropdownData: '',
       nestedModelPerspectives: '',
-      allDropdownData: ''
+      allDropdownData: '',
+      modelPrespectiveData: ''
     }),
     [SET_CONNECTION_DATA]: (state, action) => ({
       ...state,
@@ -211,6 +216,11 @@ export default handleActions(
     [FETCH_ALL_DROPDOWN_DATA_SUCCESS]: (state, action) => ({
       ...state,
       allDropdownData: action.payload
+    }),
+    [SET_MODAL_PERSPECTIVES_DATA]: (state, action) => ({
+      ...state,
+      modelPrespectives: action.payload.data,
+      copyModelPrespectives: action.payload.copyData
     })
   },
   initialState
