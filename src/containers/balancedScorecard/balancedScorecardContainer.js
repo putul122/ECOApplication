@@ -12,6 +12,8 @@ export function mapStateToProps (state, props) {
   return {
     authenticateUser: state.basicReducer.authenticateUser,
     modelPrespectives: state.balancedScorecardReducer.modelPrespectives,
+    copyModelPrespectives: state.balancedScorecardReducer.copyModelPrespectives,
+    modelPrespectiveData: state.balancedScorecardReducer.modelPrespectiveData,
     metaModelPerspective: state.balancedScorecardReducer.metaModelPerspective,
     crudMetaModelPerspective: state.balancedScorecardReducer.crudMetaModelPerspective,
     currentPage: state.balancedScorecardReducer.currentPage,
@@ -55,7 +57,8 @@ export const propsMapping = {
   updateNestedModelPrespectives: sagaActions.serviceActions.updateNestedModelPrespectives,
   removeModelPrespectives: sagaActions.serviceActions.removeModelPrespectives,
   setExpandSettings: actionCreators.setExpandSettings,
-  setHeaderData: actionCreators.setHeaderData
+  setHeaderData: actionCreators.setHeaderData,
+  setModalPerspectivesData: actionCreators.setModalPerspectivesData
 }
 
 // If you want to use the function mapping
@@ -114,15 +117,25 @@ export default compose(
       // mApp && mApp.block('#entitlementList', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     },
     componentWillReceiveProps: function (nextProps) {
-      console.log('nextProps', nextProps)
       if (nextProps.authenticateUser && nextProps.authenticateUser.resources) {
         if (!nextProps.authenticateUser.resources[0].result) {
           this.props.history.push('/')
         }
       }
-      if (nextProps.modelPrespectives && nextProps.modelPrespectives !== '' && nextProps.availableAction.toProcessModelPerspectives && nextProps.modelPrespectives !== this.props.modelPrespectives) {
+      if (nextProps.modelPrespectiveData && nextProps.modelPrespectiveData !== '') {
+        // eslint-disable-next-line
+        // mApp && mApp.unblockPage()
+        nextProps.resetResponse()
+        let payload = {}
+        payload.data = nextProps.modelPrespectiveData
+        payload.copyData = nextProps.modelPrespectiveData
         // eslint-disable-next-line
         mApp && mApp.unblockPage()
+        // eslint-disable-next-line
+        mApp && mApp.unblock('#ModelPerspectiveList')
+        nextProps.setModalPerspectivesData(payload)
+      }
+      if (nextProps.modelPrespectives && nextProps.modelPrespectives !== '') {
         let availableAction = nextProps.availableAction
         availableAction['toProcessModelPerspectives'] = false
         nextProps.setAvailableAction(availableAction)
@@ -134,7 +147,8 @@ export default compose(
           let data = nextProps.crudModelPerspectives.resources[0]
           let selectedValues = []
           let setCustomerProperty = []
-          if (!addSettings.isNexusPoint) {
+          let connectionData = JSON.parse(JSON.stringify(nextProps.connectionData))
+          // if (!addSettings.isNexusPoint) {
             if (data.parts) {
               labelParts.forEach(function (partData, ix) {
                 if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
@@ -144,7 +158,7 @@ export default compose(
                   if (partData.standard_property === 'description') {
                     addSettings.description = data.parts[ix].value
                   }
-                } else if (partData.standard_property === null && partData.type_property === null) { // Connection Property
+                } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
                   if (data.parts[ix].value.length > 0) {
                     // todo write code for multiple component
                     let eachSelectedValues = []
@@ -176,15 +190,31 @@ export default compose(
                     value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
                   }
                   setCustomerProperty.push(value)
+                } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective !== null) {
+                  if (partData.nexus) {
+                    let nexusPoints = partData.constraint_perspective.parts
+                    let metricSelectedValue = []
+                    if (nexusPoints.length > 0) {
+                      nexusPoints.forEach(function (nexusData, nix) {
+                        console.log(nexusData)
+                        let targetComponent = data.parts[ix + nix].value.subject_part.value[0].target_component
+                        targetComponent.label = targetComponent.name
+                        metricSelectedValue.push(targetComponent)
+                      })
+                      connectionData.metricSelectedValue = metricSelectedValue
+                    }
+                  }
                 }
               })
             }
+          // }
+          if (addSettings.isNexusPoint) {
+
           }
           addSettings.isEditModalOpen = true
           addSettings.updateObject = data
           addSettings.updateResponse = null
           nextProps.setAddSettings(addSettings)
-          let connectionData = {...nextProps.connectionData}
           let existingCustomerProperty = connectionData.customerProperty.map(function (data, index) {
             if (data.type_property.property_type.key === 'Boolean') {
               data.type_property.boolean_value = setCustomerProperty[index]
@@ -264,6 +294,8 @@ export default compose(
                 nextProps.fetchAllDropdownData && nextProps.fetchAllDropdownData(payload)
                 addSettings.isNexusPoint = true
                 nextProps.setAddSettings(addSettings)
+                // eslint-disable-next-line
+                mApp.block('.blockNexusUI', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
               }
             }
             if (data.standard_property !== null && data.type_property === null) {
@@ -495,13 +527,17 @@ export default compose(
           metricSelectOption.push(timeGranularity)
           connectionData.metricSelectOption = metricSelectOption
           connectionData.backupMetricSelectOption = metricSelectOption
-          connectionData.metricSelectedValue = initialValues
+          if (nextProps.addSettings.isModalOpen) {
+            connectionData.metricSelectedValue = initialValues
+          }
           connectionData.metricSelectNames = metricSelectNames
           connectionData.isMetric = true
           connectionData.operation.isComplete = true
           nextProps.setConnectionData(connectionData)
           // eslint-disable-next-line
           mApp && mApp.unblockPage()
+          // eslint-disable-next-line
+          mApp && mApp.unblock('.blockNexusUI')
         }
         this.props.resetResponse()
       }
