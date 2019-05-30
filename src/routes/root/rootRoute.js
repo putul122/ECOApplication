@@ -311,7 +311,16 @@ export default class Root extends Component {
           }
           resolve(require('../penaltyDashboardPage/PenaltyDashboardRoute').default)
             break
-          case 'mxgraph':
+          case 'penaltyScoreCard':
+          if (module.hot) {
+            module.hot.accept('../penaltyScoreCardPage/penaltyScoreCardRoute', () => {
+              require("../penaltyScoreCardPage/penaltyScoreCardRoute").default; // eslint-disable-line
+              this.forceUpdate()
+            })
+          }
+          resolve(require('../penaltyScoreCardPage/penaltyScoreCardRoute').default)
+            break
+          case 'mxgraphTest':
           if (module.hot) {
             module.hot.accept('../mxGraphPage/mxGraphPageRoute', () => {
               require("../mxGraphPage/mxGraphPageRoute").default; // eslint-disable-line
@@ -342,6 +351,11 @@ export default class Root extends Component {
         <BrowserRouter>
           <Switch>
             <Route
+              path='/mxgraph-test'
+              exact
+              component={props => this.loadView('mxgraphTest', props)}
+            />
+            <Route
               path='/sla-dashboard'
               exact
               component={props => this.loadView('slaDashboard', props)}
@@ -355,6 +369,11 @@ export default class Root extends Component {
               path='/penalty-dashboard'
               exact
               component={props => this.loadView('penaltyDashboard', props)}
+            />
+            <Route
+              path='/penalty-scorecard'
+              exact
+              component={props => this.loadView('penaltyScoreCard', props)}
             />
             <Route
               path='/users'

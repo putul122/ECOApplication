@@ -26,6 +26,7 @@ class SlaDashboard extends React.Component {
       ActualSlaDashboardData: [],
       metaContracts: [],
       contractStages: {},
+      slaComparisonShowData: false,
       colors: ['orange', '#fd397a', '#0abb87', '#3e0abb', 'black', 'orange', '#fd397a', '#0abb87', '#3e0abb', 'yellow'],
       dupActualSlaDashboardData: [],
       SlaDashboardpenaltyJson: SlaDashboardpenaltyJson,
@@ -306,6 +307,7 @@ class SlaDashboard extends React.Component {
         })
       })
   }
+
   SupplierDropDown = async value => {
     this.setState({supplier: value})
     let { dupActualSlaDashboardData, ordersObject, perspectiveFilter } = this.state
@@ -769,7 +771,7 @@ class SlaDashboard extends React.Component {
         </div>
         <div className={styles.mainDropdown}>
           <div className={styles.LeftText}>
-            <p>Package</p>
+            <p>Time interval</p>
           </div>
           <div className={`dropdown dropup-showing ${styles.dropDown}`}>
             <button className={`btn btn-default dropdown-toggle dropup-btn ${styles.dropDownBtn}`} type='button' data-toggle='dropdown'>
@@ -792,6 +794,23 @@ class SlaDashboard extends React.Component {
                 })
               }
             </ul>
+          </div>
+        </div>
+        <div className={styles.btnpropsComparison}>
+          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
+            <button onClick={() => {
+              this.props.history.push('sla-comparison', {
+                  slaDepartment: this.state.department,
+                  slaSupplier: this.state.supplier,
+                  slaService: this.state.service,
+                  slaKpi: this.state.kpi,
+                  slaStartDate: this.state.startDate,
+                  slaEndDate: this.state.endDate,
+                  slaComparisonArray: this.state.slaComparisonArray
+                })
+              }} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} type='button'>
+              Sla Comparison
+            </button>
           </div>
         </div>
       </div>
@@ -850,43 +869,11 @@ class SlaDashboard extends React.Component {
                         })
                       }
                     </div>
-                    {/* <div className={styles.btnpropsComparison} onClick={() => {
-                      this.props.history.push('sla-comparison', {
-                          slaDepartment: this.state.department,
-                          slaSupplier: this.state.supplier,
-                          slaService: this.state.service,
-                          slaKpi: this.state.kpi,
-                          slaStartDate: this.state.startDate,
-                          slaEndDate: this.state.endDate,
-                          slaComparisonArray: this.state.slaComparisonArray
-                        })
-                      }} role='button' tabIndex={0} onKeyDown={() => this.props.history.push('penalty-dashboard')}>
-                      <div className={styles.chartComparison}>
-                        <div className={styles.chartTextComparison}>
-                          <span className={styles.textComparison}>SLA Comparison</span>
-                        </div>
-                      </div>
-                    </div> */}
-                    <div className={styles.btnpropsComparison}>
-                      <div className={`dropdown dropup-showing ${styles.dropDown}`}>
-                        <button onClick={() => {
-                          this.props.history.push('sla-comparison', {
-                              slaDepartment: this.state.department,
-                              slaSupplier: this.state.supplier,
-                              slaService: this.state.service,
-                              slaKpi: this.state.kpi,
-                              slaStartDate: this.state.startDate,
-                              slaEndDate: this.state.endDate,
-                              slaComparisonArray: this.state.slaComparisonArray
-                            })
-                          }} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} type='button'>
-                          Sla Comparison
-                        </button>
-                      </div>
-                    </div>
                     <div className={styles.chartContainer}>
                       <div className={styles.pieContainer}>
-                        <div className={styles.pieChart}>
+                        <div className={styles.btnprops} onClick={() => {
+                          this.props.history.push('penalty-scorecard')
+                        }} role='button' tabIndex={0} onKeyDown={() => this.props.history.push('penalty-scorecard')} >
                           <div className={styles.chart}>
                             <div className={styles.chartText}>
                               <span>Compliance</span>
@@ -921,7 +908,7 @@ class SlaDashboard extends React.Component {
                       <div className={styles.barContainer}>
                         <div className={styles.pieChart}>
                           <div className={styles.Barchart}>
-                            <Barchart BarChartValue={this.state.BarChartValue} supplier={this.state.supplier} duration={this.state.package} />
+                            <Barchart slaComparisonShowData={this.state.slaComparisonShowData} BarChartValue={this.state.BarChartValue} supplier={this.state.supplier} duration={this.state.package} />
                           </div>
                         </div>
                       </div>
