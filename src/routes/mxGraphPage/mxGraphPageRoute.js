@@ -1,7 +1,7 @@
 import React from 'react'
 import Header from '../../containers/header/headerContainer'
 import LeftNavigation from '../../components/leftNavigation/leftNavComponent'
-import mxGraph from '../../components/mxGraph/mxGraphComponent'
+import MxGraph from '../../components/MxGraphTestComponent'
 import FooterComponent from '../../components/footer/footerComponent'
 
 export default class extends React.Component {
@@ -15,7 +15,7 @@ export default class extends React.Component {
             <div className='m-content'>
               <div className='row'>
                 <div className='col-xl-12'>
-                  <mxGraph />
+                  <MxGraph />
                 </div>
               </div>
             </div>
