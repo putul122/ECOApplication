@@ -1,9 +1,13 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { DatePicker } from 'antd'
-import styles from './slamSupplierComponent.scss'
+import Select from 'react-select'
+import axios from 'axios'
 import 'antd/dist/antd.css'
+
+import styles from './slamSupplierComponent.scss'
 import Barchart from '../barchart/barchartComponent'
+import api from '../../constants'
 
 const { RangePicker } = DatePicker
 
@@ -16,15 +20,27 @@ class SlamSupplier extends Component {
         service: '',
         kpi: ''
       },
+      data: [],
+      selectedOptionArray: [],
+      selectedOption: '',
+      barchartSlavalue: [],
+      barChartSupplierArray: [],
+      slaBarchartStateData: [],
+      ordersObject: {},
+      perspectiveFilter: {
+        parts: {}
+      },
       dupActualSlaDashboardData: [],
       departmentFilter: [],
       serviceMultipleArray: [],
       kpiMultipleArray: [],
+      slaComparisonShowData: true,
       startDate: this.props && this.props.location && this.props.location.state && this.props.location.state.slaStartDate ? this.props.location.state.slaStartDate : null,
       endDate: this.props && this.props.location && this.props.location.state && this.props.location.state.slaEndDate ? this.props.location.state.slaEndDate : null,
       supplier: this.props && this.props.location && this.props.location.state && this.props.location.state.slaSupplier ? this.props.location.state.slaSupplier : 'Select',
       slaComparisonArray: this.props && this.props.location && this.props.location.state && this.props.location.state.slaComparisonArray ? this.props.location.state.slaComparisonArray : [],
       supplierFilter: [],
+      supplierIdsArray: [],
       departmentDropDownArray: [],
       supplierDropDownArray: [],
       serviceDropDownArray: [],
@@ -35,9 +51,56 @@ class SlamSupplier extends Component {
     }
   }
 
+  componentWillReceiveProps (nextProps) {
+    let ordersObject = {}
+    let ActuallArr = []
+    let supFilterId = []
+    let serFilterId = []
+    let kpiFilId = []
+
+    for (let i = 0; i < nextProps.modelPerspectiveData.length - 1; i++) {
+      let date
+      if (nextProps.modelPerspectiveData[i].parts[1].value !== null) {
+        let dates = new Date(nextProps.modelPerspectiveData[i].parts[1].value.date_time_value)
+        date = dates.toUTCString()
+      } else {
+        date = ''
+      }
+      let obj = {
+        subject_id: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].subject_id,
+        supplier: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[2].value && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.name,
+        supplierId: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[2].value && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.id,
+        service: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[6].value && nextProps.modelPerspectiveData[i].parts[6].value.subject_part && nextProps.modelPerspectiveData[i].parts[6].value.subject_part.value,
+        serviceId: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[6].value && nextProps.modelPerspectiveData[i].parts[6].value.subject_part && nextProps.modelPerspectiveData[i].parts[6].value.subject_id,
+        kpi: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[7].value && nextProps.modelPerspectiveData[i].parts[7].value.subject_part && nextProps.modelPerspectiveData[i].parts[7].value.subject_part.value,
+        kpiId: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[7].value && nextProps.modelPerspectiveData[i].parts[7].value.subject_part && nextProps.modelPerspectiveData[i].parts[7].value.subject_id,
+        contracts: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[0].value !== null ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value.name : '' : '',
+        expDate: date
+      }
+
+      ActuallArr.push(obj)
+    }
+    ordersObject['supplier'] = nextProps.metaData.resources[0].parts[2].order
+    ordersObject['department'] = nextProps.metaData.resources[0].parts[3].order
+    ordersObject['service'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[1].order
+    ordersObject['kpi'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[2].order
+    this.setState({ordersObject, ActualSlaDashboardData: ActuallArr, dupActualSlaDashboardData: ActuallArr, ActualContractArr: ActuallArr})
+    ActuallArr.map((data) => {
+      supFilterId.push(data.supplierId)
+      serFilterId.push(data.serviceId)
+      kpiFilId.push(data.kpiId)
+    })
+
+    ordersObject['supplier'] = nextProps.metaData.resources[0].parts[2].order
+    ordersObject['department'] = nextProps.metaData.resources[0].parts[3].order
+    ordersObject['service'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[1].order
+    ordersObject['kpi'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[2].order
+  }
+
   componentDidMount () {
     this.props.MetaModel()
     this.props.getMDPerspectiveDATA()
+
       if (this.props.location.state.slaService !== 'Select') {
         this.serviceDropDown(this.props.location.state.slaService, this.state.slaComparisonArray, true)
       } else if (this.props.location.state.slaKpi !== 'Select') {
@@ -48,7 +111,7 @@ class SlamSupplier extends Component {
   }
 
   unselectAll = async () => {
-    let { dupActualSlaDashboardData } = this.state
+    let { dupActualSlaDashboardData, perspectiveFilter, ordersObject } = this.state
     let repeatedArr = dupActualSlaDashboardData.map((data) => {
       return data.department
     })
@@ -70,15 +133,15 @@ class SlamSupplier extends Component {
       service: '',
       supplier: ''
     }
-    this.unCheck()
-    await this.setState({slamState, UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select'})
-  }
-  unCheck = () => {
-    let x = document.getElementsByClassName('checkbox')
-    console.log('-----', x)
-    for (let i = 0; i < x.length; i++) {
-       x[i].checked = false
-     }
+
+    // deletion of perspective filter dropdown
+    delete perspectiveFilter.parts[ordersObject['supplier']]
+    delete perspectiveFilter.parts[ordersObject['department']]
+    if (perspectiveFilter.parts['7']) {
+      delete perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['service']]
+      delete perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['kpi']]
+    }
+    await this.setState({selectedOptionArray: [], barChartSupplierArray: [], supplierIdsArray: [], slamState, UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select'})
   }
 
   BarChartValue = (val) => {
@@ -95,8 +158,8 @@ class SlamSupplier extends Component {
     this.setState({BarChartValue})
   }
 
-  SupplierComparisonDropdown = (supDropDownArray, serDropDownArray, kpiDropDownArray, actuallArr) => {
-    let supplierDropDownArray = this.state.departmentFilter.length ? this.state.departmentFilter : supDropDownArray
+  SupplierComparisonDropdown = (supDropDownArray, serDropDownArray, kpiDropDownArray, actuallArr, selectedOptionArray, options) => {
+    // let supplierDropDownArray = this.state.departmentFilter.length ? this.state.departmentFilter : supDropDownArray
     let serviceDropDownArray = this.state.supplierFilter.length ? this.state.supplierFilter : serDropDownArray
     let KPIDropDownArray = this.state.serviceFilter.length ? this.state.serviceFilter : kpiDropDownArray
 
@@ -106,25 +169,13 @@ class SlamSupplier extends Component {
           <div className={styles.LeftText}>
             <p>Supplier</p>
           </div>
-          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
-            <button className={`btn btn-default dropdown-toggle dropup-btn ${styles.dropDownBtn} ${styles.largeBtn}`} type='button' data-toggle='dropdown'>
-              {this.state.supplier}
-              <span className='caret' />
-            </button>
-            <ul className={`dropdown-menu menu ${styles.dropList}`}>
-              {
-                supplierDropDownArray.map((val, key) => {
-                  return (
-                    <li key={key} className={styles.listDrop}>
-                      <input type='checkbox' name='supplier' value={val} className={`checkbox ${styles.checkBox}`} onChange={(e) => this.supplierDropDown(val, actuallArr, e.target.checked)} />
-                      <a href='javascript:void(0)'
-                      >{val}</a>
-                    </li>
-                  )
-                })
-              }
-            </ul>
-          </div>
+          <Select
+            value={selectedOptionArray}
+            onChange={e => this.handleChange(e, actuallArr)}
+            options={options}
+            isMulti
+            className={styles.MultiSelect}
+          />
         </div>
 
         <div className={styles.mainDropdown}>
@@ -208,19 +259,25 @@ class SlamSupplier extends Component {
               Clear Filter
             </button>
           </div>
+          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
+            <button onClick={() => this.getComplianceData()} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} type='button'>
+              Go
+            </button>
+          </div>
         </div>
       </div>
     )
   }
 
   supplierDropDown = (value, ActuallArr, checked) => {
-    var { slamState, serviceMultipleArray, kpiMultipleArray } = this.state
+    const { slamState, ordersObject, perspectiveFilter, serviceMultipleArray, kpiMultipleArray, barChartSupplierArray } = this.state
     slamState.supplier = value
     slamState.service = this.state.service !== 'Select' ? this.state.service : ''
     slamState.kpi = this.state.kpi !== 'Select' ? this.state.kpi : ''
     this.setState({supplier: value, slamState})
     var { dupActualSlaDashboardData } = this.state
     const dropDownData = dupActualSlaDashboardData.length ? dupActualSlaDashboardData : ActuallArr
+
     var array = dropDownData.filter((data) => {
       if (data.supplier === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
         return (data.supplier === value)
@@ -242,7 +299,15 @@ class SlamSupplier extends Component {
         return (data.supplier === value)
       }
     })
-    console.log('array', array)
+
+    const supplierIdsArray = this.state.supplierIdsArray
+    supplierIdsArray.push(array[0].supplierId)
+    const uniqueSupplierIds = [...new Set(supplierIdsArray)]
+
+    perspectiveFilter.parts[ordersObject['supplier']] = {
+      target_component_ids: uniqueSupplierIds
+    }
+
     var repeatedArrdep = array.map((data) => {
       return data.department
     })
@@ -262,12 +327,6 @@ class SlamSupplier extends Component {
       for (let i = 0; i < UniqueArrkpi.length; i++) {
         kpiMultipleArray.push(UniqueArrkpi[i])
       }
-      let checkBox = document.getElementsByClassName('checkbox')
-      for (let i = 0; i < checkBox.length; i++) {
-        if (checkBox[i].value === value) {
-          checkBox[i].checked = true
-        }
-      }
     } else {
       for (let i = 0; i < UniqueArrser.length; i++) {
         let index = serviceMultipleArray.indexOf(UniqueArrser[i])
@@ -282,11 +341,59 @@ class SlamSupplier extends Component {
         }
       }
     }
-    this.setState({supplier: value, supplierFilter: [...new Set(serviceMultipleArray)], UniqueArr: UniqueArrDep, serviceFilter: [...new Set(kpiMultipleArray)]})
+    this.setState({supplierIdsArray, perspectiveFilter, barChartSupplierArray: [...new Set(barChartSupplierArray)], supplier: value, supplierFilter: [...new Set(serviceMultipleArray)], UniqueArr: UniqueArrDep, serviceFilter: [...new Set(kpiMultipleArray)]})
+  }
+
+  getComplianceData = () => {
+    const { perspectiveFilter } = this.state
+
+    const stringifiedPerspectiveFilter = JSON.stringify(perspectiveFilter)
+    const base64ecodedPerspectiveFilter = btoa(stringifiedPerspectiveFilter)
+
+    axios
+      .get(api.slaBarchart(base64ecodedPerspectiveFilter))
+      .then(res => {
+        const slaBarchartStateData = res.data && res.data[0].parts && res.data[0].parts[0].value && res.data[0].parts[0].value.children
+        this.setState({ slaBarchartStateData })
+        this.slaComparisonBarchart(slaBarchartStateData)
+      })
+  }
+
+  slaComparisonBarchart = (slaBarchartStateData) => {
+    let { data, supplier } = this.state
+    let dataArr = []
+    if (supplier !== 'Select') {
+      for (let i = 0; i < supplier.length; i++) {
+        if (slaBarchartStateData && slaBarchartStateData.length) {
+          for (let j = 0; j < slaBarchartStateData.length; j++) {
+            let obj = {
+              name: supplier[i],
+              Compliant: 0,
+              Non_Compliant: 0
+            }
+            if (supplier[i] === slaBarchartStateData[j].key) {
+              let compliantData = 0
+              let nonCompliantData = 0
+              for (let k = 0; k < slaBarchartStateData[j].children[0].children.length; k++) {
+                compliantData = compliantData + slaBarchartStateData[j].children[0].children[k].value.sum
+                nonCompliantData = nonCompliantData + slaBarchartStateData[j].children[1].children[k].value.sum
+              }
+              obj['Compliant'] = compliantData
+              obj['Non_Compliant'] = nonCompliantData
+            }
+            dataArr.push(obj)
+          }
+        }
+      }
+    }
+    this.setState({
+      data: dataArr
+    })
+    console.log('data', data)
   }
 
   serviceDropDown = (value, ActuallArr, checked) => {
-    var { slamState } = this.state
+    var { slamState, ordersObject, perspectiveFilter } = this.state
     slamState.service = value
     slamState.supplier = this.state.supplier !== 'Select' ? this.state.supplier : ''
     slamState.kpi = this.state.kpi !== 'Select' ? this.state.kpi : ''
@@ -336,11 +443,32 @@ class SlamSupplier extends Component {
         }
       }, 1000)
     }
-    this.setState({service: value, serviceFilter: UniqueArrkpi, UniqueArr: UniqueArruni, departmentFilter: UniqueArrsupp})
+    if (!perspectiveFilter.parts['7']) {
+      perspectiveFilter.parts['7'] = {
+        constraint_perspective: {
+          parts: {
+            '5': {
+              constraint_perspective: {
+                parts: {}
+              }
+            }
+          }
+        }
+      }
+    }
+    perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['service']] = {
+      constraint_perspective: {
+        subject_ids: [
+          array[0].serviceId
+        ]
+      }
+    }
+
+    this.setState({perspectiveFilter, service: value, serviceFilter: UniqueArrkpi, UniqueArr: UniqueArruni, departmentFilter: UniqueArrsupp})
   }
 
   kpiDropDown = (value, ActuallArr, checked) => {
-    var { slamState } = this.state
+    var { slamState, ordersObject, perspectiveFilter } = this.state
     slamState.kpi = value
     slamState.service = this.state.service !== 'Select' ? this.state.service : ''
     slamState.supplier = this.state.supplier !== 'Select' ? this.state.supplier : ''
@@ -390,7 +518,55 @@ class SlamSupplier extends Component {
         }
       }, 1000)
     }
-    this.setState({kpi: value, UniqueArr: UniqueArruni, departmentFilter: UniqueArrdep, supplierFilter: UniqueArrsupp})
+    if (!perspectiveFilter.parts['7']) {
+      perspectiveFilter.parts['7'] = {
+        constraint_perspective: {
+          parts: {
+            '5': {
+              constraint_perspective: {
+                parts: {}
+              }
+            }
+          }
+        }
+      }
+    }
+    perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['kpi']] = {
+      constraint_perspective: {
+        subject_ids: [
+          array[0].kpiId
+        ]
+      }
+    }
+
+    this.setState({perspectiveFilter, kpi: value, UniqueArr: UniqueArruni, departmentFilter: UniqueArrdep, supplierFilter: UniqueArrsupp})
+  }
+
+  handleChange = (e, ActuallArr) => {
+    let { barChartSupplierArray } = this.state
+    for (let j = 0; j < e.length; j++) {
+      barChartSupplierArray.push(e[j].value)
+    }
+    barChartSupplierArray = [...new Set(this.state.barChartSupplierArray)]
+    let selectedOptionArray = []
+    let supplier = []
+
+    e.map(item => {
+      supplier.push(item.value)
+
+      const selectedOption = {}
+      selectedOption.value = item.value
+      selectedOption.label = item.label
+      selectedOptionArray.push(selectedOption)
+    })
+    for (let i = 0; i < barChartSupplierArray.length; i++) {
+      if (supplier.indexOf(barChartSupplierArray[i]) === -1) {
+        this.supplierDropDown(barChartSupplierArray[i], ActuallArr, false)
+      } else {
+        this.supplierDropDown(barChartSupplierArray[i], ActuallArr, true)
+      }
+    }
+    this.setState({ selectedOptionArray, supplier, barChartSupplierArray })
   }
 
   render () {
@@ -401,7 +577,7 @@ class SlamSupplier extends Component {
     let finalSupFilter = []
     let finalSerFilter = []
     let finalKpiFil = []
-
+    console.log(this.state.perspectiveFilter)
     let modelPerspectiveDataCount = this.props.modelPerspectiveData.length ? this.props.modelPerspectiveData.length - 1 : 0
 
     // filter and actual data
@@ -423,19 +599,28 @@ class SlamSupplier extends Component {
     finalSupFilter = [...new Set(supFilter)]
     finalSerFilter = [...new Set(serFilter)]
     finalKpiFil = [...new Set(kpiFil)]
+    let options = []
+    finalSupFilter.forEach(sup => {
+      const option = {}
+      option.value = sup
+      option.label = sup
+      options.push(option)
+    })
+
+    const { selectedOptionArray } = this.state
 
     return (
       <div className={styles.MainContainer}>
         <div className={styles.HeaderContainer}>
           {/* dropDown */}
-          {this.SupplierComparisonDropdown(finalSupFilter, finalSerFilter, finalKpiFil, ActuallArr)}
+          {this.SupplierComparisonDropdown(finalSupFilter, finalSerFilter, finalKpiFil, ActuallArr, selectedOptionArray, options)}
           <div className={styles.ContentContainer}>
             <div className={styles.leftContainer}>
               <div className={styles.chartContainer}>
                 <div className={styles.barContainer}>
                   <div className={styles.pieChart}>
                     <div className={styles.Barchart}>
-                      <Barchart />
+                      <Barchart data={this.state.data} slaComparisonShowData={this.state.slaComparisonShowData} />
                     </div>
                   </div>
                 </div>
@@ -449,6 +634,7 @@ class SlamSupplier extends Component {
 }
 
 SlamSupplier.propTypes = {
+  metaData: PropTypes.any,
   MetaModel: PropTypes.func,
   modelPerspectiveData: PropTypes.any,
   getMDPerspectiveDATA: PropTypes.func,

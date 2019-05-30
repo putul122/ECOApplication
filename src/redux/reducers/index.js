@@ -25,6 +25,7 @@ import rolesReducer from './rolesReducer/rolesReducerReducer'
 import editRolesReducer from './editRolesReducer/editRolesReducerReducer'
 import dataReducer from './data/dataReducer'
 import penaltyReducer from './penaltyDashboardReducer/penaltyDashboardReducerReducer'
+import penaltyScoreCardReducer from './penaltyScoreCardReducer/penaltyScoreCardReducerReducer'
 import perspectiveExclusionReducer from './perspectiveExclusion/perspectiveExclusionReducer'
 import mxGraphReducer from './mxGraphReducer/mxGraphReducerReducer'
 import balancedScorecardReducer from './balancedScorecard/balancedScorecardReducer'
@@ -43,6 +44,7 @@ export default combineReducers({
     tasksReducer,
     explorerReducer,
     usersReducer,
+    penaltyScoreCardReducer,
     sheetsReducer,
     changePasswordReducer,
     componentModalViewReducer,
