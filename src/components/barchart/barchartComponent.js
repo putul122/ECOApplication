@@ -28,6 +28,7 @@ export default class Barchart extends PureComponent {
     let uniqueArray = []
     let quaterArray = ['Quater One', 'Quater Two', 'Quater Three', 'Quater Four']
     const barChartValue = this.props.BarChartValue
+
     if (this.props.duration === 'Daily') {
       barChartValue && barChartValue.children && barChartValue.children.length && barChartValue.children.map((bar, i) => {
         const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key)
@@ -150,7 +151,7 @@ export default class Barchart extends PureComponent {
       <BarChart
         width={850}
         height={250}
-        data={data}
+        data={this.props.slaComparisonShowData ? this.props.data : data}
         margin={{
           top: 5, right: 30, left: 20, bottom: 5
         }}
@@ -169,5 +170,7 @@ export default class Barchart extends PureComponent {
 
 Barchart.propTypes = {
   BarChartValue: PropTypes.any,
-  duration: PropTypes.any
+  duration: PropTypes.any,
+  slaComparisonShowData: PropTypes.any,
+  data: PropTypes.any
 }
