@@ -8,6 +8,8 @@ import PropTypes from 'prop-types'
 import styles from './balancedScorecardComponent.scss'
 import 'react-datepicker/dist/react-datepicker.css'
 import DatePicker from 'react-datepicker'
+// eslint-disable-next-line
+// import LoaderComponent from '../loader/loaderComponent'
 ReactModal.setAppElement('#root')
 let comparer = function (otherArray) {
   return function (current) {
@@ -19,6 +21,7 @@ let comparer = function (otherArray) {
 const customStylescrud = { content: { top: '10%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function BalancedScorecard (props) {
   let defaultStyle = {'content': {'top': '20%'}}
+  let availableCrudOperation = props.availableCrudOperation
   let copyModelPrespectives = props.copyModelPrespectives
   let perspectiveName = ''
   let standardPropertyList = ''
@@ -128,6 +131,18 @@ export default function BalancedScorecard (props) {
         expandSettings.processAPIResponse = true
         // eslint-disable-next-line
         mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+        // eslint-disable-next-line
+        // $.blockUI({
+        //   // eslint-disable-next-line
+        //   message: $('#blockMessage'),
+        //   // showOverlay: false,
+        //   overlayCSS: { background: 'none', opacity: 1 },
+        //   css: {
+        //     border: 'none',
+        //     // opacity: 1,
+        //     background: 'none'
+        //   }
+        // })
         let payload = {}
         payload['meta_model_perspective_id'] = data.metaModelPerspectives.id
         payload['view_key'] = data.metaModelPerspectives.view_key
@@ -308,6 +323,7 @@ export default function BalancedScorecard (props) {
         }
       }
     }
+    addSettings.parentName = data.name
     addSettings.initiatedFrom = level
     addSettings.perspectiveId = perspectiveId
     addSettings.viewKey = viewKey
@@ -337,6 +353,18 @@ export default function BalancedScorecard (props) {
   let editName = function (event) {
     let addSettings = JSON.parse(JSON.stringify(props.addSettings))
     addSettings.name = event.target.value
+    if (props.addSettings.isEditModalOpen) {
+      let expandSettings = JSON.parse(JSON.stringify(props.expandSettings))
+      let viewKey = props.addSettings.selectedData.metaModelPerspectives.view_key
+      let metaModelPerspectives = expandSettings.metaModelPerspectives
+      let selectedLevel = _.findIndex(metaModelPerspectives, {'view_key': viewKey})
+      let expandLevel = expandSettings.level
+      console.log('selectedLevel', selectedLevel)
+      if (selectedLevel >= 0 && selectedLevel < expandLevel) {
+        expandSettings.selectedObject[selectedLevel + 1].name = event.target.value
+        props.setExpandSettings(expandSettings)
+      }
+    }
     props.setAddSettings(addSettings)
   }
   let editDescription = function (event) {
@@ -708,7 +736,7 @@ export default function BalancedScorecard (props) {
             if (!showChildExpandIcon) {
               faClass = ''
             }
-            let availableAction = {...props.availableAction}
+            let availableAction = availableCrudOperation[currentLevel + 1] // crud operation array contain root object action
             let list = []
             // if (showChildExpandIcon) {
               // if (faClass !== '') {
@@ -780,7 +808,7 @@ export default function BalancedScorecard (props) {
   }
   let genericExpandRow = function (parentRowName) {
     let childList = []
-    let expandSettings = JSON.parse(JSON.stringify(props.expandSettings))
+    let expandSettings = props.expandSettings
     let expandLevel = expandSettings.level
     let rowToExpand = false
     expandSettings.selectedObject.forEach(function (data, index) {
@@ -935,13 +963,15 @@ export default function BalancedScorecard (props) {
                       if (expandSettings.level >= 0 && (expandSettings.selectedObject[0] && expandSettings.selectedObject[0].name === value && expandSettings.selectedObject[0].subjectId === data.subject_id)) {
                         faClass = 'fa fa-minus'
                       }
-                      let availableAction = {...props.availableAction}
+                      let availableAction = availableCrudOperation[0] // displaying action for root level
                       let list = []
-                      if (availableAction.Update) {
-                        list.push(<a key={'action_edit' + ix} href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} ><img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
-                      }
-                      if (availableAction.Delete) {
-                        list.push(<a key={'action_delete' + ix} href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} ><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
+                      if (availableAction) {
+                        if (availableAction.Update) {
+                          list.push(<a key={'action_edit' + ix} href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} ><img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
+                        }
+                        if (availableAction.Delete) {
+                          list.push(<a key={'action_delete' + ix} href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} ><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
+                        }
                       }
                       rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
                         {list}
@@ -1106,10 +1136,6 @@ export default function BalancedScorecard (props) {
   // }
   let handleSelectChange = function (index, type) {
     return function (newValue: any, actionMeta: any) {
-      console.log('newValue', newValue)
-      console.log('actionMeta', actionMeta)
-      console.log('index', index)
-      console.log('type', type)
       let connectionData = {...props.connectionData}
       if (type === 'Connection') {
         let selectedValues = connectionData.selectedValues
@@ -1420,6 +1446,9 @@ return (
   <div>
     <div id='entitlementList'>
       {/* The table structure begins */}
+      {/* <div style={{display: 'none'}} id='blockMessage'>
+        <LoaderComponent />
+      </div> */}
       <div className='row'>
         <div className='col-md-12'>
           <div className='m_datatable' id='scrolling_vertical'>
@@ -1510,7 +1539,7 @@ return (
           <div className=''>
             <div className='modal-content'>
               <div className='modal-header'>
-                {props.addSettings.createResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Add {perspectiveName}</h4>)}
+                {props.addSettings.createResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Add {perspectiveName} for {props.addSettings.parentName}</h4>)}
                 {props.addSettings.createResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Create Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
@@ -1550,7 +1579,7 @@ return (
           <div className=''>
             <div className='modal-content' >
               <div className='modal-header'>
-                {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit {updatePerspectiveName}</h4>)}
+                {props.addSettings.updateResponse === null && (<h4 className='modal-title' id='exampleModalLabel'>Edit {updatePerspectiveName} for {props.addSettings.parentName}</h4>)}
                 {props.addSettings.updateResponse !== null && (<h4 className='modal-title' id='exampleModalLabel'>Update Report</h4>)}
                 <button type='button' onClick={closeModal} className='close' data-dismiss='modal' aria-label='Close'>
                   <span aria-hidden='true'>×</span>
@@ -1628,5 +1657,6 @@ return (
     // eslint-disable-next-line
     expandSettings: PropTypes.any,
     headerData: PropTypes.any,
-    copyModelPrespectives: PropTypes.any
+    copyModelPrespectives: PropTypes.any,
+    availableCrudOperation: PropTypes.any
   }

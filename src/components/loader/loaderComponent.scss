@@ -1,0 +1,58 @@
+.waitSmall {
+    height: 70px;
+    width: 70px;
+}
+
+.waitLeft {
+    animation: wait-icon-rotate 8900ms linear 0s infinite normal;
+    transform-origin: 45.530499px 71.000114px;
+}
+
+.waitTop {
+    animation: wait-icon-rotate 8900ms linear 500ms infinite normal;
+    transform-origin: 96.229607px 41.800793px;
+}
+
+.waitBottom {
+    animation: wait-icon-rotate 8900ms linear 1000ms infinite normal;
+    transform-origin: 96.129997px 99.950195px;
+}
+
+@keyframes wait-icon-rotate {
+    0% { transform: rotate(0deg); }
+    1.12359550561798% { transform: rotate(1deg); }
+    5.61797752808989% { transform: rotate(59deg); }
+    6.74157303370786% { transform: rotate(60deg); }
+    11.2359550561798% { transform: rotate(60deg); }
+    12.3595505617978% { transform: rotate(60deg); }
+    16.8539325842697% { transform: rotate(60deg); }
+    17.9775280898876% { transform: rotate(61deg); }
+    22.4719101123595% { transform: rotate(119deg); }
+    23.5955056179775% { transform: rotate(120deg); }
+    28.0898876404494% { transform: rotate(120deg); }
+    29.2134831460674% { transform: rotate(120deg); }
+    33.7078651685393% { transform: rotate(120deg); }
+    34.8314606741573% { transform: rotate(121deg); }
+    39.3258426966292% { transform: rotate(179deg); }
+    40.4494382022472% { transform: rotate(180deg); }
+    44.9438202247191% { transform: rotate(180deg); }
+    46.0674157303371% { transform: rotate(180deg); }
+    50.561797752809% { transform: rotate(180deg); }
+    51.685393258427% { transform: rotate(181deg); }
+    56.1797752808989% { transform: rotate(239deg); }
+    57.3033707865169% { transform: rotate(240deg); }
+    61.7977528089888% { transform: rotate(240deg); }
+    62.9213483146068% { transform: rotate(240deg); }
+    67.4157303370787% { transform: rotate(240deg); }
+    68.5393258426967% { transform: rotate(241deg); }
+    73.0337078651686% { transform: rotate(299deg); }
+    74.1573033707865% { transform: rotate(300deg); }
+    78.6516853932584% { transform: rotate(300deg); }
+    79.7752808988764% { transform: rotate(300deg); }
+    84.2696629213483% { transform: rotate(300deg); }
+    85.3932584269663% { transform: rotate(301deg); }
+    89.8876404494382% { transform: rotate(359deg); }
+    91.0112359550562% { transform: rotate(360deg); }
+    95.5056179775281% { transform: rotate(360deg); }
+    100% { transform: rotate(360deg); }
+}
