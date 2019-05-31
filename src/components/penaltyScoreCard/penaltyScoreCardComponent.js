@@ -4,6 +4,8 @@ import PropTypes from 'prop-types'
 import 'antd/dist/antd.css'
 import { DatePicker } from 'antd'
 
+import MxGraph from './penaltyScorecardMxgraph.component'
+
 const { RangePicker } = DatePicker
 
 class PenaltyScoreCard extends React.Component {
@@ -31,7 +33,6 @@ class PenaltyScoreCard extends React.Component {
     }
   }
   scoreCardDropDown = (value) => {
-    console.log('value', value)
     this.setState({
       scoreCard: value.subject_name
     })
@@ -110,6 +111,7 @@ class PenaltyScoreCard extends React.Component {
           <p>Penalty Scorecard</p>
         </div>
         {this.PenaltydropDown(scoreCardArr)}
+        <MxGraph />
       </div>
     )
   }
