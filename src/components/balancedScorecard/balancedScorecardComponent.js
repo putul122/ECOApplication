@@ -20,7 +20,6 @@ let comparer = function (otherArray) {
 }
 const customStylescrud = { content: { top: '10%', left: '8%', background: 'none', border: '0px', overflow: 'none', margin: 'auto' } }
 export default function BalancedScorecard (props) {
-  console.log('props', props)
   let defaultStyle = {'content': {'top': '20%'}}
   let availableCrudOperation = props.availableCrudOperation
   let copyModelPrespectives = props.copyModelPrespectives
@@ -93,8 +92,6 @@ export default function BalancedScorecard (props) {
     props.setCurrentPage(1)
   }, 500)
   let handleClick = function (data, level) {
-    console.log('data', data)
-    console.log('level', level, props)
     let expandFlag = true
     let expandSettings = JSON.parse(JSON.stringify(props.expandSettings))
     let selectedObject = expandSettings.selectedObject[level]
@@ -205,9 +202,6 @@ export default function BalancedScorecard (props) {
   }
   let openModal = function (data, level, operationType) {
     let addSettings = {...props.addSettings}
-    console.log('data', data)
-    console.log('operationType', operationType)
-    console.log('level', level, props)
     // check Expand level and set Level on open Modal operation
     // let expandSettings = {...props.expandSettings}
     // let levelName = ''
@@ -359,6 +353,18 @@ export default function BalancedScorecard (props) {
   let editName = function (event) {
     let addSettings = JSON.parse(JSON.stringify(props.addSettings))
     addSettings.name = event.target.value
+    if (props.addSettings.isEditModalOpen) {
+      let expandSettings = JSON.parse(JSON.stringify(props.expandSettings))
+      let viewKey = props.addSettings.selectedData.metaModelPerspectives.view_key
+      let metaModelPerspectives = expandSettings.metaModelPerspectives
+      let selectedLevel = _.findIndex(metaModelPerspectives, {'view_key': viewKey})
+      let expandLevel = expandSettings.level
+      console.log('selectedLevel', selectedLevel)
+      if (selectedLevel >= 0 && selectedLevel < expandLevel) {
+        expandSettings.selectedObject[selectedLevel + 1].name = event.target.value
+        props.setExpandSettings(expandSettings)
+      }
+    }
     props.setAddSettings(addSettings)
   }
   let editDescription = function (event) {
@@ -801,7 +807,6 @@ export default function BalancedScorecard (props) {
     return childRowColumn
   }
   let genericExpandRow = function (parentRowName) {
-    console.log('generic expand row', parentRowName)
     let childList = []
     let expandSettings = props.expandSettings
     let expandLevel = expandSettings.level
@@ -1131,10 +1136,6 @@ export default function BalancedScorecard (props) {
   // }
   let handleSelectChange = function (index, type) {
     return function (newValue: any, actionMeta: any) {
-      console.log('newValue', newValue)
-      console.log('actionMeta', actionMeta)
-      console.log('index', index)
-      console.log('type', type)
       let connectionData = {...props.connectionData}
       if (type === 'Connection') {
         let selectedValues = connectionData.selectedValues

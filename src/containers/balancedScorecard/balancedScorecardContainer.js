@@ -371,6 +371,7 @@ export default compose(
                 payload['meta_model_perspective_id'] = selectedObject.metaModelPerspectives.id
                 payload['view_key'] = selectedObject.metaModelPerspectives.view_key
                 payload['parent_reference'] = selectedObject.parentReference
+                payload['filter[0]'] = selectedObject.childFilter
                 if (selectedObject.containerPerspectiveId) {
                   payload['container_meta_model_perspective_id'] = selectedObject.containerPerspectiveId
                   payload['container_view_key'] = selectedObject.containerPerspectiveViewKey
@@ -385,6 +386,7 @@ export default compose(
                 payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
                 payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
                 payload['parent_reference'] = addSettings.selectedData.parentReference
+                payload['filter[0]'] = addSettings.selectedData.childFilter
                 if (addSettings.selectedData.containerPerspectiveId) {
                   payload['container_meta_model_perspective_id'] = addSettings.selectedData.containerPerspectiveId
                   payload['container_view_key'] = addSettings.selectedData.containerPerspectiveViewKey
@@ -427,6 +429,7 @@ export default compose(
                 payload['meta_model_perspective_id'] = selectedObject.metaModelPerspectives.id
                 payload['view_key'] = selectedObject.metaModelPerspectives.view_key
                 payload['parent_reference'] = selectedObject.parentReference
+                payload['filter[0]'] = selectedObject.childFilter
                 if (selectedObject.containerPerspectiveId) {
                   payload['container_meta_model_perspective_id'] = selectedObject.containerPerspectiveId
                   payload['container_view_key'] = selectedObject.containerPerspectiveViewKey
@@ -441,6 +444,7 @@ export default compose(
                 payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
                 payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
                 payload['parent_reference'] = addSettings.selectedData.parentReference
+                payload['filter[0]'] = addSettings.selectedData.childFilter
                 if (addSettings.selectedData.containerPerspectiveId) {
                   payload['container_meta_model_perspective_id'] = addSettings.selectedData.containerPerspectiveId
                   payload['container_view_key'] = addSettings.selectedData.containerPerspectiveViewKey
@@ -619,17 +623,24 @@ export default compose(
             let viewKey = nextProps.addSettings.selectedData.metaModelPerspectives.view_key
             let metaModelPerspectives = expandSettings.metaModelPerspectives
             let selectedLevel = _.findIndex(metaModelPerspectives, {'view_key': viewKey})
-            console.log('nested model selectedLevel', selectedLevel)
             if (selectedLevel >= 0) {
               expandSettings.modelPerspectives[selectedLevel] = modelPerspectives
               expandSettings.processAPIResponse = false
             } else {
               let selectedData = nextProps.addSettings.selectedData
               selectedData.showChildExpandIcon = true
-              expandSettings.metaModelPerspectives[level + 1] = selectedData.metaModelPerspectives
-              expandSettings.modelPerspectives[level + 1] = modelPerspectives
-              expandSettings.selectedObject[level + 1] = selectedData
-              expandSettings.level = level + 1
+              selectedData.expandFlag = true
+              if (level) {
+                expandSettings.metaModelPerspectives[level + 1] = selectedData.metaModelPerspectives
+                expandSettings.modelPerspectives[level + 1] = modelPerspectives
+                expandSettings.selectedObject[level + 1] = selectedData
+                expandSettings.level = level + 1
+              } else {
+                expandSettings.metaModelPerspectives[0] = selectedData.metaModelPerspectives
+                expandSettings.modelPerspectives[0] = modelPerspectives
+                expandSettings.selectedObject[0] = selectedData
+                expandSettings.level = 0
+              }
               expandSettings.processAPIResponse = false
             }
           } else {
