@@ -4,7 +4,6 @@ import { Provider } from 'react-redux'
 import createReduxStore from '../../redux/store'
 import PerspectiveHierarchy from './perspectiveHierarchyScene'
 
-
 const reduxStore = createReduxStore()
 
 const provider = (storyFn) => (

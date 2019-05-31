@@ -30,7 +30,8 @@ export function mapStateToProps (state, props) {
     nestedModelPerspectives: state.balancedScorecardReducer.nestedModelPerspectives,
     headerData: state.balancedScorecardReducer.headerData,
     crudModelPerspectives: state.balancedScorecardReducer.crudModelPerspectives,
-    allDropdownData: state.balancedScorecardReducer.allDropdownData
+    allDropdownData: state.balancedScorecardReducer.allDropdownData,
+    availableCrudOperation: state.balancedScorecardReducer.availableCrudOperation
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch
@@ -58,7 +59,8 @@ export const propsMapping = {
   removeModelPrespectives: sagaActions.serviceActions.removeModelPrespectives,
   setExpandSettings: actionCreators.setExpandSettings,
   setHeaderData: actionCreators.setHeaderData,
-  setModalPerspectivesData: actionCreators.setModalPerspectivesData
+  setModalPerspectivesData: actionCreators.setModalPerspectivesData,
+  setAvailableCrudOperation: actionCreators.setAvailableCrudOperation
 }
 
 // If you want to use the function mapping
@@ -317,8 +319,10 @@ export default compose(
         }
       }
       if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcessMetaModel) {
+        console.log('run one time')
         let headerData = {...this.props.headerData}
         let availableAction = {...nextProps.availableAction}
+        let availableCrudOperation = JSON.parse(JSON.stringify(nextProps.availableCrudOperation))
         let crude = nextProps.crude
         let mask = nextProps.metaModelPerspective.resources[0].crude
         let metaData = []
@@ -327,14 +331,19 @@ export default compose(
         headerData.toProcess = true
         nextProps.setHeaderData(headerData)
         availableAction['toProcessMetaModel'] = false
+        let crudAction = {}
         for (let option in crude) {
           if (crude.hasOwnProperty(option)) {
             if (mask & crude[option]) {
-              availableAction[option] = true
+              crudAction[option] = true
+            } else {
+              crudAction[option] = false
             }
           }
         }
+        availableCrudOperation.push(crudAction)
         nextProps.setAvailableAction(availableAction)
+        nextProps.setAvailableCrudOperation(availableCrudOperation)
       }
       if (nextProps.createComponentResponse && nextProps.createComponentResponse !== '') {
         let addSettings = {...nextProps.addSettings}
@@ -350,18 +359,39 @@ export default compose(
           payload['view_key[0]'] = perspectiveViewKey
           this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
         } else {
-          let selectedObject = this.props.expandSettings.selectedObject[this.props.expandSettings.level] || null
-          if (selectedObject) {
-            if (selectedObject.expandFlag) {
-              payload['meta_model_perspective_id'] = selectedObject.metaModelPerspectives.id
-              payload['view_key'] = selectedObject.metaModelPerspectives.view_key
-              payload['parent_reference'] = selectedObject.parentReference
-              if (selectedObject.containerPerspectiveId) {
-                payload['container_meta_model_perspective_id'] = selectedObject.containerPerspectiveId
-                payload['container_view_key'] = selectedObject.containerPerspectiveViewKey
+          // get selected click level
+          let viewKey = addSettings.selectedData.metaModelPerspectives.view_key
+          let metaModelPerspectives = nextProps.expandSettings.metaModelPerspectives
+          let selectedLevel = _.findIndex(metaModelPerspectives, {'view_key': viewKey})
+          console.log('selectedLevel', selectedLevel)
+          if (selectedLevel >= 0) {
+            let selectedObject = this.props.expandSettings.selectedObject[selectedLevel] || null
+            if (selectedObject) {
+              if (selectedObject.expandFlag) {
+                payload['meta_model_perspective_id'] = selectedObject.metaModelPerspectives.id
+                payload['view_key'] = selectedObject.metaModelPerspectives.view_key
+                payload['parent_reference'] = selectedObject.parentReference
+                if (selectedObject.containerPerspectiveId) {
+                  payload['container_meta_model_perspective_id'] = selectedObject.containerPerspectiveId
+                  payload['container_view_key'] = selectedObject.containerPerspectiveViewKey
+                }
+                this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
               }
-              this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
             }
+          } else {
+            // let selectedObject = this.props.expandSettings.selectedObject[this.props.expandSettings.level] || null
+            // if (selectedObject) {
+            //   if (selectedObject.expandFlag) {
+                payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
+                payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
+                payload['parent_reference'] = addSettings.selectedData.parentReference
+                if (addSettings.selectedData.containerPerspectiveId) {
+                  payload['container_meta_model_perspective_id'] = addSettings.selectedData.containerPerspectiveId
+                  payload['container_view_key'] = addSettings.selectedData.containerPerspectiveViewKey
+                }
+                this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
+            //   }
+            // }
           }
           // payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
           // payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
@@ -386,18 +416,38 @@ export default compose(
           payload['view_key[0]'] = perspectiveViewKey
           this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
         } else {
-          let selectedObject = this.props.expandSettings.selectedObject[this.props.expandSettings.level] || null
-          if (selectedObject) {
-            if (selectedObject.expandFlag) {
-              payload['meta_model_perspective_id'] = selectedObject.metaModelPerspectives.id
-              payload['view_key'] = selectedObject.metaModelPerspectives.view_key
-              payload['parent_reference'] = selectedObject.parentReference
-              if (selectedObject.containerPerspectiveId) {
-                payload['container_meta_model_perspective_id'] = selectedObject.containerPerspectiveId
-                payload['container_view_key'] = selectedObject.containerPerspectiveViewKey
+          let viewKey = addSettings.selectedData.metaModelPerspectives.view_key
+          let metaModelPerspectives = nextProps.expandSettings.metaModelPerspectives
+          let selectedLevel = _.findIndex(metaModelPerspectives, {'view_key': viewKey})
+          console.log('selectedLevel', selectedLevel)
+          if (selectedLevel >= 0) {
+            let selectedObject = this.props.expandSettings.selectedObject[selectedLevel] || null
+            if (selectedObject) {
+              if (selectedObject.expandFlag) {
+                payload['meta_model_perspective_id'] = selectedObject.metaModelPerspectives.id
+                payload['view_key'] = selectedObject.metaModelPerspectives.view_key
+                payload['parent_reference'] = selectedObject.parentReference
+                if (selectedObject.containerPerspectiveId) {
+                  payload['container_meta_model_perspective_id'] = selectedObject.containerPerspectiveId
+                  payload['container_view_key'] = selectedObject.containerPerspectiveViewKey
+                }
+                this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
               }
-              this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
             }
+          } else {
+            // let selectedObject = this.props.expandSettings.selectedObject[this.props.expandSettings.level] || null
+            // if (selectedObject) {
+            //   if (selectedObject.expandFlag) {
+                payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
+                payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
+                payload['parent_reference'] = addSettings.selectedData.parentReference
+                if (addSettings.selectedData.containerPerspectiveId) {
+                  payload['container_meta_model_perspective_id'] = addSettings.selectedData.containerPerspectiveId
+                  payload['container_view_key'] = addSettings.selectedData.containerPerspectiveViewKey
+                }
+                this.props.fetchNestedModelPrespectives && this.props.fetchNestedModelPrespectives(payload)
+            //   }
+            // }
           }
           // payload['meta_model_perspective_id'] = addSettings.selectedData.metaModelPerspectives.id
           // payload['view_key'] = addSettings.selectedData.metaModelPerspectives.view_key
@@ -565,8 +615,27 @@ export default compose(
               modelPerspectives.push(data)
             }
           })
-          expandSettings.modelPerspectives[level] = modelPerspectives
-          expandSettings.processAPIResponse = false
+          if (nextProps.addSettings.selectedData) {
+            let viewKey = nextProps.addSettings.selectedData.metaModelPerspectives.view_key
+            let metaModelPerspectives = expandSettings.metaModelPerspectives
+            let selectedLevel = _.findIndex(metaModelPerspectives, {'view_key': viewKey})
+            console.log('nested model selectedLevel', selectedLevel)
+            if (selectedLevel >= 0) {
+              expandSettings.modelPerspectives[selectedLevel] = modelPerspectives
+              expandSettings.processAPIResponse = false
+            } else {
+              let selectedData = nextProps.addSettings.selectedData
+              selectedData.showChildExpandIcon = true
+              expandSettings.metaModelPerspectives[level + 1] = selectedData.metaModelPerspectives
+              expandSettings.modelPerspectives[level + 1] = modelPerspectives
+              expandSettings.selectedObject[level + 1] = selectedData
+              expandSettings.level = level + 1
+              expandSettings.processAPIResponse = false
+            }
+          } else {
+            expandSettings.modelPerspectives[level] = modelPerspectives
+            expandSettings.processAPIResponse = false
+          }
           nextProps.setExpandSettings(expandSettings)
         } else {
           // eslint-disable-next-line
@@ -579,6 +648,8 @@ export default compose(
         let metaModelPerspective = JSON.parse(JSON.stringify(headerData.metaModelPerspective))
         let processedIndex = headerData.processedIndex
         let toProcess = false
+        let availableCrudOperation = JSON.parse(JSON.stringify(nextProps.availableCrudOperation))
+        let crude = nextProps.crude
         if (nextProps.headerData.metaModelPerspective.length > 0) {
           nextProps.headerData.metaModelPerspective.forEach(function (data, index) {
             if (!processedIndex.includes(index)) {
@@ -589,6 +660,22 @@ export default compose(
                       metaModelPerspective.push(partData.constraint_perspective)
                       processedIndex.push(index)
                       toProcess = true
+                      if (partData.role_perspectives !== null) {
+                        let mask = partData.constraint_perspective.crude
+                        let crudAction = {}
+                        for (let option in crude) {
+                          if (crude.hasOwnProperty(option)) {
+                            if (mask & crude[option]) {
+                              crudAction[option] = true
+                            } else {
+                              crudAction[option] = false
+                            }
+                          }
+                        }
+                        crudAction.name = partData.name
+                        availableCrudOperation.push(crudAction)
+                        nextProps.setAvailableCrudOperation(availableCrudOperation)
+                      }
                     // }
                   }
                 })

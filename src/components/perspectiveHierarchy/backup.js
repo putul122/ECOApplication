@@ -471,7 +471,7 @@ export default function PerspectiveHierarchy (props) {
     closeModal()
   }
   let genericExpandRow = function () {
-    
+
   }
   let listModelPrespectives = function () {
     console.log('list modal pers', props)
