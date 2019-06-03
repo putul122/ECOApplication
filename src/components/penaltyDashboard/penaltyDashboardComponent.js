@@ -139,9 +139,9 @@ class PenaltyDashboard extends React.Component {
     arr.forEach(data => {
       if (data && data.parts && data.parts[4].value.subject_part.value.length) {
         data.parts[4].value.subject_part.value.forEach(item => {
-          let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.value) || ''
-          let score = (item && item.values && item.values.Score && item.values.Score.value) || ''
-          let target = (item && item.values && item.values.Target && item.values.Target.value) || ''
+          let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.formatted_value) || ''
+          let score = (item && item.values && item.values.Score && item.values.Score.formatted_value) || ''
+          let target = (item && item.values && item.values.Target && item.values.Target.formatted_value) || ''
           let date = item.timestamp
 
           let obj1 = {
@@ -516,9 +516,9 @@ class PenaltyDashboard extends React.Component {
         this.props.penaltymodelPerspectiveData.forEach((penaltyContract, i) => {
           if (this.props.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.length) {
             this.props.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.forEach(item => {
-              let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.value) || ''
-              let score = (item && item.values && item.values.Score && item.values.Score.value) || ''
-              let target = (item && item.values && item.values.Target && item.values.Target.value) || ''
+              let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.formatted_value) || ''
+              let score = (item && item.values && item.values.Score && item.values.Score.formatted_value) || ''
+              let target = (item && item.values && item.values.Target && item.values.Target.formatted_value) || ''
               let date = item.timestamp
 
               let obj1 = {
@@ -571,9 +571,9 @@ class PenaltyDashboard extends React.Component {
       this.props.penaltymodelPerspectiveData.forEach(data => {
         if (data && data.parts && data.parts[4].value.subject_part.value.length) {
           data.parts[4].value.subject_part.value.forEach(item => {
-            let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.value) || ''
-            let score = (item && item.values && item.values.Score && item.values.Score.value) || ''
-            let target = (item && item.values && item.values.Target && item.values.Target.value) || ''
+            let penalty = (item && item.values && item.values.Penalty && item.values.Penalty.formatted_value) || ''
+            let score = (item && item.values && item.values.Score && item.values.Score.formatted_value) || ''
+            let target = (item && item.values && item.values.Target && item.values.Target.formatted_value) || ''
             let date = item.timestamp
 
             let obj1 = {
@@ -694,9 +694,9 @@ class PenaltyDashboard extends React.Component {
       for (let i = 0; i < 200; i++) {
         if (nextProps.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.length) {
           nextProps.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.forEach(item => {
-            let penalty = item.values.Penalty.value
-            let score = item.values.Score.value
-            let target = item.values.Target.value
+            let penalty = item.values.Penalty.formatted_value
+            let score = item.values.Score.formatted_value
+            let target = item.values.Target.formatted_value
             let date = item.timestamp
 
             let obj1 = {
@@ -768,9 +768,9 @@ class PenaltyDashboard extends React.Component {
       for (let i = 0; i < 200; i++) {
         if (this.props.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.length) {
           this.props.penaltymodelPerspectiveData[i].parts[4].value.subject_part.value.forEach(item => {
-            let penalty = item.values.Penalty.value
-            let score = item.values.Score.value
-            let target = item.values.Target.value
+            let penalty = item.values.Penalty.formatted_value
+            let score = item.values.Score.formatted_value
+            let target = item.values.Target.formatted_value
             let date = item.timestamp
 
             let obj1 = {
@@ -915,10 +915,10 @@ class PenaltyDashboard extends React.Component {
                     {item.target}
                   </td>
                   <td className='table-td'>
-                    { (item.score > 0 && item.target > 0 && item.score < item.target) ? <span className='deactivated' style={{ fontSize: '14px', width: '100%', textAlign: 'center' }}>{item.score}</span> : item.score }
+                    { (item.score > 0 && item.target > 0 && item.score.split('%')[0] < item.target) ? <span className='deactivated' style={{ fontSize: '14px', width: '100%', textAlign: 'center' }}>{item.score}</span> : item.score }
                   </td>
                   <td className='table-td'>
-                    { item.penalty > 0 ? <span className='deactivated' style={{ fontSize: '14px', width: '100%', textAlign: 'center' }}>{item.penalty}</span> : item.penalty}
+                    { (item.penalty && item.penalty.split('%')[0] > 0) ? <span className='deactivated' style={{ fontSize: '14px', width: '100%', textAlign: 'center' }}>{item.penalty}</span> : item.penalty}
                   </td>
                   <td className='table-td'>
                     {item.date ? moment(new Date(item.date)).format('DD-MM-YYYY') : ''}
