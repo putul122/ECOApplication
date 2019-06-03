@@ -27,6 +27,7 @@ const SET_CONNECTION_DATA = 'balancedScorecardReducer/SET_CONNECTION_DATA'
 const SET_EXPAND_SETTINGS = 'balancedScorecardReducer/SET_EXPAND_SETTINGS'
 const SET_HEADER_DATA = 'balancedScorecardReducer/SET_HEADER_DATA'
 const SET_MODAL_PERSPECTIVES_DATA = 'balancedScorecardReducer/SET_MODAL_PERSPECTIVES_DATA'
+const SET_AVAILABLE_CRUD_OPERATION = 'balancedScorecardReducer/SET_AVAILABLE_CRUD_OPERATION'
 
 export const actions = {
   FETCH_MODEL_PRESPECTIVES_SUCCESS,
@@ -45,7 +46,8 @@ export const actions = {
   FETCH_DROPDOWN_DATA_SUCCESS,
   SET_EXPAND_SETTINGS,
   SET_HEADER_DATA,
-  SET_MODAL_PERSPECTIVES_DATA
+  SET_MODAL_PERSPECTIVES_DATA,
+  SET_AVAILABLE_CRUD_OPERATION
 }
 
 export const actionCreators = {
@@ -57,7 +59,8 @@ export const actionCreators = {
   setConnectionData: createAction(SET_CONNECTION_DATA),
   setExpandSettings: createAction(SET_EXPAND_SETTINGS),
   setHeaderData: createAction(SET_HEADER_DATA),
-  setModalPerspectivesData: createAction(SET_MODAL_PERSPECTIVES_DATA)
+  setModalPerspectivesData: createAction(SET_MODAL_PERSPECTIVES_DATA),
+  setAvailableCrudOperation: createAction(SET_AVAILABLE_CRUD_OPERATION)
 }
 
 export const initialState = {
@@ -111,6 +114,7 @@ export const initialState = {
     toProcessModelPerspectives: false,
     toProcessCrudModel: false
   },
+  availableCrudOperation: [],
   connectionData: '',
   createComponentResponse: '',
   updateComponentResponse: '',
@@ -221,6 +225,10 @@ export default handleActions(
       ...state,
       modelPrespectives: action.payload.data,
       copyModelPrespectives: action.payload.copyData
+    }),
+    [SET_AVAILABLE_CRUD_OPERATION]: (state, action) => ({
+      ...state,
+      availableCrudOperation: action.payload
     })
   },
   initialState
