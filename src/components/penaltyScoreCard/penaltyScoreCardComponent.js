@@ -44,9 +44,11 @@ class PenaltyScoreCard extends React.Component {
   }
 
   showSVGDiagram = () => {
-    this.setState({
-      showSVG: true
-    })
+    setTimeout(() => {
+      this.setState({
+        showSVG: true
+      })
+    }, 1000)
   }
 
   PenaltydropDown = (scoreCardArr) => {
