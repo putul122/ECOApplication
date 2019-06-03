@@ -1136,7 +1136,7 @@ export default function BalancedScorecard (props) {
   // }
   let handleSelectChange = function (index, type) {
     return function (newValue: any, actionMeta: any) {
-      let connectionData = {...props.connectionData}
+      let connectionData = JSON.parse(JSON.stringify(props.connectionData))
       if (type === 'Connection') {
         let selectedValues = connectionData.selectedValues
         if (actionMeta.action === 'select-option' || actionMeta.action === 'remove-value') {
@@ -1229,6 +1229,7 @@ export default function BalancedScorecard (props) {
       if (connectionData.data.length === 0) {
         connectionSelectBoxList = []
       }
+      console.log('props', props)
       connectionData.metricSelectNames.forEach(function (data, index) {
         let selectOptions = connectionData.metricSelectOption[index].map(function (component, id) {
           component.value = component.id
