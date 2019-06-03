@@ -11,8 +11,8 @@ import {
 import axios from 'axios'
 import parser from 'fast-xml-parser'
 
-import '../common.css'
-import '../mxgraph.css'
+import '../../common.css'
+import '../../mxgraph.css'
 
 class mxGraphGridAreaEditor extends Component {
   constructor (props) {
@@ -33,16 +33,16 @@ class mxGraphGridAreaEditor extends Component {
       'Bearer ' + localStorage.getItem('userAccessToken')
     axios.defaults.headers.common['Accept'] = 'application/vnd.jgraph.mxgraph.xml'
 
-    axios.get('https://model-eco-dev.ecoconductor.com/meta_model_perspectives/24')
+    axios.get('https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=63&view_key[0]=PenaltyScorecardDraw')
     .then(response => {
-      this.setState({ data: response.data })
-      this.LoadGraph()
+        this.setState({ data: response.data })
+        this.LoadGraph()
     })
     .catch(e => console.log(e))
   }
 
   LoadGraph () {
-    var container = ReactDOM.findDOMNode(this.refs.divGraph)
+    var container = ReactDOM.findDOMNode(this.refs.divPenaltyGraph)
 
     // Checks if the browser is supported
     if (!mxClient.isBrowserSupported()) {
@@ -54,7 +54,6 @@ class mxGraphGridAreaEditor extends Component {
 
       // Creates the graph inside the given container
       var graph = new mxGraph(container)
-
       // Enables rubberband selection
       new mxRubberband(graph)
 
@@ -76,7 +75,6 @@ class mxGraphGridAreaEditor extends Component {
     if (parser.validate(this.state.data) === true) { // optional (it'll return an object in case it's not valid)
         var jsonObj = parser.parse(this.state.data, options)
     }
-
       // Gets the default parent for inserting new cells. This is normally the first
       // child of the root (ie. layer 0).
       var parent = graph.getDefaultParent()
@@ -114,7 +112,6 @@ class mxGraphGridAreaEditor extends Component {
                 cell.style
               )
               vertexObj[cell.id] = vertex
-              console.log('vertexObj', vertexObj)
               items.push(vertexObj)
             }
           })
@@ -128,16 +125,16 @@ class mxGraphGridAreaEditor extends Component {
               let sourceObject = items.filter(vertex => {
                 console.log('vertex', Object.keys(vertex))
                 console.log('cell.source', cell.source)
-                return parseInt(Object.keys(vertex)) === cell.source
+                return cell['source']
               })[0]
-
-              let source = sourceObject ? sourceObject[cell.source] : null
+              let source = sourceObject ? sourceObject[cell['source']] : null
               console.log('source', source)
               let targetObject = items.filter(vertex => {
-                return parseInt(Object.keys(vertex)) === cell.target
+                return cell['target']
               })[0]
-              let target = targetObject ? targetObject[cell.target] : null
-
+              let target = targetObject ? cell['target'] : null
+              console.log('source', source)
+              console.log('target', target)
               graph.insertEdge(
                 parent,
                 null,
@@ -161,7 +158,7 @@ class mxGraphGridAreaEditor extends Component {
   }
   render () {
     return (
-      <div className='graph-container' ref='divGraph' id='divGraph' />
+      <div className='graph-container' ref='divPenaltyGraph' id='divPenaltyGraph' />
     )
   }
 }

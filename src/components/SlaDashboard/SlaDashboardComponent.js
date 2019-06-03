@@ -624,6 +624,23 @@ class SlaDashboard extends React.Component {
             </button>
           </div>
         </div>
+        <div className={styles.btnpropsComparison}>
+          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
+            <button onClick={() => {
+              this.props.history.push('sla-comparison', {
+                  slaDepartment: this.state.department,
+                  slaSupplier: this.state.supplier,
+                  slaService: this.state.service,
+                  slaKpi: this.state.kpi,
+                  slaStartDate: this.state.startDate,
+                  slaEndDate: this.state.endDate,
+                  slaComparisonArray: this.state.slaComparisonArray
+                })
+              }} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} style={{width: '160px'}} type='button'>
+              Supplier Comparison
+            </button>
+          </div>
+        </div>
       </div>
     )
   }
@@ -796,23 +813,6 @@ class SlaDashboard extends React.Component {
             </ul>
           </div>
         </div>
-        <div className={styles.btnpropsComparison}>
-          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
-            <button onClick={() => {
-              this.props.history.push('sla-comparison', {
-                  slaDepartment: this.state.department,
-                  slaSupplier: this.state.supplier,
-                  slaService: this.state.service,
-                  slaKpi: this.state.kpi,
-                  slaStartDate: this.state.startDate,
-                  slaEndDate: this.state.endDate,
-                  slaComparisonArray: this.state.slaComparisonArray
-                })
-              }} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} type='button'>
-              Sla Comparison
-            </button>
-          </div>
-        </div>
       </div>
     )
   }
@@ -876,7 +876,7 @@ class SlaDashboard extends React.Component {
                         }} role='button' tabIndex={0} onKeyDown={() => this.props.history.push('penalty-scorecard')} >
                           <div className={styles.chart}>
                             <div className={styles.chartText}>
-                              <span>Compliance</span>
+                              <span style={{ textDecoration: 'underline' }}>Compliance</span>
                             </div>
                             <div className={styles.Mainchart}>
                               <PieChart valueOne={this.state.compliance} valueTwo={this.state.nonCompliance} />
@@ -895,7 +895,7 @@ class SlaDashboard extends React.Component {
                         }} role='button' tabIndex={0} onKeyDown={() => this.props.history.push('penalty-dashboard')}>
                           <div className={styles.chart}>
                             <div className={styles.chartText}>
-                              <span>Penalty</span>
+                              <span style={{ textDecoration: 'underline' }}>Penalty</span>
                             </div>
                             <div className={styles.Mainchart}>
                               <Avatar className={styles.avatarTwo} size='large'>

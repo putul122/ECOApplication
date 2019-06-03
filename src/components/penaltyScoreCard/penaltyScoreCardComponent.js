@@ -1,22 +1,28 @@
 import React from 'react'
 import styles from './penaltyScoreCardComponent.scss'
 import PropTypes from 'prop-types'
+// import axios from 'axios'
 import 'antd/dist/antd.css'
-import { DatePicker } from 'antd'
+// import { DatePicker } from 'antd'
+// import {
+//   mxUtils
+// } from 'mxgraph-js'
 
-const { RangePicker } = DatePicker
+// const { RangePicker } = DatePicker
 
 class PenaltyScoreCard extends React.Component {
   constructor (props) {
     super(props)
     this.state = {
       scoreCardArr: [],
-      scoreCard: 'Select'
+      scoreCard: 'Select',
+      showSVG: false
     }
   }
   componentDidMount () {
     this.props.getPenaltyScoreCardData()
   }
+
   componentWillReceiveProps (nextProps) {
     const { penaltyScoreCardData } = nextProps
     let { scoreCardArr } = this.state
@@ -30,10 +36,16 @@ class PenaltyScoreCard extends React.Component {
       }
     }
   }
+
   scoreCardDropDown = (value) => {
-    console.log('value', value)
     this.setState({
       scoreCard: value.subject_name
+    })
+  }
+
+  showSVGDiagram = () => {
+    this.setState({
+      showSVG: true
     })
   }
 
@@ -66,7 +78,7 @@ class PenaltyScoreCard extends React.Component {
           </div>
         </div>
         {/* calendar */}
-        <div className={styles.mainDropdown}>
+        {/* <div className={styles.mainDropdown}>
           <div className={styles.LeftText}>
             <p>Period</p>
           </div>
@@ -88,13 +100,13 @@ class PenaltyScoreCard extends React.Component {
               }}
             />
           </div>
-        </div>
+        </div> */}
         <div className={styles.mainDropdown}>
           <div className={styles.LeftText}>
             <p className={styles.emptyPara} />
           </div>
           <div className={`dropdown dropup-showing ${styles.dropDown}`}>
-            <button className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} type='button'>
+            <button className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} type='button' onClick={this.showSVGDiagram}>
               Go
             </button>
           </div>
@@ -103,13 +115,23 @@ class PenaltyScoreCard extends React.Component {
     )
   }
   render () {
-    let { scoreCardArr } = this.state
+    let { scoreCardArr, scoreCard, showSVG } = this.state
     return (
       <div className={styles.MainContainer}>
         <div className={styles.LeftHeaderText}>
           <p>Penalty Scorecard</p>
         </div>
         {this.PenaltydropDown(scoreCardArr)}
+        <div className='graph-container' ref='divPenaltyGraph' id='divPenaltyScorecardGraph' />
+        { scoreCard !== 'Select' && showSVG && (
+          <div style={{ marginTop: '15px' }}>
+            <img
+              src='/assets/penaltyScorecard/penalty-scorecard.svg'
+              alt='penalty-scorecard'
+              height='100%'
+              width='100%' />
+          </div>
+        )}
       </div>
     )
   }

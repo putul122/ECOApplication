@@ -176,6 +176,11 @@ class SlamSupplier extends Component {
             isMulti
             className={styles.MultiSelect}
           />
+          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
+            <button onClick={() => this.unselectAll()} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} style={{ marginLeft: '30px' }} type='button'>
+              Clear Filter
+            </button>
+          </div>
         </div>
 
         <div className={styles.mainDropdown}>
@@ -253,11 +258,6 @@ class SlamSupplier extends Component {
         <div className={styles.mainDropdown}>
           <div className={styles.LeftText}>
             <p className={styles.emptyPara} />
-          </div>
-          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
-            <button onClick={() => this.unselectAll()} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} type='button'>
-              Clear Filter
-            </button>
           </div>
           <div className={`dropdown dropup-showing ${styles.dropDown}`}>
             <button onClick={() => this.getComplianceData()} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} type='button'>
