@@ -294,7 +294,7 @@ class SlaDashboard extends React.Component {
   getComplianceData = (perspectiveFilter, filterType) => {
     const stringifiedPerspectiveFilter = JSON.stringify(perspectiveFilter)
     const base64ecodedPerspectiveFilter = btoa(stringifiedPerspectiveFilter)
-
+    console.log('perspectiveFilter', perspectiveFilter)
     axios
       .get(api.perspectiveFilter(base64ecodedPerspectiveFilter))
       .then(res => {

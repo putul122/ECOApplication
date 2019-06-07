@@ -311,6 +311,15 @@ export default class Root extends Component {
           }
           resolve(require('../penaltyDashboardPage/PenaltyDashboardRoute').default)
             break
+          case 'kpiPerformanceDashboard':
+            if (module.hot) {
+              module.hot.accept('../kpiPerformancePage/kpiPerformanceRoute', () => {
+                require("../kpiPerformancePage/kpiPerformanceRoute").default; // eslint-disable-line
+                this.forceUpdate()
+              })
+            }
+            resolve(require('../kpiPerformancePage/kpiPerformanceRoute').default)
+              break
           case 'penaltyScoreCard':
           if (module.hot) {
             module.hot.accept('../penaltyScoreCardPage/penaltyScoreCardRoute', () => {
@@ -466,6 +475,11 @@ export default class Root extends Component {
               exact
               path='/billing'
               component={props => this.loadView('billing', props)}
+            />
+            <Route
+              exact
+              path='/kpi-performances'
+              component={props => this.loadView('kpiPerformanceDashboard', props)}
             />
             <Route
               exact
