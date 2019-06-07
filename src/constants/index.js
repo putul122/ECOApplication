@@ -11,14 +11,14 @@ const api = {
   registerProcess:
     'https://ecoconductor-dev-api-notification.azurewebsites.net/processes',
   metaModelPerpestives:
-    'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/15?view_key=ContractsList_DashboardFilter',
+    'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/72?view_key=AgreementScoring_AgreementDashboardFilter&min=1',
+  modelperspectives:
+    'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=72&view_key[0]=AgreementScoring_AgreementDashboardFilter&min=1',
   slaBarchart: function (filter) {
     return 'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=15&view_key[0]=ContractsList_VendorComparison&filter[0]=' + filter
   },
   penaltyScoreCardApi:
     'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=63&view_key[0]=PenaltyScorecardList',
-  modelperspectives:
-    'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=15&view_key[0]=ContractsList_DashboardFilter',
   penaltymetaModelPerpestives:
     'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/15?view_key=ContractsList_PenaltyDashboard',
   penaltymodelperspectives:
