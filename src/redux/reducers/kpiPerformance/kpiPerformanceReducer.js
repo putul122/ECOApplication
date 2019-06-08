@@ -12,11 +12,13 @@ const RESET_RESPONSE = 'KpiPerformance/RESET_RESPONSE'
 const SET_ACTION_SETTINGS = 'KpiPerformance/SET_ACTION_SETTINGS'
 const SET_AVAILABLE_ACTION = 'KpiPerformance/SET_AVAILABLE_ACTION'
 const SET_METAMODEL_DATA = 'KpiPerformance/SET_METAMODEL_DATA'
+const SET_PAYLOADFILTER_BLOCK = 'KpiPerformance/SET_PAYLOADFILTER_BLOCK'
 export const actions = {
   RESET_RESPONSE,
   SET_ACTION_SETTINGS,
   SET_AVAILABLE_ACTION,
   SET_METAMODEL_DATA,
+  SET_PAYLOADFILTER_BLOCK,
   FETCH_META_MODEL_PRESPECTIVE_SUCCESS
 }
 
@@ -24,7 +26,8 @@ export const actionCreators = {
   resetResponse: createAction(RESET_RESPONSE),
   setActionSettings: createAction(SET_ACTION_SETTINGS),
   setAvailableAction: createAction(SET_AVAILABLE_ACTION),
-  setMetaModelData: createAction(SET_METAMODEL_DATA)
+  setMetaModelData: createAction(SET_METAMODEL_DATA),
+  setPayloadFilterBlock: createAction(SET_PAYLOADFILTER_BLOCK)
 }
 
 export const initialState = {
@@ -43,14 +46,75 @@ export const initialState = {
     toProcessCrudModel: false
   },
   allDropdownData: '',
-  actionSettings: {}
+  actionSettings: {
+    departmentOption: [],
+    supplierOption: [],
+    agreementOption: [],
+    serviceOption: [],
+    kpiOption: [],
+    selectedDepartment: [],
+    selectedSupplier: [],
+    selectedAgreement: [],
+    selectedService: [],
+    selectedKpi: [],
+    startDate: '',
+    endDate: []
+  },
+  payloadFilterBlock: {
+    startTime: '',
+    endTime: '',
+    agreementFilter: '',
+    kpiFilter: {
+      'constraint_perspective': {
+        'parts': {
+          '3': {
+            'constraint_perspective': {
+              'parts': {
+                '4': {
+                   'constraint_perspective': {
+                    'parts': {
+                      '4': {
+                        'constraint_perspective': {
+                          'parts': {
+                            '4': {
+                              'constraint_perspective': {
+                                'subject_ids': []
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    departmentFilter: {
+      'constraint_perspective': {
+        'parts': {
+          '2': {'target_component_ids': []}
+        }
+      }
+    },
+    supplierFilter: {
+      'constraint_perspective': {
+        'parts': {
+          '3': {'target_component_ids': []}
+        }
+      }
+    }
+  }
 }
 
 export default handleActions({
   [FETCH_META_MODEL_PRESPECTIVE_SUCCESS]: (state, action) => ({
     ...state,
     metaModelPerspective: action.payload,
-    availableAction: {...state.availableAction, 'toProcessMetaModel': true}
+    availableAction: {...state.availableAction, 'toProcessMetaModel': false}
   }),
   [FETCH_MODEL_PRESPECTIVES_SUCCESS]: (state, action) => ({
     ...state,
@@ -71,5 +135,9 @@ export default handleActions({
   [SET_METAMODEL_DATA]: (state, action) => ({
     ...state,
     MetaModelData: action.payload
+  }),
+  [SET_PAYLOADFILTER_BLOCK]: (state, action) => ({
+    ...state,
+    payloadFilterBlock: action.payload
   })
 }, initialState)
