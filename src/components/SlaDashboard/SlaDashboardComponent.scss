@@ -1,23 +1,39 @@
 .MainContainer{
     display: flex;
     flex-direction: column;
-    height: 120vh;
+    height: 110vh;
     background-color: white;
     box-shadow: 2px 2px 15px lightgray !important;
     padding: 10px;
 }
 .dateContainer{
-    display: flex;
-    
+    display: flex;    
+}
+.grad {
+  display: inline-block;
 }
 .HeaderContainer{
     flex:0.7;
-    padding-left: 30px;
+    padding-left: 10px;
     align-items: center;
-    display: flex;
+    display: inline-block;
+}
+.HeaderContainerClear{
+  flex:0.7;
+  padding-left: 10px;
+  display: flex;
 }
 .slaComparisonText{
     margin-bottom: 20px;
+}
+.spin {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10000;
 }
 .ContentContainer{
     flex:10;
@@ -53,19 +69,44 @@
 }
 .dropDown{
 }
+.goButton{
+  display: inline-block;
+}
+.rangePicker {
+  width:300px;
+}
 .dropDownBtn{
     padding: 7px 11px;
     overflow: hidden;
-    // min-width:150px ;
+    min-width:120px ;
     // max-width: 230px;
-    max-width: 145px;
+    max-width: 120px;
     margin-right: 10px;
     // border:1px solid #5d77fc !important;
+}
+.dropDownBtnClear{
+    padding: 7px 11px;
+    overflow: hidden;
+    min-width:120px ;
+    // max-width: 230px;
+    max-width: 120px;
+    margin-left: 0px;
+    // border:1px solid #5d77fc !important;
+}
+.goBtn{
+  padding: 7px 11px;
+  overflow: hidden;
+  min-width:90px;
+  max-width: 90px;
+  margin-left: 10px;
+  // border:1px solid #5d77fc !important;
 }
 .dropList{
     width: 94%;
     overflow-y: scroll;
     max-height: 300px;
+    position: relative;
+    z-index: 20000;
 }
 .RangePicker{
     width:500px !important;
@@ -200,8 +241,7 @@
 }
 .pieChart{
     flex:1; 
-    height: 100%;
-    margin-top: 2%;
+    // height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -292,7 +332,7 @@
     align-items: center;
 }
 .clearFilter{
-    max-width:250px;
+    width:50px !important;
     color: white !important;
     background-color: #3e0abb !important;
 }
@@ -301,4 +341,11 @@
 }
 .mouseEnter{
     cursor: pointer;
+}
+.activeClass {
+    border-top-left-radius: 10px !important;
+    border: 1px solid lightgray !important; 
+    padding: 12px 19px !important;
+    border-bottom: none !important;
+    border-top-right-radius: 8px !important;
 }

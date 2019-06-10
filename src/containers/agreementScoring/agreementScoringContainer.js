@@ -1,26 +1,21 @@
 import { connect } from 'react-redux'
 import { compose, lifecycle } from 'recompose'
 import SlaDashboard from '../../components/SlaDashboard/SlaDashboardComponent'
-import { actions as sagaActions } from '../../redux/sagas/'
+import { actions as sagaActions } from '../../redux/sagas'
 // import { actionCreators as basicActionCreators } from '../../redux/reducers/basicReducer/basicReducerReducer'
 
 // Global State
 export function mapStateToProps (state, props) {
   return {
-    metaData: state.slaReducer.metaData,
-    modelPerspectiveData: state.slaReducer.modelPerspectiveData,
-    isLoading: state.slaReducer.isLoading,
-    agreementScoringMetaData: state.agreementScoringReducer.metaData,
-    agreementScoringModelPerspectiveData: state.agreementScoringReducer.modelPerspectiveData,
-    agreementScoringIsLoading: state.agreementScoringReducer.isLoading
+    metaData: state.agreementScoringReducer.metaData,
+    modelPerspectiveData: state.agreementScoringReducer.modelPerspectiveData,
+    isLoading: state.agreementScoringReducer.isLoading
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch
 export const propsMapping: Callbacks = {
-  MetaModel: sagaActions.slaActions.getMDDATA,
-  getMDPerspectiveDATA: sagaActions.slaActions.getMDPerspectiveDATA,
-  agreementScoringMetaModel: sagaActions.agreementScoringActions.getMDDATA,
-  getAgreementScoringMDPerspectiveDATA: sagaActions.agreementScoringActions.getMDPerspectiveDATA
+  MetaModel: sagaActions.agreementScoringActions.getMDDATA,
+  getMDPerspectiveDATA: sagaActions.agreementScoringActions.getMDPerspectiveDATA
 }
 
 // eslint-disable-next-line
@@ -49,17 +44,6 @@ const SlaDashboardContainer = compose(
   ),
 
   lifecycle({
-    // shouldComponentUpdate: function (nextProps, nextState) {
-    //   if (
-    //     nextProps.userActionSettings.isInviteUserModalOpen !==
-    //     this.props.userActionSettings.isInviteUserModalOpen
-    //   ) {
-    //     return true
-    //   }
-    //   if (nextProps.getUserResponse !== this.props.getUserResponse) {
-    //     return true
-    //   }
-    // },
     componentDidMount: function () {},
     componentWillReceiveProps: function (nextProps) {
       let breadcrumb = {

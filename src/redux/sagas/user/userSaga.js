@@ -11,6 +11,7 @@ export const FETCH_EX_USERS_SUCCESS = 'saga/users/FETCH_EX_USERS_SUCCESS'
 export const FETCH_EX_USERS_FAILURE = 'saga/users/FETCH_EX_USERS_FAILURE'
 export const FETCH_USERS = 'saga/users/FETCH_USERS'
 export const FETCH_USERS_SUCCESS = 'saga/users/FETCH_USERS_SUCCESS'
+export const FETCH_USERS_START = 'saga/users/FETCH_USERS_START'
 export const FETCH_USERS_FAILURE = 'saga/users/FETCH_USERS_FAILURE'
 export const ADD_USER = 'saga/users/ADD_USER'
 export const ADD_USER_SUCCESS = 'saga/users/ADD_USER_SUCCESS'
@@ -41,6 +42,7 @@ export const actionCreators = {
   fetchExUsersFailure: createAction(FETCH_EX_USERS_FAILURE),
   fetchUsers: createAction(FETCH_USERS),
   fetchUsersSuccess: createAction(FETCH_USERS_SUCCESS),
+  fetchUsersStart: createAction(FETCH_USERS_START),
   fetchUsersFailure: createAction(FETCH_USERS_FAILURE),
   addUser: createAction(ADD_USER),
   addUserSuccess: createAction(ADD_USER_SUCCESS),
@@ -96,6 +98,7 @@ export function * changePassword (action) {
 
 export function * getExUsers (action) {
   try {
+    yield put(actionCreators.fetchUsersStart())
     axios.defaults.headers.common['Authorization'] =
       'Bearer ' + localStorage.getItem('userAccessToken')
     const exUsers = yield call(axios.get, api.getExternalUsers, {
@@ -109,6 +112,7 @@ export function * getExUsers (action) {
 
 export function * getUsers (action) {
   try {
+    yield put(actionCreators.fetchUsersStart())
     axios.defaults.headers.common['Authorization'] =
       'Bearer ' + localStorage.getItem('userAccessToken')
     const qs = queryString.stringify(action.payload)
@@ -124,6 +128,7 @@ export function * getUsers (action) {
 
 export function * getUser (action) {
   try {
+    yield put(actionCreators.fetchUsersStart())
     axios.defaults.headers.common['Authorization'] =
       'Bearer ' + localStorage.getItem('userAccessToken')
     const user = yield call(axios.get, api.getUser(action.payload.userId))

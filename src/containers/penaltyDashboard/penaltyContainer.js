@@ -8,7 +8,8 @@ import { actions as sagaActions } from '../../redux/sagas/'
 export function mapStateToProps (state, props) {
   return {
     penaltymetaData: state.penaltyReducer.penaltymetaData,
-    penaltymodelPerspectiveData: state.penaltyReducer.penaltymodelPerspectiveData
+    penaltymodelPerspectiveData: state.penaltyReducer.penaltymodelPerspectiveData,
+    isLoading: state.penaltyReducer.isLoading
     // modelPerspectiveData: state.penaltyReducer.modelPerspectiveData
   }
 }

@@ -11,6 +11,7 @@ export const META_MODEL_SUCCESS = 'saga/slaDashboard/META_MODEL_SUCCESS'
 export const GET_META_MODEL = 'saga/slaDashboard/GET_META_MODEL'
 export const META_MODEL_FAILURE = 'saga/slaDashboard/META_MODEL_FAILURE'
 export const MODEL_PERSPECTIVE_SUCCESS = 'saga/slaDashboard/MODEL_PERSPECTIVE_SUCCESS'
+export const MODEL_PERSPECTIVE_START = 'saga/slaDashboard/MODEL_PERSPECTIVE_START'
 export const GET_MODEL_PERSPECTIVE = 'saga/slaDashboard/GET_MODEL_PERSPECTIVE'
 export const MODEL_PERSPECTIVE_FAILURE = 'saga/slaDashboard/MODEL_PERSPECTIVE_FAILURE'
 export const DROPDOWN_ITEMSDEP_SUCCESS = 'saga/slaDashboard/DROPDOWN_ITEMSDEP_SUCCESS'
@@ -31,6 +32,7 @@ export const actionCreators = {
     metaModelFailure: createAction(META_MODEL_FAILURE),
     getMDDATA: createAction(GET_META_MODEL),
     ModelPerspectiveSuccess: createAction(MODEL_PERSPECTIVE_SUCCESS),
+    ModelPerspectiveStart: createAction(MODEL_PERSPECTIVE_START),
     ModelPerspectiveFailure: createAction(MODEL_PERSPECTIVE_FAILURE),
     getMDPerspectiveDATA: createAction(GET_MODEL_PERSPECTIVE),
     getDropDownItemDepSuccess: createAction(DROPDOWN_ITEMSDEP_SUCCESS),
@@ -75,6 +77,7 @@ export function * getMetaModelData (action) {
 
 export function * getModelPerspective (action) {
   try {
+    yield put(actionCreators.ModelPerspectiveStart())
     axios.defaults.headers.common['Authorization'] =
     'Bearer ' + localStorage.getItem('userAccessToken')
     const ModelPerpestives = yield call(

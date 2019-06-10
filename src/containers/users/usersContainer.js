@@ -19,7 +19,8 @@ export function mapStateToProps (state, props) {
     // updatePayload: state.usersReducer.updatePayload,
     getUserResponse: state.usersReducer.getUserResponse,
     createUserResponse: state.usersReducer.createUserResponse,
-    userActionSettings: state.usersReducer.userActionSettings
+    userActionSettings: state.usersReducer.userActionSettings,
+    isLoading: state.usersReducer.isLoading
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch

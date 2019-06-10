@@ -9,6 +9,7 @@ import watchComponentTypeComponent, {actionCreators as componentTypeComponentAct
 import watchDiscussions, {actionCreators as discussionActions} from './discussion/discussionSaga'
 import watchUserActions, {actionCreators as userActions} from './user/userSaga'
 import watchSlaActions, {actionCreators as slaActions} from './slaDashboard/slaDashboardSaga'
+import watchAgreementScoringActions, {actionCreators as agreementScoringActions} from './agreementScoring/agreementScoringSaga'
 import watchPenaltyScoreCardActions, {actionCreators as scoreCardActions} from './penaltyScoreCard/penaltyScoreCardSaga'
 import watchPenaltyActions, {actionCreators as penaltyActions} from './penaltyDashboard/penaltyDashboardSaga'
 import watchModelActivity, {actionCreators as modelActions} from './model/modelSaga'
@@ -29,6 +30,7 @@ export const actions = {
   discussionActions,
   userActions,
   slaActions,
+  agreementScoringActions,
   penaltyActions,
   scoreCardActions,
   rolesActions,
@@ -52,6 +54,7 @@ export default function * rootSaga () {
     watchUserActions(),
     watchPenaltyActions(),
     watchSlaActions(),
+    watchAgreementScoringActions(),
     watchModelActivity(),
     watchComponentModalView(),
     watchServices(),

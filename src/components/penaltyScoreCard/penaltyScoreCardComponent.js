@@ -9,6 +9,7 @@ import 'antd/dist/antd.css'
 // } from 'mxgraph-js'
 
 // const { RangePicker } = DatePicker
+import MxGraph from './penaltyScorecardMxgraph.component'
 
 class PenaltyScoreCard extends React.Component {
   constructor (props) {
@@ -44,11 +45,9 @@ class PenaltyScoreCard extends React.Component {
   }
 
   showSVGDiagram = () => {
-    setTimeout(() => {
-      this.setState({
-        showSVG: true
-      })
-    }, 1000)
+    this.setState({
+      showSVG: true
+    })
   }
 
   PenaltydropDown = (scoreCardArr) => {
@@ -117,14 +116,15 @@ class PenaltyScoreCard extends React.Component {
     )
   }
   render () {
-    let { scoreCardArr, scoreCard, showSVG } = this.state
+    let { scoreCardArr } = this.state
     return (
       <div className={styles.MainContainer}>
         <div className={styles.LeftHeaderText}>
           <p>Penalty Scorecard</p>
         </div>
         {this.PenaltydropDown(scoreCardArr)}
-        <div className='graph-container' ref='divPenaltyGraph' id='divPenaltyScorecardGraph' />
+        <MxGraph />
+        {/* <div className='graph-container' ref='divPenaltyGraph' id='divPenaltyScorecardGraph' />
         { scoreCard !== 'Select' && showSVG && (
           <div style={{ marginTop: '15px' }}>
             <img
@@ -133,7 +133,7 @@ class PenaltyScoreCard extends React.Component {
               height='100%'
               width='100%' />
           </div>
-        )}
+        )} */}
       </div>
     )
   }

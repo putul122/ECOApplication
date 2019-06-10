@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import ReactModal from 'react-modal'
 import _ from 'lodash'
+import { Spin } from 'antd'
 import debounce from 'lodash/debounce'
 import PropTypes from 'prop-types'
 
@@ -234,7 +235,7 @@ class Users extends Component {
     const endValueOfRange = (currentPage * pageSize) <= this.props.getUserResponse.total_count ? (currentPage * pageSize) : this.props.getUserResponse.total_count
     const totalItems = this.props.getUserResponse.total_count
     var activeClass = ''
-
+    console.log('isLoading', this.props.isLoading)
     return (
       <div id='userList'>
         <ReactModal
@@ -302,239 +303,242 @@ class Users extends Component {
               >
                 <div className=''>
                   <div className='m-portlet'>
-                    <div className='m-portlet__body'>
-                      <div
-                        id='m_table_1_wrapper'
-                        className='dataTables_wrapper dt-bootstrap4'
-                      >
-                        <div className='row'>
-                          <div className='col-md-10' />
-                          <div className='col-md-2 float-right'>
-                            <button
-                              className='btn btn-outline-info btn-sm pull-right'
-                              onClick={this.inviteUserClickHandler}
-                            >
-                              Invite User
-                            </button>
-                            &nbsp;
+                    { !this.props.isLoading
+                      ? <div className='m-portlet__body'>
+                        <div
+                          id='m_table_1_wrapper'
+                          className='dataTables_wrapper dt-bootstrap4'
+                        >
+                          <div className='row'>
+                            <div className='col-md-10' />
+                            <div className='col-md-2 float-right'>
+                              <button
+                                className='btn btn-outline-info btn-sm pull-right'
+                                onClick={this.inviteUserClickHandler}
+                              >
+                                Invite User
+                              </button>
+                              &nbsp;
+                            </div>
                           </div>
-                        </div>
-                        <br />
-                        <div className='row' style={{ marginBottom: '20px' }}>
+                          <br />
+                          <div className='row' style={{ marginBottom: '20px' }}>
 
-                          <div className='col-sm-12 col-md-6'>
-                            <div
-                              className='dataTables_length'
-                              id='m_table_1_length'
-                            >
-                              <div className='search-container'>
-                                <input
-                                  type='text'
-                                  className='form-control pull-left Search-bar'
-                                  placeholder='Search...'
-                                  id='generalSearch'
-                                  onKeyUp={this.handleInputChange}
-                                  value={searchTerm}
-                                  onChange={e =>
-                                    this.setState({
-                                      searchTerm: e.target.value
-                                    })
-                                  } />
-                                <img src='/assets/search.png' alt='Search icon' className='search-icon'
-                                />
+                            <div className='col-sm-12 col-md-6'>
+                              <div
+                                className='dataTables_length'
+                                id='m_table_1_length'
+                              >
+                                <div className='search-container'>
+                                  <input
+                                    type='text'
+                                    className='form-control pull-left Search-bar'
+                                    placeholder='Search...'
+                                    id='generalSearch'
+                                    onKeyUp={this.handleInputChange}
+                                    value={searchTerm}
+                                    onChange={e =>
+                                      this.setState({
+                                        searchTerm: e.target.value
+                                      })
+                                    } />
+                                  <img src='/assets/search.png' alt='Search icon' className='search-icon'
+                                  />
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div
-                        className='dataTables_scrollBody'
-                        style={{
-                          position: 'relative',
-                          overflow: 'auto',
-                          width: '100%',
-                          maxHeight: '80vh'
-                        }}
-                      >
-                        <table
-                          className='m-portlet table table-striped- table-hover table-checkable dataTable no-footer'
-                          id='m_table_1'
-                          aria-describedby='m_table_1_info'
-                          role='grid'
+                        <div
+                          className='dataTables_scrollBody'
+                          style={{
+                            position: 'relative',
+                            overflow: 'auto',
+                            width: '100%',
+                            maxHeight: '80vh'
+                          }}
                         >
-                          <thead className='table-head'>
-                            <tr role='row' className='table-head-row'>
-                              <th className='table-th'>
-                                <p>Name</p>
-                              </th>
-                              <th className='table-th'>
-                                <p>Email</p>
-                              </th>
-                              <th className='table-th'>
-                                <p>Status</p>
-                              </th>
-                              <th className='table-th'>
-                                <p>Actions</p>
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody className='table-body'>
-                            {this.userList()}
-                          </tbody>
-                        </table>
-                      </div>
-                      <div className='row'>
-                        <div className='col-sm-12 col-md-6' id='scrolling_vertical'>
-                          <div
-                            className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
-                            id='scrolling_vertical'
+                          <table
+                            className='m-portlet table table-striped- table-hover table-checkable dataTable no-footer'
+                            id='m_table_1'
+                            aria-describedby='m_table_1_info'
+                            role='grid'
                           >
-                            <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
-                              <ul className='pagination pg-blue pag'>
-                                {currentPage > 1 && (
-                                  <li className='page-item'>
-                                    <a
-                                      href=''
-                                      title='Previous'
-                                      id='m_blockui_1_5'
-                                      className={
-                                        'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
-                                        previousClass
+                            <thead className='table-head'>
+                              <tr role='row' className='table-head-row'>
+                                <th className='table-th'>
+                                  <p>Name</p>
+                                </th>
+                                <th className='table-th'>
+                                  <p>Email</p>
+                                </th>
+                                <th className='table-th'>
+                                  <p>Status</p>
+                                </th>
+                                <th className='table-th'>
+                                  <p>Actions</p>
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className='table-body'>
+                              {this.userList()}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div className='row'>
+                          <div className='col-sm-12 col-md-6' id='scrolling_vertical'>
+                            <div
+                              className='m_datatable m-datatable m-datatable--default m-datatable--loaded m-datatable--scroll'
+                              id='scrolling_vertical'
+                            >
+                              <div className='m-datatable__pager m-datatable--paging-loaded clearfix'>
+                                <ul className='pagination pg-blue pag'>
+                                  {currentPage > 1 && (
+                                    <li className='page-item'>
+                                      <a
+                                        href=''
+                                        title='Previous'
+                                        id='m_blockui_1_5'
+                                        className={
+                                          'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
+                                          previousClass
+                                        }
+                                        onClick={e =>
+                                          this.fetchUsersForGivenPageNumber(
+                                            e,
+                                            currentPage,
+                                            'start'
+                                          )
+                                        }
+                                      >
+                                        <span aria-hidden='true'>&laquo;</span>
+                                        <span className={'sr-only'}>Previous</span>
+                                      </a>
+                                    </li>
+                                  )}
+                                  {currentPage > 1 && (
+                                    <li className='page-item'>
+                                      <a
+                                        href=''
+                                        title='Previous'
+                                        id='m_blockui_1_5'
+                                        className={
+                                          'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
+                                          previousClass
+                                        }
+                                        onClick={e =>
+                                          this.fetchUsersForGivenPageNumber(
+                                            e,
+                                            currentPage,
+                                            'prev'
+                                          )
+                                        }
+                                      >
+                                        <span aria-hidden='true'>&lt;</span>
+                                        <span className={'sr-only'}>Previous</span>
+                                      </a>
+                                    </li>
+                                  )}
+                                  {listPage[0] &&
+                                    listPage[0].map(page => {
+                                      if (page.number === currentPage) {
+                                        page.class =
+                                        'kt-datatable__pager-link--active activ'
+                                        activeClass = 'active'
+                                      } else {
+                                        activeClass = ''
+                                        page.class = ''
                                       }
-                                      onClick={e =>
-                                        this.fetchUsersForGivenPageNumber(
-                                          e,
-                                          currentPage,
-                                          'start'
-                                        )
-                                      }
-                                    >
-                                      <span aria-hidden='true'>&laquo;</span>
-                                      <span className={'sr-only'}>Previous</span>
-                                    </a>
-                                  </li>
-                                )}
-                                {currentPage > 1 && (
-                                  <li className='page-item'>
-                                    <a
-                                      href=''
-                                      title='Previous'
-                                      id='m_blockui_1_5'
-                                      className={
-                                        'm-datatable__pager-link m-datatable__pager-link--prev page-link list links' +
-                                        previousClass
-                                      }
-                                      onClick={e =>
-                                        this.fetchUsersForGivenPageNumber(
-                                          e,
-                                          currentPage,
-                                          'prev'
-                                        )
-                                      }
-                                    >
-                                      <span aria-hidden='true'>&lt;</span>
-                                      <span className={'sr-only'}>Previous</span>
-                                    </a>
-                                  </li>
-                                )}
-                                {listPage[0] &&
-                                  listPage[0].map(page => {
-                                    if (page.number === currentPage) {
-                                      page.class =
-                                      'kt-datatable__pager-link--active activ'
-                                      activeClass = 'active'
-                                    } else {
-                                      activeClass = ''
-                                      page.class = ''
-                                    }
 
-                                    return (
-                                      <li key={page.number} className={'page-item' + activeClass}>
-                                        <a
-                                          href=''
-                                          className={`kt-datatable__pager-link kt-datatable__pager-link-number ${page.class} page-link list `}
-                                          data-page={page.number}
-                                          title={page.number}
-                                          onClick={e =>
-                                            this.fetchUsersForGivenPageNumber(
-                                              e,
-                                              page.number
-                                            )
-                                          }
-                                          >
-                                          {page.number}
-                                        </a>
-                                      </li>
-                                    )
-                                  })}
-                                {currentPage !== totalPages &&
-                                  totalPages > 1 && (
-                                  <li className='page-item'>
-                                    <a
-                                      href=''
-                                      title='Next'
-                                      className={
-                                        'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
-                                        nextClass
-                                      }
-                                      onClick={e =>
-                                        this.fetchUsersForGivenPageNumber(
-                                          e,
-                                          currentPage,
-                                          'next'
-                                        )
-                                      }
-                                    >
-                                      <span aria-hidden='true'>&gt;</span>
-                                      <span className={'sr-only'}>Next</span>
-                                    </a>
-                                  </li>
-                                )}
-                                {currentPage !== totalPages &&
-                                  totalPages > 1 && (
-                                  <li className='page-item'>
-                                    <a
-                                      href=''
-                                      title='Next'
-                                      className={
-                                        'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
-                                        nextClass
-                                      }
-                                      onClick={e =>
-                                        this.fetchUsersForGivenPageNumber(
-                                          e,
-                                          totalPages,
-                                          'end'
-                                        )
-                                      }
-                                    >
-                                      <span aria-hidden='true'>&raquo;</span>
-                                      <span className={'sr-only'}>Next</span>
-                                    </a>
-                                  </li>
-                                )}
-                              </ul>
+                                      return (
+                                        <li key={page.number} className={'page-item' + activeClass}>
+                                          <a
+                                            href=''
+                                            className={`kt-datatable__pager-link kt-datatable__pager-link-number ${page.class} page-link list `}
+                                            data-page={page.number}
+                                            title={page.number}
+                                            onClick={e =>
+                                              this.fetchUsersForGivenPageNumber(
+                                                e,
+                                                page.number
+                                              )
+                                            }
+                                            >
+                                            {page.number}
+                                          </a>
+                                        </li>
+                                      )
+                                    })}
+                                  {currentPage !== totalPages &&
+                                    totalPages > 1 && (
+                                    <li className='page-item'>
+                                      <a
+                                        href=''
+                                        title='Next'
+                                        className={
+                                          'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
+                                          nextClass
+                                        }
+                                        onClick={e =>
+                                          this.fetchUsersForGivenPageNumber(
+                                            e,
+                                            currentPage,
+                                            'next'
+                                          )
+                                        }
+                                      >
+                                        <span aria-hidden='true'>&gt;</span>
+                                        <span className={'sr-only'}>Next</span>
+                                      </a>
+                                    </li>
+                                  )}
+                                  {currentPage !== totalPages &&
+                                    totalPages > 1 && (
+                                    <li className='page-item'>
+                                      <a
+                                        href=''
+                                        title='Next'
+                                        className={
+                                          'm-datatable__pager-link m-datatable__pager-link--next page-link list links' +
+                                          nextClass
+                                        }
+                                        onClick={e =>
+                                          this.fetchUsersForGivenPageNumber(
+                                            e,
+                                            totalPages,
+                                            'end'
+                                          )
+                                        }
+                                      >
+                                        <span aria-hidden='true'>&raquo;</span>
+                                        <span className={'sr-only'}>Next</span>
+                                      </a>
+                                    </li>
+                                  )}
+                                </ul>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing}`}>
-                          {/* showing dropdown */}
-                          <div className='showing-div showspace spaceMargin '>
-                            <div className='dropdown dropup-showing'>
-                              <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{this.state.pageSize}<span className='caret' /></button>
-                              <ul className='dropdown-menu menu'>
-                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(1)}>10</a></li>
-                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(20)}>20</a></li>
-                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(30)}>30</a></li>
-                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(40)}>40</a></li>
-                                <li><a href='javascript:void(0)' onClick={() => this.showingPage(50)}>50</a></li>
-                              </ul>
+                          <div className={`col-sm-12 col-md-6 text-right ${styles.topSpacing}`}>
+                            {/* showing dropdown */}
+                            <div className='showing-div showspace spaceMargin '>
+                              <div className='dropdown dropup-showing'>
+                                <button className='btn btn-default dropdown-toggle dropup-btn' type='button' data-toggle='dropdown'>{this.state.pageSize}<span className='caret' /></button>
+                                <ul className='dropdown-menu menu'>
+                                  <li><a href='javascript:void(0)' onClick={() => this.showingPage(1)}>10</a></li>
+                                  <li><a href='javascript:void(0)' onClick={() => this.showingPage(20)}>20</a></li>
+                                  <li><a href='javascript:void(0)' onClick={() => this.showingPage(30)}>30</a></li>
+                                  <li><a href='javascript:void(0)' onClick={() => this.showingPage(40)}>40</a></li>
+                                  <li><a href='javascript:void(0)' onClick={() => this.showingPage(50)}>50</a></li>
+                                </ul>
+                              </div>
+                              <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
                             </div>
-                            <span className='showing-text text-right showingText'> Showing {startValueOfRange} - {endValueOfRange} of {totalItems} </span>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    : <Spin className={styles.spin} />
+                    }
                   </div>
                 </div>
               </div>
@@ -556,7 +560,8 @@ Users.propTypes = {
   inviteUser: PropTypes.func,
   createUser: PropTypes.func,
   deleteUser: PropTypes.func,
-  userActionSettings: PropTypes.any
+  userActionSettings: PropTypes.any,
+  isLoading: PropTypes.any
 }
 
 export default Users
