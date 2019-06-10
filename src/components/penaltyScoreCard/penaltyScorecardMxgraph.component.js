@@ -1,15 +1,19 @@
 import React, { Component } from 'react'
 import ReactDOM from 'react-dom'
 import {
-  mxGraph,
+  // mxGraph,
+  // mxEditor,
   mxRubberband,
-  mxKeyHandler,
-  mxClient,
-  mxUtils,
-  mxEvent
+  // mxKeyHandler,
+  // mxCodec,
+  mxGraph,
+  // mxPartitionLayout,
+  // mxClient,
+  mxUtils
+  // mxEvent
 } from 'mxgraph-js'
 import axios from 'axios'
-import parser from 'fast-xml-parser'
+// import parser from 'fast-xml-parser'
 
 import '../../common.css'
 import '../../mxgraph.css'
@@ -24,7 +28,8 @@ class mxGraphGridAreaEditor extends Component {
       dragElt: null,
       createVisile: false,
       currentNode: null,
-      currentTask: ''
+      currentTask: '',
+      editor: null
     }
     this.LoadGraph = this.LoadGraph.bind(this)
   }
@@ -35,126 +40,61 @@ class mxGraphGridAreaEditor extends Component {
 
     axios.get('https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=63&view_key[0]=PenaltyScorecardDraw')
     .then(response => {
+        console.log('response.data', response.data)
         this.setState({ data: response.data })
         this.LoadGraph()
     })
-    .catch(e => console.log(e))
+  //   .catch(e => {
+  //     return console.log(e)
+  //   })
+  }
+
+  parseXmlToGraph = (xmlDoc, graph) => {
+    const cells = xmlDoc.documentElement.children[0].children
+    const parent = graph.getDefaultParent()
+
+    for (let i = 0; i < cells.length; i++) {
+      const cellAttrs = cells[i].attributes
+      console.log('cellAttrs', cellAttrs)
+      if (cellAttrs.vertex) { // is vertex
+        const vertexName = cellAttrs.value.value
+        const vertexId = Number(cellAttrs.id.value)
+        const geom = (cells && cells[i].children[0] && cells[i].children[0].attributes) || null
+        const xPos = (geom && geom.x && Number(geom.x.value)) || 0
+        const yPos = (geom && geom.y && Number(geom.y.value)) || 0
+        const height = (geom && geom.height && Number(geom.height.value)) || 0
+        const width = (geom && geom.width && Number(geom.width.value)) || 0
+        graph.insertVertex(parent, vertexId, vertexName, xPos, yPos, width, height)
+      } else if (cellAttrs.edge) {
+        const edgeName = cellAttrs && cellAttrs.value && cellAttrs.value.value
+        const edgeId = (cellAttrs && cellAttrs.id && Number(cellAttrs.id.value)) || 0
+        const source = (cellAttrs && cellAttrs.source && Number(cellAttrs.source.value)) || null
+        const target = (cellAttrs && cellAttrs.target && Number(cellAttrs.target.value)) || null
+        graph.insertEdge(parent, edgeId, edgeName,
+          graph.getModel().getCell(source),
+          graph.getModel().getCell(target)
+        )
+      }
+    }
   }
 
   LoadGraph () {
     var container = ReactDOM.findDOMNode(this.refs.divPenaltyGraph)
+    var graph = new mxGraph(container)
 
-    // Checks if the browser is supported
-    if (!mxClient.isBrowserSupported()) {
-      // Displays an error message if the browser is not supported.
-      mxUtils.error('Browser is not supported!', 200, false)
-    } else {
-      // Disables the built-in context menu
-      mxEvent.disableContextMenu(container)
+    new mxRubberband(graph)
 
-      // Creates the graph inside the given container
-      var graph = new mxGraph(container)
-      // Enables rubberband selection
-      new mxRubberband(graph)
+    const doc = mxUtils.parseXml(this.state.data)
+    this.parseXmlToGraph(doc, graph)
+    // const decoder = new mxCodec(doc)
+    // const node = doc.documentElement
+    // decoder.decode(node, graph.getModel())
 
-      var options = {
-        attributeNamePrefix: '',
-        textNodeName: '#text',
-        ignoreAttributes: false,
-        ignoreNameSpace: false,
-        allowBooleanAttributes: false,
-        parseNodeValue: true,
-        parseAttributeValue: true,
-        trimValues: true,
-        cdataTagName: '__cdata', // default is 'false'
-        cdataPositionChar: '\\c',
-        localeRange: '', // To support non english character in tag/attribute values.
-        parseTrueNumberOnly: false
-    }
+    // const parent = graph.getDefaultParent()
+    // layout.execute(parent)
 
-    if (parser.validate(this.state.data) === true) { // optional (it'll return an object in case it's not valid)
-        var jsonObj = parser.parse(this.state.data, options)
-    }
-      // Gets the default parent for inserting new cells. This is normally the first
-      // child of the root (ie. layer 0).
-      var parent = graph.getDefaultParent()
-
-      // Enables tooltips, new connections and panning
-      graph.setPanning(true)
-      graph.setTooltips(true)
-      graph.setConnectable(true)
-      graph.setEnabled(true)
-      graph.setEdgeLabelsMovable(false)
-      graph.setVertexLabelsMovable(false)
-      graph.setGridEnabled(true)
-      graph.setAllowDanglingEdges(false)
-
-      graph.getModel().beginUpdate()
-      try {
-        // mxGrapg component
-        var doc = mxUtils.createXmlDocument()
-        var node = doc.createElement('Node')
-        node.setAttribute('ComponentID', '[P01]')
-
-        const items = []
-          jsonObj.mxGraphModel.root.mxCell.forEach(cell => {
-            if (cell.value) {
-              const vertexObj = {}
-
-              let vertex = graph.insertVertex(
-                parent,
-                cell.id,
-                cell.value,
-                cell.mxGeometry.x,
-                cell.mxGeometry.y,
-                cell.mxGeometry.width,
-                cell.mxGeometry.height,
-                cell.style
-              )
-              vertexObj[cell.id] = vertex
-              items.push(vertexObj)
-            }
-          })
-
-          const mxCellCount = jsonObj.mxGraphModel.root.mxCell.length
-
-          for (let i = 1; i < mxCellCount; i++) {
-            const cell = jsonObj.mxGraphModel.root.mxCell[i]
-            console.log('cell', cell)
-            if (!cell.value) {
-              let sourceObject = items.filter(vertex => {
-                console.log('vertex', Object.keys(vertex))
-                console.log('cell.source', cell.source)
-                return cell['source']
-              })[0]
-              let source = sourceObject ? sourceObject[cell['source']] : null
-              console.log('source', source)
-              let targetObject = items.filter(vertex => {
-                return cell['target']
-              })[0]
-              let target = targetObject ? cell['target'] : null
-              console.log('source', source)
-              console.log('target', target)
-              graph.insertEdge(
-                parent,
-                null,
-                '',
-                source,
-                target
-              )
-            }
-          }
-
-        // data
-      } finally {
-        // Updates the display
-        graph.getModel().endUpdate()
-      }
-
-      // Enables rubberband (marquee) selection and a handler for basic keystrokes
-      new mxRubberband(graph)
-      new mxKeyHandler(graph)
-    }
+    // Enables rubberband (marquee) selection and a handler for basic keystrokes
+    // new mxKeyHandler(graph)
   }
   render () {
     return (

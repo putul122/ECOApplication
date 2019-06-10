@@ -14,6 +14,20 @@ const api = {
     'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/72?view_key=AgreementScoring_AgreementDashboardFilter&min=1',
   modelperspectives:
     'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=72&view_key[0]=AgreementScoring_AgreementDashboardFilter&min=1',
+  scoringMetaModelPerpestives:
+    'https://model-eco-dev.ecoconductor.com/meta_model_perspectives/72?view_key=AgreementScoring_ScoringGrid&min=1',
+  scoringModelperspectives: function (filter) {
+    return 'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=72&view_key[0]=AgreementScoring_ScoringGrid&min=1&filter[0]=' + filter
+  },
+  penaltySummaryModelperspectives: function (filter) {
+    return 'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=72&view_key[0]=AgreementScoring_PenaltySummaryGrid&min=1&filter[0]=' + filter
+  },
+  penaltyModelperspectives: function (filter) {
+    return 'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=72&view_key[0]=AgreementScoring_PenaltyGrid&min=1&filter[0]=' + filter
+  },
+  currentPerformanceModelperspectives: function (filter) {
+    return 'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=72&view_key[0]=AgreementScoring_CurrentPerformanceDashboard&min=1&filter[0]=' + filter
+  },
   slaBarchart: function (filter) {
     return 'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=15&view_key[0]=ContractsList_VendorComparison&filter[0]=' + filter
   },
@@ -218,6 +232,9 @@ const api = {
   getAllPackages: 'https://ecoconductor-dev-api-model.azurewebsites.net/model_packages',
   perspectiveFilter: function (filter) {
     return 'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=15&view_key[0]=ContractsList_Compliance&filter[0]=' + filter
+  },
+  newPerspectiveFilter: function (filter) {
+    return 'https://model-eco-dev.ecoconductor.com/model_perspectives?meta_model_perspective_id[0]=72&view_key[0]=AgreementScoring_DefaultDashboard&filter[0]=' + filter
   }
 }
 

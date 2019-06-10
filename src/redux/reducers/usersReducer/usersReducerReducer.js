@@ -4,6 +4,7 @@ import {
   FETCH_USERS_SUCCESS,
   FETCH_USER_SUCCESS,
   ADD_USER_SUCCESS,
+  FETCH_USERS_START,
   UPDATE_USER_SUCCESS,
   DELETE_USER_SUCCESS,
   INVITE_USER_SUCCESS,
@@ -23,6 +24,7 @@ const SET_USERS_DATA = 'UsersReducer/SET_USERS_DATA'
 export const actions = {
   FETCH_EX_USERS_SUCCESS,
   FETCH_USERS_SUCCESS,
+  FETCH_USERS_START,
   FETCH_USER_SUCCESS,
   ADD_USER_SUCCESS,
   UPDATE_USER_SUCCESS,
@@ -64,6 +66,7 @@ export const initialState = {
   deleteUserResponse: '',
   currentPage: 1,
   perPage: 10,
+  isLoading: false,
   userActionSettings: {
     selectedUser: null,
     selectedEmail: '',
@@ -89,7 +92,12 @@ export default handleActions(
     }),
     [FETCH_USERS_SUCCESS]: (state, action) => ({
       ...state,
+      isLoading: false,
       getUserResponse: action.payload
+    }),
+    [FETCH_USERS_START]: (state, action) => ({
+      ...state,
+      isLoading: true
     }),
     [FETCH_USER_SUCCESS]: (state, action) => ({
       ...state,

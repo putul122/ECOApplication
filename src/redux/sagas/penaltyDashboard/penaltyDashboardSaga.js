@@ -16,6 +16,7 @@ export const MODEL_PERSPECTIVE_FAILURE = 'saga/penaltyDashboard/MODEL_PERSPECTIV
 export const MMODEL_PERSPECTIVE_SUCCESS = 'saga/penaltyDashboard/MMODEL_PERSPECTIVE_SUCCESS'
 export const GET_MMODEL_PERSPECTIVE = 'saga/penaltyDashboard/GET_MMODEL_PERSPECTIVE'
 export const MMODEL_PERSPECTIVE_FAILURE = 'saga/penaltyDashboard/MMODEL_PERSPECTIVE_FAILURE'
+export const MMODEL_PERSPECTIVE_START = 'saga/penaltyDashboard/MMODEL_PERSPECTIVE_START'
 
 export const actionCreators = {
     penaltymetaModelSuccess: createAction(META_MODEL_SUCCESS),
@@ -25,6 +26,7 @@ export const actionCreators = {
     penaltyModelPerspectiveFailure: createAction(MODEL_PERSPECTIVE_FAILURE),
     penaltygetMDPerspectiveDATA: createAction(GET_MODEL_PERSPECTIVE),
     ModelPerspectiveSuccess: createAction(MMODEL_PERSPECTIVE_SUCCESS),
+    ModelPerspectiveStart: createAction(MMODEL_PERSPECTIVE_START),
     ModelPerspectiveFailure: createAction(MMODEL_PERSPECTIVE_FAILURE)
     // getMDPerspectiveDATA: createAction(GET_MMODEL_PERSPECTIVE)
 }
@@ -55,6 +57,7 @@ export function * penaltygetMetaModelData (action) {
 
 export function * penaltygetModelPerspective (action) {
   try {
+    yield put(actionCreators.ModelPerspectiveStart())
     axios.defaults.headers.common['Authorization'] =
       'Bearer ' + localStorage.getItem('userAccessToken')
     const ModelPerpestives = yield call(

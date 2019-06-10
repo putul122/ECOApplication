@@ -2,6 +2,7 @@ import { handleActions } from 'redux-actions'
 import {
   META_MODEL_SUCCESS,
   MODEL_PERSPECTIVE_SUCCESS,
+  MODEL_PERSPECTIVE_START,
   DROPDOWN_ITEMSDEP_SUCCESS,
   DROPDOWN_ITEMSSUP_SUCCESS,
   DROPDOWN_ITEMSSER_SUCCESS,
@@ -10,6 +11,7 @@ import {
 
 export const actions = {
   META_MODEL_SUCCESS,
+  MODEL_PERSPECTIVE_START,
   MODEL_PERSPECTIVE_SUCCESS,
   DROPDOWN_ITEMSDEP_SUCCESS,
   DROPDOWN_ITEMSSUP_SUCCESS,
@@ -22,7 +24,8 @@ export const initialState = {
   dropDownItemsDepData: [],
   dropDownItemsSupData: [],
   dropDownItemsSerData: [],
-  dropDownItemsKpiData: []
+  dropDownItemsKpiData: [],
+  isLoading: false
 }
 
 export default handleActions(
@@ -33,7 +36,11 @@ export default handleActions(
     }),
     [MODEL_PERSPECTIVE_SUCCESS]: (state, action) => ({
       ...state,
+      isLoading: false,
       modelPerspectiveData: action.payload
+    }),
+    [MODEL_PERSPECTIVE_START]: (state, action) => ({
+      isLoading: true
     }),
     [DROPDOWN_ITEMSDEP_SUCCESS]: (state, action) => ({
       ...state,

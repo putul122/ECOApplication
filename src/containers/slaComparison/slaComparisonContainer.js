@@ -8,7 +8,8 @@ import { actions as sagaActions } from '../../redux/sagas/'
 export function mapStateToProps (state, props) {
   return {
     metaData: state.slaReducer.metaData,
-    modelPerspectiveData: state.slaReducer.modelPerspectiveData
+    modelPerspectiveData: state.slaReducer.modelPerspectiveData,
+    isLoading: state.slaReducer.isLoading
   }
 }
 // In Object form, each funciton is automatically wrapped in a dispatch

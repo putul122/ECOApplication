@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { DatePicker } from 'antd'
+import { DatePicker, Spin } from 'antd'
 import Select from 'react-select'
 import axios from 'axios'
 import 'antd/dist/antd.css'
@@ -57,7 +57,7 @@ class SlamSupplier extends Component {
     let supFilterId = []
     let serFilterId = []
     let kpiFilId = []
-
+    console.log('nextProps.modelPerspectiveData', nextProps.modelPerspectiveData)
     for (let i = 0; i < nextProps.modelPerspectiveData.length - 1; i++) {
       let date
       if (nextProps.modelPerspectiveData[i].parts[1].value !== null) {
@@ -79,24 +79,24 @@ class SlamSupplier extends Component {
       }
 
       ActuallArr.push(obj)
+
+      ordersObject['supplier'] = nextProps.metaData.resources[0].parts[2].order
+      ordersObject['department'] = nextProps.metaData.resources[0].parts[3].order
+      ordersObject['service'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[1].order
+      ordersObject['kpi'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[2].order
+      this.setState({ordersObject, ActualSlaDashboardData: ActuallArr, dupActualSlaDashboardData: ActuallArr, ActualContractArr: ActuallArr})
+      ActuallArr.map((data) => {
+        supFilterId.push(data.supplierId)
+        serFilterId.push(data.serviceId)
+        kpiFilId.push(data.kpiId)
+      })
+
+      ordersObject['supplier'] = nextProps.metaData.resources[0].parts[2].order
+      ordersObject['department'] = nextProps.metaData.resources[0].parts[3].order
+      ordersObject['service'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[1].order
+      ordersObject['kpi'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[2].order
     }
-    ordersObject['supplier'] = nextProps.metaData.resources[0].parts[2].order
-    ordersObject['department'] = nextProps.metaData.resources[0].parts[3].order
-    ordersObject['service'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[1].order
-    ordersObject['kpi'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[2].order
-    this.setState({ordersObject, ActualSlaDashboardData: ActuallArr, dupActualSlaDashboardData: ActuallArr, ActualContractArr: ActuallArr})
-    ActuallArr.map((data) => {
-      supFilterId.push(data.supplierId)
-      serFilterId.push(data.serviceId)
-      kpiFilId.push(data.kpiId)
-    })
-
-    ordersObject['supplier'] = nextProps.metaData.resources[0].parts[2].order
-    ordersObject['department'] = nextProps.metaData.resources[0].parts[3].order
-    ordersObject['service'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[1].order
-    ordersObject['kpi'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[2].order
   }
-
   componentDidMount () {
     this.props.MetaModel()
     this.props.getMDPerspectiveDATA()
@@ -247,7 +247,7 @@ class SlamSupplier extends Component {
                   style.borderRadius = '50%'
                 }
                 return (
-                  <div className='ant-calendar-date' style={style}>
+                  <div className='ant-ar-date' style={style}>
                     {current.date()}
                   </div>
                 )
@@ -582,7 +582,7 @@ class SlamSupplier extends Component {
 
     // filter and actual data
     for (let i = 0; i < modelPerspectiveDataCount; i++) {
-      let date = new Date(this.props.modelPerspectiveData[i].parts[0].value.date_time_value)
+      let date = this.props && this.props.modelPerspectiveData && this.props.modelPerspectiveData[i].parts && this.props.modelPerspectiveData[i].parts[0].value && new Date(this.props.modelPerspectiveData[i].parts[0].value.date_time_value)
       let obj = {
         supplier: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[2] && this.props.modelPerspectiveData[i].parts[2].value[0] && this.props.modelPerspectiveData[i].parts[2].value[0].target_component && this.props.modelPerspectiveData[i].parts[2].value[0].target_component.name,
         service: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[6] && this.props.modelPerspectiveData[i].parts[6].value && this.props.modelPerspectiveData[i].parts[6].value.subject_part && this.props.modelPerspectiveData[i].parts[6].value.subject_part.value,
@@ -600,34 +600,61 @@ class SlamSupplier extends Component {
     finalSerFilter = [...new Set(serFilter)]
     finalKpiFil = [...new Set(kpiFil)]
     let options = []
-    finalSupFilter.forEach(sup => {
-      const option = {}
-      option.value = sup
-      option.label = sup
-      options.push(option)
-    })
-
     const { selectedOptionArray } = this.state
-
+    if (this.props.modelPerspectiveData) {
+      console.log(this.state.perspectiveFilter)
+      let modelPerspectiveDataCount = this.props.modelPerspectiveData.length ? this.props.modelPerspectiveData.length - 1 : 0
+      // filter and actual data
+      for (let i = 0; i < modelPerspectiveDataCount; i++) {
+        if (this.props.modelPerspectiveData[i].parts[1].value !== null) {
+          let date = new Date(this.props.modelPerspectiveData[i].parts[0].value.date_time_value)
+          let obj = {
+            supplier: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[2] && this.props.modelPerspectiveData[i].parts[2].value[0] && this.props.modelPerspectiveData[i].parts[2].value[0].target_component && this.props.modelPerspectiveData[i].parts[2].value[0].target_component.name,
+            service: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[6] && this.props.modelPerspectiveData[i].parts[6].value && this.props.modelPerspectiveData[i].parts[6].value.subject_part && this.props.modelPerspectiveData[i].parts[6].value.subject_part.value,
+            kpi: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[7] && this.props.modelPerspectiveData[i].parts[7].value && this.props.modelPerspectiveData[i].parts[7].value.subject_part && this.props.modelPerspectiveData[i].parts[7].value.subject_part.value,
+            expDate: date.toUTCString()
+          }
+          ActuallArr.push(obj)
+        }
+      }
+      ActuallArr.forEach((data) => {
+        supFilter.push(data.supplier)
+        serFilter.push(data.service)
+        kpiFil.push(data.kpi)
+      })
+      finalSupFilter = [...new Set(supFilter)]
+      finalSerFilter = [...new Set(serFilter)]
+      finalKpiFil = [...new Set(kpiFil)]
+      finalSupFilter.forEach(sup => {
+        const option = {}
+        option.value = sup
+        option.label = sup
+        options.push(option)
+      })
+    }
+    console.log('isLoading', this.props.isLoading)
     return (
       <div className={styles.MainContainer}>
-        <div className={styles.HeaderContainer}>
-          {/* dropDown */}
-          {this.SupplierComparisonDropdown(finalSupFilter, finalSerFilter, finalKpiFil, ActuallArr, selectedOptionArray, options)}
-          <div className={styles.ContentContainer}>
-            <div className={styles.leftContainer}>
-              <div className={styles.chartContainer}>
-                <div className={styles.barContainer}>
-                  <div className={styles.pieChart}>
-                    <div className={styles.Barchart}>
-                      <Barchart data={this.state.data} slaComparisonShowData={this.state.slaComparisonShowData} />
+        { !this.props.isLoading
+          ? <div className={styles.HeaderContainer}>
+            {/* dropDown */}
+            {this.SupplierComparisonDropdown(finalSupFilter, finalSerFilter, finalKpiFil, ActuallArr, selectedOptionArray, options)}
+            <div className={styles.ContentContainer}>
+              <div className={styles.leftContainer}>
+                <div className={styles.chartContainer}>
+                  <div className={styles.barContainer}>
+                    <div className={styles.pieChart}>
+                      <div className={styles.Barchart}>
+                        <Barchart data={this.state.data} slaComparisonShowData={this.state.slaComparisonShowData} />
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        : <Spin className={styles.spin} />
+        }
       </div>
     )
   }
@@ -638,6 +665,7 @@ SlamSupplier.propTypes = {
   MetaModel: PropTypes.func,
   modelPerspectiveData: PropTypes.any,
   getMDPerspectiveDATA: PropTypes.func,
-  location: PropTypes.any
+  location: PropTypes.any,
+  isLoading: PropTypes.any
 }
 export default SlamSupplier
