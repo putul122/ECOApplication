@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 import { compose, lifecycle } from 'recompose'
-// import _ from 'lodash'
+import _ from 'lodash'
 import kpiPerformance from '../../components/kpiPerformance/kpiPerformanceComponent'
 import { actions as sagaActions } from '../../redux/sagas'
 import { actionCreators } from '../../redux/reducers/kpiPerformance/kpiPerformanceReducer'
@@ -61,6 +61,7 @@ export default compose(
   connect(mapStateToProps, propsMapping),
   lifecycle({
     componentWillMount: function () {
+      console.log(this.props)
       // eslint-disable-next-line
       mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
@@ -178,6 +179,29 @@ export default compose(
           })
           let actionSettings = JSON.parse(JSON.stringify(nextProps.actionSettings))
           let availableAction = JSON.parse(JSON.stringify(nextProps.availableAction))
+          agreementOption = _.uniqBy(agreementOption, 'name')
+          departmentOption = _.uniqBy(departmentOption, 'id')
+          supplierOption = _.uniqBy(supplierOption, 'id')
+          serviceOption = _.uniqBy(serviceOption, 'id')
+          kpiOption = _.uniqBy(kpiOption, 'id')
+          let selectedAgreement = []
+          let selectedDepartment = []
+          let selectedSupplier = []
+          if (nextProps.location.state && nextProps.location.state.slaAgreeemnt) {
+            selectedAgreement = _.find(agreementOption, function (obj) {
+              return obj.name === nextProps.location.state.slaAgreeemnt
+            })
+          }
+          if (nextProps.location.state && nextProps.location.state.slaDepartment) {
+            selectedDepartment = _.find(departmentOption, function (obj) {
+              return obj.name === nextProps.location.state.slaDepartment
+            })
+          }
+          if (nextProps.location.state && nextProps.location.state.slaSupplier) {
+            selectedSupplier = _.find(supplierOption, function (obj) {
+              return obj.name === nextProps.location.state.slaSupplier
+            })
+          }
           actionSettings.agreementOption = agreementOption
           actionSettings.kpiOption = kpiOption
           actionSettings.selectedKpi = selectedKpi
@@ -185,6 +209,9 @@ export default compose(
           actionSettings.departmentOption = departmentOption
           actionSettings.supplierOption = supplierOption
           actionSettings.allFilterDataProcessed = true
+          actionSettings.selectedAgreement = selectedAgreement || []
+          actionSettings.selectedDepartment = selectedDepartment || []
+          actionSettings.selectedSupplier = selectedSupplier || []
           nextProps.setActionSettings(actionSettings)
           availableAction.toProcessModelPerspectives = false
           nextProps.setAvailableAction(availableAction)

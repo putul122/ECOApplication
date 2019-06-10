@@ -1,6 +1,5 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import _ from 'lodash'
 import moment from 'moment'
 import Select from 'react-select'
 import styles from './kpiPerformanceComponent.scss'
@@ -13,7 +12,7 @@ defaults.global.legend.display = true
 
 export default function KPIPerformance (props) {
 console.log(props)
-let colors = ['orange', '#fd397a', '#0abb87', '#3e0abb', 'black', 'orange', '#fd397a', '#0abb87', '#3e0abb', 'yellow']
+let colors = ['#FF6384', '#71B37C', '#EC932F', '#36A2EB', '#FFCE56', '#fd397a', '#0abb87', '#3e0abb', 'black', 'orange', '#fd397a', '#0abb87', '#3e0abb', 'yellow']
 let departmentOptions = []
 let supplierOptions = []
 let agreementOptions = []
@@ -23,20 +22,20 @@ let barData = {}
 let payloadFilterBlock = props.payloadFilterBlock
 console.log(payloadFilterBlock)
 let kpiList = ''
-let getRandomColorHex = function () {
-  let hex = '0123456789ABCDEF'
-  let color = '#'
-  for (var i = 1; i <= 6; i++) {
-    color += hex[Math.floor(Math.random() * 16)]
-  }
-  return color
-}
+// let getRandomColorHex = function () {
+//   let hex = '0123456789ABCDEF'
+//   let color = '#'
+//   for (var i = 1; i <= 6; i++) {
+//     color += hex[Math.floor(Math.random() * 16)]
+//   }
+//   return color
+// }
 if (props.actionSettings.allFilterDataProcessed) {
-  departmentOptions = _.uniqBy(props.actionSettings.departmentOption, 'id')
-  supplierOptions = _.uniqBy(props.actionSettings.supplierOption, 'id')
-  agreementOptions = _.uniqBy(props.actionSettings.agreementOption, 'name')
-  serviceOptions = _.uniqBy(props.actionSettings.serviceOption, 'id')
-  kpiOptions = _.uniqBy(props.actionSettings.kpiOption, 'id')
+  departmentOptions = props.actionSettings.departmentOption
+  supplierOptions = props.actionSettings.supplierOption
+  agreementOptions = props.actionSettings.agreementOption
+  serviceOptions = props.actionSettings.serviceOption
+  kpiOptions = props.actionSettings.kpiOption
   if (kpiOptions) {
     if (kpiOptions.length > 0) {
       kpiList = kpiOptions.map(function (data, index) {
@@ -57,7 +56,7 @@ if (props.graphData !== '') {
     let datasets = []
     partsData.forEach(function (partData, index) {
       let obj = {}
-      let barColor = getRandomColorHex()
+      // let barColor = getRandomColorHex()
       obj.label = partData[0].value
       // obj.fillColor = 'rgba(220,220,220,0.5)'
       // obj.strokeColor = 'rgba(220,220,220,0.8)'
@@ -72,7 +71,7 @@ if (props.graphData !== '') {
         data.push(parseFloat(scoreData.values.Score.formatted_value) || 0)
       })
       obj.data = data
-      obj.backgroundColor = barColor
+      obj.backgroundColor = colors[index]
       obj.borderColor = '#111'
       obj.borderWidth = 1
       datasets.push(obj)
@@ -332,9 +331,9 @@ return (
                     </div>
                   </div>
                   <div className={styles.contractText} >
-                    <div className={`${styles.badgeContainer}`} style={{borderLeft: `5px solid ${colors[6]}`}}>
+                    <div className={`${styles.badgeContainer}`} style={{borderLeft: `5px solid ${colors[4]}`}}>
                       <div className={styles.badgeText}>{'Service'}</div>
-                      <Avatar className={styles.avatarOne} style={{backgroundColor: colors[6]}} size='medium'>
+                      <Avatar className={styles.avatarOne} style={{backgroundColor: colors[4]}} size='medium'>
                         {serviceOptions.length}
                       </Avatar>
                     </div>
