@@ -1,7 +1,7 @@
 .MainContainer{
   display: flex;
   flex-direction: column;
-  max-height: 73vh;
+  height: auto;
   background-color: white;
   box-shadow: 2px 2px 15px lightgray !important;
   padding: 10px;
@@ -82,9 +82,10 @@
 }
 .tableContainer{
   // flex:4;
+  height: auto;
   max-height: 430px;
   overflow-y:scroll; 
-  margin-right: 10px;
+  margin: 20px;
 }
 .contractText{
   flex:1;
