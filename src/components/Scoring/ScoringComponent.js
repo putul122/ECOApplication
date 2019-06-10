@@ -85,7 +85,7 @@ class ScoringComponent extends React.Component {
                         value.Dates.length ? value.Dates.map((v, j) => {
                           return (
                             <td key={j}>
-                              {v && v.values && v.values.Score && v.values.Score.value ? v.values.Score.formatted_value : 0}
+                              {v && v.values && v.values.Score && v.values.Score.formatted_value ? v.values.Score.formatted_value : 0}
                             </td>
                           )
                         })

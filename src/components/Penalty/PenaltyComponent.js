@@ -22,9 +22,13 @@ class PenaltyComponent extends React.Component {
     }
   }
 
-  renderPenaltySummaryModelData = () => {
+  renderPenaltySummaryModelData = (dataToShowKPA) => {
     // you will access to this.props.penaltySummaryModel here and you can
     // place the logic for rendering penalty summary data here
+    console.log('penaltySummaryModel', this.props.penaltySummaryModel)
+    let monthToShow = dataToShowKPA.filter((val) => {
+      return val.Dates.length
+    })
     return (
       <div className={styles.MainContainer}>
         <div className={styles.tableContainer}>
@@ -40,10 +44,10 @@ class PenaltyComponent extends React.Component {
                   <p>KPA</p>
                 </th>
                 {
-                 this.state.table.map((val, i) => {
+                  monthToShow && monthToShow[0] && monthToShow[0].Dates && monthToShow[0].Dates.map((val, i) => {
                    return (
                      <th className='table-th' key={i}>
-                       <p>{val.heading}</p>
+                       <p>{val.date_time}</p>
                      </th>
                    )
                  })
@@ -51,20 +55,33 @@ class PenaltyComponent extends React.Component {
               </tr>
             </thead>
             <tbody className='table-body'>
-              <tr>
-                <td>
-                  Process
-                </td>
-                <td>
-                  87%
-                </td>
-                <td>
-                  87%
-                </td>
-                <td>
-                  99%
-                </td>
-              </tr>
+              {
+                dataToShowKPA.map((value, i) => {
+                  return (
+                    <tr key={i}>
+                      <td>
+                        {value.KPA}
+                      </td>
+                      {
+                        value.Dates.length ? value.Dates.map((v, j) => {
+                          return (
+                            <td key={j}>
+                              {v && v.values && v.values.Value.formatted_value ? v.values.Value.formatted_value : 0}
+                            </td>
+                          )
+                        })
+                        : monthToShow && monthToShow[0] && monthToShow[0].Dates && monthToShow[0].Dates.map((val, j) => {
+                            return (
+                              <td key={j}>
+                                0
+                              </td>
+                            )
+                          })
+                        }
+                    </tr>
+                  )
+                })
+              }
             </tbody>
           </table>
         </div>
@@ -163,6 +180,7 @@ class PenaltyComponent extends React.Component {
   }
 
   render () {
+    // penaltyModel
     let scoringData = this.props.penaltyModel
     let dataToShow = []
     scoringData && scoringData.map((value, i) => {
@@ -237,9 +255,24 @@ class PenaltyComponent extends React.Component {
         dataToShow.push(objOne)
       })
     })
+    // penaltySummartModel
+    let penaltyData = this.props.penaltySummaryModel
+    let dataToShowKPA = []
+    penaltyData && penaltyData.map((value, i) => {
+      value && value.parts && value.parts[0] && value.parts[0].value && value.parts[0].value.items && value.parts[0].value.items && value.parts[0].value.items.map((valueOne) => {
+        let nestedKPA = valueOne && valueOne.parts && valueOne.parts[0] && valueOne.parts[0].value
+        let Dates = valueOne && valueOne.parts && valueOne.parts[1] && valueOne.parts[1] && valueOne.parts[1].value
+        let objOne = {}
+        objOne = {
+          KPA: nestedKPA,
+          Dates: Dates
+        }
+        dataToShowKPA.push(objOne)
+      })
+    })
     return (
       <div>
-        {this.renderPenaltySummaryModelData()}
+        {this.renderPenaltySummaryModelData(dataToShowKPA)}
         {this.renderPenaltyModelData(dataToShow)}
       </div>
     )
@@ -247,6 +280,7 @@ class PenaltyComponent extends React.Component {
 }
 
 PenaltyComponent.propTypes = {
-  penaltyModel: PropTypes.any
+  penaltyModel: PropTypes.any,
+  penaltySummaryModel: PropTypes.any
 }
 export default PenaltyComponent

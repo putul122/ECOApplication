@@ -501,12 +501,12 @@ class SlaDashboard extends Component {
               this.state.loader ? (<Spin className={styles.spin} />)
               : (<PenaltyComponent penaltySummaryModel={this.state.penaltySummaryModelData} penaltyModel={this.state.penaltyModelData} />)
             }
-            <div className='tab-pane' id='5'>
-              {
-                this.state.loader ? (<Spin className={styles.spin} />)
-                : (<PerformanceComponent performanceModel={this.state.currentPerformanceModelData} />)
-              }
-            </div>
+          </div>
+          <div className='tab-pane' id='5'>
+            {
+              this.state.loader ? (<Spin className={styles.spin} />)
+              : (<PerformanceComponent performanceModel={this.state.currentPerformanceModelData} />)
+            }
           </div>
         </div>
       </div>
