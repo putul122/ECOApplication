@@ -1,7 +1,7 @@
 .MainContainer{
   display: flex;
   flex-direction: column;
-  height: 90vh;
+  max-height: 73vh;
   background-color: white;
   box-shadow: 2px 2px 15px lightgray !important;
   padding: 10px;
@@ -82,7 +82,7 @@
 }
 .tableContainer{
   // flex:4;
-  height: 400px;
+  max-height: 430px;
   overflow-y:scroll; 
   margin-right: 10px;
 }
