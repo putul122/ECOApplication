@@ -1,12 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import _ from 'lodash'
+import moment from 'moment'
 import Select from 'react-select'
 import styles from './kpiPerformanceComponent.scss'
 import { Avatar } from 'antd'
 import DatePicker from 'react-datepicker'
 import 'antd/dist/antd.css'
 import 'react-datepicker/dist/react-datepicker.css'
+import {defaults, Bar} from 'react-chartjs-2'
+defaults.global.legend.display = true
 
 export default function KPIPerformance (props) {
 console.log(props)
@@ -16,9 +19,18 @@ let supplierOptions = []
 let agreementOptions = []
 let serviceOptions = []
 let kpiOptions = []
+let barData = {}
 let payloadFilterBlock = props.payloadFilterBlock
 console.log(payloadFilterBlock)
 let kpiList = ''
+let getRandomColorHex = function () {
+  let hex = '0123456789ABCDEF'
+  let color = '#'
+  for (var i = 1; i <= 6; i++) {
+    color += hex[Math.floor(Math.random() * 16)]
+  }
+  return color
+}
 if (props.actionSettings.allFilterDataProcessed) {
   departmentOptions = _.uniqBy(props.actionSettings.departmentOption, 'id')
   supplierOptions = _.uniqBy(props.actionSettings.supplierOption, 'id')
@@ -29,14 +41,91 @@ if (props.actionSettings.allFilterDataProcessed) {
     if (kpiOptions.length > 0) {
       kpiList = kpiOptions.map(function (data, index) {
         return (<span className='m-list-search__result-item clearfix' key={index}>
-          <input type='checkbox' />
-          <span className='m-list-search__result-item-text'><a href='' onClick={(event) => { event.preventDefault() }} >{data.name}</a></span>
+          <span className='m-list-search__result-item-text'><input checked={props.actionSettings.selectedKpi[index]} onChange={(event) => { handleCheckbox(event.target.checked, index) }} type='checkbox' />&nbsp;<a href='' onClick={(event) => { event.preventDefault() }} >{data.name}</a></span>
         </span>)
       })
     } else {
       kpiList = ''
     }
   }
+}
+if (props.graphData !== '') {
+  let partsData = props.graphData.partData || []
+  // let color = ['#71B37C', '#EC932F']
+  if (partsData.length > 0) {
+    let labels = []
+    let datasets = []
+    partsData.forEach(function (partData, index) {
+      let obj = {}
+      let barColor = getRandomColorHex()
+      obj.label = partData[0].value
+      // obj.fillColor = 'rgba(220,220,220,0.5)'
+      // obj.strokeColor = 'rgba(220,220,220,0.8)'
+      // obj.highlightFill = 'rgba(220,220,220,0.75)'
+      // obj.highlightStroke = 'rgba(220,220,220,1)'
+      let plotData = partData[1].value
+      let data = []
+      plotData.forEach(function (scoreData, idx) {
+        if (index === 0) {
+          labels.push(scoreData.date_time)
+        }
+        data.push(parseFloat(scoreData.values.Score.formatted_value) || 0)
+      })
+      obj.data = data
+      obj.backgroundColor = barColor
+      obj.borderColor = '#111'
+      obj.borderWidth = 1
+      datasets.push(obj)
+    })
+    barData.labels = labels
+    barData.datasets = datasets
+    console.log('barData', barData)
+  }
+}
+let chartOption = {
+  responsive: true,
+  title: {
+    display: true,
+    text: 'KPI Score by Month, Day and KPI'
+  },
+  maintainAspectRatio: true,
+  scales: {
+    yAxes: [{
+        ticks: {
+          beginAtZero: true
+        },
+        display: true,
+        scaleLabel: {
+          display: true,
+          labelString: 'Score'
+        }
+    }],
+    xAxes: [{
+        ticks: {
+            autoSkip: false
+        },
+        display: true,
+        scaleLabel: {
+          display: true,
+          fontStyle: 'normal',
+          labelString: 'Days'
+        },
+        stacked: false
+    }]
+  }
+  // 'tooltips': {
+  //   callbacks: {
+  //     label: function (tooltipItem) {
+  //       console.log(tooltipItem)
+  //       return 'Cost: R ' + tooltipItem
+  //     }
+  //   }
+  // }
+}
+let handleCheckbox = function (value, index) {
+  let actionSettings = JSON.parse(JSON.stringify(props.actionSettings))
+  actionSettings.selectedKpi[index] = value
+  props.setActionSettings(actionSettings)
 }
 let handleSelect = function (filterType) {
   return function (newValue: any, actionMeta: any) {
@@ -66,6 +155,15 @@ let handleSelect = function (filterType) {
     props.setActionSettings(actionSettings)
   }
 }
+let editDate = function (date, type) {
+  let actionSettings = JSON.parse(JSON.stringify(props.actionSettings))
+  if (type === 'startDate') {
+    actionSettings.startDate = date.format()
+  } else if (type === 'endDate') {
+    actionSettings.endDate = date.format()
+  }
+  props.setActionSettings(actionSettings)
+}
 let isEmpty = function (obj) {
   for (var key in obj) {
     if (obj.hasOwnProperty(key)) {
@@ -75,23 +173,30 @@ let isEmpty = function (obj) {
   return true
 }
 let processData = function () {
+  // eslint-disable-next-line
+  mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
   let actionSettings = JSON.parse(JSON.stringify(props.actionSettings))
   let payloadFilter = {}
-  payloadFilter.values_start_time = ''
-  payloadFilter.values_end_time = ''
+  payloadFilter.values_start_time = props.actionSettings.startDate
+  payloadFilter.values_end_time = props.actionSettings.endDate
   // Agreement Filter
   if (!isEmpty(actionSettings.selectedAgreement)) {
     let agreementData = []
-    agreementData.push(actionSettings.selectedAgreement.id)
+    agreementData.push(actionSettings.selectedAgreement.subjectId)
     payloadFilter.subject_id = agreementData
   }
   payloadFilter.parts = {}
   payloadFilter.parts['2'] = payloadFilterBlock.kpiFilter
   payloadFilter.parts['3'] = payloadFilterBlock.departmentAndSupplierFilter
   // KPI Filter
-  let kpiData = [58846, 58845, 58844]
+  let kpiData = []
+  actionSettings.selectedKpi.forEach(function (isSelected, index) {
+    if (isSelected) {
+      kpiData.push(actionSettings.kpiOption[index].subjectId)
+    }
+  })
+  // let kpiData = [58844, 58845]
   payloadFilter.parts['2'].constraint_perspective.parts['3'].constraint_perspective.parts['4'].constraint_perspective.parts['4'].constraint_perspective.parts['4'].constraint_perspective['subject_ids'] = kpiData
-  console.log('payloadFilter', payloadFilter)
   // Supplier Filter
   if (!isEmpty(actionSettings.selectedDepartment)) {
     let departmentData = []
@@ -105,11 +210,12 @@ let processData = function () {
     payloadFilter.parts['3'].constraint_perspective.parts['3'].target_component_ids = supplierData
   }
   console.log('payloadFilter', payloadFilter)
-  // const base64ecodedPayloadFilter = btoa(JSON.stringify(payloadFilter))
+  const base64ecodedPayloadFilter = btoa(JSON.stringify(payloadFilter))
+  // const base64ecodedPayloadFilter = 'eyJwYXJ0cyI6eyIyIjp7ImNvbnN0cmFpbnRfcGVyc3BlY3RpdmUiOnsicGFydHMiOnsiMyI6eyJjb25zdHJhaW50X3BlcnNwZWN0aXZlIjp7InBhcnRzIjp7IjQiOnsiY29uc3RyYWludF9wZXJzcGVjdGl2ZSI6eyJwYXJ0cyI6eyI0Ijp7ImNvbnN0cmFpbnRfcGVyc3BlY3RpdmUiOnsicGFydHMiOnsiNCI6eyJjb25zdHJhaW50X3BlcnNwZWN0aXZlIjp7InN1YmplY3RfaWRzIjpbNTg4NDRdfX19fX19fX19fX19fX19fQ%3d%3d'
   let payload = {}
   payload['meta_model_perspective_id[0]'] = 72
   payload['view_key[0]'] = 'AgreementScoring_HistoricalPerformanceDashboard'
-  payload['filter[0]'] = 'eyJwYXJ0cyI6eyIyIjp7ImNvbnN0cmFpbnRfcGVyc3BlY3RpdmUiOnsicGFydHMiOnsiMyI6eyJjb25zdHJhaW50X3BlcnNwZWN0aXZlIjp7InBhcnRzIjp7IjQiOnsiY29uc3RyYWludF9wZXJzcGVjdGl2ZSI6eyJwYXJ0cyI6eyI0Ijp7ImNvbnN0cmFpbnRfcGVyc3BlY3RpdmUiOnsicGFydHMiOnsiNCI6eyJjb25zdHJhaW50X3BlcnNwZWN0aXZlIjp7InN1YmplY3RfaWRzIjpbNTg4NDRdfX19fX19fX19fX19fX19fQ%3d%3d'
+  payload['filter[0]'] = base64ecodedPayloadFilter
   props.fetchModelPrespectives && props.fetchModelPrespectives(payload)
 }
 return (
@@ -195,17 +301,17 @@ return (
                   <h5 style={{'margin': '10px'}}>Period</h5>
                   <DatePicker
                     className='input-sm form-control m-input'
-                    selected={null}
+                    selected={props.actionSettings.startDate ? moment(props.actionSettings.startDate) : null}
                     placeholderText='Start date'
                     dateFormat='DD MMM YYYY'
-                    // onSelect={(date) => { editProperty(index, date, parentIndex) }}
+                    onSelect={(date) => { editDate(date, 'startDate') }}
                   />&nbsp;&nbsp;
                   <DatePicker
                     className='input-sm form-control m-input'
-                    selected={null}
+                    selected={props.actionSettings.endDate ? moment(props.actionSettings.endDate) : null}
                     placeholderText='End date'
                     dateFormat='DD MMM YYYY'
-                    // onSelect={(date) => { editProperty(index, date, parentIndex) }}
+                    onSelect={(date) => { editDate(date, 'endDate') }}
                   />
                 </div>
                 <div className='col-sm-1 col-md-1'>
@@ -251,9 +357,13 @@ return (
                         <div className='m-demo__preview'>
                           <div className='m-list-search'>
                             <div className='m-list-search__results'>
-                              <span className='m-list-search__result-category m-list-search__result-category--first'>
-                                          Bar Graph
-                                      </span>
+                              <Bar
+                                id='softwareChart'
+                                data={barData}
+                                width={200}
+                                height={250}
+                                options={chartOption}
+                              />
                             </div>
                           </div>
                         </div>
@@ -291,5 +401,6 @@ return (
  KPIPerformance.propTypes = {
   actionSettings: PropTypes.any,
   payloadFilterBlock: PropTypes.any,
-  fetchModelPrespectives: PropTypes.func
+  fetchModelPrespectives: PropTypes.func,
+  graphData: PropTypes.any
 }

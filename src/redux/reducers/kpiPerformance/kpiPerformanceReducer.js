@@ -61,8 +61,8 @@ export const initialState = {
     selectedAgreement: [],
     selectedService: [],
     selectedKpi: [],
-    startDate: '',
-    endDate: [],
+    startDate: null,
+    endDate: null,
     allFilterDataProcessed: false
   },
   payloadFilterBlock: {

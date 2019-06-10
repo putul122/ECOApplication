@@ -62,7 +62,7 @@ export default compose(
   lifecycle({
     componentWillMount: function () {
       // eslint-disable-next-line
-      // mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+      mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
       let perspectiveId = 72
       // let payload = {}
@@ -97,8 +97,13 @@ export default compose(
           nextProps.modelPrespectives.forEach(function (data, index) {
             if (index < nextProps.modelPrespectives.length - 1) {
               console.log('data', data)
-              let parts = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts
-              partData.push(parts)
+              let selectedKPIGraphData = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']
+              if (selectedKPIGraphData.length > 0) {
+                selectedKPIGraphData.forEach(function (kpiData, idx) {
+                  let parts = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items'][idx].parts['0'].value['items']['0'].parts
+                  partData.push(parts)
+                })
+              }
             }
           })
           graphData.partData = partData
@@ -107,6 +112,8 @@ export default compose(
         let availableAction = nextProps.availableAction
         availableAction['toProcessGraphData'] = false
         nextProps.setAvailableAction(availableAction)
+        // eslint-disable-next-line
+        mApp && mApp.unblockPage()
       }
       if (nextProps.metaModelPerspective && nextProps.metaModelPerspective !== '' && nextProps.availableAction.toProcessMetaModel) {
         if (nextProps.metaModelPerspective.error_code === null) {
@@ -125,6 +132,7 @@ export default compose(
           let serviceOption = []
           let departmentOption = []
           let supplierOption = []
+          let selectedKpi = []
           nextProps.allDropdownData.forEach(function (data, index) {
             if (data.parts) {
               data.parts.forEach(function (partData, partIndex) {
@@ -134,6 +142,7 @@ export default compose(
                   obj.id = agreementLength
                   obj.name = partData.value
                   obj.label = partData.value
+                  obj.subjectId = data.subject_id
                   agreementOption.push(obj)
                 }
                 if (partIndex === 1) {
@@ -144,6 +153,7 @@ export default compose(
                   obj.name = partData.value.subject_part.value
                   obj.label = partData.value.subject_part.value
                   kpiOption.push(obj)
+                  selectedKpi.push(false)
                 }
                 if (partIndex === 2) {
                   let serviceData = partData.value.subject_part.value[0].target_component
@@ -170,6 +180,7 @@ export default compose(
           let availableAction = JSON.parse(JSON.stringify(nextProps.availableAction))
           actionSettings.agreementOption = agreementOption
           actionSettings.kpiOption = kpiOption
+          actionSettings.selectedKpi = selectedKpi
           actionSettings.serviceOption = serviceOption
           actionSettings.departmentOption = departmentOption
           actionSettings.supplierOption = supplierOption
