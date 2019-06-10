@@ -201,7 +201,7 @@ class SlaDashboard extends Component {
       return value[val]
     })
     if (filterLabel === 'Agreement') {
-      perspectiveFilter['subject_id'] = [idArray[0][val]]
+      perspectiveFilter['subject_ids'] = [idArray[0][val]]
     } else {
       if (!perspectiveFilter['parts']) {
         perspectiveFilter['parts'] = {
