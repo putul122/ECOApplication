@@ -56,6 +56,8 @@ if (props.graphData !== '') {
     let datasets = []
     partsData.forEach(function (partData, index) {
       let obj = {}
+      obj.type = 'line'
+      obj.fill = false
       // let barColor = getRandomColorHex()
       obj.label = partData[0].value
       // obj.fillColor = 'rgba(220,220,220,0.5)'
@@ -71,9 +73,15 @@ if (props.graphData !== '') {
         data.push(parseFloat(scoreData.values.Score.formatted_value) || 0)
       })
       obj.data = data
+      obj.borderColor = colors[index]
       obj.backgroundColor = colors[index]
-      obj.borderColor = '#111'
-      obj.borderWidth = 1
+      obj.pointBorderColor = colors[index]
+      obj.pointBackgroundColor = colors[index]
+      obj.pointHoverBackgroundColor = colors[index]
+      obj.pointHoverBorderColor = colors[index]
+      // obj.backgroundColor = colors[index]
+      // obj.borderColor = '#111'
+      // obj.borderWidth = 1
       datasets.push(obj)
     })
     barData.labels = labels
