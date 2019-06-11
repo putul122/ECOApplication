@@ -47,7 +47,8 @@ export const initialState = {
     toProcess: false,
     toProcessMetaModel: false,
     toProcessModelPerspectives: false,
-    toProcessCrudModel: false
+    toProcessCrudModel: false,
+    toProcessGraphData: false
   },
   allDropdownData: '',
   actionSettings: {
