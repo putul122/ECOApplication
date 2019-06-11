@@ -98,11 +98,14 @@ export default compose(
           nextProps.modelPrespectives.forEach(function (data, index) {
             if (index < nextProps.modelPrespectives.length - 1) {
               console.log('data', data)
-              let selectedKPIGraphData = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']
-              if (selectedKPIGraphData.length > 0) {
-                selectedKPIGraphData.forEach(function (kpiData, idx) {
-                  let parts = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items'][idx].parts['0'].value['items']['0'].parts
-                  partData.push(parts)
+              let ScorecardPart = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']
+              if (ScorecardPart.length > 0) {
+                ScorecardPart.forEach(function (scorecardData, idx) {
+                  let selectedKPIGraphData = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items'][idx].parts['0'].value['items']
+                  selectedKPIGraphData.forEach(function (kpiData, kpiIdx) {
+                    let parts = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items'][idx].parts['0'].value['items'][kpiIdx].parts
+                    partData.push(parts)
+                  })
                 })
               }
             }
