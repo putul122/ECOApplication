@@ -360,7 +360,7 @@ return (
                                 id='softwareChart'
                                 data={barData}
                                 width={200}
-                                height={250}
+                                height={150}
                                 options={chartOption}
                               />
                             </div>
