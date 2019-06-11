@@ -28,7 +28,7 @@ export function mapStateToProps (state, props) {
 // In Object form, each funciton is automatically wrapped in a dispatch
 export const propsMapping = {
   fetchUserAuthentication: sagaActions.basicActions.fetchUserAuthentication,
-  fetchModelPrespectives: sagaActions.modelActions.fetchModelPrespectives,
+  fetchModelPrespectives: sagaActions.kpiPerformanceActions.fetchModelPrespectives,
   fetchMetaModelPrespective: sagaActions.modelActions.fetchMetaModelPrespective,
   setCurrentTab: actionCreators.setCurrentTab,
   setPageSettings: actionCreators.setPageSettings,
@@ -100,11 +100,12 @@ export default compose(
           const base64ecodedPayloadFilter = btoa(JSON.stringify(payloadFilter))
           let payload = {}
           payload['meta_model_perspective_id[0]'] = 72
-          payload['view_key[0]'] = 'AgreementScoring_KPIPenaltyDashboard'
+          payload['view_key[0]'] = 'AgreementScoring_KPIScoreDashboard'
           payload['filter[0]'] = base64ecodedPayloadFilter
           this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
           console.log('payloadFilter', payloadFilter)
           console.log('pageSettings', pageSettings)
+          pageSettings.filters = base64ecodedPayloadFilter
           this.props.setPageSettings(pageSettings)
           let metaModelPrespectivePayload = {}
           metaModelPrespectivePayload.id = 72
@@ -123,14 +124,15 @@ export default compose(
             // eslint-disable-next-line
             toastr.error('Supplier not selected in kpi-performance', 'Error')
           }
-          this.props.history.replace('', {})
+          // eslint-disable-next-line
+          window.location.href = window.location.origin + '/kpi-performances'
         }
       } else {
         // eslint-disable-next-line
         toastr.error('Missing page settings from kpi-performance', 'Error')
       }
       // eslint-disable-next-line
-      // mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
+      mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
     },
     componentDidMount: function () {},
@@ -140,6 +142,19 @@ export default compose(
         if (!nextProps.authenticateUser.resources[0].result) {
           this.props.history.push('/')
         }
+      }
+      if (nextProps.availableAction.toCallScorePenaltyAPI) {
+        let payload = {}
+        payload['meta_model_perspective_id[0]'] = 72
+        if (nextProps.showTabs.showScore !== '') {
+          payload['view_key[0]'] = 'AgreementScoring_KPIScoreDashboard'
+        } else if (nextProps.showTabs.showPenalty !== '') {
+          payload['view_key[0]'] = 'AgreementScoring_KPIPenaltyDashboard'
+        }
+        payload['filter[0]'] = nextProps.pageSettings.filters
+        this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
+        // eslint-disable-next-line
+        mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       }
       if (nextProps.modelPrespectives && nextProps.modelPrespectives !== '' && nextProps.availableAction.toProcessGraphData) {
         if (nextProps.modelPrespectives.length > 1) {
@@ -198,6 +213,7 @@ export default compose(
         }
         let availableAction = nextProps.availableAction
         availableAction['toProcessGraphData'] = false
+        availableAction['toCallScorePenaltyAPI'] = false
         nextProps.setAvailableAction(availableAction)
         // eslint-disable-next-line
         mApp && mApp.unblockPage()

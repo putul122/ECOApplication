@@ -12,6 +12,7 @@ export default function TabComponent (props) {
   let blockInformationList = ''
   let tableHeader = ''
   let tableBodyData = ''
+  let barData = {}
   let chartOption = {
     responsive: true,
     title: {
@@ -93,16 +94,70 @@ export default function TabComponent (props) {
           if (i === 0) {
             tableHeader.push(<th className='table-th pres-th m-datatable__cell m-datatable__cell--sort'>{targets[i].display_name}</th>)
           }
-          tableColumn.push(<td>{scores[i].formatted_value}</td>)
+          tableColumn.push(<td>{targets[i].formatted_value}</td>)
         }
         if (penalty && penalty.length > 0) {
           if (i === 0) {
             tableHeader.push(<th className='table-th pres-th m-datatable__cell m-datatable__cell--sort'>{penalty[i].display_name}</th>)
           }
-          tableColumn.push(<td>{scores[i].formatted_value}</td>)
+          tableColumn.push(<td>{penalty[i].formatted_value}</td>)
         }
         tableBodyData.push(<tr>{tableColumn}</tr>)
       }
+      let datasets = []
+      {
+        let obj = {}
+        obj.type = 'bar'
+        obj.label = scores[0].display_name
+        let data = []
+        scores.forEach(function (scoreData, idx) {
+          data.push(parseFloat(scoreData.formatted_value) || 0)
+        })
+        obj.data = data
+        obj.borderColor = colors[0]
+        obj.backgroundColor = colors[0]
+        obj.pointBorderColor = colors[0]
+        obj.pointBackgroundColor = colors[0]
+        obj.pointHoverBackgroundColor = colors[0]
+        obj.pointHoverBorderColor = colors[0]
+        datasets.push(obj)
+      }
+      {
+        let obj = {}
+        obj.type = 'bar'
+        obj.label = targets[0].display_name
+        let data = []
+        targets.forEach(function (targetData, idx) {
+          data.push(parseFloat(targetData.formatted_value) || 0)
+        })
+        obj.data = data
+        obj.borderColor = colors[1]
+        obj.backgroundColor = colors[1]
+        obj.pointBorderColor = colors[1]
+        obj.pointBackgroundColor = colors[1]
+        obj.pointHoverBackgroundColor = colors[1]
+        obj.pointHoverBorderColor = colors[1]
+        datasets.push(obj)
+      }
+      if (penalty && penalty.length > 0) {
+        let obj = {}
+        obj.type = 'bar'
+        obj.label = penalty[0].display_name
+        let data = []
+        penalty.forEach(function (penaltyData, idx) {
+          data.push(parseFloat(penaltyData.formatted_value) || 0)
+        })
+        obj.data = data
+        obj.borderColor = colors[2]
+        obj.backgroundColor = colors[2]
+        obj.pointBorderColor = colors[2]
+        obj.pointBackgroundColor = colors[2]
+        obj.pointHoverBackgroundColor = colors[2]
+        obj.pointHoverBorderColor = colors[2]
+        datasets.push(obj)
+      }
+      barData.labels = labels
+      barData.datasets = datasets
     }
   }
   return (
@@ -116,9 +171,9 @@ export default function TabComponent (props) {
           <div className='col-12'>
             <Bar
               id='softwareChart'
-              data={{}}
+              data={barData}
               width={200}
-              height={150}
+              height={100}
               options={chartOption}
             />
           </div>

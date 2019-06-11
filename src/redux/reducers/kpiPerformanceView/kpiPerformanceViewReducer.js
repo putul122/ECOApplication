@@ -1,8 +1,10 @@
 import { createAction, handleActions } from 'redux-actions'
 import {
-  FETCH_MODEL_PRESPECTIVES_SUCCESS,
   FETCH_META_MODEL_PRESPECTIVE_SUCCESS
 } from '../../sagas/model/modelSaga'
+import {
+  FETCH_MODEL_PRESPECTIVES_SUCCESS
+} from '../../sagas/kpiPerformance/kpiPerformanceSaga'
 
 // Name Spaced Action Types
 const SET_CURRENT_TAB = 'KpiPerformanceView/SET_CURRENT_TAB'
@@ -27,7 +29,7 @@ export const actionCreators = {
 export const initialState = {
   modelPrespectives: '',
   metaModelPrespective: '',
-  showTabs: {'showScore': ' active show', 'showPenalty': '', 'callAPI': false},
+  showTabs: {'showScore': ' active show', 'showPenalty': ''},
   payloadFilterBlock: {
     startTime: '',
     endTime: '',
@@ -73,7 +75,8 @@ export const initialState = {
   pageSettings: {},
   graphData: '',
   availableAction: {
-    toProcessGraphData: false
+    toProcessGraphData: false,
+    toCallScorePenaltyAPI: false
   }
 }
 

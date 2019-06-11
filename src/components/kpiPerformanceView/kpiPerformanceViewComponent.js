@@ -27,6 +27,9 @@ export default function KPIPerformance (props) {
       let payload = {'showScore': '', 'showPenalty': ' active show'}
       props.setCurrentTab(payload)
     }
+    let availableAction = props.availableAction
+    availableAction['toCallScorePenaltyAPI'] = true
+    props.setAvailableAction(availableAction)
   }
   if (!isEmpty(props.pageSettings)) {
     if (!isEmpty(props.pageSettings.selectedDepartment)) {
@@ -97,5 +100,7 @@ KPIPerformance.propTypes = {
   showTabs: PropTypes.any,
   setCurrentTab: PropTypes.any,
   pageSettings: PropTypes.any,
-  graphData: PropTypes.any
+  graphData: PropTypes.any,
+  availableAction: PropTypes.any,
+  setAvailableAction: PropTypes.func
 }

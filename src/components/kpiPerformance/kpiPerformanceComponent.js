@@ -81,9 +81,6 @@ if (props.graphData !== '') {
       obj.pointBackgroundColor = colors[index]
       obj.pointHoverBackgroundColor = colors[index]
       obj.pointHoverBorderColor = colors[index]
-      // obj.backgroundColor = colors[index]
-      // obj.borderColor = '#111'
-      // obj.borderWidth = 1
       datasets.push(obj)
     })
     barData.labels = labels

@@ -17,6 +17,7 @@ import watchComponentModalView, {actionCreators as componentModalViewActions} fr
 import watchServices, {actionCreators as serviceActions} from './service/serviceSaga'
 import watchRoles, {actionCreators as rolesActions} from './roles/rolesSaga'
 import watchMxGraph, {actionCreators as mxGraphActions} from './mxGraph/mxGraphSaga'
+import watchKpiPerformance, {actionCreators as kpiPerformanceActions} from './kpiPerformance/kpiPerformanceSaga'
 
 export const actions = {
   basicActions,
@@ -37,7 +38,8 @@ export const actions = {
   modelActions,
   componentModalViewActions,
   serviceActions,
-  mxGraphActions
+  mxGraphActions,
+  kpiPerformanceActions
 }
 export default function * rootSaga () {
   yield [
@@ -59,6 +61,7 @@ export default function * rootSaga () {
     watchComponentModalView(),
     watchServices(),
     watchRoles(),
-    watchMxGraph()
+    watchMxGraph(),
+    watchKpiPerformance()
   ]
 }
