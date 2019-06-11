@@ -2,10 +2,22 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styles from './kpiPerformanceViewComponent.scss'
 import TabComponent from './tabComponent'
+var isEmpty = function (obj) {
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      return false
+    }
+  }
+  return true
+}
 
 export default function KPIPerformance (props) {
   console.log('props', props)
   let showScore = props.showTabs.showScore
+  let DepartmentName = ''
+  let ServiceName = ''
+  let SupplierName = ''
+  let KPIName = ''
   let showPenalty = props.showTabs.showPenalty
   let showTabs = function (tab) {
     if (tab === 'Score') {
@@ -16,6 +28,21 @@ export default function KPIPerformance (props) {
       props.setCurrentTab(payload)
     }
   }
+  if (!isEmpty(props.pageSettings)) {
+    if (!isEmpty(props.pageSettings.selectedDepartment)) {
+      DepartmentName = props.pageSettings.selectedDepartment.name
+    }
+    if (!isEmpty(props.pageSettings.selectedService)) {
+      ServiceName = props.pageSettings.selectedService.name
+    }
+    if (!isEmpty(props.pageSettings.selectedSupplier)) {
+      SupplierName = props.pageSettings.selectedSupplier.name
+    }
+    if (!isEmpty(props.pageSettings.selectedKpi)) {
+      KPIName = props.pageSettings.selectedKpi.name
+    }
+  }
+
   return (
     <div>
       <div className='row'>
@@ -24,13 +51,13 @@ export default function KPIPerformance (props) {
             <div className='m-portlet__body' >
               <div className='row'>
                 <div className={styles.topInfoContainer} >
-                  <span className='col-4'><h4>Network</h4></span>
-                  <span className='col-4'><h4>Common Fault Management</h4></span>
-                  <span className='col-4 pull-right'><h4>Huawei</h4></span>
+                  <span className='col-4'><h4>{DepartmentName}</h4></span>
+                  <span className='col-4'><h4>{ServiceName}</h4></span>
+                  <span className='col-4 pull-right'><h4>{SupplierName}</h4></span>
                 </div>
               </div>
               <div className='row justify-content-center'>
-                <span className={styles.KpiInfoContainer + 'justify-content-center'}><h1>End to End Handling Effectiveness</h1></span>
+                <span className={styles.KpiInfoContainer + 'justify-content-center'}><h1>{KPIName}</h1></span>
               </div>
               <div className='row'>
                 <div className='col-12' >
@@ -46,12 +73,12 @@ export default function KPIPerformance (props) {
                     <div className='tab-content'>
                       <div className={'tab-pane' + showScore} id='m_tabs_3_1' role='tabpanel'>
                         <div className='m--space-10' />
-                        <TabComponent showTabs={props.showTabs} />
+                        <TabComponent graphData={props.graphData} showTabs={props.showTabs} />
                       </div>
                       <div className={'tab-pane' + showPenalty} id='m_tabs_3_2' role='tabpanel'>
                         <div className='row'>
                           <div className='m--space-10' />
-                          <TabComponent showTabs={props.showTabs} />
+                          <TabComponent graphData={props.graphData} showTabs={props.showTabs} />
                         </div>
                       </div>
                     </div>
@@ -68,7 +95,7 @@ export default function KPIPerformance (props) {
 
 KPIPerformance.propTypes = {
   showTabs: PropTypes.any,
-  setCurrentTab: PropTypes.any
-  // fetchModelPrespectives: PropTypes.func,
-  // graphData: PropTypes.any
+  setCurrentTab: PropTypes.any,
+  pageSettings: PropTypes.any,
+  graphData: PropTypes.any
 }

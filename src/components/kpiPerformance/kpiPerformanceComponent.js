@@ -20,7 +20,13 @@ let serviceOptions = []
 let kpiOptions = []
 let barData = {}
 let payloadFilterBlock = props.payloadFilterBlock
-console.log(payloadFilterBlock)
+let navigateToKpi = function (data) {
+  console.log('data', data)
+  props.history.push('kpi-performances/' + data.subjectId, {
+    pageSettings: props.actionSettings,
+    selectedKpi: data
+  })
+}
 let kpiList = ''
 // let getRandomColorHex = function () {
 //   let hex = '0123456789ABCDEF'
@@ -40,7 +46,7 @@ if (props.actionSettings.allFilterDataProcessed) {
     if (kpiOptions.length > 0) {
       kpiList = kpiOptions.map(function (data, index) {
         return (<span className='m-list-search__result-item clearfix' key={index}>
-          <span className='m-list-search__result-item-text'><input checked={props.actionSettings.selectedKpi[index]} onChange={(event) => { handleCheckbox(event.target.checked, index) }} type='checkbox' />&nbsp;<a href='' onClick={(event) => { event.preventDefault() }} >{data.name}</a></span>
+          <span className='m-list-search__result-item-text'><input checked={props.actionSettings.selectedKpi[index]} onChange={(event) => { handleCheckbox(event.target.checked, index) }} type='checkbox' />&nbsp;<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); navigateToKpi(data) }} >{data.name}</a></span>
         </span>)
       })
     } else {
@@ -60,10 +66,6 @@ if (props.graphData !== '') {
       obj.fill = false
       // let barColor = getRandomColorHex()
       obj.label = partData[0].value
-      // obj.fillColor = 'rgba(220,220,220,0.5)'
-      // obj.strokeColor = 'rgba(220,220,220,0.8)'
-      // obj.highlightFill = 'rgba(220,220,220,0.75)'
-      // obj.highlightStroke = 'rgba(220,220,220,1)'
       let plotData = partData[1].value
       let data = []
       plotData.forEach(function (scoreData, idx) {
@@ -86,7 +88,6 @@ if (props.graphData !== '') {
     })
     barData.labels = labels
     barData.datasets = datasets
-    console.log('barData', barData)
   }
 }
 let chartOption = {
@@ -204,7 +205,7 @@ let processData = function () {
   })
   // let kpiData = [58844, 58845]
   payloadFilter.parts['2'].constraint_perspective.parts['3'].constraint_perspective.parts['4'].constraint_perspective.parts['4'].constraint_perspective.parts['4'].constraint_perspective['subject_ids'] = kpiData
-  // Supplier Filter
+  // Department Filter
   if (!isEmpty(actionSettings.selectedDepartment)) {
     let departmentData = []
     departmentData.push(actionSettings.selectedDepartment.id)
