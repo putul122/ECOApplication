@@ -20,6 +20,7 @@ let serviceOptions = []
 let kpiOptions = []
 let barData = {}
 let payloadFilterBlock = props.payloadFilterBlock
+let labelLength = 0
 let navigateToKpi = function (data) {
   console.log('data', data)
   props.history.push('kpi-performances/' + data.subjectId, {
@@ -85,6 +86,7 @@ if (props.graphData !== '') {
       obj.pointHitRadius = 20
       datasets.push(obj)
     })
+    labelLength = labels.length
     barData.labels = labels
     barData.datasets = datasets
   }
@@ -111,7 +113,7 @@ let chartOption = {
         ticks: {
             autoSkip: false
         },
-        display: true,
+        display: labelLength < 10,
         scaleLabel: {
           display: true,
           fontStyle: 'normal',
@@ -165,8 +167,13 @@ let handleSelect = function (filterType) {
 }
 let editDate = function (date) {
   let actionSettings = JSON.parse(JSON.stringify(props.actionSettings))
-  actionSettings.startDate = date[0].format()
-  actionSettings.endDate = date[1].format()
+  if (date) {
+    actionSettings.startDate = date[0].format()
+    actionSettings.endDate = date[1].format()
+  } else {
+    actionSettings.startDate = ''
+    actionSettings.endDate = ''
+  }
   props.setActionSettings(actionSettings)
 }
 let isEmpty = function (obj) {
