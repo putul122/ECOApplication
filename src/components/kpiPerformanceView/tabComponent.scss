@@ -1,0 +1,39 @@
+.contractContainer{
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+}
+
+.contractText{
+    flex:1;
+    align-items: center;
+    display: flex;
+}
+.badgeContainer{
+    width: 80%;
+    background-color: #f7f8fa;
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0px 0px 10px lightgray;
+    height: 50px;
+    align-items: center;
+}
+.badgeText{
+    flex: 2;
+    padding-left: 8px;
+    color: #666c8b;
+    font-size: 15px;
+    font-weight: bold;
+}
+.avatarOne{
+    vertical-align: middle;
+    margin: 0px 10px !important;
+    font-weight: bold;
+}
+.avatarTwo{
+    background-color: #fd397a !important;
+    vertical-align: middle;
+    margin: 0px 10px !important;
+    font-weight: bold;
+}

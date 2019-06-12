@@ -311,6 +311,24 @@ export default class Root extends Component {
           }
           resolve(require('../penaltyDashboardPage/PenaltyDashboardRoute').default)
             break
+          case 'kpiPerformanceDashboard':
+            if (module.hot) {
+              module.hot.accept('../kpiPerformancePage/kpiPerformanceRoute', () => {
+                require("../kpiPerformancePage/kpiPerformanceRoute").default; // eslint-disable-line
+                this.forceUpdate()
+              })
+            }
+            resolve(require('../kpiPerformancePage/kpiPerformanceRoute').default)
+              break
+          case 'kpiPerformanceView':
+              if (module.hot) {
+                module.hot.accept('../kpiPerformanceViewPage/kpiPerformanceViewRoute', () => {
+                  require("../kpiPerformanceViewPage/kpiPerformanceViewRoute").default; // eslint-disable-line
+                  this.forceUpdate()
+                })
+              }
+              resolve(require('../kpiPerformanceViewPage/kpiPerformanceViewRoute').default)
+                break
           case 'penaltyScoreCard':
           if (module.hot) {
             module.hot.accept('../penaltyScoreCardPage/penaltyScoreCardRoute', () => {
@@ -466,6 +484,16 @@ export default class Root extends Component {
               exact
               path='/billing'
               component={props => this.loadView('billing', props)}
+            />
+            <Route
+              exact
+              path='/kpi-performances'
+              component={props => this.loadView('kpiPerformanceDashboard', props)}
+            />
+            <Route
+              exact
+              path='/kpi-performances/:id'
+              component={props => this.loadView('kpiPerformanceView', props)}
             />
             <Route
               exact

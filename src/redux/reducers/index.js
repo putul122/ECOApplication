@@ -30,6 +30,8 @@ import penaltyScoreCardReducer from './penaltyScoreCardReducer/penaltyScoreCardR
 import perspectiveExclusionReducer from './perspectiveExclusion/perspectiveExclusionReducer'
 import mxGraphReducer from './mxGraphReducer/mxGraphReducerReducer'
 import balancedScorecardReducer from './balancedScorecard/balancedScorecardReducer'
+import kpiPerformanceReducer from './kpiPerformance/kpiPerformanceReducer'
+import kpiPerformanceViewReducer from './kpiPerformanceView/kpiPerformanceViewReducer'
 
 export default combineReducers({
     basicReducer,
@@ -62,5 +64,7 @@ export default combineReducers({
     penaltyReducer,
     perspectiveExclusionReducer,
     balancedScorecardReducer,
-    mxGraphReducer
+    mxGraphReducer,
+    kpiPerformanceReducer,
+    kpiPerformanceViewReducer
 })
