@@ -1,14 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import moment from 'moment'
 import Select from 'react-select'
 import styles from './kpiPerformanceComponent.scss'
-import { Avatar } from 'antd'
-import DatePicker from 'react-datepicker'
+import { Avatar, DatePicker } from 'antd'
 import 'antd/dist/antd.css'
 import 'react-datepicker/dist/react-datepicker.css'
 import {defaults, Bar} from 'react-chartjs-2'
 defaults.global.legend.display = true
+// import { DatePicker } from 'antd'
+const { RangePicker } = DatePicker
 
 export default function KPIPerformance (props) {
 console.log(props)
@@ -160,13 +160,10 @@ let handleSelect = function (filterType) {
     props.setActionSettings(actionSettings)
   }
 }
-let editDate = function (date, type) {
+let editDate = function (date) {
   let actionSettings = JSON.parse(JSON.stringify(props.actionSettings))
-  if (type === 'startDate') {
-    actionSettings.startDate = date.format()
-  } else if (type === 'endDate') {
-    actionSettings.endDate = date.format()
-  }
+  actionSettings.startDate = date[0].format()
+  actionSettings.endDate = date[1].format()
   props.setActionSettings(actionSettings)
 }
 let isEmpty = function (obj) {
@@ -302,26 +299,28 @@ return (
                 </div>
               </div>
               <div className='row '>
-                <div className='col-sm-12 col-md-8' style={{'display': 'flex'}}>
+                <div className='col-sm-11 col-md-11' style={{'display': 'flex'}}>
                   <h5 style={{'margin': '10px'}}>Period</h5>
-                  <DatePicker
-                    className='input-sm form-control m-input'
-                    selected={props.actionSettings.startDate ? moment(props.actionSettings.startDate) : null}
-                    placeholderText='Start date'
-                    dateFormat='DD MMM YYYY'
-                    onSelect={(date) => { editDate(date, 'startDate') }}
-                  />&nbsp;&nbsp;
-                  <DatePicker
-                    className='input-sm form-control m-input'
-                    selected={props.actionSettings.endDate ? moment(props.actionSettings.endDate) : null}
-                    placeholderText='End date'
-                    dateFormat='DD MMM YYYY'
-                    onSelect={(date) => { editDate(date, 'endDate') }}
+                  <RangePicker
+                    className={`RangePicker ${styles.rangePicker}`}
+                    onChange={(val) => editDate(val)}
+                    dateRender={(current) => {
+                      const style = {}
+                      if (current.date() === 1) {
+                        style.border = '1px solid #1890ff'
+                        style.borderRadius = '50%'
+                      }
+                      return (
+                        <div className='ant-calendar-date' style={style}>
+                          {current.date()}
+                        </div>
+                      )
+                    }}
                   />
                 </div>
                 <div className='col-sm-1 col-md-1'>
-                  <div className='dataTables_length' style={{'display': 'flex'}}>
-                    <button onClick={processData} type='button' className='sm-btn btn btn-secondary'>Go</button>
+                  <div className='dataTables_length float-right' >
+                    <button onClick={processData} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.goBtn}`} style={{width: '160px'}} type='button' >Go</button>
                   </div>
                 </div>
               </div>
