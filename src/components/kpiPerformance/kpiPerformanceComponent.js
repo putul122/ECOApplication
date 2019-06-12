@@ -118,7 +118,8 @@ let chartOption = {
         },
         stacked: false
     }]
-  }
+  },
+  elements: { point: { radius: 0 } }
   // 'tooltips': {
   //   callbacks: {
   //     label: function (tooltipItem) {
@@ -319,11 +320,6 @@ return (
                     }}
                   />
                 </div>
-                <div className='col-sm-1 col-md-1'>
-                  <div className='dataTables_length float-right' >
-                    <button onClick={processData} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.goBtn}`} style={{width: '160px'}} type='button' >Go</button>
-                  </div>
-                </div>
               </div>
               <br />
               <div className='row'>
@@ -388,6 +384,10 @@ return (
                                           Select KPI
                                       </span>
                               {kpiList}
+                              <br />
+                              <div className='dataTables_length' >
+                                <button onClick={processData} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.goBtn}`} style={{width: '160px'}} type='button' >Go</button>
+                              </div>
                             </div>
                           </div>
                         </div>
