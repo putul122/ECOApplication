@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import 'antd/dist/antd.css'
 import styles from './PerfomanceComponent.scss'
+import LineGraph from '../lineGraph/lineGraphComponent'
 
 class PerformanceComponent extends React.Component {
     renderCurrentPerformanceModelData = (dataToShow) => {
@@ -11,7 +12,21 @@ class PerformanceComponent extends React.Component {
       let isSummarizedObj = headingNameArr && headingNameArr[0] && headingNameArr[0].Dates && headingNameArr[0].Dates[headingNameArr[0].Dates.length - 1]
       let headings = isSummarizedObj && isSummarizedObj.values
       let headingName = headings && Object.keys(headings)
-      console.log('dataToShow', dataToShow)
+      let linechartData = []
+      dataToShow && dataToShow.map((val) => {
+        let arr = []
+        val.Dates.map((values) => {
+          let obj = {
+            name: '',
+            value: values && values.values && values.values.Status && values.values.Status.value
+          }
+          if (values && values.values && values.values.Status && values.values.Status.value) {
+            arr.push(obj)
+          }
+        })
+        linechartData.push(arr)
+      })
+      console.log('linechartData', linechartData)
     return (
       <div className={styles.MainContainer}>
         <div className={styles.tableContainer}>
@@ -41,13 +56,16 @@ class PerformanceComponent extends React.Component {
                     )
                   })
                 }
+                <th className='table-th'>
+                  <p>Performance</p>
+                </th>
               </tr>
             </thead>
             <tbody className='table-body'>
               {
-                dataToShow.map((value, i) => {
+                dataToShow.map((value, keys) => {
                   return (
-                    <tr key={i}>
+                    <tr key={keys}>
                       <td>
                         {value.Service}
                       </td>
@@ -75,6 +93,9 @@ class PerformanceComponent extends React.Component {
                           )
                         })
                       }
+                      <td>
+                        <LineGraph data={linechartData[keys]} />
+                      </td>
                     </tr>
                   )
                 })

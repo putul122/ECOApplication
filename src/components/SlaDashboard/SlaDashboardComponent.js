@@ -518,15 +518,6 @@ class SlaDashboard extends Component {
     return (
       <div>
         {this.slaDropdowns()}
-        <button onClick={() => {
-          this.props.history.push('kpi-performances', {
-              slaAgreeemnt: this.state.filterObject['Agreement'],
-              slaDepartment: this.state.filterObject['Department'],
-              slaSupplier: this.state.filterObject['Supplier']
-            })
-          }} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} style={{width: '160px'}} type='button'>
-          Kpi Performance
-        </button>
         {this.PenaltyCalender()}
         {this.submitButton()}
         <button onClick={() => {
