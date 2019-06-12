@@ -2,14 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import styles from './kpiPerformanceViewComponent.scss'
 import TabComponent from './tabComponent'
-var isEmpty = function (obj) {
-  for (var key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      return false
-    }
-  }
-  return true
-}
 
 export default function KPIPerformance (props) {
   console.log('props', props)
@@ -30,20 +22,19 @@ export default function KPIPerformance (props) {
     let availableAction = props.availableAction
     availableAction['toCallScorePenaltyAPI'] = true
     props.setAvailableAction(availableAction)
+    let graphData = JSON.parse(JSON.stringify(props.graphData))
+    graphData.labels = []
+    graphData.scores = []
+    graphData.targets = []
+    graphData.penalty = []
+    graphData.blockData = []
+    props.setGraphData(graphData)
   }
-  if (!isEmpty(props.pageSettings)) {
-    if (!isEmpty(props.pageSettings.selectedDepartment)) {
-      DepartmentName = props.pageSettings.selectedDepartment.name
-    }
-    if (!isEmpty(props.pageSettings.selectedService)) {
-      ServiceName = props.pageSettings.selectedService.name
-    }
-    if (!isEmpty(props.pageSettings.selectedSupplier)) {
-      SupplierName = props.pageSettings.selectedSupplier.name
-    }
-    if (!isEmpty(props.pageSettings.selectedKpi)) {
-      KPIName = props.pageSettings.selectedKpi.name
-    }
+  if (props.graphData !== '') {
+    DepartmentName = props.graphData.departmentName
+    ServiceName = props.graphData.serviceName
+    SupplierName = props.graphData.supplierName
+    KPIName = props.graphData.kpiName
   }
 
   return (
@@ -99,8 +90,8 @@ export default function KPIPerformance (props) {
 KPIPerformance.propTypes = {
   showTabs: PropTypes.any,
   setCurrentTab: PropTypes.any,
-  pageSettings: PropTypes.any,
   graphData: PropTypes.any,
   availableAction: PropTypes.any,
-  setAvailableAction: PropTypes.func
+  setAvailableAction: PropTypes.func,
+  setGraphData: PropTypes.func
 }

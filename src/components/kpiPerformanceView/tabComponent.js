@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styles from './tabComponent.scss'
-// import { Avatar } from 'antd'
+import { Avatar } from 'antd'
 import 'antd/dist/antd.css'
 import {defaults, Bar} from 'react-chartjs-2'
 defaults.global.legend.display = true
@@ -43,7 +43,8 @@ export default function TabComponent (props) {
           },
           stacked: false
       }]
-    }
+    },
+    elements: { point: { radius: 0 } }
     // 'tooltips': {
     //   callbacks: {
     //     label: function (tooltipItem) {
@@ -65,9 +66,9 @@ export default function TabComponent (props) {
           <div key={index} className={styles.contractText} >
             <div className={`${styles.badgeContainer}`} style={{borderLeft: `5px solid ${colors[index]}`}}>
               <div className={styles.badgeText}>{data.display_name}</div>
-              {/* <Avatar className={styles.avatarOne} style={{backgroundColor: colors[4]}} size='big'> */}
-              {data.formatted_value}
-              {/* </Avatar> */}
+              <Avatar className={styles.avatarOne} style={{backgroundColor: colors[index]}} size={50}>
+                {data.formatted_value}
+              </Avatar>
             </div>
           </div>
         )
@@ -120,11 +121,13 @@ export default function TabComponent (props) {
         obj.pointBackgroundColor = colors[0]
         obj.pointHoverBackgroundColor = colors[0]
         obj.pointHoverBorderColor = colors[0]
+        obj.pointHitRadius = 20
         datasets.push(obj)
       }
       {
         let obj = {}
-        obj.type = 'bar'
+        obj.type = 'line'
+        obj.fill = false
         obj.label = targets[0].display_name
         let data = []
         targets.forEach(function (targetData, idx) {
@@ -137,6 +140,7 @@ export default function TabComponent (props) {
         obj.pointBackgroundColor = colors[1]
         obj.pointHoverBackgroundColor = colors[1]
         obj.pointHoverBorderColor = colors[1]
+        obj.pointHitRadius = 20
         datasets.push(obj)
       }
       if (penalty && penalty.length > 0) {
@@ -154,6 +158,7 @@ export default function TabComponent (props) {
         obj.pointBackgroundColor = colors[2]
         obj.pointHoverBackgroundColor = colors[2]
         obj.pointHoverBorderColor = colors[2]
+        obj.pointHitRadius = 20
         datasets.push(obj)
       }
       barData.labels = labels
@@ -161,7 +166,7 @@ export default function TabComponent (props) {
     }
   }
   return (
-    <div className='row'>
+    <div className='row' style={{'width': '100%'}}>
       <div className='col-8'>
         <div className='row'>
           {blockInformationList}
@@ -173,7 +178,7 @@ export default function TabComponent (props) {
               id='softwareChart'
               data={barData}
               width={200}
-              height={100}
+              height={150}
               options={chartOption}
             />
           </div>

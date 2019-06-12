@@ -61,16 +61,10 @@ export default compose(
   connect(mapStateToProps, propsMapping),
   lifecycle({
     componentWillMount: function () {
-      console.log(this.props)
       // eslint-disable-next-line
       mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
       let perspectiveId = 72
-      // let payload = {}
-      // payload['meta_model_perspective_id[0]'] = perspectiveId
-      // payload['view_key[0]'] = 'AgreementScoring_HistoricalPerformanceDashboard'
-      // payload['filter[0]'] = 'eyJwYXJ0cyI6eyIyIjp7ImNvbnN0cmFpbnRfcGVyc3BlY3RpdmUiOnsicGFydHMiOnsiMyI6eyJjb25zdHJhaW50X3BlcnNwZWN0aXZlIjp7InBhcnRzIjp7IjQiOnsiY29uc3RyYWludF9wZXJzcGVjdGl2ZSI6eyJwYXJ0cyI6eyI0Ijp7ImNvbnN0cmFpbnRfcGVyc3BlY3RpdmUiOnsicGFydHMiOnsiNCI6eyJjb25zdHJhaW50X3BlcnNwZWN0aXZlIjp7InN1YmplY3RfaWRzIjpbNTg4NDVdfX19fX19fX19fX19fX19LCJ2YWx1ZXNfc3RhcnRfdGltZSI6IjIwMTktMDMtMDFUMDA6MDA6MDAiLCJ2YWx1ZXNfZW5kX3RpbWUiOiIyMDE5LTA0LTMwVDAwOjAwOjAwIn0%3d'
-      // this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
       let metaModelPrespectivePayload = {}
       metaModelPrespectivePayload.id = perspectiveId
       metaModelPrespectivePayload.viewKey = {view_key: 'AgreementScoring_KPIDashboardFilter'}
@@ -85,7 +79,6 @@ export default compose(
       // mApp && mApp.block('#entitlementList', {overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
     },
     componentWillReceiveProps: function (nextProps) {
-      console.log('nextProps', nextProps)
       if (nextProps.authenticateUser && nextProps.authenticateUser.resources) {
         if (!nextProps.authenticateUser.resources[0].result) {
           this.props.history.push('/')

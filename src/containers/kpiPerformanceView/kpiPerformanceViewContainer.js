@@ -68,69 +68,49 @@ export default compose(
   lifecycle({
     componentWillMount: function () {
       console.log('will mount', this.props)
-      if (this.props.location.state && !isEmpty(this.props.location.state.pageSettings) && !isEmpty(this.props.location.state.selectedKpi)) {
-        if (!isEmpty(this.props.location.state.pageSettings.selectedDepartment) && !isEmpty(this.props.location.state.pageSettings.selectedService) && !isEmpty(this.props.location.state.pageSettings.selectedSupplier)) {
-          console.log('this.props')
-          let pageSettings = JSON.parse(JSON.stringify(this.props.location.state.pageSettings))
-          pageSettings.selectedKpi = this.props.location.state.selectedKpi
-          let payloadFilter = {}
-          let payloadFilterBlock = this.props.payloadFilterBlock
-          payloadFilter.values_start_time = pageSettings.startDate
-          payloadFilter.values_end_time = pageSettings.endDate
-          // Agreement Filter
-          if (!isEmpty(pageSettings.selectedAgreement)) {
-            let agreementData = []
-            agreementData.push(pageSettings.selectedAgreement.subjectId)
-            payloadFilter.subject_id = agreementData
-          }
-          payloadFilter.parts = {}
-          payloadFilter.parts['2'] = payloadFilterBlock.kpiFilter
-          payloadFilter.parts['3'] = payloadFilterBlock.departmentAndSupplierFilter
-          let kpiData = []
-          kpiData.push(this.props.location.state.selectedKpi.subjectId)
-          payloadFilter.parts['2'].constraint_perspective.parts['3'].constraint_perspective.parts['4'].constraint_perspective.parts['4'].constraint_perspective.parts['4'].constraint_perspective['subject_ids'] = kpiData
-          // Department Filter
-          let departmentData = []
-          departmentData.push(pageSettings.selectedDepartment.id)
-          payloadFilter.parts['3'].constraint_perspective.parts['2'].target_component_ids = departmentData
-          // Supplier Filter
-          let supplierData = []
-          supplierData.push(pageSettings.selectedSupplier.id)
-          payloadFilter.parts['3'].constraint_perspective.parts['3'].target_component_ids = supplierData
-          const base64ecodedPayloadFilter = btoa(JSON.stringify(payloadFilter))
-          let payload = {}
-          payload['meta_model_perspective_id[0]'] = 72
-          payload['view_key[0]'] = 'AgreementScoring_KPIScoreDashboard'
-          payload['filter[0]'] = base64ecodedPayloadFilter
-          this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
-          console.log('payloadFilter', payloadFilter)
-          console.log('pageSettings', pageSettings)
-          pageSettings.filters = base64ecodedPayloadFilter
-          this.props.setPageSettings(pageSettings)
-          let metaModelPrespectivePayload = {}
-          metaModelPrespectivePayload.id = 72
-          metaModelPrespectivePayload.viewKey = {view_key: 'AgreementScoring_KPIScoreDashboard'}
-          this.props.fetchMetaModelPrespective && this.props.fetchMetaModelPrespective(metaModelPrespectivePayload)
-        } else {
-          if (isEmpty(this.props.location.state.pageSettings.selectedDepartment)) {
-            // eslint-disable-next-line
-            toastr.error('Department not selected in kpi-performance', 'Error')
-          }
-          if (isEmpty(this.props.location.state.pageSettings.selectedService)) {
-            // eslint-disable-next-line
-            toastr.error('Service not selected in kpi-performance', 'Error')
-          }
-          if (isEmpty(this.props.location.state.pageSettings.selectedSupplier)) {
-            // eslint-disable-next-line
-            toastr.error('Supplier not selected in kpi-performance', 'Error')
-          }
-          // eslint-disable-next-line
-          window.location.href = window.location.origin + '/kpi-performances'
-        }
-      } else {
-        // eslint-disable-next-line
-        toastr.error('Missing page settings from kpi-performance', 'Error')
-      }
+      console.log('this.props')
+      let pageSettings = JSON.parse(JSON.stringify(this.props.location.state.pageSettings))
+      pageSettings.selectedKpi = this.props.location.state.selectedKpi
+      let payloadFilter = {}
+      let payloadFilterBlock = this.props.payloadFilterBlock
+      payloadFilter.values_start_time = pageSettings.startDate || ''
+      payloadFilter.values_end_time = pageSettings.endDate || ''
+      // Agreement Filter
+      // if (!isEmpty(pageSettings.selectedAgreement)) {
+      //   let agreementData = []
+      //   agreementData.push(pageSettings.selectedAgreement.subjectId)
+      //   payloadFilter.subject_id = agreementData
+      // } else {
+      //   payloadFilter.subject_id = ''
+      // }
+      payloadFilter.parts = {}
+      payloadFilter.parts['2'] = payloadFilterBlock.kpiFilter
+      // payloadFilter.parts['3'] = payloadFilterBlock.departmentAndSupplierFilter
+      let kpiData = []
+      kpiData.push(this.props.location.state.selectedKpi.subjectId)
+      payloadFilter.parts['2'].constraint_perspective.parts['3'].constraint_perspective.parts['4'].constraint_perspective.parts['4'].constraint_perspective.parts['4'].constraint_perspective['subject_ids'] = kpiData
+      // // Department Filter
+      // let departmentData = []
+      // departmentData.push(pageSettings.selectedDepartment.id)
+      // payloadFilter.parts['3'].constraint_perspective.parts['2'].target_component_ids = departmentData
+      // // Supplier Filter
+      // let supplierData = []
+      // supplierData.push(pageSettings.selectedSupplier.id)
+      // payloadFilter.parts['3'].constraint_perspective.parts['3'].target_component_ids = supplierData
+      const base64ecodedPayloadFilter = btoa(JSON.stringify(payloadFilter))
+      let payload = {}
+      payload['meta_model_perspective_id[0]'] = 72
+      payload['view_key[0]'] = 'AgreementScoring_KPIScoreDashboard'
+      payload['filter[0]'] = base64ecodedPayloadFilter
+      this.props.fetchModelPrespectives && this.props.fetchModelPrespectives(payload)
+      console.log('payloadFilter', payloadFilter)
+      console.log('pageSettings', pageSettings)
+      pageSettings.filters = base64ecodedPayloadFilter
+      this.props.setPageSettings(pageSettings)
+      let metaModelPrespectivePayload = {}
+      metaModelPrespectivePayload.id = 72
+      metaModelPrespectivePayload.viewKey = {view_key: 'AgreementScoring_KPIScoreDashboard'}
+      this.props.fetchMetaModelPrespective && this.props.fetchMetaModelPrespective(metaModelPrespectivePayload)
       // eslint-disable-next-line
       mApp && mApp.blockPage({overlayColor:'#000000',type:'loader',state:'success',message:'Processing...'})
       this.props.fetchUserAuthentication && this.props.fetchUserAuthentication()
@@ -167,16 +147,6 @@ export default compose(
           nextProps.modelPrespectives.forEach(function (data, index) {
             if (index < nextProps.modelPrespectives.length - 1) {
               let kpiData = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['1'].value['items']['0'].parts
-              console.log('kpiData', kpiData)
-              // if (ScorecardPart.length > 0) {
-              //   ScorecardPart.forEach(function (scorecardData, idx) {
-              //     // let selectedKPIGraphData = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items'][idx].parts['0'].value['items']
-              //     // selectedKPIGraphData.forEach(function (kpiData, kpiIdx) {
-              //       console.log('scorecardData', scorecardData, idx)
-              //     //   console.log('kpiData', kpiData, kpiIdx)
-              //     // })
-              //   })
-              // }
               let kpiValueArray = kpiData[1].value
               if (kpiValueArray && kpiValueArray.length > 0) {
                 kpiValueArray.forEach(function (valueData, index) {
@@ -202,6 +172,14 @@ export default compose(
                   }
                 })
               }
+              let kpiName = kpiData[0].value
+              let departmentName = data.parts['1'].value['items']['0'].parts['0'].value['0'].target_component.name || ''
+              let supplierName = data.parts['1'].value['items']['0'].parts['1'].value['0'].target_component.name || ''
+              let serviceName = data.parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value['items']['0'].parts['0'].value || ''
+              graphData.kpiName = kpiName
+              graphData.departmentName = departmentName
+              graphData.supplierName = supplierName
+              graphData.serviceName = serviceName
             }
           })
           graphData.labels = labels
