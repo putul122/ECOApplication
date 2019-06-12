@@ -175,11 +175,11 @@ export default compose(
           })
           let actionSettings = JSON.parse(JSON.stringify(nextProps.actionSettings))
           let availableAction = JSON.parse(JSON.stringify(nextProps.availableAction))
-          agreementOption = _.uniqBy(agreementOption, 'name')
-          departmentOption = _.uniqBy(departmentOption, 'id')
-          supplierOption = _.uniqBy(supplierOption, 'id')
-          serviceOption = _.uniqBy(serviceOption, 'id')
-          kpiOption = _.uniqBy(kpiOption, 'id')
+          let uniqueAgreementOption = _.uniqBy(agreementOption, 'name')
+          let uniqueDepartmentOption = _.uniqBy(departmentOption, 'id')
+          let uniqueSupplierOption = _.uniqBy(supplierOption, 'id')
+          let uniqueServiceOption = _.uniqBy(serviceOption, 'id')
+          let uniqueKpiOption = _.uniqBy(kpiOption, 'id')
           let selectedAgreement = []
           let selectedDepartment = []
           let selectedSupplier = []
@@ -198,12 +198,17 @@ export default compose(
               return obj.name === nextProps.location.state.slaSupplier
             })
           }
-          actionSettings.agreementOption = agreementOption
-          actionSettings.kpiOption = kpiOption
+          actionSettings.agreementOption = uniqueAgreementOption
+          actionSettings.copyAgreement = agreementOption
+          actionSettings.kpiOption = uniqueKpiOption
+          actionSettings.copyKpi = kpiOption
           actionSettings.selectedKpi = selectedKpi
-          actionSettings.serviceOption = serviceOption
-          actionSettings.departmentOption = departmentOption
-          actionSettings.supplierOption = supplierOption
+          actionSettings.serviceOption = uniqueServiceOption
+          actionSettings.copyService = serviceOption
+          actionSettings.departmentOption = uniqueDepartmentOption
+          actionSettings.copyDepartment = departmentOption
+          actionSettings.supplierOption = uniqueSupplierOption
+          actionSettings.copySupplier = supplierOption
           actionSettings.allFilterDataProcessed = true
           actionSettings.selectedAgreement = selectedAgreement || []
           actionSettings.selectedDepartment = selectedDepartment || []

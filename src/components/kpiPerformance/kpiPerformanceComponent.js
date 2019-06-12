@@ -141,25 +141,83 @@ let handleSelect = function (filterType) {
   return function (newValue: any, actionMeta: any) {
     let actionSettings = JSON.parse(JSON.stringify(props.actionSettings))
     if (actionMeta.action === 'select-option') {
+      let operationArray = []
       if (filterType === 'Department') {
         actionSettings.selectedDepartment = newValue
+        operationArray = actionSettings.copyDepartment
       } else if (filterType === 'Supplier') {
         actionSettings.selectedSupplier = newValue
+        operationArray = actionSettings.copySupplier
       } else if (filterType === 'Agreement') {
         actionSettings.selectedAgreement = newValue
+        operationArray = actionSettings.copyAgreement
       } else if (filterType === 'Service') {
         actionSettings.selectedService = newValue
+        operationArray = actionSettings.copyService
+      }
+      let indexList = operationArray.map(function (data) {
+        return data.name === newValue.name
+      })
+      let kpiOption = []
+      let selectedKpi = []
+      if (indexList.length > 0) {
+        indexList.forEach(function (data, id) {
+          if (data && actionSettings.copyKpi[id]) {
+            kpiOption.push(actionSettings.copyKpi[id])
+            selectedKpi.push(false)
+          }
+        })
+        actionSettings.kpiOption = kpiOption
+        actionSettings.selectedKpi = selectedKpi
       }
     }
     if (actionMeta.action === 'clear') {
+      let operationArray = []
+      let compareObject = null
       if (filterType === 'Department') {
-        actionSettings.selectedDepartment = []
+        actionSettings.selectedDepartment = null
+        actionSettings.selectedSupplier = null
+        actionSettings.selectedAgreement = null
+        actionSettings.selectedService = null
       } else if (filterType === 'Supplier') {
-        actionSettings.selectedSupplier = []
+        actionSettings.selectedSupplier = null
+        actionSettings.selectedAgreement = null
+        actionSettings.selectedService = null
+        operationArray = actionSettings.copyDepartment
+        compareObject = actionSettings.selectedDepartment
       } else if (filterType === 'Agreement') {
-        actionSettings.selectedAgreement = []
+        actionSettings.selectedAgreement = null
+        actionSettings.selectedService = null
+        operationArray = actionSettings.copySupplier
+        compareObject = actionSettings.selectedSupplier
       } else if (filterType === 'Service') {
-        actionSettings.selectedService = []
+        actionSettings.selectedService = null
+        operationArray = actionSettings.copyAgreement
+        compareObject = actionSettings.selectedAgreement
+      }
+      if (operationArray.length > 0) {
+        let indexList = operationArray.map(function (data) {
+          return data.name === compareObject.name
+        })
+        let kpiOption = []
+        let selectedKpi = []
+        if (indexList.length > 0) {
+          indexList.forEach(function (data, id) {
+            if (data && actionSettings.copyKpi[id]) {
+              kpiOption.push(actionSettings.copyKpi[id])
+              selectedKpi.push(false)
+            }
+          })
+          actionSettings.kpiOption = kpiOption
+          actionSettings.selectedKpi = selectedKpi
+        }
+      } else {
+        let selectedKpi = []
+        actionSettings.kpiOption = actionSettings.copyKpi
+        actionSettings.copyKpi.forEach(function (data, id) {
+          selectedKpi.push(false)
+        })
+        actionSettings.selectedKpi = selectedKpi
       }
     }
     props.setActionSettings(actionSettings)
