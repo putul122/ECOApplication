@@ -354,8 +354,9 @@ return (
                   </div>
                 </div>
               </div>
+              <br />
               <div className='row'>
-                <div className='col-md-7'>
+                <div className='col-md-8'>
                   <div className='m-section m-section--last'>
                     <div className='m-section__content'>
                       <div className='m-demo'>
@@ -376,7 +377,7 @@ return (
                     </div>
                   </div>
                 </div>
-                <div className='col-md-5'>
+                <div className='col-md-4'>
                   <div className='m-section m-section--last'>
                     <div className='m-section__content'>
                       <div className='m-demo'>
