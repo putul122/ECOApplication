@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styles from './tabComponent.scss'
-// import { Avatar } from 'antd'
+import { Avatar } from 'antd'
 import 'antd/dist/antd.css'
 import {defaults, Bar} from 'react-chartjs-2'
 defaults.global.legend.display = true
@@ -65,9 +65,9 @@ export default function TabComponent (props) {
           <div key={index} className={styles.contractText} >
             <div className={`${styles.badgeContainer}`} style={{borderLeft: `5px solid ${colors[index]}`}}>
               <div className={styles.badgeText}>{data.display_name}</div>
-              {/* <Avatar className={styles.avatarOne} style={{backgroundColor: colors[4]}} size='big'> */}
-              {data.formatted_value}
-              {/* </Avatar> */}
+              <Avatar className={styles.avatarOne} style={{backgroundColor: colors[index]}} size={50}>
+                {data.formatted_value}
+              </Avatar>
             </div>
           </div>
         )
@@ -124,7 +124,8 @@ export default function TabComponent (props) {
       }
       {
         let obj = {}
-        obj.type = 'bar'
+        obj.type = 'line'
+        obj.fill = false
         obj.label = targets[0].display_name
         let data = []
         targets.forEach(function (targetData, idx) {
@@ -173,7 +174,7 @@ export default function TabComponent (props) {
               id='softwareChart'
               data={barData}
               width={200}
-              height={100}
+              height={150}
               options={chartOption}
             />
           </div>
