@@ -4,9 +4,14 @@ import 'antd/dist/antd.css'
 import styles from './PerfomanceComponent.scss'
 
 class PerformanceComponent extends React.Component {
-    renderCurrentPerformanceModelData = () => {
-    // you will access to this.props.performanceModel here and you can
-    // place the logic for rendering current performance model data here
+    renderCurrentPerformanceModelData = (dataToShow) => {
+      let headingNameArr = dataToShow && dataToShow.filter((value) => {
+        return value.Dates.length
+      })
+      let isSummarizedObj = headingNameArr && headingNameArr[0] && headingNameArr[0].Dates && headingNameArr[0].Dates[headingNameArr[0].Dates.length - 1]
+      let headings = isSummarizedObj && isSummarizedObj.values
+      let headingName = headings && Object.keys(headings)
+      console.log('dataToShow', dataToShow)
     return (
       <div className={styles.MainContainer}>
         <div className={styles.tableContainer}>
@@ -27,44 +32,53 @@ class PerformanceComponent extends React.Component {
                 <th className='table-th'>
                   <p>As of Date</p>
                 </th>
-                <th className='table-th'>
-                  <p>Current</p>
-                </th>
-                <th className='table-th'>
-                  <p>KPI</p>
-                </th>
-                <th className='table-th'>
-                  <p>Target</p>
-                </th>
-                <th className='table-th'>
-                  <p>Perfomance</p>
-                </th>
+                {
+                  headingName && headingName.map((val, i) => {
+                    return (
+                      <th className='table-th' key={i}>
+                        <p>{val}</p>
+                      </th>
+                    )
+                  })
+                }
               </tr>
             </thead>
             <tbody className='table-body'>
-              <tr>
-                <td>
-                  Process
-                </td>
-                <td>
-                  Common
-                </td>
-                <td>
-                  Reporting
-                </td>
-                <td>
-                  Reporting Effectiveness
-                </td>
-                <td>
-                  87%
-                </td>
-                <td>
-                  87%
-                </td>
-                <td>
-                  99%
-                </td>
-              </tr>
+              {
+                dataToShow.map((value, i) => {
+                  return (
+                    <tr key={i}>
+                      <td>
+                        {value.Service}
+                      </td>
+                      <td>
+                        {value.Kpi}
+                      </td>
+                      <td>
+                        {
+                          value.Dates.length ? value.Dates[value.Dates.length - 1].date_time : ''
+                        }
+                      </td>
+                      {
+                        value.Dates.length ? Object.entries(value.Dates[value.Dates.length - 1].values).map((val, j) => {
+                          return (
+                            <td key={j}>
+                              {val[1].formatted_value}
+                            </td>
+                          )
+                        })
+                        : headingName && headingName.map((val, i) => {
+                          return (
+                            <td key={i}>
+                              <p>0</p>
+                            </td>
+                          )
+                        })
+                      }
+                    </tr>
+                  )
+                })
+              }
             </tbody>
           </table>
         </div>
@@ -73,15 +87,51 @@ class PerformanceComponent extends React.Component {
   }
 
   render () {
+    console.log('performance', this.props.performanceModel)
+    let scoringData = this.props.performanceModel
+    let dataToShow = []
+    scoringData && scoringData.map((value, i) => {
+      value && value.parts && value.parts[0] && value.parts[0].value && value.parts[0].value.items && value.parts[0].value.items && value.parts[0].value.items.map((valueOne) => {
+        let mappingForTotal = valueOne && valueOne.parts && valueOne.parts[0] && valueOne.parts[0] && valueOne.parts[0].value && valueOne.parts[0].value.items
+        mappingForTotal && mappingForTotal.map((valueTwo) => {
+          let mappingForKpa = valueTwo && valueTwo.parts && valueTwo.parts[0] && valueTwo.parts[0] && valueTwo.parts[0].value && valueTwo.parts[0].value.items
+          mappingForKpa && mappingForKpa.map((valueThree) => {
+            let mappingForDomain = valueThree && valueThree.parts && valueThree.parts[0] && valueThree.parts[0] && valueThree.parts[0].value && valueThree.parts[0].value.items
+            mappingForDomain && mappingForDomain.map((valueFour) => {
+              let nestedService = valueFour && valueFour.parts && valueFour.parts[0] && valueFour.parts[0].value
+              let objFour = {}
+              let mappingForCluster = valueFour && valueFour.parts && valueFour.parts[1] && valueFour.parts[1] && valueFour.parts[1].value && valueFour.parts[1].value.items
+              mappingForCluster && mappingForCluster.map((valueFive) => {
+                let nestedKpi = valueFive && valueFive.parts && valueFive.parts[0] && valueFive.parts[0].value
+                let objFive = {}
+                let Dates = valueFive && valueFive.parts && valueFive.parts[1] && valueFive.parts[1].value ? valueFive.parts[1].value : []
+                objFive = {
+                  Service: nestedService,
+                  Kpi: nestedKpi,
+                  Dates: Dates
+                }
+                dataToShow.push(objFive)
+              })
+              objFour = {
+                Service: nestedService,
+                Kpi: '',
+                Dates: []
+            }
+              dataToShow.push(objFour)
+            })
+          })
+        })
+      })
+    })
     return (
       <div>
-        {this.renderCurrentPerformanceModelData()}
+        {this.renderCurrentPerformanceModelData(dataToShow)}
       </div>
     )
   }
 }
 
 PerformanceComponent.propTypes = {
-  filter: PropTypes.any
+  performanceModel: PropTypes.any
 }
 export default PerformanceComponent

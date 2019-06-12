@@ -113,7 +113,7 @@ class SlaDashboard extends Component {
     this.props.modelPerspectiveData.map(item => {
       const dropdownItemObject = {}
       item.parts && item.parts.map((part, i) => {
-        if (i === 0) {
+        if (i === 2) {
           const name = part.value
           dropdownItemObject[this.dropdownLabels[i]] = name
 
@@ -126,7 +126,7 @@ class SlaDashboard extends Component {
             this.dropdownItemsObjectWithIds[this.dropdownLabels[i]] = []
               this.dropdownItemsObjectWithIds[this.dropdownLabels[i]].push(dropdownObject)
           }
-        } else if (i === 1 || i === 2) {
+        } else if (i === 1 || i === 0) {
           dropdownItemObject[this.dropdownLabels[i]] = part && part.value && part.value.subject_part && part.value.subject_part.value[0] && part.value.subject_part.value[0].target_component && part.value.subject_part.value[0].target_component.name
           const dropdownObject = {}
           if (part && part.value && part.value.subject_part && part.value.subject_part.value[0] && part.value.subject_part.value[0].target_component) {
@@ -296,7 +296,7 @@ class SlaDashboard extends Component {
   createHTMLDropdownMarkup (initial = false) {
     const htmlMarkup = Object.keys(this.dropdownItemsObject).map(key => {
       return (
-        <div className={styles.HeaderContainer} key={key}>
+        <div className={`${styles.HeaderContainer}`} key={key}>
           <div className={styles.mainDropdown}>
             <div className={styles.LeftText}>
               <p>{key}</p>
@@ -467,14 +467,14 @@ class SlaDashboard extends Component {
           <li>
             <a className='active' href='#1' data-toggle='tab'>Dashboard</a>
           </li>
-          <li>
-            <a href='#2' data-toggle='tab'>Scoreboard</a>
+          <li className={styles.scoreBoard}>
+            <a href='#2' data-toggle='tab'>Scorecard</a>
           </li>
           <li>
-            <a href='#3' data-toggle='tab'>Scoring</a>
+            <a href='#3' data-toggle='tab' className={styles.scorePenalty}>Scoring</a>
           </li>
           <li>
-            <a href='#4' data-toggle='tab'>Penalty</a>
+            <a href='#4' data-toggle='tab' className={styles.scorePenalty}>Penalty</a>
           </li>
           <li>
             <a href='#5' data-toggle='tab'>Perfomance</a>
@@ -514,6 +514,7 @@ class SlaDashboard extends Component {
   }
 
   render () {
+    console.log('filterObj', this.state.filterObject)
     return (
       <div>
         {this.slaDropdowns()}
@@ -528,6 +529,25 @@ class SlaDashboard extends Component {
         </button>
         {this.PenaltyCalender()}
         {this.submitButton()}
+        <button onClick={() => {
+          this.props.history.push('sla-comparison', {
+              slaAgreeemnt: this.state.filterObject['Agreement'],
+              slaDepartment: this.state.filterObject['Department'],
+              slaSupplier: this.state.filterObject['Supplier'],
+              filterObject: this.state.filterObject
+            })
+          }} className={`btn btn-default dropup-btn ${styles.dropDownBtns} ${styles.clearFilter}`} type='button'>
+          Supplier Comparison
+        </button>
+        <button onClick={() => {
+          this.props.history.push('kpi-performances', {
+              slaAgreeemnt: this.state.filterObject['Agreement'],
+              slaDepartment: this.state.filterObject['Department'],
+              slaSupplier: this.state.filterObject['Supplier']
+            })
+          }} className={`btn btn-default dropup-btn ${styles.dropDownBtns} ${styles.clearFilter}`} type='button'>
+          Kpi Performance
+        </button>
         {this.clearButton()}
         {this.tabs()}
       </div>
