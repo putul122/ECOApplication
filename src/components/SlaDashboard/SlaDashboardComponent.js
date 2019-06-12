@@ -462,13 +462,13 @@ class SlaDashboard extends Component {
 
   tabs = () => {
     return (
-      <div id='exTab2' className='container'>
+      <div id='exTab2' className={styles.tabContainer}>
         <ul className='nav nav-tabs nav-pills'>
           <li>
-            <a className='active' href='#1' data-toggle='tab'>Dashboard</a>
+            <a className={`active ${styles.scorePenalty}`} href='#1' data-toggle='tab' >Dashboard</a>
           </li>
           <li className={styles.scoreBoard}>
-            <a href='#2' data-toggle='tab'>Scorecard</a>
+            <a href='#2' data-toggle='tab' className={styles.scorePenalty}>Scorecard</a>
           </li>
           <li>
             <a href='#3' data-toggle='tab' className={styles.scorePenalty}>Scoring</a>
@@ -477,7 +477,7 @@ class SlaDashboard extends Component {
             <a href='#4' data-toggle='tab' className={styles.scorePenalty}>Penalty</a>
           </li>
           <li>
-            <a href='#5' data-toggle='tab'>Perfomance</a>
+            <a href='#5' data-toggle='tab' className={styles.scorePenalty}>Perfomance</a>
           </li>
         </ul>
         <div className='tab-content'>
@@ -536,7 +536,7 @@ class SlaDashboard extends Component {
               slaDepartment: this.state.filterObject['Department'],
               slaSupplier: this.state.filterObject['Supplier']
             })
-          }} className={`btn btn-default dropup-btn ${styles.dropDownBtns} ${styles.clearFilter}`} type='button'>
+          }} className={`btn btn-default dropup-btn ${styles.dropDownBtnsKPI} ${styles.clearFilter}`} type='button'>
           Kpi Performance
         </button>
         {this.clearButton()}

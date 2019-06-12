@@ -89,9 +89,18 @@
 .dropDownBtns{
   padding: 7px 11px;
   overflow: hidden;
-  min-width:90px ;
+  min-width:160px ;
   // max-width: 230px;
-  max-width: 90px;
+  max-width: 160px;
+  margin-right: 4px;
+  // border:1px solid #5d77fc !important;
+}
+.dropDownBtnsKPI{
+  padding: 7px 11px;
+  overflow: hidden;
+  min-width:130px ;
+  // max-width: 230px;
+  max-width: 130px;
   margin-right: 4px;
   // border:1px solid #5d77fc !important;
 }
@@ -267,7 +276,7 @@
 .btnprops{
     flex:1;
     height: 100%;
-    margin-top: 1%;
+    // margin-top: 1%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -365,4 +374,8 @@
 }
 .scoreBoard{
   display: none;
+}
+.tabContainer{
+  // background-color: red
+  margin-top: 20px
 }
