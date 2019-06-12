@@ -52,6 +52,11 @@ export const initialState = {
   },
   allDropdownData: '',
   actionSettings: {
+    copyDepartment: [],
+    copySupplier: [],
+    copyAgreement: [],
+    copyService: [],
+    copyKpi: [],
     departmentOption: [],
     supplierOption: [],
     agreementOption: [],
