@@ -162,7 +162,7 @@ export default function TabComponent (props) {
     }
   }
   return (
-    <div className='row'>
+    <div className='row' style={{'width': '100%'}}>
       <div className='col-8'>
         <div className='row'>
           {blockInformationList}
