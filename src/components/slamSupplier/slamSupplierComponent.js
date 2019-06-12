@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { DatePicker } from 'antd'
+import { DatePicker, Spin } from 'antd'
 import 'antd/dist/antd.css'
 
 import styles from './slamSupplierComponent.scss'
@@ -42,7 +42,8 @@ class SlamSupplier extends Component {
       filterObject: this.props && this.props.location && this.props.location.state && this.props.location.state.filterObject ? this.props.location.state.filterObject : {},
       filteredDropdownItemsObject: {},
       BarChartValue: [],
-      ActualBarChartValue: []
+      ActualBarChartValue: [],
+      loader: false
     }
     this.dropdownLabels = []
     this.dropdownItemsArray = []
@@ -350,8 +351,16 @@ class SlamSupplier extends Component {
           penalty: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[2].value.sum,
           ActualgranularityValue: this.state.granularityValue
         })
+        this.loaderCheck(res)
       })
   }
+
+  loaderCheck = async (res) => {
+    if (res) {
+      this.setState({loader: false})
+    }
+  }
+
   clearFilter = () => {
     let { perspectiveFilter, filterObject } = this.state
     delete perspectiveFilter['subject_id']
@@ -374,9 +383,6 @@ class SlamSupplier extends Component {
     console.log('location', this.props.location)
     return (
       <div className={styles.MainContainer}>
-        {/* { !this.props.isLoading
-        ?
-        */}
         <div className={styles.MainHeaderContainer}>
           {/* dropDown */}
           {this.slaDropdowns()}
@@ -387,17 +393,15 @@ class SlamSupplier extends Component {
               <div className={styles.chartContainer}>
                 <div className={styles.barContainer}>
                   <div className={styles.pieChart}>
-                    <div className={styles.Barchart}>
+                    { !this.state.loader ? <div className={styles.Barchart}>
                       <Barchart BarChartValue={this.state.ActualBarChartValue} />
-                    </div>
+                    </div> : <Spin className={styles.spin} /> }
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        {/* : <Spin className={styles.spin} />
-        } */}
       </div>
     )
   }

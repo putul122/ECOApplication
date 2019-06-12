@@ -14,7 +14,7 @@
 }
 .HeaderContainer{
     flex:0.7;
-    padding-left: 10px;
+    padding-left: 5px;
     align-items: center;
     display: inline-block;
 }
@@ -89,9 +89,9 @@
 .dropDownBtns{
   padding: 7px 11px;
   overflow: hidden;
-  min-width:130px ;
+  min-width:90px ;
   // max-width: 230px;
-  max-width: 130px;
+  max-width: 90px;
   margin-right: 4px;
   // border:1px solid #5d77fc !important;
 }
@@ -107,8 +107,8 @@
 .goBtn{
   padding: 7px 11px;
   overflow: hidden;
-  min-width:60px;
-  max-width: 60px;
+  min-width:50px;
+  max-width: 50px;
   margin-left: 10px;
   // border:1px solid #5d77fc !important;
 }
