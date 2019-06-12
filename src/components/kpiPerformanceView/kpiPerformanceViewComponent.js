@@ -22,7 +22,13 @@ export default function KPIPerformance (props) {
     let availableAction = props.availableAction
     availableAction['toCallScorePenaltyAPI'] = true
     props.setAvailableAction(availableAction)
-    props.setGraphData('')
+    let graphData = JSON.parse(JSON.stringify(props.graphData))
+    graphData.labels = []
+    graphData.scores = []
+    graphData.targets = []
+    graphData.penalty = []
+    graphData.blockData = []
+    props.setGraphData(graphData)
   }
   if (props.graphData !== '') {
     DepartmentName = props.graphData.departmentName

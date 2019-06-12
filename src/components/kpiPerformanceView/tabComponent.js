@@ -43,7 +43,8 @@ export default function TabComponent (props) {
           },
           stacked: false
       }]
-    }
+    },
+    elements: { point: { radius: 0 } }
     // 'tooltips': {
     //   callbacks: {
     //     label: function (tooltipItem) {
