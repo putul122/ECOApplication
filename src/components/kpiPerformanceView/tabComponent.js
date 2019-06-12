@@ -121,6 +121,7 @@ export default function TabComponent (props) {
         obj.pointBackgroundColor = colors[0]
         obj.pointHoverBackgroundColor = colors[0]
         obj.pointHoverBorderColor = colors[0]
+        obj.pointHitRadius = 20
         datasets.push(obj)
       }
       {
@@ -139,6 +140,7 @@ export default function TabComponent (props) {
         obj.pointBackgroundColor = colors[1]
         obj.pointHoverBackgroundColor = colors[1]
         obj.pointHoverBorderColor = colors[1]
+        obj.pointHitRadius = 20
         datasets.push(obj)
       }
       if (penalty && penalty.length > 0) {
@@ -156,6 +158,7 @@ export default function TabComponent (props) {
         obj.pointBackgroundColor = colors[2]
         obj.pointHoverBackgroundColor = colors[2]
         obj.pointHoverBorderColor = colors[2]
+        obj.pointHitRadius = 20
         datasets.push(obj)
       }
       barData.labels = labels
