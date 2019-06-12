@@ -28,14 +28,14 @@ let navigateToKpi = function (data) {
   })
 }
 let kpiList = ''
-// let getRandomColorHex = function () {
-//   let hex = '0123456789ABCDEF'
-//   let color = '#'
-//   for (var i = 1; i <= 6; i++) {
-//     color += hex[Math.floor(Math.random() * 16)]
-//   }
-//   return color
-// }
+let getRandomColorHex = function () {
+  let hex = '0123456789ABCDEF'
+  let color = '#'
+  for (var i = 1; i <= 6; i++) {
+    color += hex[Math.floor(Math.random() * 16)]
+  }
+  return color
+}
 if (props.actionSettings.allFilterDataProcessed) {
   departmentOptions = props.actionSettings.departmentOption
   supplierOptions = props.actionSettings.supplierOption
@@ -74,13 +74,14 @@ if (props.graphData !== '') {
         }
         data.push(parseFloat(scoreData.values.Score.formatted_value) || 0)
       })
+      let dataColor = colors[index] || getRandomColorHex()
       obj.data = data
-      obj.borderColor = colors[index]
-      obj.backgroundColor = colors[index]
-      obj.pointBorderColor = colors[index]
-      obj.pointBackgroundColor = colors[index]
-      obj.pointHoverBackgroundColor = colors[index]
-      obj.pointHoverBorderColor = colors[index]
+      obj.borderColor = dataColor
+      obj.backgroundColor = dataColor
+      obj.pointBorderColor = dataColor
+      obj.pointBackgroundColor = dataColor
+      obj.pointHoverBackgroundColor = dataColor
+      obj.pointHoverBorderColor = dataColor
       datasets.push(obj)
     })
     barData.labels = labels
@@ -354,7 +355,7 @@ return (
                 </div>
               </div>
               <div className='row'>
-                <div className='col-md-8'>
+                <div className='col-md-7'>
                   <div className='m-section m-section--last'>
                     <div className='m-section__content'>
                       <div className='m-demo'>
@@ -375,7 +376,7 @@ return (
                     </div>
                   </div>
                 </div>
-                <div className='col-md-4'>
+                <div className='col-md-5'>
                   <div className='m-section m-section--last'>
                     <div className='m-section__content'>
                       <div className='m-demo'>
