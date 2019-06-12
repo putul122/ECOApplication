@@ -1,7 +1,7 @@
 .MainContainer{
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 106vh;
     background-color: white;
     box-shadow: 2px 2px 15px lightgray !important;
     padding: 10px;
@@ -9,7 +9,13 @@
 .HeaderContainer{
     flex:1;
     align-items: center;
-    margin-top: 20px;
+    // margin-top: 20px;
+
+}
+.MainHeaderContainer{
+  flex:1;
+  align-items: center;
+  margin-top: 20px;
 
 }
 .MultiSelect{
@@ -43,8 +49,11 @@
 .dropDown{
 }
 .dropDownBtn{
+    min-width:220px ;
+    max-width: 220px;
     padding: 7px 11px;
-    margin-right: 10px;
+    overflow: hidden;
+    margin-right: 4px;
     // border:1px solid #5d77fc !important;
 }
 .dropList{
@@ -252,4 +261,16 @@
     margin-left: 10px;
     width: 20px;
     height: 16px;
+}
+.clearFilter{
+  width:150px !important;
+    color: white !important;
+    background-color: #3e0abb !important;
+    display: inline-block;
+    margin-left: 10px;
+}
+.goFilter{
+    width:50px !important;
+    color: white !important;
+    background-color: #3e0abb !important;
 }

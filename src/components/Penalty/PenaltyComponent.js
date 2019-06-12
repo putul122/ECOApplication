@@ -107,7 +107,7 @@ class PenaltyComponent extends React.Component {
             <thead className='table-head'>
               <tr role='row' className='table-head-row'>
                 <th className='table-th'>
-                  <p>Total</p>
+                  <p>Agreement</p>
                 </th>
                 <th className='table-th'>
                   <p>KPA</p>

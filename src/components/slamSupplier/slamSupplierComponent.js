@@ -1,12 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { DatePicker, Spin } from 'antd'
-import Select from 'react-select'
-import axios from 'axios'
+import { DatePicker } from 'antd'
 import 'antd/dist/antd.css'
 
 import styles from './slamSupplierComponent.scss'
 import Barchart from '../barchart/barchartComponent'
+import axios from 'axios'
 import api from '../../constants'
 
 const { RangePicker } = DatePicker
@@ -27,219 +26,237 @@ class SlamSupplier extends Component {
       barChartSupplierArray: [],
       slaBarchartStateData: [],
       ordersObject: {},
-      perspectiveFilter: {
-        parts: {}
-      },
+      perspectiveFilter: {},
       dupActualSlaDashboardData: [],
       departmentFilter: [],
       serviceMultipleArray: [],
       kpiMultipleArray: [],
       slaComparisonShowData: true,
-      startDate: this.props && this.props.location && this.props.location.state && this.props.location.state.slaStartDate ? this.props.location.state.slaStartDate : null,
-      endDate: this.props && this.props.location && this.props.location.state && this.props.location.state.slaEndDate ? this.props.location.state.slaEndDate : null,
-      supplier: this.props && this.props.location && this.props.location.state && this.props.location.state.slaSupplier ? this.props.location.state.slaSupplier : 'Select',
-      slaComparisonArray: this.props && this.props.location && this.props.location.state && this.props.location.state.slaComparisonArray ? this.props.location.state.slaComparisonArray : [],
       supplierFilter: [],
       supplierIdsArray: [],
       departmentDropDownArray: [],
       supplierDropDownArray: [],
       serviceDropDownArray: [],
       kpiDropDownArray: [],
-      service: this.props && this.props.location && this.props.location.state && this.props.location.state.slaService ? this.props.location.state.slaService : 'Select',
       serviceFilter: [],
-      kpi: this.props && this.props.location && this.props.location.state && this.props.location.state.slaKpi ? this.props.location.state.slaKpi : 'Select'
+      filterObject: this.props && this.props.location && this.props.location.state && this.props.location.state.filterObject ? this.props.location.state.filterObject : {},
+      filteredDropdownItemsObject: {},
+      BarChartValue: [],
+      ActualBarChartValue: []
     }
+    this.dropdownLabels = []
+    this.dropdownItemsArray = []
+    this.dropdownItemsObject = {}
+    this.dropdownItemsObjectKeys = []
+    this.dropdownItemsObjectWithIds = {}
   }
 
-  componentWillReceiveProps (nextProps) {
-    let ordersObject = {}
-    let ActuallArr = []
-    let supFilterId = []
-    let serFilterId = []
-    let kpiFilId = []
-    console.log('nextProps.modelPerspectiveData', nextProps.modelPerspectiveData)
-    for (let i = 0; i < nextProps.modelPerspectiveData.length - 1; i++) {
-      let date
-      if (nextProps.modelPerspectiveData[i].parts[1].value !== null) {
-        let dates = new Date(nextProps.modelPerspectiveData[i].parts[1].value.date_time_value)
-        date = dates.toUTCString()
-      } else {
-        date = ''
-      }
-      let obj = {
-        subject_id: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].subject_id,
-        supplier: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[2].value && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.name,
-        supplierId: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[2].value && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component && nextProps.modelPerspectiveData[i].parts[2].value[0].target_component.id,
-        service: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[6].value && nextProps.modelPerspectiveData[i].parts[6].value.subject_part && nextProps.modelPerspectiveData[i].parts[6].value.subject_part.value,
-        serviceId: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[6].value && nextProps.modelPerspectiveData[i].parts[6].value.subject_part && nextProps.modelPerspectiveData[i].parts[6].value.subject_id,
-        kpi: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[7].value && nextProps.modelPerspectiveData[i].parts[7].value.subject_part && nextProps.modelPerspectiveData[i].parts[7].value.subject_part.value,
-        kpiId: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[7].value && nextProps.modelPerspectiveData[i].parts[7].value.subject_part && nextProps.modelPerspectiveData[i].parts[7].value.subject_id,
-        contracts: nextProps.modelPerspectiveData[i] && nextProps.modelPerspectiveData[i].parts && nextProps.modelPerspectiveData[i].parts[0].value !== null ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value ? nextProps.modelPerspectiveData[i].parts[0].value.value_set_value.name : '' : '',
-        expDate: date
-      }
-
-      ActuallArr.push(obj)
-
-      ordersObject['supplier'] = nextProps.metaData.resources[0].parts[2].order
-      ordersObject['department'] = nextProps.metaData.resources[0].parts[3].order
-      ordersObject['service'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[1].order
-      ordersObject['kpi'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[2].order
-      this.setState({ordersObject, ActualSlaDashboardData: ActuallArr, dupActualSlaDashboardData: ActuallArr, ActualContractArr: ActuallArr})
-      ActuallArr.map((data) => {
-        supFilterId.push(data.supplierId)
-        serFilterId.push(data.serviceId)
-        kpiFilId.push(data.kpiId)
-      })
-
-      ordersObject['supplier'] = nextProps.metaData.resources[0].parts[2].order
-      ordersObject['department'] = nextProps.metaData.resources[0].parts[3].order
-      ordersObject['service'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[1].order
-      ordersObject['kpi'] = nextProps.metaData.resources[0].parts[4].constraint_perspective.parts[1].constraint_perspective.parts[2].order
-    }
-  }
   componentDidMount () {
     this.props.MetaModel()
     this.props.getMDPerspectiveDATA()
-
-      if (this.props.location.state.slaService !== 'Select') {
-        this.serviceDropDown(this.props.location.state.slaService, this.state.slaComparisonArray, true)
-      } else if (this.props.location.state.slaKpi !== 'Select') {
-        this.kpiDropDown(this.props.location.state.slaKpi, this.state.slaComparisonArray, true)
-      } else if (this.props.location.state.slaSupplier !== 'Select') {
-        this.supplierDropDown(this.props.location.state.slaSupplier, this.state.slaComparisonArray, true)
+    const obj = Object.entries(this.state.filterObject)
+    obj.map((val) => {
+      if (val && val[0] && val[1]) {
+        this.dropdownFilter(val[0], val[1])
       }
+    })
   }
 
-  unselectAll = async () => {
-    let { dupActualSlaDashboardData, perspectiveFilter, ordersObject } = this.state
-    let repeatedArr = dupActualSlaDashboardData.map((data) => {
-      return data.department
+  // -------------------------------------------------------------------------------------------------------------------------
+  // start of new work
+  slaDropdowns = () => {
+    this.props &&
+    this.props.metaData &&
+    this.props.metaData.resources &&
+    this.props.metaData.resources[0].parts &&
+    this.props.metaData.resources[0].parts.map(part => {
+      if (part.constraint_perspective) {
+        part.constraint_perspective &&
+        part.constraint_perspective.parts &&
+        part.constraint_perspective.parts.map(part => {
+          this.createDropdownLabels(part)
+        })
+      } else {
+        this.createDropdownLabels(part)
+      }
     })
-    let repeatedArrdep = dupActualSlaDashboardData.map((data) => {
-      return data.supplier
-    })
-    let repeatedArrsupp = dupActualSlaDashboardData.map((data) => {
-      return data.service
-    })
-    let repeatedArrser = dupActualSlaDashboardData.map((data) => {
-      return data.kpi
-    })
-    let UniqueArr = [...new Set(repeatedArr)]
-    let departmentFilter = [...new Set(repeatedArrdep)]
-    let supplierFilter = [...new Set(repeatedArrsupp)]
-    let serviceFilter = [...new Set(repeatedArrser)]
-    let slamState = {
-      kpi: '',
-      service: '',
-      supplier: ''
-    }
-
-    // deletion of perspective filter dropdown
-    delete perspectiveFilter.parts[ordersObject['supplier']]
-    delete perspectiveFilter.parts[ordersObject['department']]
-    if (perspectiveFilter.parts['7']) {
-      delete perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['service']]
-      delete perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['kpi']]
-    }
-    await this.setState({selectedOptionArray: [], barChartSupplierArray: [], supplierIdsArray: [], slamState, UniqueArr, departmentFilter, supplierFilter, serviceFilter, department: 'Select', supplier: 'Select', service: 'Select', kpi: 'Select'})
+    this.dropdownLabels = [...new Set(this.dropdownLabels)]
+    this.setDropdownItems()
+    return this.createInitialFilterDropdown()
   }
 
-  BarChartValue = (val) => {
-    let { SlaDashboardBarChartJson } = this.state
-    let BarChartValue = []
-    SlaDashboardBarChartJson[0].parts[0].value.map((data, i) => {
-      let arr = data.children.filter((value, j) => {
-        return val === value.key
+  createDropdownLabels = (part) => {
+    if (part.name !== 'Values') {
+      this.dropdownLabels.push(part.name)
+    }
+  }
+
+  setDropdownItems = () => {
+    this.props &&
+    this.props.modelPerspectiveData &&
+    this.props.modelPerspectiveData.map(item => {
+      const dropdownItemObject = {}
+      item.parts && item.parts.map((part, i) => {
+        if (i === 2) {
+          const name = part.value
+          dropdownItemObject[this.dropdownLabels[i]] = name
+
+          const dropdownObject = {}
+          dropdownObject[name] = item.subject_id
+
+          if (this.dropdownItemsObjectWithIds[this.dropdownLabels[i]]) {
+            this.dropdownItemsObjectWithIds[this.dropdownLabels[i]].push(dropdownObject)
+          } else {
+            this.dropdownItemsObjectWithIds[this.dropdownLabels[i]] = []
+              this.dropdownItemsObjectWithIds[this.dropdownLabels[i]].push(dropdownObject)
+          }
+        } else if (i === 1 || i === 0) {
+          dropdownItemObject[this.dropdownLabels[i]] = part && part.value && part.value.subject_part && part.value.subject_part.value && part.value.subject_part.value[0] && part.value.subject_part.value[0].target_component && part.value.subject_part.value[0].target_component.name
+          const dropdownObject = {}
+          if (part && part.value && part.value.subject_part && part.value.subject_part.value[0] && part.value.subject_part.value[0].target_component) {
+            const itemName = part.value.subject_part.value[0].target_component.name
+            const itemId = part.value.subject_part.value[0].target_component.id
+
+            dropdownObject[itemName] = itemId
+            if (this.dropdownItemsObjectWithIds[this.dropdownLabels[i]]) {
+                this.dropdownItemsObjectWithIds[this.dropdownLabels[i]].push(dropdownObject)
+            } else {
+              this.dropdownItemsObjectWithIds[this.dropdownLabels[i]] = []
+              this.dropdownItemsObjectWithIds[this.dropdownLabels[i]].push(dropdownObject)
+            }
+          }
+        }
+        this.dropdownItemsArray.push(dropdownItemObject)
       })
-      if (arr.length) {
-        BarChartValue.push(arr)
-      }
     })
-    this.setState({BarChartValue})
   }
 
-  SupplierComparisonDropdown = (supDropDownArray, serDropDownArray, kpiDropDownArray, actuallArr, selectedOptionArray, options) => {
-    // let supplierDropDownArray = this.state.departmentFilter.length ? this.state.departmentFilter : supDropDownArray
-    let serviceDropDownArray = this.state.supplierFilter.length ? this.state.supplierFilter : serDropDownArray
-    let KPIDropDownArray = this.state.serviceFilter.length ? this.state.serviceFilter : kpiDropDownArray
+  createInitialFilterDropdown = (filteredItemsArray = []) => {
+    const filterFromArray = filteredItemsArray.length ? filteredItemsArray : this.dropdownItemsArray
 
+    filterFromArray.map((item, i) => {
+      Object.keys(item).map(key => {
+        if (Object.keys(this.dropdownItemsObject).includes(key)) {
+          if (item[key]) {
+            this.dropdownItemsObject[key].push(item[key])
+            this.dropdownItemsObject[key] = [...new Set(this.dropdownItemsObject[key])]
+          }
+        } else {
+          if (item[key]) {
+            this.dropdownItemsObject[key] = []
+            this.dropdownItemsObject[key].push(item[key])
+          }
+        }
+      })
+    })
+    return this.createHTMLDropdownMarkup(true)
+  }
+
+  createFilterDropdown = (filteredItemsArray = []) => {
+    const filterFromArray = filteredItemsArray.length ? filteredItemsArray : this.dropdownItemsArray
+
+    filterFromArray.map((item, i) => {
+      Object.keys(item).map(key => {
+        if (Object.keys(this.dropdownItemsObject).includes(key)) {
+          if (item[key]) {
+            this.dropdownItemsObject[key].push(item[key])
+            this.dropdownItemsObject[key] = [...new Set(this.dropdownItemsObject[key])]
+          }
+        } else {
+          if (item[key]) {
+            this.dropdownItemsObject[key] = []
+            this.dropdownItemsObject[key].push(item[key])
+          }
+        }
+      })
+    })
+    return this.createHTMLDropdownMarkup()
+  }
+
+  dropdownFilter = async (e, val) => {
+    let { perspectiveFilter } = this.state
+    const filterObject = this.state.filterObject
+    const filterLabel = e && e.target && e.target.id ? e.target.id.split('-')[0] : e
+    filterObject[filterLabel] = val
+    let idArray = this.dropdownItemsObjectWithIds && this.dropdownItemsObjectWithIds[filterLabel] && this.dropdownItemsObjectWithIds[filterLabel].filter((value) => {
+      return value[val]
+    })
+    if (filterLabel === 'Agreement') {
+      perspectiveFilter['subject_ids'] = [idArray[0][val]]
+    } else {
+      if (!perspectiveFilter['parts']) {
+        perspectiveFilter['parts'] = {
+          '3': {
+            'constraint_perspective': {
+              'parts': {}
+            }
+          }
+        }
+      }
+      if (filterLabel === 'Department') {
+        perspectiveFilter.parts['3'].constraint_perspective.parts['2'] = {
+          target_component_ids: [idArray[0][val]]
+        }
+      } else {
+        perspectiveFilter.parts['3'].constraint_perspective.parts['3'] = {
+          target_component_ids: [idArray[0][val]]
+        }
+      }
+    }
+    await this.setState({ filterObject, perspectiveFilter })
+    this.setFilter()
+  }
+
+  setFilter = async () => {
+    let filteredItemsArray = []
+    Object.keys(this.state.filterObject).map(filter => {
+      const filterFromArray = filteredItemsArray.length ? filteredItemsArray : this.dropdownItemsArray
+      filteredItemsArray = filterFromArray.filter(item => item[filter] === this.state.filterObject[filter])
+    })
+    this.createFilterDropdown(filteredItemsArray)
+  }
+  createHTMLDropdownMarkup (initial = false) {
+    const htmlMarkup = Object.keys(this.dropdownItemsObject).map(key => {
+      return (
+        <div className={`${styles.HeaderContainer}`} key={key}>
+          <div className={styles.mainDropdown}>
+            <div className={styles.LeftText}>
+              <p>{key}</p>
+            </div>
+            <div className={`dropdown dropup-showing ${styles.dropDown}`}>
+              <button className={`btn btn-default dropdown-toggle dropup-btn ${styles.dropDownBtn}`} type='button' data-toggle='dropdown'>
+                {this.state.filterObject[key] ? this.state.filterObject[key] : 'Select'}
+                <span className='caret' />
+              </button>
+              <ul className={`dropdown-menu menu ${styles.dropList}`}>
+                {this.dropdownItemsObject[key].map((val, index) => {
+                return (<li key={index}>
+                  <a href='javascript:void(0)' id={`${key}-${index}`} onClick={e => this.dropdownFilter(e, val)}>{val}</a>
+                </li>)
+              })}
+              </ul>
+            </div>
+          </div>
+        </div>
+        )
+    })
+    if (!initial) {
+      this.setState({ filteredDropdownItemsObject: this.dropdownItemsObject })
+    }
+    return htmlMarkup
+  }
+  PenaltyCalender = () => {
     return (
       <div className={styles.HeaderContainer}>
-        <div className={styles.mainDropdown}>
-          <div className={styles.LeftText}>
-            <p>Supplier</p>
-          </div>
-          <Select
-            value={selectedOptionArray}
-            onChange={e => this.handleChange(e, actuallArr)}
-            options={options}
-            isMulti
-            className={styles.MultiSelect}
-          />
-          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
-            <button onClick={() => this.unselectAll()} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} style={{ marginLeft: '30px' }} type='button'>
-              Clear Filter
-            </button>
-          </div>
-        </div>
-
-        <div className={styles.mainDropdown}>
-          <div className={styles.LeftText}>
-            <p>Service</p>
-          </div>
-          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
-            <button className={`btn btn-default dropdown-toggle dropup-btn ${styles.dropDownBtn} ${styles.largeBtn}`} type='button' data-toggle='dropdown'>
-              {this.state.service}
-              <span className='caret' />
-            </button>
-            <ul className={`dropdown-menu menu ${styles.dropList}`}>
-              {
-                serviceDropDownArray.map((val, key) => {
-                  return (
-                    <li key={key}>
-                      <a href='javascript:void(0)'
-                        onClick={() => this.serviceDropDown(val, actuallArr, false)}
-                      >{val}</a>
-                    </li>
-                  )
-                })
-              }
-            </ul>
-          </div>
-        </div>
-
-        <div className={styles.mainDropdown}>
-          <div className={styles.LeftText}>
-            <p>KPI</p>
-          </div>
-          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
-            <button className={`btn btn-default dropdown-toggle dropup-btn ${styles.dropDownBtn} ${styles.largeBtn}`} type='button' data-toggle='dropdown'>
-              {this.state.kpi}
-              <span className='caret' />
-            </button>
-            <ul className={`dropdown-menu menu ${styles.dropList}`}>
-              {
-                KPIDropDownArray.map((val, key) => {
-                  return (
-                    <li key={key}>
-                      <a href='javascript:void(0)'
-                        onClick={() => this.kpiDropDown(val, actuallArr, false)}
-                       >{val}</a>
-                    </li>
-                  )
-                })
-              }
-            </ul>
-          </div>
-        </div>
-
+        {/* dropDown */}
         <div className={styles.mainDropdown}>
           <div className={styles.LeftText}>
             <p>Period</p>
           </div>
           <div className={`dropdown dropup-showing ${styles.dropDown}`}>
             <RangePicker
-              className='RangePicker'
+              className={`RangePicker ${styles.rangePicker}`}
+              onChange={(val) => this.calendarValue(val)}
               dateRender={(current) => {
                 const style = {}
                 if (current.date() === 1) {
@@ -247,7 +264,7 @@ class SlamSupplier extends Component {
                   style.borderRadius = '50%'
                 }
                 return (
-                  <div className='ant-ar-date' style={style}>
+                  <div className='ant-calendar-date' style={style}>
                     {current.date()}
                   </div>
                 )
@@ -255,406 +272,132 @@ class SlamSupplier extends Component {
             />
           </div>
         </div>
+      </div>
+    )
+  }
+
+  isEmpty = (obj) => {
+    for (var key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        return false
+      }
+    }
+    return true
+  }
+
+  calendarValue = (value) => {
+    let { perspectiveFilter } = this.state
+    let a, b, aa, bb
+    for (let i = 0; i < value.length; i++) {
+      if (i === 0) {
+        a = new Date(value[i]._d)
+        b = a.toUTCString()
+        this.setState({startDate: b})
+      } else if (i === 1) {
+        aa = new Date(value[i]._d)
+        bb = aa.toUTCString()
+        this.setState({endDate: bb})
+      }
+    }
+    if (value.length > 1) {
+      setTimeout(() => {
+        perspectiveFilter['values_start_time'] = a.toISOString().slice(0, 19)
+        perspectiveFilter['values_end_time'] = aa.toISOString().slice(0, 19)
+      }, 300)
+    } else {
+      if (perspectiveFilter['values_start_time']) {
+        delete perspectiveFilter['values_start_time']
+        delete perspectiveFilter['values_end_time']
+      }
+    }
+  }
+
+  submitButton = () => {
+    return (
+      <div className={`${styles.HeaderContainer}`}>
         <div className={styles.mainDropdown}>
           <div className={styles.LeftText}>
-            <p className={styles.emptyPara} />
+            <p />
           </div>
-          <div className={`dropdown dropup-showing ${styles.dropDown}`}>
-            <button onClick={() => this.getComplianceData()} className={`btn btn-default dropup-btn ${styles.dropDownBtn} ${styles.clearFilter}`} type='button'>
-              Go
-            </button>
-          </div>
+          <button onClick={this.submitPerspectiveFilter} className={`btn btn-default dropup-btn ${styles.goBtn} ${styles.goFilter}`} type='button'>
+            Go
+          </button>
+          <button onClick={this.clearFilter} className={`btn btn-default dropup-btn ${styles.dropDownBtnClear} ${styles.clearFilter}`} type='button'>
+            Clear Filter
+          </button>
         </div>
       </div>
     )
   }
 
-  supplierDropDown = (value, ActuallArr, checked) => {
-    const { slamState, ordersObject, perspectiveFilter, serviceMultipleArray, kpiMultipleArray, barChartSupplierArray } = this.state
-    slamState.supplier = value
-    slamState.service = this.state.service !== 'Select' ? this.state.service : ''
-    slamState.kpi = this.state.kpi !== 'Select' ? this.state.kpi : ''
-    this.setState({supplier: value, slamState})
-    var { dupActualSlaDashboardData } = this.state
-    const dropDownData = dupActualSlaDashboardData.length ? dupActualSlaDashboardData : ActuallArr
-
-    var array = dropDownData.filter((data) => {
-      if (data.supplier === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.kpi === 'Select') {
-        return (data.supplier === value)
-      } else if (data.supplier === value && data.department === this.state.department && data.service === this.state.service && data.kpi === this.state.kpi) {
-        return (data.supplier === value && data.department === this.state.department && data.service === this.state.service && data.kpi === this.state.kpi)
-      } else if (data.supplier === value && data.kpi === this.state.kpi && data.service === this.state.service) {
-        return (data.supplier === value && data.kpi === this.state.kpi && data.service === this.state.service)
-      } else if (data.supplier === value && data.department === this.state.department && data.kpi === this.state.kpi) {
-        return (data.supplier === value && data.department === this.state.department && data.kpi === this.state.kpi)
-      } else if (data.supplier === value && data.department === this.state.department && data.service === this.state.service) {
-        return (data.supplier === value && data.department === this.state.department && data.service === this.state.service)
-      } else if (data.supplier === value && data.kpi === this.state.kpi) {
-        return (data.supplier === value && data.kpi === this.state.kpi)
-      } else if (data.supplier === value && data.service === this.state.service) {
-        return (data.supplier === value && data.service === this.state.service)
-      } else if (data.supplier === value && data.department === this.state.department) {
-        return (data.supplier === value && data.department === this.state.department)
-      } else {
-        return (data.supplier === value)
-      }
-    })
-
-    const supplierIdsArray = this.state.supplierIdsArray
-    supplierIdsArray.push(array[0].supplierId)
-    const uniqueSupplierIds = [...new Set(supplierIdsArray)]
-
-    perspectiveFilter.parts[ordersObject['supplier']] = {
-      target_component_ids: uniqueSupplierIds
-    }
-
-    var repeatedArrdep = array.map((data) => {
-      return data.department
-    })
-    var repeatedArrser = array.map((data) => {
-      return data.service
-    })
-    var repeatedArrkpi = array.map((data) => {
-      return data.kpi
-    })
-    var UniqueArrDep = [...new Set(repeatedArrdep)]
-    var UniqueArrser = [...new Set(repeatedArrser)]
-    var UniqueArrkpi = [...new Set(repeatedArrkpi)]
-    if (checked) {
-      for (let i = 0; i < UniqueArrser.length; i++) {
-        serviceMultipleArray.push(UniqueArrser[i])
-      }
-      for (let i = 0; i < UniqueArrkpi.length; i++) {
-        kpiMultipleArray.push(UniqueArrkpi[i])
-      }
-    } else {
-      for (let i = 0; i < UniqueArrser.length; i++) {
-        let index = serviceMultipleArray.indexOf(UniqueArrser[i])
-        if (index !== -1) {
-          serviceMultipleArray.splice(index, 1)
-        }
-      }
-      for (let i = 0; i < UniqueArrkpi.length; i++) {
-        let index = kpiMultipleArray.indexOf(UniqueArrkpi[i])
-        if (index !== -1) {
-          kpiMultipleArray.splice(index, 1)
-        }
-      }
-    }
-    this.setState({supplierIdsArray, perspectiveFilter, barChartSupplierArray: [...new Set(barChartSupplierArray)], supplier: value, supplierFilter: [...new Set(serviceMultipleArray)], UniqueArr: UniqueArrDep, serviceFilter: [...new Set(kpiMultipleArray)]})
-  }
-
-  getComplianceData = () => {
+  submitPerspectiveFilter = async () => {
+    this.setState({loader: true})
     const { perspectiveFilter } = this.state
-
+    await this.getComplianceData(perspectiveFilter)
+  }
+  getComplianceData = (perspectiveFilter) => {
     const stringifiedPerspectiveFilter = JSON.stringify(perspectiveFilter)
     const base64ecodedPerspectiveFilter = btoa(stringifiedPerspectiveFilter)
-
+    console.log('perspectiveFilter', perspectiveFilter)
     axios
-      .get(api.slaBarchart(base64ecodedPerspectiveFilter))
+      .get(api.newPerspectiveFilter(base64ecodedPerspectiveFilter))
       .then(res => {
-        const slaBarchartStateData = res.data && res.data[0].parts && res.data[0].parts[0].value && res.data[0].parts[0].value.children
-        this.setState({ slaBarchartStateData })
-        this.slaComparisonBarchart(slaBarchartStateData)
+        console.log('res', res.data)
+        this.setState({
+          ActualBarChartValue: res.data && res.data[0].parts && res.data[0].parts[0].value,
+          compliance: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[0].value.sum,
+          nonCompliance: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[1].value.sum,
+          penalty: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[2].value.sum,
+          ActualgranularityValue: this.state.granularityValue
+        })
       })
   }
-
-  slaComparisonBarchart = (slaBarchartStateData) => {
-    let { data, supplier } = this.state
-    let dataArr = []
-    if (supplier !== 'Select') {
-      for (let i = 0; i < supplier.length; i++) {
-        if (slaBarchartStateData && slaBarchartStateData.length) {
-          for (let j = 0; j < slaBarchartStateData.length; j++) {
-            let obj = {
-              name: supplier[i],
-              Compliant: 0,
-              Non_Compliant: 0
-            }
-            if (supplier[i] === slaBarchartStateData[j].key) {
-              let compliantData = 0
-              let nonCompliantData = 0
-              for (let k = 0; k < slaBarchartStateData[j].children[0].children.length; k++) {
-                compliantData = compliantData + slaBarchartStateData[j].children[0].children[k].value.sum
-                nonCompliantData = nonCompliantData + slaBarchartStateData[j].children[1].children[k].value.sum
-              }
-              obj['Compliant'] = compliantData
-              obj['Non_Compliant'] = nonCompliantData
-            }
-            dataArr.push(obj)
-          }
-        }
-      }
-    }
+  clearFilter = () => {
+    let { perspectiveFilter, filterObject } = this.state
+    delete perspectiveFilter['subject_id']
+    delete perspectiveFilter['parts']
+    filterObject = {}
     this.setState({
-      data: dataArr
+      perspectiveFilter,
+      filterObject,
+      compliance: 50,
+      nonCompliance: 50,
+      penalty: 0,
+      BarChartValue: [],
+      granularityValue: 'Select',
+      ActualBarChartValue: []
     })
-    console.log('data', data)
   }
 
-  serviceDropDown = (value, ActuallArr, checked) => {
-    var { slamState, ordersObject, perspectiveFilter } = this.state
-    slamState.service = value
-    slamState.supplier = this.state.supplier !== 'Select' ? this.state.supplier : ''
-    slamState.kpi = this.state.kpi !== 'Select' ? this.state.kpi : ''
-    this.setState({service: value, slamState})
-    var { dupActualSlaDashboardData } = this.state
-    const dropDownData = dupActualSlaDashboardData.length ? dupActualSlaDashboardData : ActuallArr
-    var array = dropDownData.filter((data) => {
-      if (data.service === value && this.state.department === 'Select' && this.state.supplier === 'Select' && this.state.kpi === 'Select') {
-        return (data.service === value)
-      } else if (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier && data.kpi === this.state.kpi) {
-        return (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier && data.kpi === this.state.kpi)
-      } else if (data.service === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier) {
-        return (data.service === value && data.kpi === this.state.kpi && data.supplier === this.state.supplier)
-      } else if (data.service === value && data.department === this.state.department && data.kpi === this.state.kpi) {
-        return (data.service === value && data.department === this.state.department && data.kpi === this.state.kpi)
-      } else if (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier) {
-        return (data.service === value && data.department === this.state.department && data.supplier === this.state.supplier)
-      } else if (data.service === value && data.kpi === this.state.kpi) {
-        return (data.service === value && data.kpi === this.state.kpi)
-      } else if (data.service === value && data.supplier === this.state.supplier) {
-        return (data.service === value && data.supplier === this.state.supplier)
-      } else if (data.service === value && data.department === this.state.department) {
-        return (data.service === value && data.department === this.state.department)
-      } else {
-        return (data.service === value)
-      }
-    })
-    var repeatedArr = array.map((data) => {
-      return data.kpi
-    })
-    var repeatedArruni = array.map((data) => {
-      return data.department
-    })
-    var repeatedArrsupp = array.map((data) => {
-      return data.supplier
-    })
-    var UniqueArrkpi = [...new Set(repeatedArr)]
-    var UniqueArruni = [...new Set(repeatedArruni)]
-    var UniqueArrsupp = [...new Set(repeatedArrsupp)]
-    if (checked) {
-      setTimeout(() => {
-        let checkBox = document.getElementsByClassName('checkbox')
-        for (let j = 0; j < checkBox.length; j++) {
-          if (checkBox[j].value === this.state.supplier) {
-            checkBox[j].checked = true
-          }
-        }
-      }, 1000)
-    }
-    if (!perspectiveFilter.parts['7']) {
-      perspectiveFilter.parts['7'] = {
-        constraint_perspective: {
-          parts: {
-            '5': {
-              constraint_perspective: {
-                parts: {}
-              }
-            }
-          }
-        }
-      }
-    }
-    perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['service']] = {
-      constraint_perspective: {
-        subject_ids: [
-          array[0].serviceId
-        ]
-      }
-    }
-
-    this.setState({perspectiveFilter, service: value, serviceFilter: UniqueArrkpi, UniqueArr: UniqueArruni, departmentFilter: UniqueArrsupp})
-  }
-
-  kpiDropDown = (value, ActuallArr, checked) => {
-    var { slamState, ordersObject, perspectiveFilter } = this.state
-    slamState.kpi = value
-    slamState.service = this.state.service !== 'Select' ? this.state.service : ''
-    slamState.supplier = this.state.supplier !== 'Select' ? this.state.supplier : ''
-    this.setState({kpi: value, slamState})
-    var { dupActualSlaDashboardData } = this.state
-    const dropDownData = dupActualSlaDashboardData.length ? dupActualSlaDashboardData : ActuallArr
-    var array = dropDownData.filter((data) => {
-      if (data.kpi === value && this.state.department === 'Select' && this.state.service === 'Select' && this.state.supplier === 'Select') {
-        return (data.kpi === value)
-      } else if (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier && data.department === this.state.department) {
-        return (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier && data.department === this.state.department)
-      } else if (data.kpi === value && data.department === this.state.department && data.supplier === this.state.supplier) {
-        return (data.kpi === value && data.department === this.state.department && data.supplier === this.state.supplier)
-      } else if (data.kpi === value && data.service === this.state.service && data.department === this.state.department) {
-        return (data.kpi === value && data.service === this.state.service && data.department === this.state.department)
-      } else if (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier) {
-        return (data.kpi === value && data.service === this.state.service && data.supplier === this.state.supplier)
-      } else if (data.kpi === value && data.department === this.state.department) {
-        return (data.kpi === value && data.department === this.state.department)
-      } else if (data.kpi === value && data.supplier === this.state.supplier) {
-        return (data.kpi === value && data.supplier === this.state.supplier)
-      } else if (data.kpi === value && data.service === this.state.service) {
-        return (data.kpi === value && data.service === this.state.service)
-      } else {
-        return (data.kpi === value)
-      }
-    })
-    var repeatedArrUni = array.map((data) => {
-      return data.department
-    })
-    var repeatedArrdep = array.map((data) => {
-      return data.supplier
-    })
-    var repeatedArrsupp = array.map((data) => {
-      return data.service
-    })
-    var UniqueArruni = [...new Set(repeatedArrUni)]
-    var UniqueArrdep = [...new Set(repeatedArrdep)]
-    var UniqueArrsupp = [...new Set(repeatedArrsupp)]
-    if (checked) {
-      setTimeout(() => {
-        let checkBox = document.getElementsByClassName('checkbox')
-        for (let j = 0; j < checkBox.length; j++) {
-          if (checkBox[j].value === this.state.supplier) {
-            checkBox[j].checked = true
-          }
-        }
-      }, 1000)
-    }
-    if (!perspectiveFilter.parts['7']) {
-      perspectiveFilter.parts['7'] = {
-        constraint_perspective: {
-          parts: {
-            '5': {
-              constraint_perspective: {
-                parts: {}
-              }
-            }
-          }
-        }
-      }
-    }
-    perspectiveFilter.parts['7'].constraint_perspective.parts['5'].constraint_perspective.parts[ordersObject['kpi']] = {
-      constraint_perspective: {
-        subject_ids: [
-          array[0].kpiId
-        ]
-      }
-    }
-
-    this.setState({perspectiveFilter, kpi: value, UniqueArr: UniqueArruni, departmentFilter: UniqueArrdep, supplierFilter: UniqueArrsupp})
-  }
-
-  handleChange = (e, ActuallArr) => {
-    let { barChartSupplierArray } = this.state
-    for (let j = 0; j < e.length; j++) {
-      barChartSupplierArray.push(e[j].value)
-    }
-    barChartSupplierArray = [...new Set(this.state.barChartSupplierArray)]
-    let selectedOptionArray = []
-    let supplier = []
-
-    e.map(item => {
-      supplier.push(item.value)
-
-      const selectedOption = {}
-      selectedOption.value = item.value
-      selectedOption.label = item.label
-      selectedOptionArray.push(selectedOption)
-    })
-    for (let i = 0; i < barChartSupplierArray.length; i++) {
-      if (supplier.indexOf(barChartSupplierArray[i]) === -1) {
-        this.supplierDropDown(barChartSupplierArray[i], ActuallArr, false)
-      } else {
-        this.supplierDropDown(barChartSupplierArray[i], ActuallArr, true)
-      }
-    }
-    this.setState({ selectedOptionArray, supplier, barChartSupplierArray })
-  }
-
+  // end of new work
   render () {
-    let ActuallArr = []
-    let supFilter = []
-    let serFilter = []
-    let kpiFil = []
-    let finalSupFilter = []
-    let finalSerFilter = []
-    let finalKpiFil = []
-    console.log(this.state.perspectiveFilter)
-    let modelPerspectiveDataCount = this.props.modelPerspectiveData.length ? this.props.modelPerspectiveData.length - 1 : 0
-
-    // filter and actual data
-    for (let i = 0; i < modelPerspectiveDataCount; i++) {
-      let date = this.props && this.props.modelPerspectiveData && this.props.modelPerspectiveData[i].parts && this.props.modelPerspectiveData[i].parts[0].value && new Date(this.props.modelPerspectiveData[i].parts[0].value.date_time_value)
-      let obj = {
-        supplier: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[2] && this.props.modelPerspectiveData[i].parts[2].value[0] && this.props.modelPerspectiveData[i].parts[2].value[0].target_component && this.props.modelPerspectiveData[i].parts[2].value[0].target_component.name,
-        service: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[6] && this.props.modelPerspectiveData[i].parts[6].value && this.props.modelPerspectiveData[i].parts[6].value.subject_part && this.props.modelPerspectiveData[i].parts[6].value.subject_part.value,
-        kpi: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[7] && this.props.modelPerspectiveData[i].parts[7].value && this.props.modelPerspectiveData[i].parts[7].value.subject_part && this.props.modelPerspectiveData[i].parts[7].value.subject_part.value,
-        expDate: date.toUTCString()
-      }
-      ActuallArr.push(obj)
-    }
-    ActuallArr.forEach((data) => {
-      supFilter.push(data.supplier)
-      serFilter.push(data.service)
-      kpiFil.push(data.kpi)
-    })
-    finalSupFilter = [...new Set(supFilter)]
-    finalSerFilter = [...new Set(serFilter)]
-    finalKpiFil = [...new Set(kpiFil)]
-    let options = []
-    const { selectedOptionArray } = this.state
-    if (this.props.modelPerspectiveData) {
-      console.log(this.state.perspectiveFilter)
-      let modelPerspectiveDataCount = this.props.modelPerspectiveData.length ? this.props.modelPerspectiveData.length - 1 : 0
-      // filter and actual data
-      for (let i = 0; i < modelPerspectiveDataCount; i++) {
-        if (this.props.modelPerspectiveData[i].parts[1].value !== null) {
-          let date = new Date(this.props.modelPerspectiveData[i].parts[0].value.date_time_value)
-          let obj = {
-            supplier: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[2] && this.props.modelPerspectiveData[i].parts[2].value[0] && this.props.modelPerspectiveData[i].parts[2].value[0].target_component && this.props.modelPerspectiveData[i].parts[2].value[0].target_component.name,
-            service: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[6] && this.props.modelPerspectiveData[i].parts[6].value && this.props.modelPerspectiveData[i].parts[6].value.subject_part && this.props.modelPerspectiveData[i].parts[6].value.subject_part.value,
-            kpi: this.props && this.props.modelPerspectiveData[i] && this.props.modelPerspectiveData[i].parts[7] && this.props.modelPerspectiveData[i].parts[7].value && this.props.modelPerspectiveData[i].parts[7].value.subject_part && this.props.modelPerspectiveData[i].parts[7].value.subject_part.value,
-            expDate: date.toUTCString()
-          }
-          ActuallArr.push(obj)
-        }
-      }
-      ActuallArr.forEach((data) => {
-        supFilter.push(data.supplier)
-        serFilter.push(data.service)
-        kpiFil.push(data.kpi)
-      })
-      finalSupFilter = [...new Set(supFilter)]
-      finalSerFilter = [...new Set(serFilter)]
-      finalKpiFil = [...new Set(kpiFil)]
-      finalSupFilter.forEach(sup => {
-        const option = {}
-        option.value = sup
-        option.label = sup
-        options.push(option)
-      })
-    }
-    console.log('isLoading', this.props.isLoading)
+    console.log('location', this.props.location)
     return (
       <div className={styles.MainContainer}>
-        { !this.props.isLoading
-          ? <div className={styles.HeaderContainer}>
-            {/* dropDown */}
-            {this.SupplierComparisonDropdown(finalSupFilter, finalSerFilter, finalKpiFil, ActuallArr, selectedOptionArray, options)}
-            <div className={styles.ContentContainer}>
-              <div className={styles.leftContainer}>
-                <div className={styles.chartContainer}>
-                  <div className={styles.barContainer}>
-                    <div className={styles.pieChart}>
-                      <div className={styles.Barchart}>
-                        <Barchart data={this.state.data} slaComparisonShowData={this.state.slaComparisonShowData} />
-                      </div>
+        {/* { !this.props.isLoading
+        ?
+        */}
+        <div className={styles.MainHeaderContainer}>
+          {/* dropDown */}
+          {this.slaDropdowns()}
+          {this.PenaltyCalender()}
+          {this.submitButton()}
+          <div className={styles.ContentContainer}>
+            <div className={styles.leftContainer}>
+              <div className={styles.chartContainer}>
+                <div className={styles.barContainer}>
+                  <div className={styles.pieChart}>
+                    <div className={styles.Barchart}>
+                      <Barchart BarChartValue={this.state.ActualBarChartValue} />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        : <Spin className={styles.spin} />
-        }
+        </div>
+        {/* : <Spin className={styles.spin} />
+        } */}
       </div>
     )
   }
@@ -665,7 +408,7 @@ SlamSupplier.propTypes = {
   MetaModel: PropTypes.func,
   modelPerspectiveData: PropTypes.any,
   getMDPerspectiveDATA: PropTypes.func,
-  location: PropTypes.any,
-  isLoading: PropTypes.any
+  location: PropTypes.any
+  // isLoading: PropTypes.any
 }
 export default SlamSupplier
