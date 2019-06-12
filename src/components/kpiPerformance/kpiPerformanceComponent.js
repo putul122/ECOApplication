@@ -82,6 +82,7 @@ if (props.graphData !== '') {
       obj.pointBackgroundColor = dataColor
       obj.pointHoverBackgroundColor = dataColor
       obj.pointHoverBorderColor = dataColor
+      obj.pointHitRadius = 20
       datasets.push(obj)
     })
     barData.labels = labels
