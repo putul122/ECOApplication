@@ -34,7 +34,7 @@ class SlaDashboardMainComponent extends React.Component {
                       </div>
                       <div className={styles.Mainchart}>
                         <Avatar className={styles.avatarTwo} size='large'>
-                          { this.props.pentaltyValue === 0 ? 0 : this.props.pentaltyValue ? this.props.pentaltyValue.toFixed(2) : 'N/A' }
+                          { this.props.pentaltyValue === 0 ? 0 : this.props.pentaltyValue ? `${(this.props.pentaltyValue * 100).toFixed(2)}%` : 'N/A' }
                         </Avatar>
                       </div>
                     </div>
