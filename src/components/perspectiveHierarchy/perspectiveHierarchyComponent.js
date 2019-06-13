@@ -1489,7 +1489,7 @@ export default function PerspectiveHierarchy (props) {
           <div className='col-9 form-group m-form__group has-info'>
             <DatePicker
               className='input-sm form-control m-input'
-              selected={data.type_property.date_time_value}
+              selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
               dateFormat='DD MMM YYYY'
               onSelect={(date) => { editProperty(index, date) }}
             />
@@ -1720,7 +1720,7 @@ return (
                     </div>
                   </div>
                   {standardPropertyList}
-                  {/* {businessPropertyList} */}
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                   <div className='form-group row'>
                     {groupConnectionSelectBoxList}
@@ -1780,6 +1780,7 @@ return (
                     </div>
                   </div>
                   {standardPropertyList}
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                   <div className='form-group row'>
                     {groupConnectionSelectBoxList}
