@@ -20,6 +20,7 @@ let serviceOptions = []
 let kpiOptions = []
 let barData = {}
 let payloadFilterBlock = props.payloadFilterBlock
+let labelLength = 0
 let navigateToKpi = function (data) {
   console.log('data', data)
   props.history.push('kpi-performances/' + data.subjectId, {
@@ -85,6 +86,7 @@ if (props.graphData !== '') {
       obj.pointHitRadius = 20
       datasets.push(obj)
     })
+    labelLength = labels.length
     barData.labels = labels
     barData.datasets = datasets
   }
@@ -111,7 +113,7 @@ let chartOption = {
         ticks: {
             autoSkip: false
         },
-        display: true,
+        display: labelLength < 10,
         scaleLabel: {
           display: true,
           fontStyle: 'normal',
@@ -139,25 +141,83 @@ let handleSelect = function (filterType) {
   return function (newValue: any, actionMeta: any) {
     let actionSettings = JSON.parse(JSON.stringify(props.actionSettings))
     if (actionMeta.action === 'select-option') {
+      let operationArray = []
       if (filterType === 'Department') {
         actionSettings.selectedDepartment = newValue
+        operationArray = actionSettings.copyDepartment
       } else if (filterType === 'Supplier') {
         actionSettings.selectedSupplier = newValue
+        operationArray = actionSettings.copySupplier
       } else if (filterType === 'Agreement') {
         actionSettings.selectedAgreement = newValue
+        operationArray = actionSettings.copyAgreement
       } else if (filterType === 'Service') {
         actionSettings.selectedService = newValue
+        operationArray = actionSettings.copyService
+      }
+      let indexList = operationArray.map(function (data) {
+        return data.name === newValue.name
+      })
+      let kpiOption = []
+      let selectedKpi = []
+      if (indexList.length > 0) {
+        indexList.forEach(function (data, id) {
+          if (data && actionSettings.copyKpi[id]) {
+            kpiOption.push(actionSettings.copyKpi[id])
+            selectedKpi.push(false)
+          }
+        })
+        actionSettings.kpiOption = kpiOption
+        actionSettings.selectedKpi = selectedKpi
       }
     }
     if (actionMeta.action === 'clear') {
+      let operationArray = []
+      let compareObject = null
       if (filterType === 'Department') {
-        actionSettings.selectedDepartment = []
+        actionSettings.selectedDepartment = null
+        actionSettings.selectedSupplier = null
+        actionSettings.selectedAgreement = null
+        actionSettings.selectedService = null
       } else if (filterType === 'Supplier') {
-        actionSettings.selectedSupplier = []
+        actionSettings.selectedSupplier = null
+        actionSettings.selectedAgreement = null
+        actionSettings.selectedService = null
+        operationArray = actionSettings.copyDepartment
+        compareObject = actionSettings.selectedDepartment
       } else if (filterType === 'Agreement') {
-        actionSettings.selectedAgreement = []
+        actionSettings.selectedAgreement = null
+        actionSettings.selectedService = null
+        operationArray = actionSettings.copySupplier
+        compareObject = actionSettings.selectedSupplier
       } else if (filterType === 'Service') {
-        actionSettings.selectedService = []
+        actionSettings.selectedService = null
+        operationArray = actionSettings.copyAgreement
+        compareObject = actionSettings.selectedAgreement
+      }
+      if (operationArray.length > 0) {
+        let indexList = operationArray.map(function (data) {
+          return data.name === compareObject.name
+        })
+        let kpiOption = []
+        let selectedKpi = []
+        if (indexList.length > 0) {
+          indexList.forEach(function (data, id) {
+            if (data && actionSettings.copyKpi[id]) {
+              kpiOption.push(actionSettings.copyKpi[id])
+              selectedKpi.push(false)
+            }
+          })
+          actionSettings.kpiOption = kpiOption
+          actionSettings.selectedKpi = selectedKpi
+        }
+      } else {
+        let selectedKpi = []
+        actionSettings.kpiOption = actionSettings.copyKpi
+        actionSettings.copyKpi.forEach(function (data, id) {
+          selectedKpi.push(false)
+        })
+        actionSettings.selectedKpi = selectedKpi
       }
     }
     props.setActionSettings(actionSettings)
@@ -165,8 +225,13 @@ let handleSelect = function (filterType) {
 }
 let editDate = function (date) {
   let actionSettings = JSON.parse(JSON.stringify(props.actionSettings))
-  actionSettings.startDate = date[0].format()
-  actionSettings.endDate = date[1].format()
+  if (date) {
+    actionSettings.startDate = date[0].format()
+    actionSettings.endDate = date[1].format()
+  } else {
+    actionSettings.startDate = ''
+    actionSettings.endDate = ''
+  }
   props.setActionSettings(actionSettings)
 }
 let isEmpty = function (obj) {
