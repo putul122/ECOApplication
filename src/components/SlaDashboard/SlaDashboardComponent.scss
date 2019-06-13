@@ -1,10 +1,10 @@
 .MainContainer{
     display: flex;
     flex-direction: column;
-    height: 110vh;
+    height: 100vh;
     background-color: white;
     box-shadow: 2px 2px 15px lightgray !important;
-    padding: 10px;
+    padding: 30px 10px 10px;
 }
 .dateContainer{
     display: flex;    
@@ -79,9 +79,9 @@
 .dropDownBtn{
     padding: 7px 11px;
     overflow: hidden;
-    min-width:90px ;
+    min-width:200px ;
     // max-width: 230px;
-    max-width: 90px;
+    max-width: 200px;
     margin-right: 4px;
     // border:1px solid #5d77fc !important;
 }
@@ -91,6 +91,7 @@
   overflow: hidden;
   min-width:160px ;
   // max-width: 230px;
+  height:32px;
   max-width: 160px;
   margin-right: 4px;
   // border:1px solid #5d77fc !important;
@@ -157,7 +158,7 @@
 }
 .tableContainer{
     flex:4;
-    height: 400px;
+    height: 100%;
     overflow-y:auto; 
     margin-right: 10px;
 }

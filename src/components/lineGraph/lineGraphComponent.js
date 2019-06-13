@@ -1,6 +1,6 @@
  import React, { PureComponent } from 'react'
 import {
-  LineChart, Line, XAxis, YAxis, Tooltip
+  LineChart, Line
 } from 'recharts'
 import PropTypes from 'prop-types'
 
@@ -10,16 +10,13 @@ class LineChartComponent extends PureComponent {
     return (
       <LineChart
         width={370}
-        height={150}
+        height={60}
         data={this.props.data}
         margin={{
           top: 5, right: 30, left: 20, bottom: 5
         }}
       >
-        <XAxis dataKey='name' tick={false} />
-        <YAxis tick={false} />
-        <Tooltip />
-        <Line labelLine={false} dot={false} dataKey='value' activeDot={{ r: 0 }} />
+        <Line type='monotone' dot={false} dataKey='value' />
       </LineChart>
     )
   }

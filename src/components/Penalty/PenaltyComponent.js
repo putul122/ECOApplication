@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import styles from './PenaltyComponent.scss'
-
+import { Badge } from 'antd'
 import 'antd/dist/antd.css'
 
 class PenaltyComponent extends React.Component {
@@ -40,13 +40,13 @@ class PenaltyComponent extends React.Component {
           >
             <thead className='table-head'>
               <tr role='row' className='table-head-row'>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>KPA</p>
                 </th>
                 {
                   monthToShow && monthToShow[0] && monthToShow[0].Dates && monthToShow[0].Dates.map((val, i) => {
                    return (
-                     <th className='table-th' key={i}>
+                     <th className={styles.tableHeading} key={i}>
                        <p>{val.date_time}</p>
                      </th>
                    )
@@ -66,7 +66,10 @@ class PenaltyComponent extends React.Component {
                         value.Dates.length ? value.Dates.map((v, j) => {
                           return (
                             <td key={j}>
-                              {v && v.values && v.values.Value.formatted_value ? v.values.Value.formatted_value : 0}
+                              { value.KPA === 'Estimated Penalty' ? v && v.values && v.values.Value.value > 0 ? <Badge
+                                count={v && v.values && v.values.Value.formatted_value}
+                                /> : 0 : v && v.values && v.values.Value.formatted_value
+                              }
                             </td>
                           )
                         })
@@ -106,25 +109,25 @@ class PenaltyComponent extends React.Component {
           >
             <thead className='table-head'>
               <tr role='row' className='table-head-row'>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>Agreement</p>
                 </th>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>KPA</p>
                 </th>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>Domain</p>
                 </th>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>Cluster</p>
                 </th>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>KPI</p>
                 </th>
                 {
                   monthToShow && monthToShow[0] && monthToShow[0].Dates && monthToShow[0].Dates.map((val, i) => {
                    return (
-                     <th className='table-th' key={i}>
+                     <th className={styles.tableHeading} key={i}>
                        <p>{val.date_time}</p>
                      </th>
                    )
@@ -156,7 +159,7 @@ class PenaltyComponent extends React.Component {
                         value.Dates.length ? value.Dates.map((v, j) => {
                           return (
                             <td key={j}>
-                              {v && v.values && v.values.Penalty && v.values.Penalty.value ? v.values.Penalty.value : 0}
+                              {v && v.values && v.values.Penalty && v.values.Penalty.formatted_value ? v.values.Penalty.value > 0 ? <Badge count={v.values.Penalty.formatted_value} /> : v.values.Penalty.formatted_value : 0}
                             </td>
                           )
                         })

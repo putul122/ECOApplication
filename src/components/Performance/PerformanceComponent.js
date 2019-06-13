@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import 'antd/dist/antd.css'
 import styles from './PerfomanceComponent.scss'
+import { Badge } from 'antd'
 import LineGraph from '../lineGraph/lineGraphComponent'
 
 class PerformanceComponent extends React.Component {
@@ -31,32 +32,32 @@ class PerformanceComponent extends React.Component {
       <div className={styles.MainContainer}>
         <div className={styles.tableContainer}>
           <table
-            className='m-portlet table table-striped- table-hover table-checkable dataTable no-footer'
+            className={`m-portlet table table-striped- table-hover table-checkable dataTable no-footer ${styles.tableContainerChild}`}
             id='m_table_1'
             aria-describedby='m_table_1_info'
             role='grid'
           >
             <thead className='table-head'>
               <tr role='row' className='table-head-row'>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>Service</p>
                 </th>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>KPI</p>
                 </th>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>As of Date</p>
                 </th>
                 {
                   headingName && headingName.map((val, i) => {
                     return (
-                      <th className='table-th' key={i}>
+                      <th className={styles.tableHeading} key={i}>
                         <p>{val}</p>
                       </th>
                     )
                   })
                 }
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>Performance</p>
                 </th>
               </tr>
@@ -79,9 +80,15 @@ class PerformanceComponent extends React.Component {
                       </td>
                       {
                         value.Dates.length ? Object.entries(value.Dates[value.Dates.length - 1].values).map((val, j) => {
+                          let bol = Object.entries(value.Dates[value.Dates.length - 1].values)[0][1].value < Object.entries(value.Dates[value.Dates.length - 1].values)[2][1].value
                           return (
                             <td key={j}>
-                              {val[1].formatted_value}
+                              {
+                                j === 1 ? bol ? <Badge
+                                  count={val[1].formatted_value}
+                                /> : val[1].formatted_value
+                                : val[1].formatted_value
+                              }
                             </td>
                           )
                         })
