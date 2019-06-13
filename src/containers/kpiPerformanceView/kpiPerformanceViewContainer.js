@@ -69,34 +69,19 @@ export default compose(
     componentWillMount: function () {
       console.log('will mount', this.props)
       console.log('this.props')
-      let pageSettings = JSON.parse(JSON.stringify(this.props.location.state.pageSettings))
-      pageSettings.selectedKpi = this.props.location.state.selectedKpi
+      let pageSettings = this.props.location.state ? this.props.location.state.pageSettings : null
+      pageSettings = pageSettings !== null ? JSON.parse(JSON.stringify(pageSettings)) : {}
+      pageSettings.selectedKpi = this.props.location.state ? this.props.location.state.selectedKpi : null
+      let kpiId = this.props.match.params.id
       let payloadFilter = {}
       let payloadFilterBlock = this.props.payloadFilterBlock
       payloadFilter.values_start_time = pageSettings.startDate || ''
       payloadFilter.values_end_time = pageSettings.endDate || ''
-      // Agreement Filter
-      // if (!isEmpty(pageSettings.selectedAgreement)) {
-      //   let agreementData = []
-      //   agreementData.push(pageSettings.selectedAgreement.subjectId)
-      //   payloadFilter.subject_id = agreementData
-      // } else {
-      //   payloadFilter.subject_id = ''
-      // }
       payloadFilter.parts = {}
       payloadFilter.parts['2'] = payloadFilterBlock.kpiFilter
-      // payloadFilter.parts['3'] = payloadFilterBlock.departmentAndSupplierFilter
       let kpiData = []
-      kpiData.push(this.props.location.state.selectedKpi.subjectId)
+      kpiData.push(pageSettings.selectedKpi ? pageSettings.selectedKpi.subjectId : kpiId)
       payloadFilter.parts['2'].constraint_perspective.parts['3'].constraint_perspective.parts['4'].constraint_perspective.parts['4'].constraint_perspective.parts['4'].constraint_perspective['subject_ids'] = kpiData
-      // // Department Filter
-      // let departmentData = []
-      // departmentData.push(pageSettings.selectedDepartment.id)
-      // payloadFilter.parts['3'].constraint_perspective.parts['2'].target_component_ids = departmentData
-      // // Supplier Filter
-      // let supplierData = []
-      // supplierData.push(pageSettings.selectedSupplier.id)
-      // payloadFilter.parts['3'].constraint_perspective.parts['3'].target_component_ids = supplierData
       const base64ecodedPayloadFilter = btoa(JSON.stringify(payloadFilter))
       let payload = {}
       payload['meta_model_perspective_id[0]'] = 72

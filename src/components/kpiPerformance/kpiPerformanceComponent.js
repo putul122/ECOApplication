@@ -139,6 +139,8 @@ let handleCheckbox = function (value, index) {
 }
 let handleSelect = function (filterType) {
   return function (newValue: any, actionMeta: any) {
+    console.log('newValue', newValue)
+    console.log('actionMeta', actionMeta)
     let actionSettings = JSON.parse(JSON.stringify(props.actionSettings))
     if (actionMeta.action === 'select-option') {
       let operationArray = []
