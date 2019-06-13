@@ -162,8 +162,8 @@ export default class Barchart extends PureComponent {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Bar dataKey='Non_Compliant' fill='#8884d8' style={{color: 'red !important'}} />
-        <Bar dataKey='Compliant' fill='#f8e7b3' />
+        <Bar dataKey='Non_Compliant' fill='#fd397a' style={{color: '#fd397a !important'}} />
+        <Bar dataKey='Compliant' fill='#0abb87' />
       </BarChart>
     )
   }

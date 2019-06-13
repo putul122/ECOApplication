@@ -28,32 +28,32 @@ class ScoringComponent extends React.Component {
       <div className={styles.MainContainer}>
         <div className={styles.tableContainer}>
           <table
-            className='m-portlet table table-striped- table-hover table-checkable dataTable no-footer'
+            className={`m-portlet table table-striped- table-hover table-checkable dataTable no-footer ${styles.tableContainerChild}`}
             id='m_table_1'
             aria-describedby='m_table_1_info'
             role='grid'
           >
             <thead className='table-head'>
               <tr role='row' className='table-head-row'>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>Agreement</p>
                 </th>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>KPA</p>
                 </th>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>Domain</p>
                 </th>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>Cluster</p>
                 </th>
-                <th className='table-th'>
+                <th className={styles.tableHeading}>
                   <p>KPI</p>
                 </th>
                 {
                   monthToShow && monthToShow[0] && monthToShow[0].Dates && monthToShow[0].Dates.map((val, i) => {
                    return (
-                     <th className='table-th' key={i}>
+                     <th className={styles.tableHeading} key={i}>
                        <p>{val.date_time}</p>
                      </th>
                    )

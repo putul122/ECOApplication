@@ -439,6 +439,25 @@ class SlaDashboard extends Component {
             Clear Filter
           </button>
         </div>
+        <button onClick={() => {
+          this.props.history.push('sla-comparison', {
+              slaAgreeemnt: this.state.filterObject['Agreement'],
+              slaDepartment: this.state.filterObject['Department'],
+              slaSupplier: this.state.filterObject['Supplier'],
+              filterObject: this.state.filterObject
+            })
+          }} className={`btn btn-default dropup-btn ${styles.dropDownBtns} ${styles.clearFilter}`} type='button'>
+          Supplier Comparison
+        </button>
+        <button onClick={() => {
+          this.props.history.push('kpi-performances', {
+              slaAgreeemnt: this.state.filterObject['Agreement'],
+              slaDepartment: this.state.filterObject['Department'],
+              slaSupplier: this.state.filterObject['Supplier']
+            })
+          }} className={`btn btn-default dropup-btn ${styles.dropDownBtns} ${styles.clearFilter}`} type='button'>
+          KPI Performance
+        </button>
       </div>
     )
   }
@@ -468,7 +487,7 @@ class SlaDashboard extends Component {
             <a className={`active ${styles.scorePenalty}`} href='#1' data-toggle='tab' >Dashboard</a>
           </li>
           <li className={styles.scoreBoard}>
-            <a href='#2' data-toggle='tab' className={styles.scorePenalty}>Scorecard</a>
+            <a href='#2' data-toggle='tab'>Scorecard</a>
           </li>
           <li>
             <a href='#3' data-toggle='tab' className={styles.scorePenalty}>Scoring</a>
@@ -484,7 +503,7 @@ class SlaDashboard extends Component {
           <div className='tab-pane active' id='1'>
             {
               this.state.loader ? (<Spin className={styles.spin} />)
-              : (<SlaDashboardMainComponent package={this.state.ActualgranularityValue} BarChartValue={this.state.ActualBarChartValue} pentaltyValue={this.state.penalty} nonComplianceValue={this.state.nonCompliance} complianceValue={this.state.compliance} />)
+              : (<SlaDashboardMainComponent history={this.props.history} package={this.state.ActualgranularityValue} BarChartValue={this.state.ActualBarChartValue} pentaltyValue={this.state.penalty} nonComplianceValue={this.state.nonCompliance} complianceValue={this.state.compliance} />)
             }
           </div>
           <div className='tab-pane' id='2'>
@@ -520,25 +539,6 @@ class SlaDashboard extends Component {
         {this.slaDropdowns()}
         {this.PenaltyCalender()}
         {this.submitButton()}
-        <button onClick={() => {
-          this.props.history.push('sla-comparison', {
-              slaAgreeemnt: this.state.filterObject['Agreement'],
-              slaDepartment: this.state.filterObject['Department'],
-              slaSupplier: this.state.filterObject['Supplier'],
-              filterObject: this.state.filterObject
-            })
-          }} className={`btn btn-default dropup-btn ${styles.dropDownBtns} ${styles.clearFilter}`} type='button'>
-          Supplier Comparison
-        </button>
-        <button onClick={() => {
-          this.props.history.push('kpi-performances', {
-              slaAgreeemnt: this.state.filterObject['Agreement'],
-              slaDepartment: this.state.filterObject['Department'],
-              slaSupplier: this.state.filterObject['Supplier']
-            })
-          }} className={`btn btn-default dropup-btn ${styles.dropDownBtnsKPI} ${styles.clearFilter}`} type='button'>
-          Kpi Performance
-        </button>
         {this.clearButton()}
         {this.tabs()}
       </div>
