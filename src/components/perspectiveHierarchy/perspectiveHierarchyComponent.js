@@ -1015,11 +1015,11 @@ export default function PerspectiveHierarchy (props) {
       tableHeader = []
       props.headerData.metaModelPerspective.forEach(function (data, index) {
         data.parts.forEach(function (partData, idx) {
-          if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+          if (partData.standard_property !== null && partData.type_property === null && partData.attachments === null) { // Standard Property
             if (partData.standard_property === 'name') {
               tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
             }
-          } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
+          } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null && partData.attachments === null) { // Connection Property
             tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
           }
         })
@@ -1723,7 +1723,7 @@ return (
                     </div>
                   </div>
                   {standardPropertyList}
-                  {/* {businessPropertyList} */}
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                   <div className='form-group row'>
                     {groupConnectionSelectBoxList}
@@ -1783,7 +1783,7 @@ return (
                     </div>
                   </div>
                   {standardPropertyList}
-                  {/* {businessPropertyList} */}
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                   <div className='form-group row'>
                     {groupConnectionSelectBoxList}

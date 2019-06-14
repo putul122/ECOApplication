@@ -517,6 +517,7 @@ export default compose(
       }
       if (nextProps.headerData.toProcess) {
         let headerData = JSON.parse(JSON.stringify(nextProps.headerData))
+        // let attachment = null
         let metaModelPerspective = JSON.parse(JSON.stringify(headerData.metaModelPerspective))
         let processedIndex = headerData.processedIndex
         let toProcess = false
@@ -546,12 +547,14 @@ export default compose(
             metaModelPerspective.forEach(function (data, index) {
               // if (data.view_key === nextProps.match.params.viewKey) {
                 data.parts.forEach(function (partData, idx) {
-                  if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+                  if (partData.standard_property !== null && partData.type_property === null && partData.attachments === null) { // Standard Property
                     if (partData.standard_property === 'name') {
                       headerColumn.push(partData.name)
+                      console.log('header column name if', partData.name, idx)
                     }
-                  } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
+                  } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null && partData.attachments === null) { // Connection Property
                     headerColumn.push(partData.name)
+                    console.log('header column name else', partData.name, idx)
                   }
                 })
               // } else {
@@ -560,6 +563,7 @@ export default compose(
             })
           }
           headerData.headerColumn = headerColumn
+          console.log('header column name container', headerColumn)
         }
         this.props.setHeaderData(headerData)
       }
