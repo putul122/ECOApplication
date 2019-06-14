@@ -1079,68 +1079,71 @@ export default function PerspectiveHierarchy (props) {
                   }
                 })
                 data.parts.forEach(function (partData, ix) {
-                  let value
-                  if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
-                    // console.log('partData standard property', partData, labelParts[ix], ix)
-                    if (labelParts[ix].standard_property === 'name') {
-                      value = partData ? partData.value : ''
-                      // selectedObject.name = value
+                  if (partData !== null) {
+                    let value
+                    if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
+                      // console.log('partData standard property', partData, labelParts[ix], ix)
+                      if (labelParts[ix].standard_property === 'name') {
+                        value = partData ? partData.value : ''
+                        // selectedObject.name = value
+                        let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
+                        if (columnId !== -1) {
+                          headerColumn[columnId].isProcessed = true
+                          headerColumn[columnId].level = 0
+                        }
+                        if (expandSettings.level !== null) {
+                          // expand row is clicked for first row
+                          if (expandSettings.level >= 0) {
+                            childList = genericExpandRow(value)
+                          }
+                        }
+                        if (expandSettings.level >= 0 && (expandSettings.selectedObject[0] && expandSettings.selectedObject[0].name === value)) {
+                          faClass = 'fa fa-minus'
+                        }
+                        let availableAction = {...props.availableAction}
+                        let list = []
+                        if (availableAction.Update) {
+                          list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} ><img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
+                        }
+                        if (availableAction.Delete) {
+                          list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} ><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
+                        }
+                        rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
+                          {list}
+                        </td>)
+                      }
+                    } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
+                      let targetComponents = []
+                      console.log('partdata', partData, ix)
+                      partData.value.forEach(function (data, index) {
+                        targetComponents.push(data.target_component.name)
+                      })
+                      value = targetComponents.toString()
                       let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
                       if (columnId !== -1) {
                         headerColumn[columnId].isProcessed = true
                         headerColumn[columnId].level = 0
                       }
-                      if (expandSettings.level !== null) {
-                        // expand row is clicked for first row
-                        if (expandSettings.level >= 0) {
-                          childList = genericExpandRow(value)
-                        }
+                      rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
+                    } else if (labelParts[ix].constraint_perspective !== null) { // Perspectives Property
+                      // selectedObject.parentReference = partData.value.parent_reference
+                      value = labelParts[ix].constraint_perspective.name
+                      // selectedObject.metaModelPerspectives = labelParts[ix].constraint_perspective
+                      // selectedObject.containerPerspectiveId = labelParts[ix].container_perspective_id
+                      // selectedObject.containerPerspectiveViewKey = labelParts[ix].container_perspective_view_key
+                      // selectedObject.rolePerspectives = labelParts[ix].role_perspectives
+                      let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
+                      if (columnId !== -1) {
+                        headerColumn[columnId].isProcessed = true
+                        headerColumn[columnId].level = 0
                       }
-                      if (expandSettings.level >= 0 && (expandSettings.selectedObject[0] && expandSettings.selectedObject[0].name === value)) {
-                        faClass = 'fa fa-minus'
-                      }
-                      let availableAction = {...props.availableAction}
-                      let list = []
-                      if (availableAction.Update) {
-                        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} ><img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
-                      }
-                      if (availableAction.Delete) {
-                        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} ><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
-                      }
-                      rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
-                        {list}
-                      </td>)
+                      rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><a href='javascript:void(0);' onClick={(event) => openModal(selectedObject, 'ChildrenNode', 'Add')} >{'Add ' + value}</a></td>)
                     }
-                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
-                    let targetComponents = []
-                    partData.value.forEach(function (data, index) {
-                      targetComponents.push(data.target_component.name)
-                    })
-                    value = targetComponents.toString()
-                    let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
-                    if (columnId !== -1) {
-                      headerColumn[columnId].isProcessed = true
-                      headerColumn[columnId].level = 0
-                    }
-                    rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
-                  } else if (labelParts[ix].constraint_perspective !== null) { // Perspectives Property
-                    // selectedObject.parentReference = partData.value.parent_reference
-                    value = labelParts[ix].constraint_perspective.name
-                    // selectedObject.metaModelPerspectives = labelParts[ix].constraint_perspective
-                    // selectedObject.containerPerspectiveId = labelParts[ix].container_perspective_id
-                    // selectedObject.containerPerspectiveViewKey = labelParts[ix].container_perspective_view_key
-                    // selectedObject.rolePerspectives = labelParts[ix].role_perspectives
-                    let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
-                    if (columnId !== -1) {
-                      headerColumn[columnId].isProcessed = true
-                      headerColumn[columnId].level = 0
-                    }
-                    rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><a href='javascript:void(0);' onClick={(event) => openModal(selectedObject, 'ChildrenNode', 'Add')} >{'Add ' + value}</a></td>)
+                    // console.log('value', value)
+                    // if (toPush) {
+                    //   rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{isName && (<i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} />)} {value}</td>)
+                    // }
                   }
-                  // console.log('value', value)
-                  // if (toPush) {
-                  //   rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{isName && (<i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} />)} {value}</td>)
-                  // }
                 })
               }
               headerColumn.forEach(function (columnData, cid) {
@@ -1489,7 +1492,7 @@ export default function PerspectiveHierarchy (props) {
           <div className='col-9 form-group m-form__group has-info'>
             <DatePicker
               className='input-sm form-control m-input'
-              selected={data.type_property.date_time_value}
+              selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
               dateFormat='DD MMM YYYY'
               onSelect={(date) => { editProperty(index, date) }}
             />
@@ -1720,7 +1723,7 @@ return (
                     </div>
                   </div>
                   {standardPropertyList}
-                  {/* {businessPropertyList} */}
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                   <div className='form-group row'>
                     {groupConnectionSelectBoxList}
@@ -1780,6 +1783,7 @@ return (
                     </div>
                   </div>
                   {standardPropertyList}
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                   <div className='form-group row'>
                     {groupConnectionSelectBoxList}
