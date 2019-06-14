@@ -1723,7 +1723,7 @@ return (
                     </div>
                   </div>
                   {standardPropertyList}
-                  {businessPropertyList}
+                  {/* {businessPropertyList} */}
                   {connectionSelectBoxList}
                   <div className='form-group row'>
                     {groupConnectionSelectBoxList}
@@ -1783,7 +1783,7 @@ return (
                     </div>
                   </div>
                   {standardPropertyList}
-                  {businessPropertyList}
+                  {/* {businessPropertyList} */}
                   {connectionSelectBoxList}
                   <div className='form-group row'>
                     {groupConnectionSelectBoxList}
