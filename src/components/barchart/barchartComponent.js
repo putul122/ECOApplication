@@ -32,14 +32,14 @@ export default class Barchart extends PureComponent {
 
     if (this.props.duration === 'Daily') {
       barChartValue && barChartValue.children && barChartValue.children.length && barChartValue.children.map((bar, i) => {
-        const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key)
+        const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key && bar.children[i].key.formattedValue)
         const momentDate = moment(dateObj)
         const monthName = monthObject[momentDate.month()]
         const dayAndMonth = momentDate.date() + ' ' + monthName
         const dataObj = {
           name: dayAndMonth,
-          Compliant: barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum,
-          Non_Compliant: barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum
+          Compliant: barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum && barChartValue.children[0].children[i].value.sum.value,
+          Non_Compliant: barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum && barChartValue.children[1].children[i].value.sum.value
         }
         if (dataObj.Compliant !== undefined) {
           data.push(dataObj)
@@ -67,32 +67,32 @@ export default class Barchart extends PureComponent {
         Compliant: 0
       }
       barChartValue && barChartValue.children && barChartValue.children.length && barChartValue.children.map((bar, i) => {
-        const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key)
+        const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key && bar.children[i].key.formattedValue)
         const momentDate = moment(dateObj)
         const monthName = monthObject[momentDate.month()]
         if (monthName === 'Jan' || monthName === 'Feb' || monthName === 'Mar') {
           q1obj = {
             name: quaterArray[0],
-            Non_Compliant: q1obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum),
-            Compliant: q1obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum)
+            Non_Compliant: q1obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum && barChartValue.children[1].children[i].value.sum.value),
+            Compliant: q1obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum && barChartValue.children[0].children[i].value.sum.value)
           }
         } else if (monthName === 'Apr' || monthName === 'May' || monthName === 'Jun') {
           q2obj = {
             name: quaterArray[1],
-            Non_Compliant: q2obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum),
-            Compliant: q2obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum)
+            Non_Compliant: q2obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum && barChartValue.children[1].children[i].value.sum.value),
+            Compliant: q2obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum && barChartValue.children[0].children[i].value.sum.value)
           }
         } else if (monthName === 'Jul' || monthName === 'Aug' || monthName === 'Sep') {
           q3obj = {
             name: quaterArray[2],
-            Non_Compliant: q3obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum),
-            Compliant: q3obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum)
+            Non_Compliant: q3obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum && barChartValue.children[1].children[i].value.sum.value),
+            Compliant: q3obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum && barChartValue.children[0].children[i].value.sum.value)
           }
         } else if (monthName === 'Oct' || monthName === 'Nov' || monthName === 'Dec') {
           q4obj = {
             name: quaterArray[3],
-            Non_Compliant: q4obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum),
-            Compliant: q4obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum)
+            Non_Compliant: q4obj.Non_Compliant + (barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum && barChartValue.children[1].children[i].value.sum.value),
+            Compliant: q4obj.Compliant + (barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum && barChartValue.children[0].children[i].value.sum.value)
           }
         }
       })
@@ -102,14 +102,14 @@ export default class Barchart extends PureComponent {
         data.push(q4obj)
     } else if (this.props.duration === 'Yearly') {
       barChartValue && barChartValue.children && barChartValue.children.length && barChartValue.children.map((bar, i) => {
-        const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key)
+        const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key && bar.children[i].key.formattedValue)
         const momentDate = moment(dateObj)
         const yearly = momentDate.year()
         arrayOfYear.push(yearly)
         const dataObj = {
           name: yearly,
-          Compliant: barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum,
-          Non_Compliant: barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum
+          Compliant: barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum && barChartValue.children[0].children[i].value.sum.value,
+          Non_Compliant: barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum && barChartValue.children[1].children[i].value.sum.value
         }
         yearlyData.push(dataObj)
       })
@@ -134,13 +134,13 @@ export default class Barchart extends PureComponent {
       }
     } else {
       barChartValue && barChartValue.children && barChartValue.children.length && barChartValue.children.map((bar, i) => {
-        const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key)
+        const dateObj = new Date(bar && bar.children && bar.children[i] && bar.children[i].key && bar.children[i].key.formattedValue)
         const momentDate = moment(dateObj)
         const monthName = monthObject[momentDate.month()]
         const dataObj = {
           name: monthName,
-          Compliant: barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum,
-          Non_Compliant: barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum
+          Compliant: barChartValue && barChartValue.children && barChartValue.children[0] && barChartValue.children[0].children[i] && barChartValue.children[0].children[i].value.sum && barChartValue.children[0].children[i].value.sum.value,
+          Non_Compliant: barChartValue && barChartValue.children && barChartValue.children[1] && barChartValue.children[1].children[i] && barChartValue.children[1].children[i].value && barChartValue.children[1].children[i].value.sum && barChartValue.children[1].children[i].value.sum.value
         }
         if (dataObj.Compliant !== undefined) {
           data.push(dataObj)
@@ -162,8 +162,8 @@ export default class Barchart extends PureComponent {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Bar dataKey='Non_Compliant' fill='#fd397a' style={{color: '#fd397a !important'}} />
-        <Bar dataKey='Compliant' fill='#0abb87' />
+        <Bar dataKey='Non_Compliant' fill='#8884d8' style={{color: 'red !important'}} />
+        <Bar dataKey='Compliant' fill='#f8e7b3' />
       </BarChart>
     )
   }

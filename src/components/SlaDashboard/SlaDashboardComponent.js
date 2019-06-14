@@ -238,58 +238,70 @@ class SlaDashboard extends Component {
   getComplianceData = (perspectiveFilter) => {
     const stringifiedPerspectiveFilter = JSON.stringify(perspectiveFilter)
     const base64ecodedPerspectiveFilter = btoa(stringifiedPerspectiveFilter)
-    console.log('perspectiveFilter', perspectiveFilter)
+    let check1 = []
     axios
       .get(api.newPerspectiveFilter(base64ecodedPerspectiveFilter))
       .then(res => {
+        check1 = res
+        console.log('res', res)
         this.setState({
           ActualBarChartValue: res.data && res.data[0].parts && res.data[0].parts[0].value,
-          compliance: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[0].value.sum,
-          nonCompliance: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[1].value.sum,
-          penalty: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[2].value.sum,
+          compliance: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[0].value.sum && res.data[0].parts[0].value.children[0].value.sum.value,
+          nonCompliance: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[1].value.sum && res.data[0].parts[0].value.children[1].value.sum.value,
+          penalty: res.data && res.data[0].parts[0].value && res.data[0].parts[0].value.children && res.data[0].parts[0].value.children[2].value.sum && res.data[0].parts[0].value.children[2].value.sum.value,
           ActualgranularityValue: this.state.granularityValue
         })
+        setTimeout(() => {
+          this.loaderCheck(check1)
+        }, 1000)
       })
 
     axios
       .get(api.scoringModelperspectives(base64ecodedPerspectiveFilter))
       .then(res => {
-        console.log('scoring', res.data)
+        check1 = res
         this.setState({
           scoringGridModelData: res.data
         })
+        this.loaderCheck(check1)
       })
 
     axios
       .get(api.penaltySummaryModelperspectives(base64ecodedPerspectiveFilter))
       .then(res => {
+        check1 = res
         this.setState({
           penaltySummaryModelData: res.data
         })
+        this.loaderCheck(check1)
       })
 
     axios
       .get(api.penaltyModelperspectives(base64ecodedPerspectiveFilter))
       .then(res => {
-        console.log('penalty', res.data)
+        check1 = res
         this.setState({
           penaltyModelData: res.data
         })
+        this.loaderCheck(check1)
       })
     axios
       .get(api.currentPerformanceModelperspectives(base64ecodedPerspectiveFilter))
       .then(res => {
+        check1 = res
         this.setState({
           currentPerformanceModelData: res.data
         })
+        this.loaderCheck(check1)
       })
-    this.loaderCheck()
+      setTimeout(() => {
+        this.loaderCheck(check1)
+      }, 1000)
   }
 
-  loaderCheck = async () => {
-    const { currentPerformanceModelData, penaltyModelData, penaltySummaryModelData, scoringGridModelData } = this.state
-    if (currentPerformanceModelData && penaltyModelData && penaltySummaryModelData && scoringGridModelData) {
-      this.setState({loader: false})
+  loaderCheck = async (check1) => {
+    if (check1) {
+      await this.setState({loader: false})
     }
   }
 
@@ -402,9 +414,9 @@ class SlaDashboard extends Component {
   }
 
   submitPerspectiveFilter = async () => {
-    this.setState({loader: true})
     const { perspectiveFilter } = this.state
     await this.getComplianceData(perspectiveFilter)
+    this.setState({loader: true})
   }
 
   gradFun = (val) => {
@@ -502,7 +514,7 @@ class SlaDashboard extends Component {
         <div className='tab-content'>
           <div className='tab-pane active' id='1'>
             {
-              this.state.loader ? (<Spin className={styles.spin} />)
+              this.state.loader ? (<Spin className={styles.spinner} />)
               : (<SlaDashboardMainComponent history={this.props.history} package={this.state.ActualgranularityValue} BarChartValue={this.state.ActualBarChartValue} pentaltyValue={this.state.penalty} nonComplianceValue={this.state.nonCompliance} complianceValue={this.state.compliance} />)
             }
           </div>
@@ -511,19 +523,19 @@ class SlaDashboard extends Component {
           </div>
           <div className='tab-pane' id='3'>
             {
-              this.state.loader ? (<Spin className={styles.spin} />)
+              this.state.loader ? (<Spin className={styles.spinner} />)
               : (<ScoringComponent filter={this.state.scoringGridModelData} />)
             }
           </div>
           <div className='tab-pane' id='4'>
             {
-              this.state.loader ? (<Spin className={styles.spin} />)
+              this.state.loader ? (<Spin className={styles.spinner} />)
               : (<PenaltyComponent penaltySummaryModel={this.state.penaltySummaryModelData} penaltyModel={this.state.penaltyModelData} />)
             }
           </div>
           <div className='tab-pane' id='5'>
             {
-              this.state.loader ? (<Spin className={styles.spin} />)
+              this.state.loader ? (<Spin className={styles.spinner} />)
               : (<PerformanceComponent performanceModel={this.state.currentPerformanceModelData} />)
             }
           </div>
@@ -533,7 +545,6 @@ class SlaDashboard extends Component {
   }
 
   render () {
-    console.log('filterObj', this.state.filterObject)
     return (
       <div>
         {this.slaDropdowns()}

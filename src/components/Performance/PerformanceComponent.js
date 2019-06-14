@@ -65,46 +65,49 @@ class PerformanceComponent extends React.Component {
             <tbody className='table-body'>
               {
                 dataToShow.map((value, keys) => {
-                  return (
-                    <tr key={keys}>
-                      <td>
-                        {value.Service}
-                      </td>
-                      <td>
-                        {value.Kpi}
-                      </td>
-                      <td>
+                  let checking = value && value.Dates && value.Dates[value.Dates.length - 1] && value.Dates[value.Dates.length - 1].values && Object.entries(value.Dates[value.Dates.length - 1].values)
+                  if (checking && checking[0] && checking[0][1] && checking[0][1].value) {
+                    return (
+                      <tr key={keys}>
+                        <td>
+                          {value.Service}
+                        </td>
+                        <td>
+                          {value.Kpi}
+                        </td>
+                        <td>
+                          {
+                            value.Dates.length ? value.Dates[value.Dates.length - 1].date_time : ''
+                          }
+                        </td>
                         {
-                          value.Dates.length ? value.Dates[value.Dates.length - 1].date_time : ''
+                          value.Dates.length ? checking.map((val, j) => {
+                            let bol = checking[0][1].value < checking[2][1].value
+                            return (
+                              <td key={j}>
+                                {
+                                  j === 1 ? bol ? <Badge
+                                    count={val[1].formatted_value}
+                                  /> : val[1].formatted_value
+                                  : val[1].formatted_value
+                                }
+                              </td>
+                            )
+                          })
+                          : headingName && headingName.map((val, i) => {
+                            return (
+                              <td key={i}>
+                                <p />
+                              </td>
+                            )
+                          })
                         }
-                      </td>
-                      {
-                        value.Dates.length ? Object.entries(value.Dates[value.Dates.length - 1].values).map((val, j) => {
-                          let bol = Object.entries(value.Dates[value.Dates.length - 1].values)[0][1].value < Object.entries(value.Dates[value.Dates.length - 1].values)[2][1].value
-                          return (
-                            <td key={j}>
-                              {
-                                j === 1 ? bol ? <Badge
-                                  count={val[1].formatted_value}
-                                /> : val[1].formatted_value
-                                : val[1].formatted_value
-                              }
-                            </td>
-                          )
-                        })
-                        : headingName && headingName.map((val, i) => {
-                          return (
-                            <td key={i}>
-                              <p>0</p>
-                            </td>
-                          )
-                        })
-                      }
-                      <td>
-                        <LineGraph data={linechartData[keys]} />
-                      </td>
-                    </tr>
-                  )
+                        <td>
+                          <LineGraph data={linechartData[keys]} />
+                        </td>
+                      </tr>
+                    )
+                  }
                 })
               }
             </tbody>
