@@ -134,7 +134,10 @@ export default function PerspectiveHierarchy (props) {
     props.setConnectionData(connectionData)
   }
   let handlePropertySelect = function (index) {
+    console.log('index', index)
     return function (newValue: any, actionMeta: any) {
+      console.log('newValue', newValue)
+      console.log('actionMeta', actionMeta)
       let connectionData = JSON.parse(JSON.stringify(props.connectionData))
       let customerProperty = connectionData.customerProperty
       if (actionMeta.action === 'select-option') {
@@ -1470,43 +1473,51 @@ export default function PerspectiveHierarchy (props) {
       if (data.type_property.property_type.key === 'Integer') {
         value = data.type_property.int_value
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-9 form-group m-form__group has-info'>
-            <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {false && (<div className='form-control-feedback'>should be Number</div>)}
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-9'>
+              <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+              {false && (<div className='form-control-feedback'>should be Number</div>)}
+            </div>
           </div>
         </div>)
       } else if (data.type_property.property_type.key === 'Decimal') {
         value = data.type_property.float_value
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-9 form-group m-form__group has-info'>
-            <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {false && (<div className='form-control-feedback'>should be Number</div>)}
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-9'>
+              <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+              {false && (<div className='form-control-feedback'>should be Number</div>)}
+            </div>
           </div>
         </div>)
       } else if (data.type_property.property_type.key === 'DateTime') {
         value = data.type_property.date_time_value ? moment(data.type_property.date_time_value).format('DD MMM YYYY') : null
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-9 form-group m-form__group has-info'>
-            <DatePicker
-              className='input-sm form-control m-input'
-              selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
-              dateFormat='DD MMM YYYY'
-              onSelect={(date) => { editProperty(index, date) }}
-            />
-            {/* <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editTextProperty(index, childIndex, event.target.value) }} placeholder='Enter Here' /> */}
-            {false && (<div className='form-control-feedback'>should be Date</div>)}
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-9'>
+              <DatePicker
+                className='input-sm form-control m-input'
+                selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
+                dateFormat='DD MMM YYYY'
+                onSelect={(date) => { editProperty(index, date) }}
+              />
+              {/* <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editTextProperty(index, childIndex, event.target.value) }} placeholder='Enter Here' /> */}
+              {false && (<div className='form-control-feedback'>should be Date</div>)}
+            </div>
           </div>
         </div>)
       } else if (data.type_property.property_type.key === 'Text') {
         value = data.type_property.text_value
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-9 form-group m-form__group has-info'>
-            <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {false && (<div className='form-control-feedback'>should be Text</div>)}
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-9'>
+              <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+              {false && (<div className='form-control-feedback'>should be Text</div>)}
+            </div>
           </div>
         </div>)
       } else if (data.type_property.property_type.key === 'List') {
@@ -1522,25 +1533,29 @@ export default function PerspectiveHierarchy (props) {
         }
         value = data.type_property.value_set_value ? data.type_property.value_set_value.name : null
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <Select
-            className='col-9 input-sm m-input'
-            placeholder='Select Options'
-            isClearable
-            defaultValue={dvalue}
-            onChange={handlePropertySelect(index)}
-            isSearchable={false}
-            name={'selectProperty'}
-            options={propertyOption}
-            />
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <Select
+              className='col-9'
+              placeholder='Select Options'
+              isClearable
+              defaultValue={dvalue}
+              onChange={handlePropertySelect(index)}
+              isSearchable={false}
+              name={'selectProperty'}
+              options={propertyOption}
+              />
+          </div>
         </div>)
       } else {
         value = data.type_property.other_value
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-9 form-group m-form__group has-info'>
-            <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {true && (<div className='form-control-feedback'>should be Text</div>)}
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-9 '>
+              <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+              {true && (<div className='form-control-feedback'>should be Text</div>)}
+            </div>
           </div>
         </div>)
       }

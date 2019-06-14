@@ -157,6 +157,7 @@ export default compose(
                   } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
                     value = data.parts[ix].value !== null ? data.parts[ix].value.boolean_value : ''
                   } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                    console.log('ix list', ix, data.parts)
                     value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
                   } else {
                     value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
@@ -254,6 +255,9 @@ export default compose(
               data.type_property.date_time_value = setCustomerProperty[index]
             } else if (data.type_property.property_type.key === 'Text') {
               data.type_property.text_value = setCustomerProperty[index]
+            } else if (data.type_property.property_type.key === 'List') {
+              data.type_property.value_set_value = setCustomerProperty[index] || null
+              data.type_property.value_set_value_id = setCustomerProperty[index].id || null
             } else {
               data.type_property.other_value = setCustomerProperty[index]
             }
