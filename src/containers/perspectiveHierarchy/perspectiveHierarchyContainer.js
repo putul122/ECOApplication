@@ -157,6 +157,7 @@ export default compose(
                   } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
                     value = data.parts[ix].value !== null ? data.parts[ix].value.boolean_value : ''
                   } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                    console.log('ix list', ix, data.parts)
                     value = data.parts[ix].value !== null ? data.parts[ix].value.value_set_value : ''
                   } else {
                     value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
@@ -254,6 +255,9 @@ export default compose(
               data.type_property.date_time_value = setCustomerProperty[index]
             } else if (data.type_property.property_type.key === 'Text') {
               data.type_property.text_value = setCustomerProperty[index]
+            } else if (data.type_property.property_type.key === 'List') {
+              data.type_property.value_set_value = setCustomerProperty[index] || null
+              data.type_property.value_set_value_id = setCustomerProperty[index].id || null
             } else {
               data.type_property.other_value = setCustomerProperty[index]
             }
@@ -517,6 +521,7 @@ export default compose(
       }
       if (nextProps.headerData.toProcess) {
         let headerData = JSON.parse(JSON.stringify(nextProps.headerData))
+        // let attachment = null
         let metaModelPerspective = JSON.parse(JSON.stringify(headerData.metaModelPerspective))
         let processedIndex = headerData.processedIndex
         let toProcess = false
@@ -546,12 +551,14 @@ export default compose(
             metaModelPerspective.forEach(function (data, index) {
               // if (data.view_key === nextProps.match.params.viewKey) {
                 data.parts.forEach(function (partData, idx) {
-                  if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+                  if (partData.standard_property !== null && partData.type_property === null && partData.attachments === null) { // Standard Property
                     if (partData.standard_property === 'name') {
                       headerColumn.push(partData.name)
+                      console.log('header column name if', partData.name, idx)
                     }
-                  } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
+                  } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null && partData.attachments === null) { // Connection Property
                     headerColumn.push(partData.name)
+                    console.log('header column name else', partData.name, idx)
                   }
                 })
               // } else {
@@ -560,6 +567,7 @@ export default compose(
             })
           }
           headerData.headerColumn = headerColumn
+          console.log('header column name container', headerColumn)
         }
         this.props.setHeaderData(headerData)
       }

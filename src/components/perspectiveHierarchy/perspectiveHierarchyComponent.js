@@ -134,7 +134,10 @@ export default function PerspectiveHierarchy (props) {
     props.setConnectionData(connectionData)
   }
   let handlePropertySelect = function (index) {
+    console.log('index', index)
     return function (newValue: any, actionMeta: any) {
+      console.log('newValue', newValue)
+      console.log('actionMeta', actionMeta)
       let connectionData = JSON.parse(JSON.stringify(props.connectionData))
       let customerProperty = connectionData.customerProperty
       if (actionMeta.action === 'select-option') {
@@ -1015,11 +1018,11 @@ export default function PerspectiveHierarchy (props) {
       tableHeader = []
       props.headerData.metaModelPerspective.forEach(function (data, index) {
         data.parts.forEach(function (partData, idx) {
-          if (partData.standard_property !== null && partData.type_property === null) { // Standard Property
+          if (partData.standard_property !== null && partData.type_property === null && partData.attachments === null) { // Standard Property
             if (partData.standard_property === 'name') {
               tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
             }
-          } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null) { // Connection Property
+          } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null && partData.attachments === null) { // Connection Property
             tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
           }
         })
@@ -1079,68 +1082,71 @@ export default function PerspectiveHierarchy (props) {
                   }
                 })
                 data.parts.forEach(function (partData, ix) {
-                  let value
-                  if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
-                    // console.log('partData standard property', partData, labelParts[ix], ix)
-                    if (labelParts[ix].standard_property === 'name') {
-                      value = partData ? partData.value : ''
-                      // selectedObject.name = value
+                  if (partData !== null) {
+                    let value
+                    if (labelParts[ix].standard_property !== null && labelParts[ix].type_property === null) { // Standard Property
+                      // console.log('partData standard property', partData, labelParts[ix], ix)
+                      if (labelParts[ix].standard_property === 'name') {
+                        value = partData ? partData.value : ''
+                        // selectedObject.name = value
+                        let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
+                        if (columnId !== -1) {
+                          headerColumn[columnId].isProcessed = true
+                          headerColumn[columnId].level = 0
+                        }
+                        if (expandSettings.level !== null) {
+                          // expand row is clicked for first row
+                          if (expandSettings.level >= 0) {
+                            childList = genericExpandRow(value)
+                          }
+                        }
+                        if (expandSettings.level >= 0 && (expandSettings.selectedObject[0] && expandSettings.selectedObject[0].name === value)) {
+                          faClass = 'fa fa-minus'
+                        }
+                        let availableAction = {...props.availableAction}
+                        let list = []
+                        if (availableAction.Update) {
+                          list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} ><img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
+                        }
+                        if (availableAction.Delete) {
+                          list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} ><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
+                        }
+                        rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
+                          {list}
+                        </td>)
+                      }
+                    } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
+                      let targetComponents = []
+                      console.log('partdata', partData, ix)
+                      partData.value.forEach(function (data, index) {
+                        targetComponents.push(data.target_component.name)
+                      })
+                      value = targetComponents.toString()
                       let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
                       if (columnId !== -1) {
                         headerColumn[columnId].isProcessed = true
                         headerColumn[columnId].level = 0
                       }
-                      if (expandSettings.level !== null) {
-                        // expand row is clicked for first row
-                        if (expandSettings.level >= 0) {
-                          childList = genericExpandRow(value)
-                        }
+                      rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
+                    } else if (labelParts[ix].constraint_perspective !== null) { // Perspectives Property
+                      // selectedObject.parentReference = partData.value.parent_reference
+                      value = labelParts[ix].constraint_perspective.name
+                      // selectedObject.metaModelPerspectives = labelParts[ix].constraint_perspective
+                      // selectedObject.containerPerspectiveId = labelParts[ix].container_perspective_id
+                      // selectedObject.containerPerspectiveViewKey = labelParts[ix].container_perspective_view_key
+                      // selectedObject.rolePerspectives = labelParts[ix].role_perspectives
+                      let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
+                      if (columnId !== -1) {
+                        headerColumn[columnId].isProcessed = true
+                        headerColumn[columnId].level = 0
                       }
-                      if (expandSettings.level >= 0 && (expandSettings.selectedObject[0] && expandSettings.selectedObject[0].name === value)) {
-                        faClass = 'fa fa-minus'
-                      }
-                      let availableAction = {...props.availableAction}
-                      let list = []
-                      if (availableAction.Update) {
-                        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openModal(selectedObject, 'ParentNode', 'Edit') }} ><img src='/assets/edit.png' alt='gear' className='td-icons' /></a>)
-                      }
-                      if (availableAction.Delete) {
-                        list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} ><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
-                      }
-                      rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
-                        {list}
-                      </td>)
+                      rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><a href='javascript:void(0);' onClick={(event) => openModal(selectedObject, 'ChildrenNode', 'Add')} >{'Add ' + value}</a></td>)
                     }
-                  } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
-                    let targetComponents = []
-                    partData.value.forEach(function (data, index) {
-                      targetComponents.push(data.target_component.name)
-                    })
-                    value = targetComponents.toString()
-                    let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
-                    if (columnId !== -1) {
-                      headerColumn[columnId].isProcessed = true
-                      headerColumn[columnId].level = 0
-                    }
-                    rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
-                  } else if (labelParts[ix].constraint_perspective !== null) { // Perspectives Property
-                    // selectedObject.parentReference = partData.value.parent_reference
-                    value = labelParts[ix].constraint_perspective.name
-                    // selectedObject.metaModelPerspectives = labelParts[ix].constraint_perspective
-                    // selectedObject.containerPerspectiveId = labelParts[ix].container_perspective_id
-                    // selectedObject.containerPerspectiveViewKey = labelParts[ix].container_perspective_view_key
-                    // selectedObject.rolePerspectives = labelParts[ix].role_perspectives
-                    let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
-                    if (columnId !== -1) {
-                      headerColumn[columnId].isProcessed = true
-                      headerColumn[columnId].level = 0
-                    }
-                    rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><a href='javascript:void(0);' onClick={(event) => openModal(selectedObject, 'ChildrenNode', 'Add')} >{'Add ' + value}</a></td>)
+                    // console.log('value', value)
+                    // if (toPush) {
+                    //   rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{isName && (<i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} />)} {value}</td>)
+                    // }
                   }
-                  // console.log('value', value)
-                  // if (toPush) {
-                  //   rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{isName && (<i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} />)} {value}</td>)
-                  // }
                 })
               }
               headerColumn.forEach(function (columnData, cid) {
@@ -1467,43 +1473,51 @@ export default function PerspectiveHierarchy (props) {
       if (data.type_property.property_type.key === 'Integer') {
         value = data.type_property.int_value
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-9 form-group m-form__group has-info'>
-            <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {false && (<div className='form-control-feedback'>should be Number</div>)}
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-9'>
+              <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+              {false && (<div className='form-control-feedback'>should be Number</div>)}
+            </div>
           </div>
         </div>)
       } else if (data.type_property.property_type.key === 'Decimal') {
         value = data.type_property.float_value
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-9 form-group m-form__group has-info'>
-            <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {false && (<div className='form-control-feedback'>should be Number</div>)}
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-9'>
+              <input type='number' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+              {false && (<div className='form-control-feedback'>should be Number</div>)}
+            </div>
           </div>
         </div>)
       } else if (data.type_property.property_type.key === 'DateTime') {
         value = data.type_property.date_time_value ? moment(data.type_property.date_time_value).format('DD MMM YYYY') : null
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-9 form-group m-form__group has-info'>
-            <DatePicker
-              className='input-sm form-control m-input'
-              selected={data.type_property.date_time_value}
-              dateFormat='DD MMM YYYY'
-              onSelect={(date) => { editProperty(index, date) }}
-            />
-            {/* <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editTextProperty(index, childIndex, event.target.value) }} placeholder='Enter Here' /> */}
-            {false && (<div className='form-control-feedback'>should be Date</div>)}
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-9'>
+              <DatePicker
+                className='input-sm form-control m-input'
+                selected={data.type_property.date_time_value ? moment(data.type_property.date_time_value) : ''}
+                dateFormat='DD MMM YYYY'
+                onSelect={(date) => { editProperty(index, date) }}
+              />
+              {/* <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editTextProperty(index, childIndex, event.target.value) }} placeholder='Enter Here' /> */}
+              {false && (<div className='form-control-feedback'>should be Date</div>)}
+            </div>
           </div>
         </div>)
       } else if (data.type_property.property_type.key === 'Text') {
         value = data.type_property.text_value
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-9 form-group m-form__group has-info'>
-            <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {false && (<div className='form-control-feedback'>should be Text</div>)}
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-9'>
+              <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+              {false && (<div className='form-control-feedback'>should be Text</div>)}
+            </div>
           </div>
         </div>)
       } else if (data.type_property.property_type.key === 'List') {
@@ -1519,25 +1533,29 @@ export default function PerspectiveHierarchy (props) {
         }
         value = data.type_property.value_set_value ? data.type_property.value_set_value.name : null
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <Select
-            className='col-9 input-sm m-input'
-            placeholder='Select Options'
-            isClearable
-            defaultValue={dvalue}
-            onChange={handlePropertySelect(index)}
-            isSearchable={false}
-            name={'selectProperty'}
-            options={propertyOption}
-            />
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <Select
+              className='col-9'
+              placeholder='Select Options'
+              isClearable
+              defaultValue={dvalue}
+              onChange={handlePropertySelect(index)}
+              isSearchable={false}
+              name={'selectProperty'}
+              options={propertyOption}
+              />
+          </div>
         </div>)
       } else {
         value = data.type_property.other_value
         return (<div className='form-group row'>
-          <div className='col-2'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
-          <div className='col-9 form-group m-form__group has-info'>
-            <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
-            {true && (<div className='form-control-feedback'>should be Text</div>)}
+          <div className='m-form__group col-12' style={{'display': 'flex'}}>
+            <div className='col-2 col-form-label'><label htmlFor='Category' className='col-form-label'>{data.name}</label></div>
+            <div className='col-9 '>
+              <input type='text' className='input-sm form-control m-input' value={value} onChange={(event) => { editProperty(index, event.target.value) }} placeholder='Enter Here' />
+              {true && (<div className='form-control-feedback'>should be Text</div>)}
+            </div>
           </div>
         </div>)
       }
@@ -1720,7 +1738,7 @@ return (
                     </div>
                   </div>
                   {standardPropertyList}
-                  {/* {businessPropertyList} */}
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                   <div className='form-group row'>
                     {groupConnectionSelectBoxList}
@@ -1780,6 +1798,7 @@ return (
                     </div>
                   </div>
                   {standardPropertyList}
+                  {businessPropertyList}
                   {connectionSelectBoxList}
                   <div className='form-group row'>
                     {groupConnectionSelectBoxList}
