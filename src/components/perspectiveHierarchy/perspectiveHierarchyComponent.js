@@ -1022,6 +1022,8 @@ export default function PerspectiveHierarchy (props) {
             if (partData.standard_property === 'name') {
               tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
             }
+          } else if (partData.standard_property === null && partData.type_property !== null && partData.attachments === null) { // Customer Property
+            tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
           } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null && partData.attachments === null) { // Connection Property
             tableHeader.push(<th key={index + 'col' + idx} className=''><h5>{partData.name}</h5></th>)
           }
@@ -1111,13 +1113,37 @@ export default function PerspectiveHierarchy (props) {
                         if (availableAction.Delete) {
                           list.push(<a href='javascript:void(0);' onClick={(event) => { event.preventDefault(); openDeleteModal(selectedObject, null, 'ParentNode') }} ><img src='/assets/rubbish-bin.png' alt='delete' className='td-icons' /></a>)
                         }
-                        rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
+                        rowColumn[columnId] = (<td className='' key={'ch_' + index + '_' + ix}><i className={faClass} aria-hidden='true' onClick={(event) => { event.preventDefault(); handleClick(selectedObject, 0) }} style={{'cursor': 'pointer'}} /> {value}&nbsp;&nbsp;
                           {list}
                         </td>)
                       }
+                    } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property !== null) { // Customer Property
+                      let value = null
+                      console.log('partdata', partData, ix, data, index)
+                      if (labelParts[ix].type_property.property_type.key === 'Integer') { // below are Customer Property
+                        value = data.parts[ix].value !== null ? data.parts[ix].value.int_value : ''
+                      } else if (labelParts[ix].type_property.property_type.key === 'Decimal') {
+                        value = data.parts[ix].value !== null ? data.parts[ix].value.float_value : ''
+                      } else if (labelParts[ix].type_property.property_type.key === 'Text') {
+                        value = data.parts[ix].value !== null ? data.parts[ix].value.text_value : ''
+                      } else if (labelParts[ix].type_property.property_type.key === 'DateTime') {
+                        value = data.parts[ix].value !== null ? moment(data.parts[ix].value.date_time_value).format('DD MMM YYYY') : null
+                        // value = data.parts[ix].value !== null ? data.parts[ix].value.date_time_value : ''
+                      } else if (labelParts[ix].type_property.property_type.key === 'Boolean') {
+                        value = data.parts[ix].value !== null ? data.parts[ix].value.boolean_value : false
+                      } else if (labelParts[ix].type_property.property_type.key === 'List') {
+                        value = data.parts[ix].value.value_set_value !== null ? data.parts[ix].value.value_set_value.name : ''
+                      } else {
+                        value = data.parts[ix].value !== null ? data.parts[ix].value.other_value : ''
+                      }
+                      let columnId = props.headerData.headerColumn.indexOf(labelParts[ix].name)
+                      if (columnId !== -1) {
+                        headerColumn[columnId].isProcessed = true
+                        headerColumn[columnId].level = 0
+                      }
+                      rowColumn[columnId] = (<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
                     } else if (labelParts[ix].standard_property === null && labelParts[ix].type_property === null && labelParts[ix].constraint_perspective === null) { // Connection Property
                       let targetComponents = []
-                      console.log('partdata', partData, ix)
                       partData.value.forEach(function (data, index) {
                         targetComponents.push(data.target_component.name)
                       })
@@ -1127,7 +1153,7 @@ export default function PerspectiveHierarchy (props) {
                         headerColumn[columnId].isProcessed = true
                         headerColumn[columnId].level = 0
                       }
-                      rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
+                      rowColumn[columnId] = (<td className='' key={'ch_' + index + '_' + ix}>{value}</td>)
                     } else if (labelParts[ix].constraint_perspective !== null) { // Perspectives Property
                       // selectedObject.parentReference = partData.value.parent_reference
                       value = labelParts[ix].constraint_perspective.name
@@ -1140,7 +1166,7 @@ export default function PerspectiveHierarchy (props) {
                         headerColumn[columnId].isProcessed = true
                         headerColumn[columnId].level = 0
                       }
-                      rowColumn.push(<td className='' key={'ch_' + index + '_' + ix}><a href='javascript:void(0);' onClick={(event) => openModal(selectedObject, 'ChildrenNode', 'Add')} >{'Add ' + value}</a></td>)
+                      rowColumn[columnId] = (<td className='' key={'ch_' + index + '_' + ix}><a href='javascript:void(0);' onClick={(event) => openModal(selectedObject, 'ChildrenNode', 'Add')} >{'Add ' + value}</a></td>)
                     }
                     // console.log('value', value)
                     // if (toPush) {
@@ -1151,7 +1177,7 @@ export default function PerspectiveHierarchy (props) {
               }
               headerColumn.forEach(function (columnData, cid) {
                 if (!columnData.isProcessed) {
-                  rowColumn.push(<td className='' key={'ch_' + index + '_emp' + cid} >{''}</td>)
+                  rowColumn[cid] = (<td className='' key={'ch_' + index + '_emp' + cid} >{''}</td>)
                 }
               })
               // let availableAction = {...props.availableAction}

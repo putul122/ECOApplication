@@ -556,6 +556,8 @@ export default compose(
                       headerColumn.push(partData.name)
                       console.log('header column name if', partData.name, idx)
                     }
+                  } else if (partData.standard_property === null && partData.type_property !== null && partData.attachments === null) { // Customer Property
+                      headerColumn.push(partData.name)
                   } else if (partData.standard_property === null && partData.type_property === null && partData.constraint_perspective === null && partData.attachments === null) { // Connection Property
                     headerColumn.push(partData.name)
                     console.log('header column name else', partData.name, idx)
