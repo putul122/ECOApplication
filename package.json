@@ -42,7 +42,7 @@
     "redux-devtools-extension": "^2.13.2",
     "redux-saga": "^0.15.3",
     "rfc6902": "^3.0.1",
-    "xlsx": "^0.14.1"
+    "xlsx": "^0.17.0"
   },
   "devDependencies": {
     "@storybook/addon-actions": "^3.1.5",
